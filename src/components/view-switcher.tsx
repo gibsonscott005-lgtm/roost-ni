@@ -1,0 +1,41 @@
+import { Link, useRouterState } from "@tanstack/react-router";
+import { IdCard, Building2 } from "lucide-react";
+
+const ITEMS = [
+  { to: "/", label: "Tenant Passport", icon: IdCard },
+  { to: "/landlord/listing", label: "Landlord Listing", icon: Building2 },
+] as const;
+
+export function ViewSwitcher() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  return (
+    <div className="mb-6 flex justify-center">
+      <div
+        role="tablist"
+        aria-label="Switch prototype view"
+        className="inline-flex w-full max-w-md items-center gap-1 rounded-full border border-border bg-surface-muted p-1 sm:w-auto"
+      >
+        {ITEMS.map(({ to, label, icon: Icon }) => {
+          const active = pathname === to;
+          return (
+            <Link
+              key={to}
+              to={to}
+              role="tab"
+              aria-selected={active}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition sm:flex-none sm:text-sm ${
+                active
+                  ? "bg-surface text-foreground shadow-[0_1px_0_rgba(15,23,42,0.04),0_8px_20px_-12px_rgba(15,23,42,0.25)]"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
