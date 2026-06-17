@@ -84,6 +84,12 @@ function Header() {
           </span>
         </Link>
         <div className="flex items-center gap-1.5">
+          <Link
+            to="/"
+            className="hidden items-center gap-1 rounded-full border border-border bg-surface-muted px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-secondary hover:text-foreground sm:inline-flex"
+          >
+            Tenant view <span aria-hidden>→</span>
+          </Link>
           <button
             type="button"
             aria-label="Notifications"
