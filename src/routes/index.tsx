@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Bell,
   ChevronDown,
@@ -80,6 +80,12 @@ function Header() {
           </span>
         </a>
         <div className="flex items-center gap-1.5">
+          <Link
+            to="/landlord/listing"
+            className="hidden items-center gap-1 rounded-full border border-border bg-surface-muted px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-secondary hover:text-foreground sm:inline-flex"
+          >
+            For landlords <span aria-hidden>→</span>
+          </Link>
           <button
             type="button"
             aria-label="Notifications"
