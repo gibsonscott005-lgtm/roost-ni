@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { ViewSwitcher } from "../components/view-switcher";
 import {
   Bell,
   ChevronDown,
@@ -14,6 +15,7 @@ import {
   Lock,
   Info,
   Users,
+  X,
 } from "lucide-react";
 
 export const Route = createFileRoute("/landlord/listing")({
@@ -53,16 +55,19 @@ const TENANT_PREFS = [
 ];
 
 function LandlordListing() {
+  const [published, setPublished] = useState(false);
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main className="mx-auto w-full max-w-3xl px-4 pb-36 pt-6 sm:px-6 sm:pt-10">
+        <ViewSwitcher />
+        {published ? <PublishedBanner onDismiss={() => setPublished(false)} /> : null}
         <PageIntro />
         <BasicInfoCard />
         <ComplianceCard />
         <InfrastructureCard />
         <TenantRequirementsCard />
-        <PublishBar />
+        <PublishBar published={published} onPublish={() => setPublished(true)} />
       </main>
     </div>
   );
@@ -84,12 +89,6 @@ function Header() {
           </span>
         </Link>
         <div className="flex items-center gap-1.5">
-          <Link
-            to="/"
-            className="hidden items-center gap-1 rounded-full border border-border bg-surface-muted px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-secondary hover:text-foreground sm:inline-flex"
-          >
-            Tenant view <span aria-hidden>→</span>
-          </Link>
           <button
             type="button"
             aria-label="Notifications"
