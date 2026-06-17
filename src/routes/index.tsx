@@ -1,4 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { ViewSwitcher } from "../components/view-switcher";
 import {
   Bell,
   ChevronDown,
@@ -43,6 +45,7 @@ function Index() {
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main className="mx-auto w-full max-w-3xl px-4 pb-32 pt-6 sm:px-6 sm:pt-10">
+        <ViewSwitcher />
         <PageIntro />
         <PassportStatusCard />
         <SectionHeading
@@ -80,12 +83,6 @@ function Header() {
           </span>
         </a>
         <div className="flex items-center gap-1.5">
-          <Link
-            to="/landlord/listing"
-            className="hidden items-center gap-1 rounded-full border border-border bg-surface-muted px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-secondary hover:text-foreground sm:inline-flex"
-          >
-            For landlords <span aria-hidden>→</span>
-          </Link>
           <button
             type="button"
             aria-label="Notifications"
@@ -336,6 +333,12 @@ function ShareBar() {
       <div className="mx-auto flex w-full max-w-3xl items-center gap-3">
         <button
           type="button"
+          onClick={() =>
+            toast.success("Passport shared successfully", {
+              description:
+                "Landlord James Murphy has received your verified compliance data.",
+            })
+          }
           className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-4 font-display text-base font-semibold text-[var(--color-primary-foreground)] shadow-[0_12px_28px_-12px_rgba(15,23,42,0.45)] transition hover:translate-y-[-1px] hover:bg-foreground/92 active:translate-y-0"
         >
           <Share2 className="h-4 w-4" />
