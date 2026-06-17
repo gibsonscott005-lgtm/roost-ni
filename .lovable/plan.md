@@ -1,30 +1,39 @@
-## What's happening
-
-The "flash then disappears" comes from a TanStack Router hydration error logged in the console:
-
-`Invariant failed: Expected to find a match below the root match in SPA mode.`
-
-This fires when the SSR shell renders for `/landlord/listing`, the dev server then HMR-reloads (the log also shows `[vite] server connection lost. Polling for restart...`), and the client hydrates against a route tree that isn't fully in sync yet. The page paints for a moment, then the error overlay unmounts it.
-
-The route file and generated route tree are both correct (`src/routes/landlord.listing.tsx` → `/landlord/listing`), so this is a transient hydration glitch caused by typing the URL directly after a hot reload, not a real bug in the page.
-
 ## Plan
 
-1. **Add a "Switch view" pill to the header on both pages** so the user never has to manually type `/landlord/listing` again — which also avoids the cold-hydrate path that triggers the overlay.
-   - On `src/routes/index.tsx` (Tenant Passport): small link top-right next to the avatar — `For landlords →` linking to `/landlord/listing`.
-   - On `src/routes/landlord.listing.tsx`: matching link — `Tenant view →` linking to `/`.
-   - Style: tiny pill, `border border-border bg-surface-muted`, muted text, hover lifts to `bg-secondary`. Matches existing minimal aesthetic, no new colours.
-   - Uses TanStack `<Link to=...>` (client-side nav, no SSR re-entry).
+Add the interactive glue between the two prototype screens. All visual-only, no backend.
 
-2. **Force a clean dev-server restart** after the edit so the route tree, Vite module graph, and SSR bundle are all consistent. This clears the stale hydration state that's causing the flash.
+### 1. Shared `ViewSwitcher` segmented control
+- New file `src/components/view-switcher.tsx` exporting a single small component.
+- Pill-shaped segmented toggle: two options — `Tenant Passport` and `Landlord Listing`.
+- Active segment uses `bg-surface` + subtle shadow on a `bg-surface-muted` track; inactive is muted text. Matches existing pill/card aesthetic exactly (no new colours, same border-radius + border tokens).
+- Uses TanStack `<Link to>` for both segments and reads `useRouterState` to know which is active — so it works as real navigation AND highlights correctly on each route.
+- Placed at the very top of `<main>` on both pages, above `PageIntro`, centered, mobile-first (full-width pill on mobile, auto width on `sm:`).
 
-3. **No changes to** colours, typography, card layout, form fields, business logic, or `__root.tsx` / `router.tsx`. Pure presentation addition.
+### 2. Tenant Passport success toast
+- Use `sonner` (already wired in the project root). Import `toast` from `sonner`.
+- Wire the existing "Share Passport to Landlord" button in `ShareBar` (`src/routes/index.tsx`) to an `onClick` that fires:
+  - `toast.success("Passport shared successfully", { description: "Landlord James Murphy has received your verified compliance data." })`
+- Keep button styling identical. Add a tiny pressed-state via `active:scale-[0.99]` if not already present.
 
-## Files touched
+### 3. Landlord listing success banner
+- Inline success banner inside `src/routes/landlord.listing.tsx` — not a toast — so the form view feels like it transitioned to a "published" state.
+- Local state `published: boolean` in `LandlordListing`. The "Generate Compliant NI Listing" button calls `setPublished(true)`.
+- When `published` is true, render a new `<PublishedBanner />` at the top of `<main>` (just under the `ViewSwitcher`):
+  - Rounded card, `border-verified/30 bg-verified-soft/60`, `ShieldCheck`/`Sparkles` icon in verified emerald.
+  - Heading: `Listing Live`
+  - Body: `Ready to receive verified NI Tenant Passports.`
+  - Small ghost "Dismiss" button on the right to reset state (so the prototype is replayable).
+- Bottom CTA stays visible; once published its label swaps to `Listing published` with a `Check` icon and `disabled` styling, so the cause/effect is obvious.
 
-- `src/routes/index.tsx` — add header link to `/landlord/listing`.
-- `src/routes/landlord.listing.tsx` — add header link back to `/`.
+### 4. Cleanup
+- Remove the two ad-hoc `For landlords →` / `Tenant view →` pills added in the previous milestone — the new `ViewSwitcher` replaces them.
+- Confirm `sonner`'s `<Toaster />` is mounted at the root; if not, add it to `src/routes/__root.tsx` inside `RootComponent` so the toast renders on every route.
 
-## After implementing
+### Files touched
+- `src/components/view-switcher.tsx` — new.
+- `src/routes/index.tsx` — mount switcher, remove old pill, wire share button to `toast.success`.
+- `src/routes/landlord.listing.tsx` — mount switcher, remove old pill, add `published` state + `<PublishedBanner />`, swap CTA label when published.
+- `src/routes/__root.tsx` — ensure `<Toaster richColors position="top-center" />` from `sonner` is rendered (only if missing).
 
-I'll reload the preview at `/landlord/listing` to confirm the page stays mounted and the overlay no longer appears, then verify the round-trip nav works from the Tenant Passport.
+### Verification
+After implementing I'll flush HMR, open the preview at `/` and `/landlord/listing`, click both CTAs, and confirm the toast + banner render and the switcher highlights the active route on each side.
