@@ -1,9 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { IdCard, Building2 } from "lucide-react";
+import { IdCard, Search, LayoutDashboard } from "lucide-react";
 
 const ITEMS = [
-  { to: "/", label: "Tenant Passport", icon: IdCard },
-  { to: "/landlord/listing", label: "Landlord Listing", icon: Building2 },
+  { to: "/", label: "Passport", icon: IdCard },
+  { to: "/listings", label: "Browse", icon: Search },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
 ] as const;
 
 export function ViewSwitcher() {
@@ -17,7 +18,8 @@ export function ViewSwitcher() {
         className="inline-flex w-full max-w-md items-center gap-1 rounded-full border border-border bg-surface-muted p-1 sm:w-auto"
       >
         {ITEMS.map(({ to, label, icon: Icon }) => {
-          const active = pathname === to;
+          const active =
+            to === "/" ? pathname === "/" : pathname === to || pathname.startsWith(`${to}/`);
           return (
             <Link
               key={to}
