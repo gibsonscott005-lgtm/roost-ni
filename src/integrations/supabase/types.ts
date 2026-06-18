@@ -14,7 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          account_type: Database["public"]["Enums"]["account_type"]
+          created_at: string
+          full_name: string
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_type?: Database["public"]["Enums"]["account_type"]
+          created_at?: string
+          full_name?: string
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_type?: Database["public"]["Enums"]["account_type"]
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      property_listings: {
+        Row: {
+          address: string
+          created_at: string
+          deposit: number
+          enforce_empty_in_full_out: boolean
+          heating_type: string
+          id: string
+          is_published: boolean
+          landlord_id: string
+          location: string | null
+          monthly_rent: number
+          ni_landlord_reg_number: string
+          tenant_preferences: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          deposit: number
+          enforce_empty_in_full_out?: boolean
+          heating_type: string
+          id?: string
+          is_published?: boolean
+          landlord_id: string
+          location?: string | null
+          monthly_rent: number
+          ni_landlord_reg_number: string
+          tenant_preferences?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          deposit?: number
+          enforce_empty_in_full_out?: boolean
+          heating_type?: string
+          id?: string
+          is_published?: boolean
+          landlord_id?: string
+          location?: string | null
+          monthly_rent?: number
+          ni_landlord_reg_number?: string
+          tenant_preferences?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tenant_passports: {
+        Row: {
+          accept_empty_in_full_out: boolean
+          affordability_max: number | null
+          created_at: string
+          id: string
+          identity_verified: boolean
+          income_verified: boolean
+          monthly_income_net: number | null
+          preferred_heating: string | null
+          reference_verified: boolean
+          right_to_rent_verified: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accept_empty_in_full_out?: boolean
+          affordability_max?: number | null
+          created_at?: string
+          id?: string
+          identity_verified?: boolean
+          income_verified?: boolean
+          monthly_income_net?: number | null
+          preferred_heating?: string | null
+          reference_verified?: boolean
+          right_to_rent_verified?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accept_empty_in_full_out?: boolean
+          affordability_max?: number | null
+          created_at?: string
+          id?: string
+          identity_verified?: boolean
+          income_verified?: boolean
+          monthly_income_net?: number | null
+          preferred_heating?: string | null
+          reference_verified?: boolean
+          right_to_rent_verified?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +145,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      account_type: "tenant" | "landlord" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +272,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      account_type: ["tenant", "landlord", "admin"],
+    },
   },
 } as const
