@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { ViewSwitcher } from "../components/view-switcher";
 import {
@@ -74,15 +74,21 @@ function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
       <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-4 sm:px-6">
-        <a href="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <span className="grid h-8 w-8 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
             <Home className="h-4 w-4" strokeWidth={2.25} />
           </span>
           <span className="font-display text-base font-semibold tracking-tight">
             Roost<span className="text-verified">.</span>ni
           </span>
-        </a>
+        </Link>
         <div className="flex items-center gap-1.5">
+          <Link
+            to="/auth"
+            className="hidden rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary sm:inline"
+          >
+            Sign in
+          </Link>
           <button
             type="button"
             aria-label="Notifications"
