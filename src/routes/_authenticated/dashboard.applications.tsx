@@ -1,0 +1,358 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Check, Clock, Inbox, ShieldCheck, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { DashboardShell } from "@/components/dashboard-shell";
+
+export const Route = createFileRoute("/_authenticated/dashboard/applications")({
+  head: () => ({
+    meta: [
+      { title: "Received Passports — Roost NI" },
+      {
+        name: "description",
+        content: "Review verified Tenant Passports submitted to your NI listings.",
+      },
+    ],
+  }),
+  component: ApplicationsPage,
+});
+
+type Status = "pending" | "reviewed" | "accepted";
+
+interface Share {
+  id: string;
+  status: Status;
+  shared_at: string;
+  tenant_id: string;
+  listing_id: string;
+  tenant: { id: string; full_name: string } | null;
+  listing: { id: string; title: string } | null;
+}
+
+interface Passport {
+  user_id: string;
+  identity_verified: boolean;
+  income_verified: boolean;
+  reference_verified: boolean;
+  right_to_rent_verified: boolean;
+  monthly_income_net: number | null;
+  preferred_heating: string | null;
+  accept_empty_in_full_out: boolean;
+}
+
+function ApplicationsPage() {
+  const { user, profile } = useAuth();
+  const [shares, setShares] = useState<Share[]>([]);
+  const [passports, setPassports] = useState<Record<string, Passport>>({});
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState<Share | null>(null);
+  const [listingCount, setListingCount] = useState<number>(0);
+
+  const isLandlord = profile?.account_type === "landlord";
+
+  const load = async () => {
+    if (!user) return;
+    setLoading(true);
+    const [{ data: rows }, { count }] = await Promise.all([
+      supabase
+        .from("passport_shares")
+        .select(
+          "id, status, shared_at, tenant_id, listing_id, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title)",
+        )
+        .order("shared_at", { ascending: false }),
+      supabase
+        .from("property_listings")
+        .select("id", { count: "exact", head: true })
+        .eq("landlord_id", user.id),
+    ]);
+    const list = (rows as unknown as Share[] | null) ?? [];
+    setShares(list);
+    setListingCount(count ?? 0);
+
+    const tenantIds = Array.from(new Set(list.map((s) => s.tenant_id)));
+    if (tenantIds.length) {
+      const { data: p } = await supabase
+        .from("tenant_passports")
+        .select(
+          "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, preferred_heating, accept_empty_in_full_out",
+        )
+        .in("user_id", tenantIds);
+      const map: Record<string, Passport> = {};
+      ((p as Passport[] | null) ?? []).forEach((row) => {
+        map[row.user_id] = row;
+      });
+      setPassports(map);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (user && isLandlord) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isLandlord]);
+
+  const accept = async (share: Share) => {
+    const { error } = await supabase
+      .from("passport_shares")
+      .update({ status: "accepted" })
+      .eq("id", share.id);
+    if (error) {
+      toast.error("Could not update", { description: error.message });
+      return;
+    }
+    toast.success("Applicant accepted", {
+      description: `${share.tenant?.full_name ?? "Tenant"} has been marked as accepted.`,
+    });
+    setShares((s) => s.map((x) => (x.id === share.id ? { ...x, status: "accepted" } : x)));
+    setOpen((o) => (o ? { ...o, status: "accepted" } : null));
+  };
+
+  return (
+    <DashboardShell
+      user={user}
+      profile={profile}
+      activeKey="applications"
+      listingsCount={listingCount}
+      applicationsCount={shares.length}
+    >
+      {!isLandlord ? (
+        <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground sm:p-8">
+          Received passports are visible to landlord accounts only.
+        </div>
+      ) : (
+        <div>
+          <div className="mb-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Inbox
+            </p>
+            <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
+              Received passports
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Verified tenants who applied to your live listings.
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+              Loading applicants…
+            </div>
+          ) : shares.length === 0 ? (
+            <div className="rounded-3xl border border-dashed border-border bg-surface p-10 text-center">
+              <Inbox className="mx-auto h-8 w-8 text-muted-foreground" />
+              <p className="mt-3 font-display text-base font-semibold tracking-tight">
+                No applications yet
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                When a tenant shares their passport with one of your listings, they'll appear here.
+              </p>
+              <Link
+                to="/dashboard"
+                className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground transition hover:bg-secondary"
+              >
+                Back to properties
+              </Link>
+            </div>
+          ) : (
+            <ul className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)]">
+              {shares.map((s, i) => {
+                const p = passports[s.tenant_id];
+                const verifiedCount = p
+                  ? [p.identity_verified, p.income_verified, p.reference_verified, p.right_to_rent_verified].filter(Boolean).length
+                  : 0;
+                return (
+                  <li
+                    key={s.id}
+                    className={`flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 ${
+                      i > 0 ? "border-t border-border" : ""
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-display text-base font-semibold tracking-tight">
+                        {s.tenant?.full_name || "Verified tenant"}
+                      </p>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        Applied to <span className="text-foreground/90">{s.listing?.title ?? "your listing"}</span> · {timeAgo(s.shared_at)}
+                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        <VerifyBadge label="ID" ok={!!p?.identity_verified} />
+                        <VerifyBadge label="Income" ok={!!p?.income_verified} />
+                        <VerifyBadge label="References" ok={!!p?.reference_verified} />
+                        <VerifyBadge label="Right to rent" ok={!!p?.right_to_rent_verified} />
+                        <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          {verifiedCount}/4
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <StatusPill status={s.status} />
+                      <button
+                        type="button"
+                        onClick={() => setOpen(s)}
+                        className="rounded-full border border-border bg-surface-muted px-3.5 py-2 text-xs font-medium text-foreground transition hover:bg-secondary"
+                      >
+                        View full passport
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {open ? (
+        <PassportModal
+          share={open}
+          passport={passports[open.tenant_id] ?? null}
+          onAccept={() => accept(open)}
+          onClose={() => setOpen(null)}
+        />
+      ) : null}
+    </DashboardShell>
+  );
+}
+
+function VerifyBadge({ label, ok }: { label: string; ok: boolean }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+        ok ? "bg-verified-soft text-verified" : "bg-surface-muted text-muted-foreground"
+      }`}
+    >
+      {ok ? <Check className="h-3 w-3" strokeWidth={3} /> : <Clock className="h-3 w-3" />}
+      {label}
+    </span>
+  );
+}
+
+function StatusPill({ status }: { status: Status }) {
+  if (status === "accepted") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-verified px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-verified-foreground)]">
+        <ShieldCheck className="h-3 w-3" />
+        Accepted
+      </span>
+    );
+  }
+  if (status === "reviewed") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-foreground">
+        Reviewed
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+      <Clock className="h-3 w-3" />
+      Pending
+    </span>
+  );
+}
+
+function timeAgo(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return `${d}d ago`;
+}
+
+function PassportModal({
+  share,
+  passport,
+  onAccept,
+  onClose,
+}: {
+  share: Share;
+  passport: Passport | null;
+  onAccept: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-end bg-foreground/30 px-4 py-6 backdrop-blur-sm sm:place-items-center">
+      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-surface shadow-[0_24px_64px_-24px_rgba(15,23,42,0.35)]">
+        <div className="flex items-start justify-between gap-3 border-b border-border p-5">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Tenant Passport
+            </p>
+            <h3 className="mt-1 truncate font-display text-lg font-semibold tracking-tight">
+              {share.tenant?.full_name || "Verified tenant"}
+            </h3>
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
+              For {share.listing?.title ?? "your listing"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="grid h-8 w-8 place-items-center rounded-full border border-border bg-surface text-foreground/70 transition hover:bg-secondary"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="space-y-4 p-5">
+          <div className="grid grid-cols-2 gap-2">
+            <VerifyBadge label="Identity" ok={!!passport?.identity_verified} />
+            <VerifyBadge label="Income" ok={!!passport?.income_verified} />
+            <VerifyBadge label="References" ok={!!passport?.reference_verified} />
+            <VerifyBadge label="Right to rent" ok={!!passport?.right_to_rent_verified} />
+          </div>
+
+          <dl className="divide-y divide-border rounded-2xl border border-border bg-surface-muted/50 text-sm">
+            <Row k="Monthly net income" v={passport?.monthly_income_net ? `£${Number(passport.monthly_income_net).toLocaleString()}` : "—"} />
+            <Row k="Preferred heating" v={passport?.preferred_heating ?? "—"} />
+            <Row
+              k="Accepts Empty-in / Full-out"
+              v={passport ? (passport.accept_empty_in_full_out ? "Yes" : "No") : "—"}
+            />
+            <Row k="Shared" v={timeAgo(share.shared_at)} />
+          </dl>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 border-t border-border bg-surface-muted/40 p-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-border bg-surface px-4 py-2 text-xs font-medium text-foreground transition hover:bg-secondary"
+          >
+            Close
+          </button>
+          {share.status === "accepted" ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-verified px-4 py-2 text-xs font-semibold text-[var(--color-verified-foreground)]">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Accepted
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={onAccept}
+              className="inline-flex items-center gap-1.5 rounded-full bg-verified px-4 py-2 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95"
+            >
+              <Check className="h-3.5 w-3.5" strokeWidth={3} />
+              Accept applicant
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Row({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3 px-4 py-3">
+      <dt className="text-xs uppercase tracking-wider text-muted-foreground">{k}</dt>
+      <dd className="text-sm font-medium text-foreground">{v}</dd>
+    </div>
+  );
+}
