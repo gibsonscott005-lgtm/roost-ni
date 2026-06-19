@@ -180,7 +180,7 @@ function ListingDetailPage() {
                 Tenant preferences
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {listing.tenant_preferences.map((p) => (
+                {listing.tenant_preferences.map((p: string) => (
                   <span
                     key={p}
                     className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2.5 py-1 text-[11px] font-medium text-foreground"
