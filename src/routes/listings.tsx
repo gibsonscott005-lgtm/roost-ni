@@ -43,36 +43,6 @@ interface Listing {
   enforce_empty_in_full_out: boolean;
 }
 
-const DEMO_LISTINGS: Listing[] = [
-  {
-    id: "demo-1",
-    title: "Bright 2-bed terrace near Ormeau Park",
-    monthly_rent: 895,
-    address: "42 Ravenhill Avenue, Belfast",
-    location: "BT6",
-    heating_type: "Bulk Oil Tank",
-    enforce_empty_in_full_out: true,
-  },
-  {
-    id: "demo-2",
-    title: "Modern 1-bed apartment, Cathedral Quarter",
-    monthly_rent: 825,
-    address: "Donegall Street, Belfast",
-    location: "BT1",
-    heating_type: "Mains Gas",
-    enforce_empty_in_full_out: false,
-  },
-  {
-    id: "demo-3",
-    title: "3-bed semi with garden, Lisburn Road",
-    monthly_rent: 1150,
-    address: "Lisburn Road, Belfast",
-    location: "BT9",
-    heating_type: "Bulk LPG Tank",
-    enforce_empty_in_full_out: true,
-  },
-];
-
 function ListingsPage() {
   const [query, setQuery] = useState("");
   const [rows, setRows] = useState<Listing[]>([]);
@@ -92,17 +62,15 @@ function ListingsPage() {
       });
   }, []);
 
-  const combined = useMemo(() => [...rows, ...DEMO_LISTINGS], [rows]);
-
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return combined;
-    return combined.filter((l) =>
+    if (!q) return rows;
+    return rows.filter((l) =>
       [l.title, l.address, l.location ?? "", l.heating_type].some((v) =>
         v.toLowerCase().includes(q),
       ),
     );
-  }, [combined, query]);
+  }, [rows, query]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -139,13 +107,24 @@ function ListingsPage() {
           </button>
         </div>
 
+        {!loading && rows.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-border bg-surface p-10 text-center">
+            <p className="font-display text-base font-semibold tracking-tight">
+              No listings yet
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              When NI landlords publish compliant listings, they'll appear here.
+            </p>
+          </div>
+        ) : null}
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((l) => (
             <ListingCard key={l.id} listing={l} />
           ))}
         </div>
 
-        {filtered.length === 0 ? (
+        {!loading && rows.length > 0 && filtered.length === 0 ? (
           <p className="mt-10 text-center text-sm text-muted-foreground">
             No listings match your search yet.
           </p>
@@ -221,12 +200,13 @@ function ListingCard({ listing }: { listing: Listing }) {
             <span className="ml-1 text-xs font-medium text-muted-foreground">pcm</span>
           </p>
         </div>
-        <button
-          type="button"
+        <Link
+          to="/listings/$id"
+          params={{ id: listing.id }}
           className="rounded-full border border-border bg-surface-muted px-3.5 py-2 text-xs font-medium text-foreground transition hover:bg-secondary"
         >
           View details
-        </button>
+        </Link>
       </div>
     </article>
   );
