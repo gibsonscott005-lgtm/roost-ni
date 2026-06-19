@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      passport_shares: {
+        Row: {
+          id: string
+          listing_id: string
+          shared_at: string
+          status: Database["public"]["Enums"]["share_status"]
+          tenant_id: string
+        }
+        Insert: {
+          id?: string
+          listing_id: string
+          shared_at?: string
+          status?: Database["public"]["Enums"]["share_status"]
+          tenant_id: string
+        }
+        Update: {
+          id?: string
+          listing_id?: string
+          shared_at?: string
+          status?: Database["public"]["Enums"]["share_status"]
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "passport_shares_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passport_shares_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_type: Database["public"]["Enums"]["account_type"]
@@ -146,6 +185,7 @@ export type Database = {
     }
     Enums: {
       account_type: "tenant" | "landlord" | "admin"
+      share_status: "pending" | "reviewed" | "accepted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -274,6 +314,7 @@ export const Constants = {
   public: {
     Enums: {
       account_type: ["tenant", "landlord", "admin"],
+      share_status: ["pending", "reviewed", "accepted"],
     },
   },
 } as const

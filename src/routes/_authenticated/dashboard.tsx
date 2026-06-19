@@ -1,16 +1,12 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
-  Bell,
   Building2,
   Check,
   ChevronDown,
   Flame,
-  Home,
   Info,
-  LayoutGrid,
-  LogOut,
   MapPin,
   Plus,
   PoundSterling,
@@ -20,6 +16,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { DashboardShell } from "@/components/dashboard-shell";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -58,11 +55,11 @@ const TENANT_PREFS = [
 ];
 
 function Dashboard() {
-  const navigate = useNavigate();
   const { user, profile } = useAuth();
   const [tab, setTab] = useState<Tab>("properties");
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [applicationsCount, setApplicationsCount] = useState<number | undefined>(undefined);
 
   const isLandlord = profile?.account_type === "landlord";
 
@@ -78,151 +75,43 @@ function Dashboard() {
   };
 
   useEffect(() => {
-    if (user) loadListings();
+    if (!user) return;
+    loadListings();
+    if (isLandlord) {
+      supabase
+        .from("passport_shares")
+        .select("id", { count: "exact", head: true })
+        .then(({ count }) => setApplicationsCount(count ?? 0));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate({ to: "/auth" });
-  };
+  }, [user, isLandlord]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
-        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
-              <Home className="h-4 w-4" strokeWidth={2.25} />
-            </span>
-            <span className="font-display text-base font-semibold tracking-tight">
-              Roost<span className="text-verified">.</span>ni
-            </span>
-            {profile ? (
-              <span className="ml-2 hidden rounded-full border border-border bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:inline">
-                {profile.account_type}
-              </span>
-            ) : null}
-          </Link>
-          <div className="flex items-center gap-1.5">
-            <Link
-              to="/listings"
-              className="hidden rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary sm:inline"
-            >
-              Browse properties
-            </Link>
-            <button
-              type="button"
-              aria-label="Notifications"
-              className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-surface text-foreground/80 transition hover:bg-secondary"
-            >
-              <Bell className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Sign out
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[220px_minmax(0,1fr)]">
-        <aside className="lg:sticky lg:top-20 lg:self-start">
-          <div className="mb-4">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Welcome back
-            </p>
-            <p className="mt-1 truncate font-display text-lg font-semibold tracking-tight">
-              {profile?.full_name || user?.email}
-            </p>
-          </div>
-          {isLandlord ? (
-            <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-border bg-surface p-2 lg:flex-col lg:overflow-visible">
-              <SidebarItem
-                active={tab === "properties"}
-                onClick={() => setTab("properties")}
-                icon={LayoutGrid}
-                label="My properties"
-                badge={listings.length}
-              />
-              <SidebarItem
-                active={tab === "add"}
-                onClick={() => setTab("add")}
-                icon={Plus}
-                label="Add new property"
-              />
-            </nav>
-          ) : (
-            <div className="rounded-2xl border border-border bg-surface p-4 text-sm text-muted-foreground">
-              You're signed in as a Tenant. Your verified passport lives on the{" "}
-              <Link to="/" className="font-medium text-foreground underline-offset-2 hover:underline">
-                home view
-              </Link>
-              .
-            </div>
-          )}
-        </aside>
-
-        <section>
-          {!isLandlord ? (
-            <TenantDashboard />
-          ) : tab === "properties" ? (
-            <MyProperties
-              listings={listings}
-              loading={loading}
-              onAdd={() => setTab("add")}
-            />
-          ) : (
-            <AddPropertyForm
-              onCreated={async () => {
-                await loadListings();
-                setTab("properties");
-              }}
-            />
-          )}
-        </section>
-      </main>
-    </div>
-  );
-}
-
-function SidebarItem({
-  active,
-  onClick,
-  icon: Icon,
-  label,
-  badge,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  badge?: number;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm transition ${
-        active
-          ? "bg-secondary font-medium text-foreground"
-          : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
-      }`}
+    <DashboardShell
+      user={user}
+      profile={profile}
+      activeKey={tab}
+      listingsCount={listings.length}
+      applicationsCount={applicationsCount}
+      onSelectTab={(key) => setTab(key)}
     >
-      <span className="flex items-center gap-2">
-        <Icon className="h-4 w-4" />
-        {label}
-      </span>
-      {typeof badge === "number" ? (
-        <span className="rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-          {badge}
-        </span>
-      ) : null}
-    </button>
+      {!isLandlord ? (
+        <TenantDashboard />
+      ) : tab === "properties" ? (
+        <MyProperties
+          listings={listings}
+          loading={loading}
+          onAdd={() => setTab("add")}
+        />
+      ) : (
+        <AddPropertyForm
+          onCreated={async () => {
+            await loadListings();
+            setTab("properties");
+          }}
+        />
+      )}
+    </DashboardShell>
   );
 }
 
