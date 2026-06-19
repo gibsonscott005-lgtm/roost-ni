@@ -78,14 +78,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Roost — Northern Ireland's Tenant Passport" },
+      { name: "description", content: "Roost is Northern Ireland's verified tenant passport and landlord listings platform." },
+      { name: "author", content: "Roost" },
+      { property: "og:title", content: "Roost — Northern Ireland's Tenant Passport" },
+      { property: "og:description", content: "Verified tenants. Compliant landlords. Roost connects renters and property owners across NI." },
+      { property: "og:site_name", content: "Roost" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
