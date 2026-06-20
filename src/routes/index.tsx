@@ -3,7 +3,16 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ViewSwitcher } from "../components/view-switcher";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth, type Profile } from "@/hooks/use-auth";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Bell,
   ChevronDown,
@@ -23,6 +32,10 @@ import {
   Sparkles,
   Pencil,
   Clock,
+  LogOut,
+  LayoutDashboard,
+  UserRound,
+  Inbox,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -66,7 +79,7 @@ function Index() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Header />
+      <Header user={user} profile={profile} />
       <main className="mx-auto w-full max-w-3xl px-4 pb-32 pt-6 sm:px-6 sm:pt-10">
         <ViewSwitcher />
         <PageIntro name={profile?.full_name?.split(" ")[0] ?? "there"} signedIn={!!user} />
