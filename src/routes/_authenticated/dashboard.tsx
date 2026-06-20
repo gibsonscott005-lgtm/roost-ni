@@ -568,14 +568,22 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         </div>
       </FormCard>
 
-      <div className="mt-6 flex items-center gap-3">
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
+        <button
+          type="button"
+          onClick={() => void save("draft")}
+          disabled={submitting !== false}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 font-display text-sm font-semibold text-foreground transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+        >
+          {submitting === "draft" ? "Saving…" : "Save as draft"}
+        </button>
         <button
           type="submit"
-          disabled={submitting}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-4 font-display text-base font-semibold text-[var(--color-primary-foreground)] shadow-[0_12px_28px_-12px_rgba(15,23,42,0.45)] transition hover:translate-y-[-1px] hover:bg-foreground/92 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          disabled={submitting !== false}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-base font-semibold text-[var(--color-primary-foreground)] shadow-[0_12px_28px_-12px_rgba(15,23,42,0.45)] transition hover:translate-y-[-1px] hover:bg-foreground/92 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           <Sparkles className="h-4 w-4" />
-          {submitting ? "Publishing…" : "Generate Compliant NI Listing"}
+          {submitting === "publish" ? "Publishing…" : "Publish listing"}
         </button>
       </div>
     </form>
