@@ -135,12 +135,21 @@ export type Database = {
         Row: {
           accept_empty_in_full_out: boolean
           affordability_max: number | null
+          annual_income: number | null
           created_at: string
+          employment_status: string | null
           id: string
+          id_document_number: string | null
+          id_document_path: string | null
+          id_document_type: string | null
           identity_verified: boolean
+          income_document_path: string | null
           income_verified: boolean
           monthly_income_net: number | null
           preferred_heating: string | null
+          previous_landlord_email: string | null
+          previous_landlord_name: string | null
+          previous_landlord_phone: string | null
           reference_verified: boolean
           right_to_rent_verified: boolean
           updated_at: string
@@ -149,12 +158,21 @@ export type Database = {
         Insert: {
           accept_empty_in_full_out?: boolean
           affordability_max?: number | null
+          annual_income?: number | null
           created_at?: string
+          employment_status?: string | null
           id?: string
+          id_document_number?: string | null
+          id_document_path?: string | null
+          id_document_type?: string | null
           identity_verified?: boolean
+          income_document_path?: string | null
           income_verified?: boolean
           monthly_income_net?: number | null
           preferred_heating?: string | null
+          previous_landlord_email?: string | null
+          previous_landlord_name?: string | null
+          previous_landlord_phone?: string | null
           reference_verified?: boolean
           right_to_rent_verified?: boolean
           updated_at?: string
@@ -163,12 +181,21 @@ export type Database = {
         Update: {
           accept_empty_in_full_out?: boolean
           affordability_max?: number | null
+          annual_income?: number | null
           created_at?: string
+          employment_status?: string | null
           id?: string
+          id_document_number?: string | null
+          id_document_path?: string | null
+          id_document_type?: string | null
           identity_verified?: boolean
+          income_document_path?: string | null
           income_verified?: boolean
           monthly_income_net?: number | null
           preferred_heating?: string | null
+          previous_landlord_email?: string | null
+          previous_landlord_name?: string | null
+          previous_landlord_phone?: string | null
           reference_verified?: boolean
           right_to_rent_verified?: boolean
           updated_at?: string
