@@ -353,12 +353,21 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
               />
             </div>
           </Field>
-          <Field label="Postcode / area">
+          <Field label="Town / area">
             <input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="BT6"
+              placeholder="Ormeau, Belfast"
               className={inputCx}
+            />
+          </Field>
+          <Field label="Postcode">
+            <input
+              required
+              value={postcode}
+              onChange={(e) => setPostcode(e.target.value.toUpperCase())}
+              placeholder="BT6 8DA"
+              className={`${inputCx} uppercase tracking-wider`}
             />
           </Field>
           <Field label="Monthly rent">
@@ -374,7 +383,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
               />
             </div>
           </Field>
-          <Field label="Desired deposit" className="sm:col-span-2">
+          <Field label="Security deposit">
             <div className="relative">
               <PoundSterling className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
@@ -393,7 +402,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
       <FormCard eyebrow="Step 02" title="NI compliance verification">
         <Field
           label="Northern Ireland Landlord Registration Number"
-          hint="Required for legal portal compliance. Format: LRN-NI-XXXXXX."
+          hint="Legally required for all private tenancies in Northern Ireland. Format: LRN-NI-XXXXXX."
         >
           <div className="relative">
             <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
