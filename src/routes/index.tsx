@@ -288,11 +288,13 @@ function CredentialCard({
   icon: Icon,
   label,
   title,
+  verified = true,
   children,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   title: string;
+  verified?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -301,10 +303,17 @@ function CredentialCard({
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-secondary text-foreground">
           <Icon className="h-4 w-4" />
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
-          <BadgeCheck className="h-3 w-3" />
-          Verified
-        </span>
+        {verified ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
+            <BadgeCheck className="h-3 w-3" />
+            Verified
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <Clock className="h-3 w-3" />
+            Pending
+          </span>
+        )}
       </div>
       <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
         {label}
