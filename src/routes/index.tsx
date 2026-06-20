@@ -61,12 +61,10 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { user, profile } = useAuth();
   const [livePassport, setLivePassport] = useState<LivePassport | null>(null);
-  const [passportLoaded, setPassportLoaded] = useState(false);
 
   useEffect(() => {
     if (!user || (profile && profile.account_type !== "tenant")) {
       setLivePassport(null);
-      setPassportLoaded(true);
       return;
     }
     supabase
@@ -78,7 +76,6 @@ function Index() {
       .maybeSingle()
       .then(({ data }) => {
         setLivePassport((data as LivePassport | null) ?? null);
-        setPassportLoaded(true);
       });
   }, [user, profile]);
 
@@ -628,13 +625,13 @@ function CredentialCard({
 }
 
 function IdentityCard({ passport }: { passport: LivePassport | null }) {
-  const verified = passport ? passport.identity_verified : true;
+  const verified = !!passport?.identity_verified;
   const docLabel =
     passport?.id_document_type === "driving_licence"
       ? "UK Driving Licence"
       : passport?.id_document_type === "passport"
         ? "UK / EU Passport"
-        : "UK Passport";
+        : "ID document";
   return (
     <CredentialCard icon={IdCard} label="Identity" title="Government Photo ID" verified={verified}>
       <ul className="space-y-1.5">
@@ -646,13 +643,13 @@ function IdentityCard({ passport }: { passport: LivePassport | null }) {
 }
 
 function IncomeCard({ passport }: { passport: LivePassport | null }) {
-  const verified = passport ? passport.income_verified : true;
+  const verified = !!passport?.income_verified;
   const monthly = passport?.monthly_income_net
     ? `£${Number(passport.monthly_income_net).toLocaleString()} / month`
-    : "£2,840 net / month";
+    : "Income pending";
   const employmentLabel = passport?.employment_status
     ? passport.employment_status.replace(/_/g, " ")
-    : "Permanent · Full-time";
+    : "Not yet provided";
   return (
     <CredentialCard
       icon={Banknote}
@@ -676,8 +673,8 @@ function IncomeCard({ passport }: { passport: LivePassport | null }) {
 }
 
 function ReferenceCard({ passport }: { passport: LivePassport | null }) {
-  const verified = passport ? passport.reference_verified : true;
-  const name = passport?.previous_landlord_name ?? "Margaret Doherty";
+  const verified = !!passport?.reference_verified;
+  const name = passport?.previous_landlord_name ?? "";
   const initials = name
     .split(" ")
     .map((n) => n[0])
