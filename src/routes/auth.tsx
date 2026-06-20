@@ -31,9 +31,33 @@ function AuthPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    const routeByAccountType = async (userId: string) => {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("account_type")
+        .eq("id", userId)
+        .maybeSingle();
+      const target = profile?.account_type === "landlord" ? "/dashboard" : "/";
+      navigate({ to: target });
+    };
+
+    // Initial session check (handles email-confirmation redirects landing here)
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard" });
+      if (data.session?.user) {
+        void routeByAccountType(data.session.user.id);
+      }
     });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
+        // Defer to avoid deadlocking the auth callback
+        setTimeout(() => {
+          void routeByAccountType(session.user.id);
+        }, 0);
+      }
+    });
+
+    return () => sub.subscription.unsubscribe();
   }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,7 +70,7 @@ function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
+            emailRedirectTo: `${window.location.origin}/auth`,
             data: { full_name: fullName, account_type: role },
           },
         });
@@ -57,12 +81,12 @@ function AuthPage() {
               ? "Welcome to Roost. Your landlord dashboard is ready."
               : "Welcome to Roost. Your tenant passport is being prepared.",
         });
-        navigate({ to: "/dashboard" });
+        // onAuthStateChange will handle the role-based redirect
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Signed in");
-        navigate({ to: "/dashboard" });
+        // onAuthStateChange will handle the role-based redirect
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong";
