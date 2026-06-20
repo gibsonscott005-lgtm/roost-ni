@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
 import { Route as AuthenticatedDashboardPassportEditRouteImport } from './routes/_authenticated/dashboard.passport.edit'
 
@@ -47,6 +48,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardApplicationsRoute =
   AuthenticatedDashboardApplicationsRouteImport.update({
     id: '/applications',
@@ -67,15 +74,16 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/listings/$id': typeof ListingsIdRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/listings': typeof ListingsRouteWithChildren
-  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/listings/$id': typeof ListingsIdRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
 }
 export interface FileRoutesById {
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/listings/$id': typeof ListingsIdRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
 }
 export interface FileRouteTypes {
@@ -98,15 +107,16 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/listings/$id'
     | '/dashboard/applications'
+    | '/dashboard/'
     | '/dashboard/passport/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/listings'
-    | '/dashboard'
     | '/listings/$id'
     | '/dashboard/applications'
+    | '/dashboard'
     | '/dashboard/passport/edit'
   id:
     | '__root__'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/listings/$id'
     | '/_authenticated/dashboard/applications'
+    | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/passport/edit'
   fileRoutesById: FileRoutesById
 }
@@ -171,6 +182,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/applications': {
       id: '/_authenticated/dashboard/applications'
       path: '/applications'
@@ -190,6 +208,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardApplicationsRoute: typeof AuthenticatedDashboardApplicationsRoute
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedDashboardPassportEditRoute: typeof AuthenticatedDashboardPassportEditRoute
 }
 
@@ -197,6 +216,7 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
     AuthenticatedDashboardApplicationsRoute:
       AuthenticatedDashboardApplicationsRoute,
+    AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
     AuthenticatedDashboardPassportEditRoute:
       AuthenticatedDashboardPassportEditRoute,
   }
