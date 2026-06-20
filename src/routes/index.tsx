@@ -61,10 +61,12 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { user, profile } = useAuth();
   const [livePassport, setLivePassport] = useState<LivePassport | null>(null);
+  const [passportLoaded, setPassportLoaded] = useState(false);
 
   useEffect(() => {
     if (!user || (profile && profile.account_type !== "tenant")) {
       setLivePassport(null);
+      setPassportLoaded(true);
       return;
     }
     supabase
@@ -74,33 +76,64 @@ function Index() {
       )
       .eq("user_id", user.id)
       .maybeSingle()
-      .then(({ data }) => setLivePassport((data as LivePassport | null) ?? null));
+      .then(({ data }) => {
+        setLivePassport((data as LivePassport | null) ?? null);
+        setPassportLoaded(true);
+      });
   }, [user, profile]);
+
+  const anyVerified = !!(
+    livePassport &&
+    (livePassport.identity_verified ||
+      livePassport.income_verified ||
+      livePassport.reference_verified ||
+      livePassport.right_to_rent_verified)
+  );
+  const fullyVerified = !!(
+    livePassport &&
+    livePassport.identity_verified &&
+    livePassport.income_verified &&
+    livePassport.reference_verified &&
+    livePassport.right_to_rent_verified
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header user={user} profile={profile} />
       <main className="mx-auto w-full max-w-3xl px-4 pb-32 pt-6 sm:px-6 sm:pt-10">
         <ViewSwitcher />
-        <PageIntro name={profile?.full_name?.split(" ")[0] ?? "there"} signedIn={!!user} />
+        <PageIntro
+          name={profile?.full_name?.split(" ")[0] ?? "there"}
+          signedIn={!!user}
+          fullyVerified={fullyVerified}
+        />
         <PassportStatusCard passport={livePassport} signedIn={!!user} />
         <SectionHeading
           eyebrow="Core credentials"
           title="Your verified record"
-          hint="All checks completed within the last 30 days."
+          hint={
+            fullyVerified
+              ? "All checks completed within the last 30 days."
+              : "Complete each check to build your verified record."
+          }
         />
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
           <IdentityCard passport={livePassport} />
           <IncomeCard passport={livePassport} />
           <ReferenceCard passport={livePassport} />
         </div>
-        <SectionHeading
-          eyebrow="Property preferences"
-          title="What James is looking for"
-          hint="Shared with landlords so listings reach the right tenants."
-        />
-        <PreferenceTracker />
-        <ShareBar />
+        {anyVerified ? (
+          <>
+            <SectionHeading
+              eyebrow="Property preferences"
+              title="Your property preferences"
+              hint="Shared with landlords so listings reach the right tenants."
+            />
+            <PreferenceTracker />
+          </>
+        ) : null}
+        {fullyVerified ? <ShareBar /> : null}
+        {passportLoaded && !fullyVerified && !!user ? <UnverifiedSharePrompt /> : null}
       </main>
     </div>
   );
