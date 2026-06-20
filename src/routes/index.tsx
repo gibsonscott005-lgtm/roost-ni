@@ -438,7 +438,15 @@ function AccountMenu({
   );
 }
 
-function PageIntro({ name, signedIn }: { name: string; signedIn: boolean }) {
+function PageIntro({
+  name,
+  signedIn,
+  fullyVerified,
+}: {
+  name: string;
+  signedIn: boolean;
+  fullyVerified: boolean;
+}) {
   return (
     <div className="mb-5">
       <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
@@ -448,7 +456,9 @@ function PageIntro({ name, signedIn }: { name: string; signedIn: boolean }) {
         {signedIn ? `Good evening, ${name}.` : "Good evening."}
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Your passport is up to date and ready to share with landlords across Northern Ireland.
+        {fullyVerified
+          ? "Your passport is up to date and ready to share with landlords across Northern Ireland."
+          : "Build your verified Tenant Passport to apply to NI landlords in one tap."}
       </p>
     </div>
   );
@@ -461,22 +471,16 @@ function PassportStatusCard({
   passport: LivePassport | null;
   signedIn: boolean;
 }) {
-  const flags = passport
-    ? [
-        ["Identity", passport.identity_verified],
-        ["Income", passport.income_verified],
-        ["Reference", passport.reference_verified],
-        ["Right to rent", passport.right_to_rent_verified],
-      ]
-    : [
-        ["Identity", true],
-        ["Income", true],
-        ["Reference", true],
-        ["Right to rent", true],
-      ];
-  const verifiedCount = (flags as [string, boolean][]).filter(([, ok]) => ok).length;
-  const score = signedIn && passport ? Math.round((verifiedCount / 4) * 100) : 100;
+  const flags: [string, boolean][] = [
+    ["Identity", !!passport?.identity_verified],
+    ["Income", !!passport?.income_verified],
+    ["Reference", !!passport?.reference_verified],
+    ["Right to rent", !!passport?.right_to_rent_verified],
+  ];
+  const verifiedCount = flags.filter(([, ok]) => ok).length;
+  const score = Math.round((verifiedCount / 4) * 100);
   const ready = score === 100;
+  const showBuildCta = signedIn && !ready;
 
   return (
     <section className="relative overflow-hidden rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
@@ -504,13 +508,13 @@ function PassportStatusCard({
               ? "All four checks complete. Ready to share with NI landlords."
               : "Complete the remaining steps to unlock the Verified badge."}
           </p>
-          {signedIn ? (
+          {signedIn && ready ? (
             <Link
               to="/dashboard/passport/edit"
               className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-muted px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
             >
               <Pencil className="h-3 w-3" />
-              {ready ? "Edit passport" : "Continue verification"}
+              Edit passport
             </Link>
           ) : null}
         </div>
@@ -533,7 +537,7 @@ function PassportStatusCard({
         />
       </div>
       <div className="relative mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-muted-foreground sm:grid-cols-4">
-        {(flags as [string, boolean][]).map(([k, ok]) => (
+        {flags.map(([k, ok]) => (
           <div key={k} className="flex items-center gap-1.5">
             {ok ? (
               <BadgeCheck className="h-3.5 w-3.5 text-verified" />
@@ -545,6 +549,15 @@ function PassportStatusCard({
           </div>
         ))}
       </div>
+      {showBuildCta ? (
+        <Link
+          to="/dashboard/passport/edit"
+          className="relative mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-[0_12px_28px_-12px_rgba(15,23,42,0.45)] transition hover:translate-y-[-1px] hover:bg-foreground/92 active:translate-y-0 sm:text-base"
+        >
+          <Sparkles className="h-4 w-4" />
+          Build Your Tenant Passport
+        </Link>
+      ) : null}
     </section>
   );
 }
