@@ -72,7 +72,6 @@ function PassportEditPage() {
 
   const load = async () => {
     if (!user) return;
-    setLoading(true);
     const { data } = await supabase
       .from("tenant_passports")
       .select("*")
@@ -94,7 +93,7 @@ function PassportEditPage() {
   useEffect(() => {
     if (user) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user?.id]);
 
   const goNext = () => setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
   const goBack = () => setStepIndex((i) => Math.max(i - 1, 0));
