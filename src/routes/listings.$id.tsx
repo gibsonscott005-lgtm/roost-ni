@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -202,45 +202,63 @@ function ListingDetailPage() {
 
 function ApplyCard({ listingId }: { listingId: string }) {
   const { user, profile, loading } = useAuth();
-  const [sent, setSent] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const queryClient = useQueryClient();
+  const isTenant = !!user && profile?.account_type === "tenant";
 
-  useEffect(() => {
-    if (!user || profile?.account_type !== "tenant") return;
-    supabase
-      .from("passport_shares")
-      .select("id")
-      .eq("listing_id", listingId)
-      .eq("tenant_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) setSent(true);
+  const shareQuery = useQuery({
+    enabled: isTenant,
+    queryKey: ["passport-share", listingId, user?.id ?? null],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("passport_shares")
+        .select("id, status")
+        .eq("listing_id", listingId)
+        .eq("tenant_id", user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const sent = !!shareQuery.data;
+
+  const applyMutation = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error("Not signed in");
+      const { error } = await supabase
+        .from("passport_shares")
+        .insert({ tenant_id: user.id, listing_id: listingId, status: "pending" });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Passport shared successfully", {
+        description: "The landlord has received your verified compliance data.",
+        className:
+          "border border-verified/30 bg-verified-soft text-verified-foreground",
       });
-  }, [user, profile, listingId]);
-
-  const apply = async () => {
-    if (!user || submitting) return;
-    setSubmitting(true);
-    const { error } = await supabase
-      .from("passport_shares")
-      .insert({ tenant_id: user.id, listing_id: listingId, status: "pending" });
-    setSubmitting(false);
-    if (error) {
-      if (error.code === "23505") {
-        setSent(true);
+      queryClient.invalidateQueries({
+        queryKey: ["passport-share", listingId, user?.id ?? null],
+      });
+      queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
+    },
+    onError: (err: unknown) => {
+      const e = err as { code?: string; message?: string };
+      if (e?.code === "23505") {
+        queryClient.invalidateQueries({
+          queryKey: ["passport-share", listingId, user?.id ?? null],
+        });
         toast("Already applied", {
           description: "You've already shared your passport with this property.",
         });
         return;
       }
-      toast.error("Couldn't share passport", { description: error.message });
-      return;
-    }
-    setSent(true);
-    toast.success("Passport Shared Successfully", {
-      description: "The landlord has received your verified compliance data.",
-    });
-  };
+      toast.error("Couldn't share passport", {
+        description: e?.message ?? "Please try again.",
+      });
+    },
+  });
+
+  const submitting = applyMutation.isPending;
 
   if (loading) return null;
 
@@ -288,7 +306,7 @@ function ApplyCard({ listingId }: { listingId: string }) {
       </div>
       <button
         type="button"
-        onClick={apply}
+        onClick={() => applyMutation.mutate()}
         disabled={sent || submitting}
         className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 font-display text-sm font-semibold shadow-[0_12px_28px_-12px_rgba(16,121,75,0.45)] transition sm:w-auto ${
           sent
@@ -299,7 +317,7 @@ function ApplyCard({ listingId }: { listingId: string }) {
         {sent ? (
           <>
             <Check className="h-4 w-4" strokeWidth={3} />
-            Application sent
+            Application submitted
           </>
         ) : (
           <>

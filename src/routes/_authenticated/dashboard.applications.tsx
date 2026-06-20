@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Check, Clock, Inbox, ShieldCheck, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,70 +45,74 @@ interface Passport {
 
 function ApplicationsPage() {
   const { user, profile } = useAuth();
-  const [shares, setShares] = useState<Share[]>([]);
-  const [passports, setPassports] = useState<Record<string, Passport>>({});
-  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState<Share | null>(null);
-  const [listingCount, setListingCount] = useState<number>(0);
+  const queryClient = useQueryClient();
 
   const isLandlord = profile?.account_type === "landlord";
 
-  const load = async () => {
-    if (!user) return;
-    setLoading(true);
-    const [{ data: rows }, { count }] = await Promise.all([
-      supabase
+  const inboxQuery = useQuery({
+    enabled: !!user && isLandlord,
+    queryKey: ["landlord-applications", user?.id ?? null],
+    queryFn: async () => {
+      const { data: rows, error: rowsErr } = await supabase
         .from("passport_shares")
         .select(
           "id, status, shared_at, tenant_id, listing_id, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title)",
         )
-        .order("shared_at", { ascending: false }),
-      supabase
+        .order("shared_at", { ascending: false });
+      if (rowsErr) throw rowsErr;
+      const list = (rows as unknown as Share[] | null) ?? [];
+
+      const { count } = await supabase
         .from("property_listings")
         .select("id", { count: "exact", head: true })
-        .eq("landlord_id", user.id),
-    ]);
-    const list = (rows as unknown as Share[] | null) ?? [];
-    setShares(list);
-    setListingCount(count ?? 0);
+        .eq("landlord_id", user!.id);
 
-    const tenantIds = Array.from(new Set(list.map((s) => s.tenant_id)));
-    if (tenantIds.length) {
-      const { data: p } = await supabase
-        .from("tenant_passports")
-        .select(
-          "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, preferred_heating, accept_empty_in_full_out",
-        )
-        .in("user_id", tenantIds);
-      const map: Record<string, Passport> = {};
-      ((p as Passport[] | null) ?? []).forEach((row) => {
-        map[row.user_id] = row;
+      const tenantIds = Array.from(new Set(list.map((s) => s.tenant_id)));
+      const passports: Record<string, Passport> = {};
+      if (tenantIds.length) {
+        const { data: p } = await supabase
+          .from("tenant_passports")
+          .select(
+            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, preferred_heating, accept_empty_in_full_out",
+          )
+          .in("user_id", tenantIds);
+        ((p as Passport[] | null) ?? []).forEach((row) => {
+          passports[row.user_id] = row;
+        });
+      }
+      return { shares: list, passports, listingCount: count ?? 0 };
+    },
+  });
+
+  const shares = inboxQuery.data?.shares ?? [];
+  const passports = inboxQuery.data?.passports ?? {};
+  const listingCount = inboxQuery.data?.listingCount ?? 0;
+  const loading = inboxQuery.isPending && isLandlord;
+
+  const acceptMutation = useMutation({
+    mutationFn: async (share: Share) => {
+      const { error } = await supabase
+        .from("passport_shares")
+        .update({ status: "accepted" })
+        .eq("id", share.id);
+      if (error) throw error;
+      return share;
+    },
+    onSuccess: (share) => {
+      toast.success("Applicant accepted", {
+        description: `${share.tenant?.full_name ?? "Tenant"} has been marked as accepted.`,
       });
-      setPassports(map);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    if (user && isLandlord) load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isLandlord]);
-
-  const accept = async (share: Share) => {
-    const { error } = await supabase
-      .from("passport_shares")
-      .update({ status: "accepted" })
-      .eq("id", share.id);
-    if (error) {
-      toast.error("Could not update", { description: error.message });
-      return;
-    }
-    toast.success("Applicant accepted", {
-      description: `${share.tenant?.full_name ?? "Tenant"} has been marked as accepted.`,
-    });
-    setShares((s) => s.map((x) => (x.id === share.id ? { ...x, status: "accepted" } : x)));
-    setOpen((o) => (o ? { ...o, status: "accepted" } : null));
-  };
+      setOpen((o) => (o ? { ...o, status: "accepted" } : null));
+      queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
+    },
+    onError: (err: unknown) => {
+      toast.error("Could not update", {
+        description: err instanceof Error ? err.message : "Please try again",
+      });
+    },
+  });
+  const accept = (share: Share) => acceptMutation.mutate(share);
 
   return (
     <DashboardShell
