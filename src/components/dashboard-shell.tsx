@@ -10,6 +10,19 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/hooks/use-auth";
 import type { User } from "@supabase/supabase-js";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export type DashboardKey = "properties" | "add" | "applications" | "passport";
 
@@ -40,6 +53,14 @@ export function DashboardShell({
     navigate({ to: "/auth" });
   };
 
+  const displayName = profile?.full_name || user?.email || "Account";
+  const initials = (profile?.full_name || user?.email || "?")
+    .split(/[\s@.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((s) => s[0]?.toUpperCase())
+    .join("") || "?";
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
@@ -64,21 +85,86 @@ export function DashboardShell({
             >
               Browse properties
             </Link>
-            <button
-              type="button"
-              aria-label="Notifications"
-              className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-surface text-foreground/80 transition hover:bg-secondary"
-            >
-              <Bell className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Sign out
-            </button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Notifications"
+                  className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-surface text-foreground/80 transition hover:bg-secondary"
+                >
+                  <Bell className="h-4 w-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="end"
+                sideOffset={8}
+                className="w-[20rem] rounded-3xl border border-border bg-surface p-0 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(15,23,42,0.22)]"
+              >
+                <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+                  <p className="font-display text-sm font-semibold tracking-tight">
+                    Notifications
+                  </p>
+                  <span className="rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    0 new
+                  </span>
+                </div>
+                <div className="flex flex-col items-center gap-3 px-6 py-8 text-center">
+                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-surface-muted text-muted-foreground">
+                    <Bell className="h-5 w-5" />
+                  </span>
+                  <p className="text-sm font-medium text-foreground">
+                    You're all caught up
+                  </p>
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    Verified updates for your Tenant Passport shares will appear here.
+                  </p>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Account menu"
+                  className="grid h-9 w-9 place-items-center rounded-full border border-border bg-foreground text-[11px] font-semibold tracking-wide text-[var(--color-primary-foreground)] transition hover:opacity-90"
+                >
+                  {initials}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                sideOffset={8}
+                className="w-64 rounded-2xl border border-border bg-surface p-2 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-24px_rgba(15,23,42,0.22)]"
+              >
+                <DropdownMenuLabel className="px-3 py-2">
+                  <p className="font-display text-sm font-semibold tracking-tight text-foreground">
+                    {displayName}
+                  </p>
+                  {user?.email ? (
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                      {user.email}
+                    </p>
+                  ) : null}
+                  {profile?.account_type ? (
+                    <span className="mt-2 inline-flex rounded-full border border-border bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      {profile.account_type}
+                    </span>
+                  ) : null}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="my-1" />
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    void handleSignOut();
+                  }}
+                  className="cursor-pointer rounded-xl px-3 py-2 text-sm font-medium text-foreground focus:bg-secondary"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
