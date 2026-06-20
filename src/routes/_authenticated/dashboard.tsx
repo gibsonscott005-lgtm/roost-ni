@@ -259,52 +259,61 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
   const [location, setLocation] = useState("");
   const [rent, setRent] = useState("");
   const [deposit, setDeposit] = useState("");
+  const [postcode, setPostcode] = useState("");
   const [regNumber, setRegNumber] = useState("");
-  const [heating, setHeating] = useState<string>("Bulk Oil Tank");
+  const [heating, setHeating] = useState<HeatingOption>("Oil");
   const [heatingOpen, setHeatingOpen] = useState(false);
   const [fuelPolicy, setFuelPolicy] = useState(true);
-  const [prefs, setPrefs] = useState<string[]>(["Long-term tenancy", "Non-smoker"]);
-  const [submitting, setSubmitting] = useState(false);
+  const [prefs, setPrefs] = useState<string[]>(["No pets", "Non-smokers"]);
+  const [submitting, setSubmitting] = useState<false | "draft" | "publish">(false);
 
   const togglePref = (label: string) =>
     setPrefs((s) => (s.includes(label) ? s.filter((x) => x !== label) : [...s, label]));
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const save = async (mode: "draft" | "publish") => {
     if (!user || submitting) return;
-    setSubmitting(true);
+    setSubmitting(mode);
     try {
       const { error } = await supabase.from("property_listings").insert({
         landlord_id: user.id,
         title,
         address,
-        location: location || null,
+        location: postcode || location || null,
         monthly_rent: Number(rent),
         deposit: Number(deposit),
         ni_landlord_reg_number: regNumber,
         heating_type: heating,
-        enforce_empty_in_full_out: fuelPolicy,
+        enforce_empty_in_full_out: heating === "Oil" ? fuelPolicy : false,
         tenant_preferences: prefs,
-        is_published: true,
+        is_published: mode === "publish",
       });
       if (error) throw error;
-      toast.success("Listing Live", {
-        description: "Ready to receive verified NI Tenant Passports.",
+      toast.success(mode === "publish" ? "Listing published" : "Draft saved", {
+        description:
+          mode === "publish"
+            ? "Your property is live and ready for verified NI tenants."
+            : "You can finish and publish it any time from My properties.",
       });
       setTitle("");
       setAddress("");
       setLocation("");
+      setPostcode("");
       setRent("");
       setDeposit("");
       setRegNumber("");
       await onCreated();
     } catch (err: unknown) {
-      toast.error("Could not publish listing", {
+      toast.error("Could not save listing", {
         description: err instanceof Error ? err.message : "Please try again",
       });
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    void save("publish");
   };
 
   const inputCx =
