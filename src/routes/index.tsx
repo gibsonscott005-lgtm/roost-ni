@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ViewSwitcher } from "../components/view-switcher";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import {
   Bell,
   ChevronDown,
@@ -18,6 +21,8 @@ import {
   Share2,
   Lock,
   Sparkles,
+  Pencil,
+  Clock,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -41,22 +46,40 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const { user, profile } = useAuth();
+  const [livePassport, setLivePassport] = useState<LivePassport | null>(null);
+
+  useEffect(() => {
+    if (!user || (profile && profile.account_type !== "tenant")) {
+      setLivePassport(null);
+      return;
+    }
+    supabase
+      .from("tenant_passports")
+      .select(
+        "identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, id_document_type, employment_status, previous_landlord_name",
+      )
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setLivePassport((data as LivePassport | null) ?? null));
+  }, [user, profile]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main className="mx-auto w-full max-w-3xl px-4 pb-32 pt-6 sm:px-6 sm:pt-10">
         <ViewSwitcher />
-        <PageIntro />
-        <PassportStatusCard />
+        <PageIntro name={profile?.full_name?.split(" ")[0] ?? "there"} signedIn={!!user} />
+        <PassportStatusCard passport={livePassport} signedIn={!!user} />
         <SectionHeading
           eyebrow="Core credentials"
           title="Your verified record"
           hint="All checks completed within the last 30 days."
         />
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <IdentityCard />
-          <IncomeCard />
-          <ReferenceCard />
+          <IdentityCard passport={livePassport} />
+          <IncomeCard passport={livePassport} />
+          <ReferenceCard passport={livePassport} />
         </div>
         <SectionHeading
           eyebrow="Property preferences"
@@ -68,6 +91,17 @@ function Index() {
       </main>
     </div>
   );
+}
+
+interface LivePassport {
+  identity_verified: boolean;
+  income_verified: boolean;
+  reference_verified: boolean;
+  right_to_rent_verified: boolean;
+  monthly_income_net: number | null;
+  id_document_type: string | null;
+  employment_status: string | null;
+  previous_landlord_name: string | null;
 }
 
 function Header() {
@@ -113,14 +147,14 @@ function Header() {
   );
 }
 
-function PageIntro() {
+function PageIntro({ name, signedIn }: { name: string; signedIn: boolean }) {
   return (
     <div className="mb-5">
       <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
         Tenant Passport
       </p>
       <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-        Good evening, James.
+        {signedIn ? `Good evening, ${name}.` : "Good evening."}
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Your passport is up to date and ready to share with landlords across Northern Ireland.
@@ -129,7 +163,30 @@ function PageIntro() {
   );
 }
 
-function PassportStatusCard() {
+function PassportStatusCard({
+  passport,
+  signedIn,
+}: {
+  passport: LivePassport | null;
+  signedIn: boolean;
+}) {
+  const flags = passport
+    ? [
+        ["Identity", passport.identity_verified],
+        ["Income", passport.income_verified],
+        ["Reference", passport.reference_verified],
+        ["Right to rent", passport.right_to_rent_verified],
+      ]
+    : [
+        ["Identity", true],
+        ["Income", true],
+        ["Reference", true],
+        ["Right to rent", true],
+      ];
+  const verifiedCount = (flags as [string, boolean][]).filter(([, ok]) => ok).length;
+  const score = signedIn && passport ? Math.round((verifiedCount / 4) * 100) : 100;
+  const ready = score === 100;
+
   return (
     <section className="relative overflow-hidden rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
       <div
@@ -138,38 +195,62 @@ function PassportStatusCard() {
       />
       <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-verified-soft px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-verified">
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${
+              ready
+                ? "bg-verified-soft text-verified"
+                : "bg-surface-muted text-muted-foreground"
+            }`}
+          >
             <ShieldCheck className="h-3.5 w-3.5" />
-            Ready-to-Rent · Verified
+            {ready ? "Ready-to-Rent · Verified" : `${verifiedCount}/4 checks complete`}
           </span>
           <h2 className="mt-3 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-            Passport #NI-2914-JS
+            {ready ? "Verified Tenant Passport" : "Finish your passport"}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            All four checks complete. Refreshed 12 June 2026 · Valid for 90 days.
+            {ready
+              ? "All four checks complete. Ready to share with NI landlords."
+              : "Complete the remaining steps to unlock the Verified badge."}
           </p>
+          {signedIn ? (
+            <Link
+              to="/dashboard/passport/edit"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-muted px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+            >
+              <Pencil className="h-3 w-3" />
+              {ready ? "Edit passport" : "Continue verification"}
+            </Link>
+          ) : null}
         </div>
         <div className="shrink-0 text-right">
-          <div className="font-display text-3xl font-semibold tracking-tight text-verified sm:text-4xl">
-            100<span className="text-base text-muted-foreground">/100</span>
+          <div
+            className={`font-display text-3xl font-semibold tracking-tight sm:text-4xl ${
+              ready ? "text-verified" : "text-foreground"
+            }`}
+          >
+            {score}
+            <span className="text-base text-muted-foreground">/100</span>
           </div>
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Trust score</p>
         </div>
       </div>
       <div className="relative mt-5 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-        <div className="h-full w-full rounded-full bg-verified" />
+        <div
+          className="h-full rounded-full bg-verified transition-all"
+          style={{ width: `${score}%` }}
+        />
       </div>
       <div className="relative mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-muted-foreground sm:grid-cols-4">
-        {[
-          ["Identity", "Verified"],
-          ["Income", "Verified"],
-          ["Reference", "Verified"],
-          ["Right to rent", "Verified"],
-        ].map(([k, v]) => (
+        {(flags as [string, boolean][]).map(([k, ok]) => (
           <div key={k} className="flex items-center gap-1.5">
-            <BadgeCheck className="h-3.5 w-3.5 text-verified" />
+            {ok ? (
+              <BadgeCheck className="h-3.5 w-3.5 text-verified" />
+            ) : (
+              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+            )}
             <span className="text-foreground">{k}</span>
-            <span>· {v}</span>
+            <span>· {ok ? "Verified" : "Pending"}</span>
           </div>
         ))}
       </div>
@@ -207,11 +288,13 @@ function CredentialCard({
   icon: Icon,
   label,
   title,
+  verified = true,
   children,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   title: string;
+  verified?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -220,10 +303,17 @@ function CredentialCard({
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-secondary text-foreground">
           <Icon className="h-4 w-4" />
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
-          <BadgeCheck className="h-3 w-3" />
-          Verified
-        </span>
+        {verified ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
+            <BadgeCheck className="h-3 w-3" />
+            Verified
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <Clock className="h-3 w-3" />
+            Pending
+          </span>
+        )}
       </div>
       <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
         {label}
@@ -234,42 +324,80 @@ function CredentialCard({
   );
 }
 
-function IdentityCard() {
+function IdentityCard({ passport }: { passport: LivePassport | null }) {
+  const verified = passport ? passport.identity_verified : true;
+  const docLabel =
+    passport?.id_document_type === "driving_licence"
+      ? "UK Driving Licence"
+      : passport?.id_document_type === "passport"
+        ? "UK / EU Passport"
+        : "UK Passport";
   return (
-    <CredentialCard icon={IdCard} label="Identity" title="Government Photo ID">
+    <CredentialCard icon={IdCard} label="Identity" title="Government Photo ID" verified={verified}>
       <ul className="space-y-1.5">
-        <Row k="Document" v="UK Passport" />
-        <Row k="Issued" v="Mar 2022" />
-        <Row k="Checked by" v="Yoti · Live selfie" />
+        <Row k="Document" v={verified ? docLabel : "Not yet uploaded"} />
+        <Row k="Checked by" v={verified ? "Roost verification" : "Pending"} />
       </ul>
     </CredentialCard>
   );
 }
 
-function IncomeCard() {
+function IncomeCard({ passport }: { passport: LivePassport | null }) {
+  const verified = passport ? passport.income_verified : true;
+  const monthly = passport?.monthly_income_net
+    ? `£${Number(passport.monthly_income_net).toLocaleString()} / month`
+    : "£2,840 net / month";
+  const employmentLabel = passport?.employment_status
+    ? passport.employment_status.replace(/_/g, " ")
+    : "Permanent · Full-time";
   return (
-    <CredentialCard icon={Banknote} label="Income & employment" title="£2,840 net / month">
+    <CredentialCard
+      icon={Banknote}
+      label="Income & employment"
+      title={verified ? monthly : "Income pending"}
+      verified={verified}
+    >
       <ul className="space-y-1.5">
-        <Row k="Employer" v="Belfast City Council" />
-        <Row k="Contract" v="Permanent · 3y 2m" />
-        <Row k="Affordability" v="Up to £950 pcm" />
+        <Row k="Contract" v={verified ? employmentLabel : "Not yet provided"} />
+        <Row
+          k="Affordability"
+          v={
+            verified && passport?.monthly_income_net
+              ? `Up to £${Math.round(Number(passport.monthly_income_net) * 0.35).toLocaleString()} pcm`
+              : "—"
+          }
+        />
       </ul>
     </CredentialCard>
   );
 }
 
-function ReferenceCard() {
+function ReferenceCard({ passport }: { passport: LivePassport | null }) {
+  const verified = passport ? passport.reference_verified : true;
+  const name = passport?.previous_landlord_name ?? "Margaret Doherty";
+  const initials = name
+    .split(" ")
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
   return (
-    <CredentialCard icon={UserRoundCheck} label="Character reference" title="Previous landlord">
+    <CredentialCard
+      icon={UserRoundCheck}
+      label="Character reference"
+      title="Previous landlord"
+      verified={verified}
+    >
       <div className="flex items-start gap-3">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-secondary font-display text-xs font-semibold text-foreground">
-          MD
+          {initials || "—"}
         </span>
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-foreground">Margaret Doherty</p>
-          <p className="text-xs text-muted-foreground">Lisburn Road, BT9 · 2022–2025</p>
-          <p className="mt-2 text-xs italic text-muted-foreground">
-            “Quiet, tidy and always paid on time. Left the house spotless.”
+          <p className="truncate text-sm font-medium text-foreground">
+            {verified ? name : "Reference pending"}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {verified ? "Contactable on file" : "Add a previous landlord to verify"}
           </p>
         </div>
       </div>

@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/hooks/use-auth";
 import type { User } from "@supabase/supabase-js";
 
-export type DashboardKey = "properties" | "add" | "applications";
+export type DashboardKey = "properties" | "add" | "applications" | "passport";
 
 interface Props {
   user: User | null;

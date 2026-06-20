@@ -130,10 +130,16 @@ function TenantDashboard() {
       </p>
       <div className="mt-5 flex flex-wrap gap-2">
         <Link
-          to="/"
+          to="/dashboard/passport/edit"
           className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
         >
-          Open my passport
+          Complete my passport
+        </Link>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary"
+        >
+          View passport
         </Link>
         <Link
           to="/listings"
