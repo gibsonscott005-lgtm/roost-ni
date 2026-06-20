@@ -72,7 +72,7 @@ function Dashboard() {
       .eq("landlord_id", user.id)
       .order("created_at", { ascending: false });
     setListings((data as Listing[] | null) ?? []);
-    setLoading(false);
+    setLoading((prev) => (prev ? false : prev));
   };
 
   useEffect(() => {
@@ -85,7 +85,7 @@ function Dashboard() {
         .then(({ count }) => setApplicationsCount(count ?? 0));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isLandlord]);
+  }, [user?.id, isLandlord]);
 
   return (
     <DashboardShell
