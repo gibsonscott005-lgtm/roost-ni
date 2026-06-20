@@ -44,14 +44,15 @@ interface Listing {
   created_at: string;
 }
 
-const HEATING_OPTIONS = ["Mains Gas", "Bulk Oil Tank", "Bulk LPG Tank", "Economy 7 Electric"];
+const HEATING_OPTIONS = ["Oil", "Gas", "Electric"] as const;
+type HeatingOption = (typeof HEATING_OPTIONS)[number];
 const TENANT_PREFS = [
-  { label: "Long-term tenancy", hint: "12 months or more" },
-  { label: "Non-smoker", hint: "Indoors and shared areas" },
-  { label: "Pets considered", hint: "Case-by-case basis" },
-  { label: "Professional / Employed", hint: "Stable income evidence" },
+  { label: "No pets", hint: "Pets not permitted on the property" },
+  { label: "Non-smokers", hint: "Indoors and shared areas" },
+  { label: "Professionals only", hint: "Stable income evidence required" },
+  { label: "Students considered", hint: "With UK-based guarantor" },
   { label: "Couples welcome", hint: "Joint tenancy agreements" },
-  { label: "Students considered", hint: "With guarantor" },
+  { label: "Long-term tenancy", hint: "12 months or more preferred" },
 ];
 
 function Dashboard() {
@@ -258,52 +259,61 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
   const [location, setLocation] = useState("");
   const [rent, setRent] = useState("");
   const [deposit, setDeposit] = useState("");
+  const [postcode, setPostcode] = useState("");
   const [regNumber, setRegNumber] = useState("");
-  const [heating, setHeating] = useState<string>("Bulk Oil Tank");
+  const [heating, setHeating] = useState<HeatingOption>("Oil");
   const [heatingOpen, setHeatingOpen] = useState(false);
   const [fuelPolicy, setFuelPolicy] = useState(true);
-  const [prefs, setPrefs] = useState<string[]>(["Long-term tenancy", "Non-smoker"]);
-  const [submitting, setSubmitting] = useState(false);
+  const [prefs, setPrefs] = useState<string[]>(["No pets", "Non-smokers"]);
+  const [submitting, setSubmitting] = useState<false | "draft" | "publish">(false);
 
   const togglePref = (label: string) =>
     setPrefs((s) => (s.includes(label) ? s.filter((x) => x !== label) : [...s, label]));
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const save = async (mode: "draft" | "publish") => {
     if (!user || submitting) return;
-    setSubmitting(true);
+    setSubmitting(mode);
     try {
       const { error } = await supabase.from("property_listings").insert({
         landlord_id: user.id,
         title,
         address,
-        location: location || null,
+        location: [location, postcode].filter(Boolean).join(" · ") || null,
         monthly_rent: Number(rent),
         deposit: Number(deposit),
         ni_landlord_reg_number: regNumber,
         heating_type: heating,
-        enforce_empty_in_full_out: fuelPolicy,
+        enforce_empty_in_full_out: heating === "Oil" ? fuelPolicy : false,
         tenant_preferences: prefs,
-        is_published: true,
+        is_published: mode === "publish",
       });
       if (error) throw error;
-      toast.success("Listing Live", {
-        description: "Ready to receive verified NI Tenant Passports.",
+      toast.success(mode === "publish" ? "Listing published" : "Draft saved", {
+        description:
+          mode === "publish"
+            ? "Your property is live and ready for verified NI tenants."
+            : "You can finish and publish it any time from My properties.",
       });
       setTitle("");
       setAddress("");
       setLocation("");
+      setPostcode("");
       setRent("");
       setDeposit("");
       setRegNumber("");
       await onCreated();
     } catch (err: unknown) {
-      toast.error("Could not publish listing", {
+      toast.error("Could not save listing", {
         description: err instanceof Error ? err.message : "Please try again",
       });
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    void save("publish");
   };
 
   const inputCx =
@@ -343,12 +353,21 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
               />
             </div>
           </Field>
-          <Field label="Postcode / area">
+          <Field label="Town / area">
             <input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="BT6"
+              placeholder="Ormeau, Belfast"
               className={inputCx}
+            />
+          </Field>
+          <Field label="Postcode">
+            <input
+              required
+              value={postcode}
+              onChange={(e) => setPostcode(e.target.value.toUpperCase())}
+              placeholder="BT6 8DA"
+              className={`${inputCx} uppercase tracking-wider`}
             />
           </Field>
           <Field label="Monthly rent">
@@ -364,7 +383,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
               />
             </div>
           </Field>
-          <Field label="Desired deposit" className="sm:col-span-2">
+          <Field label="Security deposit">
             <div className="relative">
               <PoundSterling className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
@@ -383,7 +402,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
       <FormCard eyebrow="Step 02" title="NI compliance verification">
         <Field
           label="Northern Ireland Landlord Registration Number"
-          hint="Required for legal portal compliance. Format: LRN-NI-XXXXXX."
+          hint="Legally required for all private tenancies in Northern Ireland. Format: LRN-NI-XXXXXX."
         >
           <div className="relative">
             <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -450,41 +469,60 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
           </div>
         </Field>
 
-        <button
-          type="button"
-          onClick={() => setFuelPolicy((v) => !v)}
-          aria-pressed={fuelPolicy}
-          className={`mt-5 flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition ${
-            fuelPolicy
-              ? "border-verified/30 bg-verified-soft/50"
-              : "border-border bg-surface-muted hover:bg-secondary"
-          }`}
-        >
-          <span
-            className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition ${
-              fuelPolicy ? "bg-verified" : "bg-border"
-            }`}
-          >
-            <span
-              className={`inline-block h-5 w-5 transform rounded-full bg-surface shadow transition ${
-                fuelPolicy ? "translate-x-5" : "translate-x-0.5"
-              }`}
-            />
-          </span>
-          <span className="min-w-0">
-            <span className="block font-display text-sm font-semibold tracking-tight text-foreground">
-              Enforce "Empty-in, Full-out" fuel agreement policy
-            </span>
-            <span className="mt-1 block text-xs text-muted-foreground">
-              Tenants top up the tank on move-in and leave it full on move-out.
-            </span>
-          </span>
-        </button>
-
-        <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          Roost auto-matches your listing to tenants who already accept this policy.
-        </div>
+        {heating === "Oil" ? (
+          <div className="mt-5 overflow-hidden rounded-2xl border border-verified/30 bg-verified-soft/40">
+            <div className="flex items-start gap-3 p-5">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-verified text-[var(--color-verified-foreground)]">
+                <Flame className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-verified">
+                  Fair Fuel policy
+                </p>
+                <p className="mt-1 font-display text-base font-semibold tracking-tight text-foreground">
+                  Empty-In / Full-Out oil agreement
+                </p>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  Tenants accept the tank as empty on move-in and leave it refilled to the
+                  same level on move-out. Removes oil-meter disputes and keeps your deposit
+                  return clean and predictable.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFuelPolicy((v) => !v)}
+              aria-pressed={fuelPolicy}
+              className="flex w-full items-center justify-between gap-4 border-t border-verified/20 bg-surface/60 px-5 py-4 text-left transition hover:bg-surface"
+            >
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-foreground">
+                  Enforce Fair Fuel policy
+                </span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  Auto-matches your listing to tenants who already accept these terms.
+                </span>
+              </span>
+              <span
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition ${
+                  fuelPolicy ? "bg-verified" : "bg-border"
+                }`}
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-surface shadow transition ${
+                    fuelPolicy ? "translate-x-5" : "translate-x-0.5"
+                  }`}
+                />
+              </span>
+            </button>
+          </div>
+        ) : (
+          <div className="mt-5 flex items-start gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            Select <span className="font-medium text-foreground">Oil</span> to enable Roost's
+            Fair Fuel "Empty-In / Full-Out" tenancy clause.
+          </div>
+        )}
       </FormCard>
 
       <FormCard eyebrow="Step 04" title="Tenant requirements">
@@ -530,14 +568,22 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         </div>
       </FormCard>
 
-      <div className="mt-6 flex items-center gap-3">
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
+        <button
+          type="button"
+          onClick={() => void save("draft")}
+          disabled={submitting !== false}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 font-display text-sm font-semibold text-foreground transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+        >
+          {submitting === "draft" ? "Saving…" : "Save as draft"}
+        </button>
         <button
           type="submit"
-          disabled={submitting}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-4 font-display text-base font-semibold text-[var(--color-primary-foreground)] shadow-[0_12px_28px_-12px_rgba(15,23,42,0.45)] transition hover:translate-y-[-1px] hover:bg-foreground/92 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          disabled={submitting !== false}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-base font-semibold text-[var(--color-primary-foreground)] shadow-[0_12px_28px_-12px_rgba(15,23,42,0.45)] transition hover:translate-y-[-1px] hover:bg-foreground/92 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           <Sparkles className="h-4 w-4" />
-          {submitting ? "Publishing…" : "Generate Compliant NI Listing"}
+          {submitting === "publish" ? "Publishing…" : "Publish listing"}
         </button>
       </div>
     </form>
