@@ -315,42 +315,80 @@ function CredentialCard({
   );
 }
 
-function IdentityCard() {
+function IdentityCard({ passport }: { passport: LivePassport | null }) {
+  const verified = passport ? passport.identity_verified : true;
+  const docLabel =
+    passport?.id_document_type === "driving_licence"
+      ? "UK Driving Licence"
+      : passport?.id_document_type === "passport"
+        ? "UK / EU Passport"
+        : "UK Passport";
   return (
-    <CredentialCard icon={IdCard} label="Identity" title="Government Photo ID">
+    <CredentialCard icon={IdCard} label="Identity" title="Government Photo ID" verified={verified}>
       <ul className="space-y-1.5">
-        <Row k="Document" v="UK Passport" />
-        <Row k="Issued" v="Mar 2022" />
-        <Row k="Checked by" v="Yoti · Live selfie" />
+        <Row k="Document" v={verified ? docLabel : "Not yet uploaded"} />
+        <Row k="Checked by" v={verified ? "Roost verification" : "Pending"} />
       </ul>
     </CredentialCard>
   );
 }
 
-function IncomeCard() {
+function IncomeCard({ passport }: { passport: LivePassport | null }) {
+  const verified = passport ? passport.income_verified : true;
+  const monthly = passport?.monthly_income_net
+    ? `£${Number(passport.monthly_income_net).toLocaleString()} / month`
+    : "£2,840 net / month";
+  const employmentLabel = passport?.employment_status
+    ? passport.employment_status.replace(/_/g, " ")
+    : "Permanent · Full-time";
   return (
-    <CredentialCard icon={Banknote} label="Income & employment" title="£2,840 net / month">
+    <CredentialCard
+      icon={Banknote}
+      label="Income & employment"
+      title={verified ? monthly : "Income pending"}
+      verified={verified}
+    >
       <ul className="space-y-1.5">
-        <Row k="Employer" v="Belfast City Council" />
-        <Row k="Contract" v="Permanent · 3y 2m" />
-        <Row k="Affordability" v="Up to £950 pcm" />
+        <Row k="Contract" v={verified ? employmentLabel : "Not yet provided"} />
+        <Row
+          k="Affordability"
+          v={
+            verified && passport?.monthly_income_net
+              ? `Up to £${Math.round(Number(passport.monthly_income_net) * 0.35).toLocaleString()} pcm`
+              : "—"
+          }
+        />
       </ul>
     </CredentialCard>
   );
 }
 
-function ReferenceCard() {
+function ReferenceCard({ passport }: { passport: LivePassport | null }) {
+  const verified = passport ? passport.reference_verified : true;
+  const name = passport?.previous_landlord_name ?? "Margaret Doherty";
+  const initials = name
+    .split(" ")
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
   return (
-    <CredentialCard icon={UserRoundCheck} label="Character reference" title="Previous landlord">
+    <CredentialCard
+      icon={UserRoundCheck}
+      label="Character reference"
+      title="Previous landlord"
+      verified={verified}
+    >
       <div className="flex items-start gap-3">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-secondary font-display text-xs font-semibold text-foreground">
-          MD
+          {initials || "—"}
         </span>
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-foreground">Margaret Doherty</p>
-          <p className="text-xs text-muted-foreground">Lisburn Road, BT9 · 2022–2025</p>
-          <p className="mt-2 text-xs italic text-muted-foreground">
-            “Quiet, tidy and always paid on time. Left the house spotless.”
+          <p className="truncate text-sm font-medium text-foreground">
+            {verified ? name : "Reference pending"}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {verified ? "Contactable on file" : "Add a previous landlord to verify"}
           </p>
         </div>
       </div>
