@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -117,6 +117,7 @@ function Dashboard() {
 }
 
 function TenantDashboard() {
+  const navigate = useNavigate();
   return (
     <div className="rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -126,16 +127,17 @@ function TenantDashboard() {
         Your verified passport is ready
       </h2>
       <p className="mt-2 text-sm text-muted-foreground">
-        We're building your Tenant Passport editor next. For now, head back to your passport view to
-        share verified ID, income and references with NI landlords.
+        Complete the three short verification steps to unlock your verified ID, income and
+        reference badges — then share them with NI landlords in one tap.
       </p>
       <div className="mt-5 flex flex-wrap gap-2">
-        <Link
-          to="/dashboard/passport/edit"
+        <button
+          type="button"
+          onClick={() => navigate({ to: "/dashboard/passport/edit" })}
           className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
         >
           Complete my passport
-        </Link>
+        </button>
         <Link
           to="/"
           className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary"
