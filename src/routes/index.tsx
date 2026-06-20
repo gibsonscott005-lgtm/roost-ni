@@ -133,7 +133,6 @@ function Index() {
           </>
         ) : null}
         {fullyVerified ? <ShareBar /> : null}
-        {passportLoaded && !fullyVerified && !!user ? <UnverifiedSharePrompt /> : null}
       </main>
     </div>
   );
