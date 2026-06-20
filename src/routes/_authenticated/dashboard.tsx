@@ -469,41 +469,60 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
           </div>
         </Field>
 
-        <button
-          type="button"
-          onClick={() => setFuelPolicy((v) => !v)}
-          aria-pressed={fuelPolicy}
-          className={`mt-5 flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition ${
-            fuelPolicy
-              ? "border-verified/30 bg-verified-soft/50"
-              : "border-border bg-surface-muted hover:bg-secondary"
-          }`}
-        >
-          <span
-            className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition ${
-              fuelPolicy ? "bg-verified" : "bg-border"
-            }`}
-          >
-            <span
-              className={`inline-block h-5 w-5 transform rounded-full bg-surface shadow transition ${
-                fuelPolicy ? "translate-x-5" : "translate-x-0.5"
-              }`}
-            />
-          </span>
-          <span className="min-w-0">
-            <span className="block font-display text-sm font-semibold tracking-tight text-foreground">
-              Enforce "Empty-in, Full-out" fuel agreement policy
-            </span>
-            <span className="mt-1 block text-xs text-muted-foreground">
-              Tenants top up the tank on move-in and leave it full on move-out.
-            </span>
-          </span>
-        </button>
-
-        <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
-          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          Roost auto-matches your listing to tenants who already accept this policy.
-        </div>
+        {heating === "Oil" ? (
+          <div className="mt-5 overflow-hidden rounded-2xl border border-verified/30 bg-verified-soft/40">
+            <div className="flex items-start gap-3 p-5">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-verified text-[var(--color-verified-foreground)]">
+                <Flame className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-verified">
+                  Fair Fuel policy
+                </p>
+                <p className="mt-1 font-display text-base font-semibold tracking-tight text-foreground">
+                  Empty-In / Full-Out oil agreement
+                </p>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  Tenants accept the tank as empty on move-in and leave it refilled to the
+                  same level on move-out. Removes oil-meter disputes and keeps your deposit
+                  return clean and predictable.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFuelPolicy((v) => !v)}
+              aria-pressed={fuelPolicy}
+              className="flex w-full items-center justify-between gap-4 border-t border-verified/20 bg-surface/60 px-5 py-4 text-left transition hover:bg-surface"
+            >
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-foreground">
+                  Enforce Fair Fuel policy
+                </span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  Auto-matches your listing to tenants who already accept these terms.
+                </span>
+              </span>
+              <span
+                className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition ${
+                  fuelPolicy ? "bg-verified" : "bg-border"
+                }`}
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-surface shadow transition ${
+                    fuelPolicy ? "translate-x-5" : "translate-x-0.5"
+                  }`}
+                />
+              </span>
+            </button>
+          </div>
+        ) : (
+          <div className="mt-5 flex items-start gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
+            <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            Select <span className="font-medium text-foreground">Oil</span> to enable Roost's
+            Fair Fuel "Empty-In / Full-Out" tenancy clause.
+          </div>
+        )}
       </FormCard>
 
       <FormCard eyebrow="Step 04" title="Tenant requirements">
