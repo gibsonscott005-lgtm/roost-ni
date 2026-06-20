@@ -188,39 +188,51 @@ function NotificationsBell({
       return;
     }
     const isLandlord = profile?.account_type === "landlord";
-    const column = isLandlord ? "landlord_id" : "tenant_id";
-    supabase
-      .from("passport_shares")
-      .select("id, status, created_at, listing:property_listings(title)")
-      .eq(column, user.id)
-      .order("created_at", { ascending: false })
-      .limit(8)
-      .then(({ data }) => {
-        const rows = (data ?? []) as Array<{
-          id: string;
-          status: string | null;
-          created_at: string;
-          listing: { title: string | null } | null;
-        }>;
-        setItems(
-          rows.map((r) => {
-            const listingTitle = r.listing?.title ?? "a property";
-            return {
-              id: r.id,
-              title: isLandlord
-                ? r.status === "accepted"
-                  ? "Application accepted"
-                  : "New tenant application"
-                : r.status === "accepted"
-                  ? "Your application was accepted"
-                  : "Application submitted",
-              description: listingTitle,
-              created_at: r.created_at,
-            };
-          }),
-        );
-        setLoaded(true);
-      });
+
+    const load = async () => {
+      let query = supabase
+        .from("passport_shares")
+        .select("id, status, shared_at, listing:property_listings(title, landlord_id)")
+        .order("shared_at", { ascending: false })
+        .limit(20);
+
+      if (!isLandlord) {
+        query = query.eq("tenant_id", user.id);
+      }
+
+      const { data } = await query;
+      const rows = (data ?? []) as Array<{
+        id: string;
+        status: string | null;
+        shared_at: string;
+        listing: { title: string | null; landlord_id: string | null } | null;
+      }>;
+
+      const filtered = isLandlord
+        ? rows.filter((r) => r.listing?.landlord_id === user.id)
+        : rows;
+
+      setItems(
+        filtered.slice(0, 8).map((r) => {
+          const listingTitle = r.listing?.title ?? "a property";
+          return {
+            id: r.id,
+            title: isLandlord
+              ? r.status === "accepted"
+                ? "Application accepted"
+                : "New tenant application"
+              : r.status === "accepted"
+                ? "Your application was accepted"
+                : "Application submitted",
+            description: listingTitle,
+            created_at: r.shared_at,
+          };
+        }),
+      );
+      setLoaded(true);
+    };
+
+    load();
   }, [user, profile?.account_type]);
 
   const unread = items.length;
