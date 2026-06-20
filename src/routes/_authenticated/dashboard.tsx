@@ -278,7 +278,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         landlord_id: user.id,
         title,
         address,
-        location: postcode || location || null,
+        location: [location, postcode].filter(Boolean).join(" · ") || null,
         monthly_rent: Number(rent),
         deposit: Number(deposit),
         ni_landlord_reg_number: regNumber,
