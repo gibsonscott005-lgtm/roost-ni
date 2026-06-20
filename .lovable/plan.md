@@ -1,21 +1,46 @@
-## Problem
+## What's happening
 
-On `/dashboard/passport/edit`, typing into any input has no effect. The fields look enabled but never accept characters.
+`useAuth` (in `src/hooks/use-auth.ts`) calls `setUser` on **every** Supabase auth event — including `INITIAL_SESSION` on mount and `TOKEN_REFRESHED` (fires hourly and on every tab focus). Each event hands React a brand-new `user` object reference.
 
-Root cause: the page's load effect re-runs on every auth event and toggles a global `loading` state, which unmounts the step form (`IdentityStep` / `IncomeStep` / `ReferencesStep`). Because the field values live in `useState` inside those child components, every remount throws the typed value away — faster than React can paint it. `useAuth()` produces a new `user` object on `INITIAL_SESSION`, `TOKEN_REFRESHED`, and tab focus, so the loop is effectively continuous.
+In `src/routes/_authenticated/dashboard.tsx` the data-loading effect depends on the `user` reference:
 
-## Fix (frontend only, single file)
+```tsx
+useEffect(() => {
+  if (!user) return;
+  loadListings();
+  if (isLandlord) { /* fetch passport_shares count */ }
+}, [user, isLandlord]);
+```
 
-Edit `src/routes/_authenticated/dashboard.passport.edit.tsx`:
+So every auth event re-runs `loadListings()`, which calls `setListings(...)` and `setLoading(false)`. The whole `TenantDashboard` subtree re-renders mid-tap, and on slower mobile the `<Link to="/dashboard/passport/edit">` click never reaches the router — that matches what you see (URL doesn't change, button feels dead). This is the same root cause that broke the passport editor inputs.
 
-1. Key the load effect on `user?.id` instead of the `user` object reference, so it only fires when the signed-in user actually changes.
-2. Stop unmounting the form on background refetches: only show the full-page spinner on the very first load (when `passport` is still `null`). Subsequent refreshes update `passport` in place without flipping `loading` back to `true`.
-3. Lift the editable field state out of the step components into the parent (or seed the children with a stable `key={passport.user_id}` plus a `useEffect` that syncs only when `passport.user_id` changes), so a fresh `passport` object from a benign refetch doesn't blow away in-progress edits.
+## Fix
 
-No database, RLS, or business-logic changes. No other routes touched.
+Two small, surgical changes — frontend only, no DB, no business logic.
 
-## Verification
+### 1. `src/hooks/use-auth.ts` — only react to real identity transitions
 
-- Open `/dashboard/passport/edit`, type into Document number, Annual income, and the reference name/email/phone fields — characters persist.
-- Switch tabs away and back (forces `TOKEN_REFRESHED`); typed values remain.
-- Save & continue on each step still writes to `tenant_passports` and advances the stepper.
+- Filter `onAuthStateChange` to `SIGNED_IN`, `SIGNED_OUT`, `USER_UPDATED`. Ignore `INITIAL_SESSION`, `TOKEN_REFRESHED`, `PASSWORD_RECOVERY`, etc.
+- Inside the handler, only call `setUser`/`setSession` when the user id actually changed (compare against the previous state) so re-subscribes don't churn the reference.
+- Keep the initial `getSession()` bootstrap as the single source for first mount.
+
+### 2. `src/routes/_authenticated/dashboard.tsx` — stable effect deps
+
+- Change `useEffect(..., [user, isLandlord])` to `useEffect(..., [user?.id, isLandlord])`.
+- Move `setLoading(false)` so it only flips on the first successful load (don't re-toggle on background refetches), matching the pattern used for the passport editor.
+
+## Verify
+
+After the edits, run Playwright headless against `localhost`:
+
+1. Restore the Supabase session from the sandbox env vars.
+2. Navigate to `/dashboard`, screenshot.
+3. Click **Complete my passport**, wait for navigation.
+4. Assert `page.url()` ends with `/dashboard/passport/edit` and screenshot the editor.
+
+Stops here if the URL changes and the editor renders.
+
+## Out of scope
+
+- No changes to routing, RLS, or the passport editor itself.
+- No redesign of the dashboard card or its other buttons.
