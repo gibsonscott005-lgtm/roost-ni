@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ViewSwitcher } from "../components/view-switcher";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import {
   Bell,
   ChevronDown,
@@ -18,6 +21,8 @@ import {
   Share2,
   Lock,
   Sparkles,
+  Pencil,
+  Clock,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -41,22 +46,40 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const { user, profile } = useAuth();
+  const [livePassport, setLivePassport] = useState<LivePassport | null>(null);
+
+  useEffect(() => {
+    if (!user || (profile && profile.account_type !== "tenant")) {
+      setLivePassport(null);
+      return;
+    }
+    supabase
+      .from("tenant_passports")
+      .select(
+        "identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, id_document_type, employment_status, previous_landlord_name",
+      )
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setLivePassport((data as LivePassport | null) ?? null));
+  }, [user, profile]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <main className="mx-auto w-full max-w-3xl px-4 pb-32 pt-6 sm:px-6 sm:pt-10">
         <ViewSwitcher />
-        <PageIntro />
-        <PassportStatusCard />
+        <PageIntro name={profile?.full_name?.split(" ")[0] ?? "there"} signedIn={!!user} />
+        <PassportStatusCard passport={livePassport} signedIn={!!user} />
         <SectionHeading
           eyebrow="Core credentials"
           title="Your verified record"
           hint="All checks completed within the last 30 days."
         />
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <IdentityCard />
-          <IncomeCard />
-          <ReferenceCard />
+          <IdentityCard passport={livePassport} />
+          <IncomeCard passport={livePassport} />
+          <ReferenceCard passport={livePassport} />
         </div>
         <SectionHeading
           eyebrow="Property preferences"
@@ -68,6 +91,17 @@ function Index() {
       </main>
     </div>
   );
+}
+
+interface LivePassport {
+  identity_verified: boolean;
+  income_verified: boolean;
+  reference_verified: boolean;
+  right_to_rent_verified: boolean;
+  monthly_income_net: number | null;
+  id_document_type: string | null;
+  employment_status: string | null;
+  previous_landlord_name: string | null;
 }
 
 function Header() {
