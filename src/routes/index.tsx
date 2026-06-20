@@ -117,7 +117,18 @@ interface LivePassport {
   previous_landlord_name: string | null;
 }
 
-function Header() {
+function Header({ user, profile }: { user: ReturnType<typeof useAuth>["user"]; profile: Profile | null }) {
+  const signedIn = !!user;
+  const fullName = profile?.full_name ?? user?.email ?? "Guest";
+  const initials = (profile?.full_name ?? user?.email ?? "G")
+    .split(/[\s@.]+/)
+    .filter(Boolean)
+    .map((s) => s[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+  const firstName = profile?.full_name?.split(" ")[0] ?? (user?.email?.split("@")[0] ?? "Guest");
+
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
       <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-4 sm:px-6">
@@ -130,33 +141,255 @@ function Header() {
           </span>
         </Link>
         <div className="flex items-center gap-1.5">
-          <Link
-            to="/auth"
-            className="hidden rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary sm:inline"
-          >
-            Sign in
-          </Link>
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-surface text-foreground/80 transition hover:bg-secondary"
-          >
-            <Bell className="h-4 w-4" />
-            <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-verified" />
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-2 rounded-full border border-border bg-surface py-1 pl-1 pr-2.5 text-sm transition hover:bg-secondary"
-          >
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-secondary font-display text-xs font-semibold text-foreground">
-              JS
-            </span>
-            <span className="hidden text-sm font-medium sm:inline">James</span>
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
+          {!signedIn ? (
+            <Link
+              to="/auth"
+              className="hidden rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary sm:inline"
+            >
+              Sign in
+            </Link>
+          ) : null}
+          <NotificationsBell user={user} profile={profile} />
+          <AccountMenu
+            signedIn={signedIn}
+            firstName={firstName}
+            fullName={fullName}
+            email={user?.email ?? null}
+            initials={initials || "G"}
+            accountType={profile?.account_type ?? null}
+          />
         </div>
       </div>
     </header>
+  );
+}
+
+interface NotificationItem {
+  id: string;
+  title: string;
+  description: string;
+  created_at: string;
+}
+
+function NotificationsBell({
+  user,
+  profile,
+}: {
+  user: ReturnType<typeof useAuth>["user"];
+  profile: Profile | null;
+}) {
+  const [items, setItems] = useState<NotificationItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setItems([]);
+      setLoaded(true);
+      return;
+    }
+    const isLandlord = profile?.account_type === "landlord";
+    const column = isLandlord ? "landlord_id" : "tenant_id";
+    supabase
+      .from("passport_shares")
+      .select("id, status, created_at, listing:property_listings(title)")
+      .eq(column, user.id)
+      .order("created_at", { ascending: false })
+      .limit(8)
+      .then(({ data }) => {
+        const rows = (data ?? []) as Array<{
+          id: string;
+          status: string | null;
+          created_at: string;
+          listing: { title: string | null } | null;
+        }>;
+        setItems(
+          rows.map((r) => {
+            const listingTitle = r.listing?.title ?? "a property";
+            return {
+              id: r.id,
+              title: isLandlord
+                ? r.status === "accepted"
+                  ? "Application accepted"
+                  : "New tenant application"
+                : r.status === "accepted"
+                  ? "Your application was accepted"
+                  : "Application submitted",
+              description: listingTitle,
+              created_at: r.created_at,
+            };
+          }),
+        );
+        setLoaded(true);
+      });
+  }, [user, profile?.account_type]);
+
+  const unread = items.length;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label="Notifications"
+          className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-surface text-foreground/80 transition hover:bg-secondary"
+        >
+          <Bell className="h-4 w-4" />
+          {unread > 0 ? (
+            <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-verified" />
+          ) : null}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        sideOffset={8}
+        className="w-80 rounded-2xl border-border bg-surface p-0 shadow-[0_24px_48px_-24px_rgba(15,23,42,0.18)]"
+      >
+        <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
+          <p className="font-display text-sm font-semibold tracking-tight">Notifications</p>
+          {unread > 0 ? (
+            <span className="rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
+              {unread} new
+            </span>
+          ) : null}
+        </div>
+        {!user ? (
+          <div className="p-5 text-sm text-muted-foreground">
+            <p className="text-foreground font-medium">Sign in to see updates</p>
+            <p className="mt-1 text-xs">
+              Get notified when landlords review your passport or tenants apply to your listings.
+            </p>
+            <Link
+              to="/auth"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-[var(--color-primary-foreground)]"
+            >
+              Sign in
+            </Link>
+          </div>
+        ) : !loaded ? (
+          <div className="p-5 text-sm text-muted-foreground">Loading…</div>
+        ) : items.length === 0 ? (
+          <div className="p-5 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-2 text-foreground">
+              <Inbox className="h-4 w-4" />
+              You're all caught up
+            </span>
+            <p className="mt-1 text-xs">New activity will appear here.</p>
+          </div>
+        ) : (
+          <ul className="max-h-80 overflow-y-auto py-1">
+            {items.map((n) => (
+              <li key={n.id} className="px-2">
+                <div className="rounded-xl px-3 py-2.5 hover:bg-secondary">
+                  <p className="text-sm font-medium text-foreground">{n.title}</p>
+                  <p className="truncate text-xs text-muted-foreground">{n.description}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    {new Date(n.created_at).toLocaleString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function AccountMenu({
+  signedIn,
+  firstName,
+  fullName,
+  email,
+  initials,
+  accountType,
+}: {
+  signedIn: boolean;
+  firstName: string;
+  fullName: string;
+  email: string | null;
+  initials: string;
+  accountType: "tenant" | "landlord" | "admin" | null;
+}) {
+  if (!signedIn) {
+    return (
+      <Link
+        to="/auth"
+        className="flex items-center gap-2 rounded-full border border-border bg-surface py-1 pl-1 pr-2.5 text-sm transition hover:bg-secondary"
+      >
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-secondary font-display text-xs font-semibold text-foreground">
+          {initials}
+        </span>
+        <span className="hidden text-sm font-medium sm:inline">Sign in</span>
+        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+      </Link>
+    );
+  }
+
+  const dashboardLabel = accountType === "landlord" ? "Landlord dashboard" : "Tenant dashboard";
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Couldn't sign out", { description: error.message });
+      return;
+    }
+    toast.success("Signed out");
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="flex items-center gap-2 rounded-full border border-border bg-surface py-1 pl-1 pr-2.5 text-sm transition hover:bg-secondary"
+        >
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-secondary font-display text-xs font-semibold text-foreground">
+            {initials}
+          </span>
+          <span className="hidden text-sm font-medium sm:inline">{firstName}</span>
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        className="w-64 rounded-2xl border-border bg-surface p-1.5 shadow-[0_24px_48px_-24px_rgba(15,23,42,0.18)]"
+      >
+        <DropdownMenuLabel className="px-2.5 py-2">
+          <p className="truncate font-display text-sm font-semibold tracking-tight">{fullName}</p>
+          {email ? <p className="truncate text-xs font-normal text-muted-foreground">{email}</p> : null}
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild className="rounded-xl px-2.5 py-2 text-sm">
+          <Link to="/dashboard" className="flex items-center gap-2">
+            <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
+            {dashboardLabel}
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="rounded-xl px-2.5 py-2 text-sm">
+          <Link to="/dashboard/passport/edit" className="flex items-center gap-2">
+            <UserRound className="h-4 w-4 text-muted-foreground" />
+            Edit passport
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onSelect={(e) => {
+            e.preventDefault();
+            handleSignOut();
+          }}
+          className="rounded-xl px-2.5 py-2 text-sm text-foreground"
+        >
+          <LogOut className="mr-2 h-4 w-4 text-muted-foreground" />
+          Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
