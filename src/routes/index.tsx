@@ -147,14 +147,14 @@ function Header() {
   );
 }
 
-function PageIntro() {
+function PageIntro({ name, signedIn }: { name: string; signedIn: boolean }) {
   return (
     <div className="mb-5">
       <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
         Tenant Passport
       </p>
       <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-        Good evening, James.
+        {signedIn ? `Good evening, ${name}.` : "Good evening."}
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Your passport is up to date and ready to share with landlords across Northern Ireland.
@@ -163,7 +163,30 @@ function PageIntro() {
   );
 }
 
-function PassportStatusCard() {
+function PassportStatusCard({
+  passport,
+  signedIn,
+}: {
+  passport: LivePassport | null;
+  signedIn: boolean;
+}) {
+  const flags = passport
+    ? [
+        ["Identity", passport.identity_verified],
+        ["Income", passport.income_verified],
+        ["Reference", passport.reference_verified],
+        ["Right to rent", passport.right_to_rent_verified],
+      ]
+    : [
+        ["Identity", true],
+        ["Income", true],
+        ["Reference", true],
+        ["Right to rent", true],
+      ];
+  const verifiedCount = (flags as [string, boolean][]).filter(([, ok]) => ok).length;
+  const score = signedIn && passport ? Math.round((verifiedCount / 4) * 100) : 100;
+  const ready = score === 100;
+
   return (
     <section className="relative overflow-hidden rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
       <div
@@ -172,38 +195,62 @@ function PassportStatusCard() {
       />
       <div className="relative grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-verified-soft px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-verified">
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider ${
+              ready
+                ? "bg-verified-soft text-verified"
+                : "bg-surface-muted text-muted-foreground"
+            }`}
+          >
             <ShieldCheck className="h-3.5 w-3.5" />
-            Ready-to-Rent · Verified
+            {ready ? "Ready-to-Rent · Verified" : `${verifiedCount}/4 checks complete`}
           </span>
           <h2 className="mt-3 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-            Passport #NI-2914-JS
+            {ready ? "Verified Tenant Passport" : "Finish your passport"}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            All four checks complete. Refreshed 12 June 2026 · Valid for 90 days.
+            {ready
+              ? "All four checks complete. Ready to share with NI landlords."
+              : "Complete the remaining steps to unlock the Verified badge."}
           </p>
+          {signedIn ? (
+            <Link
+              to="/dashboard/passport/edit"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-muted px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+            >
+              <Pencil className="h-3 w-3" />
+              {ready ? "Edit passport" : "Continue verification"}
+            </Link>
+          ) : null}
         </div>
         <div className="shrink-0 text-right">
-          <div className="font-display text-3xl font-semibold tracking-tight text-verified sm:text-4xl">
-            100<span className="text-base text-muted-foreground">/100</span>
+          <div
+            className={`font-display text-3xl font-semibold tracking-tight sm:text-4xl ${
+              ready ? "text-verified" : "text-foreground"
+            }`}
+          >
+            {score}
+            <span className="text-base text-muted-foreground">/100</span>
           </div>
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Trust score</p>
         </div>
       </div>
       <div className="relative mt-5 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-        <div className="h-full w-full rounded-full bg-verified" />
+        <div
+          className="h-full rounded-full bg-verified transition-all"
+          style={{ width: `${score}%` }}
+        />
       </div>
       <div className="relative mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-muted-foreground sm:grid-cols-4">
-        {[
-          ["Identity", "Verified"],
-          ["Income", "Verified"],
-          ["Reference", "Verified"],
-          ["Right to rent", "Verified"],
-        ].map(([k, v]) => (
+        {(flags as [string, boolean][]).map(([k, ok]) => (
           <div key={k} className="flex items-center gap-1.5">
-            <BadgeCheck className="h-3.5 w-3.5 text-verified" />
+            {ok ? (
+              <BadgeCheck className="h-3.5 w-3.5 text-verified" />
+            ) : (
+              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+            )}
             <span className="text-foreground">{k}</span>
-            <span>· {v}</span>
+            <span>· {ok ? "Verified" : "Pending"}</span>
           </div>
         ))}
       </div>
