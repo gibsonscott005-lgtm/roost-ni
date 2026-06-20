@@ -44,14 +44,15 @@ interface Listing {
   created_at: string;
 }
 
-const HEATING_OPTIONS = ["Mains Gas", "Bulk Oil Tank", "Bulk LPG Tank", "Economy 7 Electric"];
+const HEATING_OPTIONS = ["Oil", "Gas", "Electric"] as const;
+type HeatingOption = (typeof HEATING_OPTIONS)[number];
 const TENANT_PREFS = [
-  { label: "Long-term tenancy", hint: "12 months or more" },
-  { label: "Non-smoker", hint: "Indoors and shared areas" },
-  { label: "Pets considered", hint: "Case-by-case basis" },
-  { label: "Professional / Employed", hint: "Stable income evidence" },
+  { label: "No pets", hint: "Pets not permitted on the property" },
+  { label: "Non-smokers", hint: "Indoors and shared areas" },
+  { label: "Professionals only", hint: "Stable income evidence required" },
+  { label: "Students considered", hint: "With UK-based guarantor" },
   { label: "Couples welcome", hint: "Joint tenancy agreements" },
-  { label: "Students considered", hint: "With guarantor" },
+  { label: "Long-term tenancy", hint: "12 months or more preferred" },
 ];
 
 function Dashboard() {
