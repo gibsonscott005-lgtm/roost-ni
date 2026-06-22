@@ -1,15 +1,14 @@
-## Plan
+## Fix passport editor navigation
 
-1. Update the tenant dashboard card on `/dashboard` so **Complete my passport** navigates reliably to `/dashboard/passport/edit` when tapped.
-2. Keep the working **View passport** and **Browse properties** links unchanged.
-3. Refresh the outdated card copy that says the editor is “being built” so it matches the current working passport editor.
-4. Verify in the live preview that the flow works:
-   - `/` → **Build Your Tenant Passport** opens the edit page
-   - `/dashboard` → **Complete my passport** opens the edit page
-   - URL changes to `/dashboard/passport/edit` and the editor renders
+**Root cause:** After making `/auth` the landing page, `/` now redirects to `/auth`. The passport editor still links back to `/`:
+- The "View passport" button (top-right) → `to="/"`
+- The final `navigate({ to: "/" })` after completing references step
 
-## Technical approach
+Both send the user to `/auth` instead of the dashboard.
 
-- Change only `src/routes/_authenticated/dashboard.tsx`.
-- Use TanStack navigation from the dashboard route for the broken CTA rather than relying on the current `<Link>` that is being swallowed in this card.
-- Do not change database rules, authentication, passport form logic, or the listing buttons.
+**Change (single file: `src/routes/_authenticated/dashboard.passport.edit.tsx`):**
+
+1. Update the "View passport" `<Link>` from `to="/"` → `to="/dashboard"`.
+2. Update the post-completion `navigate({ to: "/" })` → `navigate({ to: "/dashboard" })`.
+
+No other files, no logic, no styling changes.

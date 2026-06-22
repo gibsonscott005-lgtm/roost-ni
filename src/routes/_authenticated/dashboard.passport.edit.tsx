@@ -120,7 +120,7 @@ function PassportEditPage() {
               </p>
             </div>
             <Link
-              to="/"
+              to="/dashboard"
               className="hidden shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 py-2 text-xs font-medium text-foreground transition hover:bg-secondary sm:inline-flex"
             >
               View passport
@@ -162,7 +162,7 @@ function PassportEditPage() {
                     toast.success("Passport fully verified", {
                       description: "All four checks are now live on your passport.",
                     });
-                    navigate({ to: "/" });
+                    navigate({ to: "/dashboard" });
                   }}
                   onBack={goBack}
                 />
