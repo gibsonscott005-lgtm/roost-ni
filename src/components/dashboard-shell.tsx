@@ -44,7 +44,7 @@ export function DashboardShell({
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
         <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/dashboard" className="flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
               <Home className="h-4 w-4" strokeWidth={2.25} />
             </span>
@@ -126,9 +126,9 @@ export function DashboardShell({
             </nav>
           ) : (
             <div className="rounded-2xl border border-border bg-surface p-4 text-sm text-muted-foreground">
-              You're signed in as a Tenant. Your verified passport lives on the{" "}
-              <Link to="/" className="font-medium text-foreground underline-offset-2 hover:underline">
-                home view
+              You're signed in as a Tenant. Manage your verified passport from your{" "}
+              <Link to="/dashboard" className="font-medium text-foreground underline-offset-2 hover:underline">
+                dashboard
               </Link>
               .
             </div>

@@ -1,14 +1,15 @@
-## Fix passport editor navigation
+## Plan
 
-**Root cause:** After making `/auth` the landing page, `/` now redirects to `/auth`. The passport editor still links back to `/`:
-- The "View passport" button (top-right) → `to="/"`
-- The final `navigate({ to: "/" })` after completing references step
+Fix the tenant dashboard links that still point to `/`, because `/` now redirects to `/auth` and causes the sign-in/homepage flash.
 
-Both send the user to `/auth` instead of the dashboard.
+1. Update `src/routes/_authenticated/dashboard.index.tsx`
+   - Change the tenant dashboard **View passport** button from `to="/"` to `to="/dashboard"`.
+   - This is the exact button shown in your screenshot.
 
-**Change (single file: `src/routes/_authenticated/dashboard.passport.edit.tsx`):**
+2. Update `src/components/dashboard-shell.tsx`
+   - Change the Roost logo/home icon link from `to="/"` to `to="/dashboard"` while signed in.
+   - Change the tenant sidebar text/link from “home view” pointing to `/` to dashboard/passport wording pointing to `/dashboard`.
 
-1. Update the "View passport" `<Link>` from `to="/"` → `to="/dashboard"`.
-2. Update the post-completion `navigate({ to: "/" })` → `navigate({ to: "/dashboard" })`.
-
-No other files, no logic, no styling changes.
+3. Verify
+   - Click **View passport** from `/dashboard` and confirm it stays on the tenant dashboard instead of flashing `/auth`.
+   - Confirm **Complete my passport** still opens `/dashboard/passport/edit`.
