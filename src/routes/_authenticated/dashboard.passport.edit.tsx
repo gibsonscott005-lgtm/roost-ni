@@ -476,8 +476,8 @@ function IdentityStep({
         .select("*")
         .single();
       if (error) throw error;
-      toast.success("Identity verified", {
-        description: "Right to Rent badge unlocked.",
+      toast.success("Identity saved", {
+        description: "Right to Rent step complete.",
       });
       onSaved(data as Passport);
     } catch (err: unknown) {
@@ -576,7 +576,7 @@ function IncomeStep({
         .select("*")
         .single();
       if (error) throw error;
-      toast.success("Income verified");
+      toast.success("Income saved");
       onSaved(data as Passport);
     } catch (err: unknown) {
       toast.error("Could not save", {
