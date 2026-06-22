@@ -495,7 +495,7 @@ function IdentityStep({
         icon={IdCard}
         eyebrow="Step 01"
         title="Identity & Right to Rent"
-        desc="Confirm your government photo ID. We'll mark both Identity and Right to Rent as verified."
+        desc="Upload your government photo ID. This self-certifies Identity and Right to Rent on your passport — landlords review the document when you apply."
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Document type">
