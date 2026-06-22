@@ -139,7 +139,7 @@ function TenantDashboard() {
           Complete my passport
         </button>
         <Link
-          to="/"
+          to="/dashboard"
           className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary"
         >
           View passport
