@@ -43,7 +43,7 @@ export function DashboardShell({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
-        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
+        <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link to="/dashboard" className="flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
               <Home className="h-4 w-4" strokeWidth={2.25} />
@@ -83,7 +83,7 @@ export function DashboardShell({
         </div>
       </header>
 
-      <main className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[220px_minmax(0,1fr)]">
+      <main className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">
         <aside className="lg:sticky lg:top-20 lg:self-start">
           <div className="mb-4">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
@@ -126,7 +126,7 @@ export function DashboardShell({
             </nav>
           ) : (
             <div className="rounded-2xl border border-border bg-surface p-4 text-sm text-muted-foreground">
-              You're signed in as a Tenant. Manage your verified passport from your{" "}
+              You're signed in as a Tenant. Manage your completed passport from your{" "}
               <Link to="/dashboard" className="font-medium text-foreground underline-offset-2 hover:underline">
                 dashboard
               </Link>
