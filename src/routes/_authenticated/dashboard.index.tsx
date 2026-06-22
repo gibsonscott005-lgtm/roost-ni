@@ -13,6 +13,14 @@ import {
   ShieldCheck,
   Sparkles,
   Users,
+  BadgeCheck,
+  IdCard,
+  Banknote,
+  UserRoundCheck,
+  Pencil,
+  Share2,
+  FileCheck2,
+  Loader2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -118,41 +126,257 @@ function Dashboard() {
 
 function TenantDashboard() {
   const navigate = useNavigate();
+  const { user, profile } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [passport, setPassport] = useState<{
+    identity_verified: boolean;
+    income_verified: boolean;
+    reference_verified: boolean;
+    right_to_rent_verified: boolean;
+    employment_status: string | null;
+    monthly_income_net: number | null;
+    annual_income: number | null;
+    id_document_type: string | null;
+    id_document_path: string | null;
+    income_document_path: string | null;
+    previous_landlord_name: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("tenant_passports")
+        .select(
+          "identity_verified, income_verified, reference_verified, right_to_rent_verified, employment_status, monthly_income_net, annual_income, id_document_type, id_document_path, income_document_path, previous_landlord_name",
+        )
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (cancelled) return;
+      setPassport(data as typeof passport);
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  const steps = [
+    { key: "identity", label: "Identity & Right to Rent", icon: IdCard, done: !!passport?.identity_verified },
+    { key: "income", label: "Income verification", icon: Banknote, done: !!passport?.income_verified },
+    { key: "references", label: "Character references", icon: UserRoundCheck, done: !!passport?.reference_verified },
+  ];
+  const doneCount = steps.filter((s) => s.done).length;
+  const isComplete = doneCount === 3;
+
+  const shareLink = async () => {
+    if (!user) return;
+    const url = `${window.location.origin}/passport/${user.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Passport link copied", {
+        description: "Share it with a landlord to instantly verify your badges.",
+      });
+    } catch {
+      toast.error("Could not copy link", { description: url });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="rounded-3xl border border-border bg-surface p-10 text-center text-sm text-muted-foreground shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)]">
+        <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+        <p className="mt-2">Loading your passport…</p>
+      </div>
+    );
+  }
+
+  if (!isComplete) {
+    const pct = Math.round((doneCount / 3) * 100);
+    return (
+      <div className="rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Tenant area
+        </p>
+        <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
+          {doneCount === 0 ? "Start your verified passport" : "Finish your verified passport"}
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {doneCount} of 3 verification steps complete. Landlords only see your verified badges —
+          never the raw documents.
+        </p>
+        <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-secondary">
+          <div
+            className="h-full rounded-full bg-verified transition-all"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <ul className="mt-5 space-y-2">
+          {steps.map((s) => (
+            <li
+              key={s.key}
+              className="flex items-center gap-3 rounded-2xl border border-border bg-surface-muted/60 px-3.5 py-2.5"
+            >
+              <span
+                className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ${
+                  s.done
+                    ? "bg-verified text-[var(--color-verified-foreground)]"
+                    : "bg-surface text-muted-foreground"
+                }`}
+              >
+                {s.done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : <s.icon className="h-3.5 w-3.5" />}
+              </span>
+              <span className="font-display text-sm font-medium tracking-tight text-foreground">
+                {s.label}
+              </span>
+              <span
+                className={`ml-auto text-[11px] font-semibold uppercase tracking-wider ${
+                  s.done ? "text-verified" : "text-muted-foreground"
+                }`}
+              >
+                {s.done ? "Verified" : "Pending"}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => navigate({ to: "/dashboard/passport/edit" })}
+            className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+          >
+            {doneCount === 0 ? "Complete my passport" : "Continue verification"}
+          </button>
+          <Link
+            to="/listings"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary"
+          >
+            Browse properties
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const employmentLabel = formatEmployment(passport?.employment_status);
+  const monthlyNet = passport?.monthly_income_net ?? null;
+  const badges = [
+    { label: "Identity", icon: IdCard },
+    { label: "Right to Rent", icon: ShieldCheck },
+    { label: "Income", icon: Banknote },
+    { label: "References", icon: UserRoundCheck },
+  ];
+
   return (
     <div className="rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        Tenant area
-      </p>
-      <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-        Your verified passport is ready
-      </h2>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Complete the three short verification steps to unlock your verified ID, income and
-        reference badges — then share them with NI landlords in one tap.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Tenant passport
+          </p>
+          <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
+            {profile?.full_name || "Your verified passport"}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            All four checks are live. Share your passport with NI landlords in one tap.
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-verified-soft px-3 py-1 text-xs font-semibold text-verified">
+          <BadgeCheck className="h-3.5 w-3.5" />
+          Fully verified
+        </span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {badges.map((b) => (
+          <div
+            key={b.label}
+            className="flex items-center gap-2 rounded-2xl border border-verified/30 bg-verified-soft/50 px-3 py-2.5"
+          >
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-verified text-[var(--color-verified-foreground)]">
+              <b.icon className="h-3.5 w-3.5" />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate font-display text-xs font-semibold tracking-tight text-foreground">
+                {b.label}
+              </p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-verified">
+                Verified
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <dl className="mt-5 grid grid-cols-1 gap-2 rounded-2xl border border-border bg-surface-muted/60 p-4 sm:grid-cols-3">
+        <div>
+          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Employment
+          </dt>
+          <dd className="mt-0.5 font-display text-sm font-semibold tracking-tight text-foreground">
+            {employmentLabel}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Monthly net income
+          </dt>
+          <dd className="mt-0.5 font-display text-sm font-semibold tracking-tight text-foreground">
+            {monthlyNet ? `£${Number(monthlyNet).toLocaleString()}` : "—"}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Documents on file
+          </dt>
+          <dd className="mt-0.5 flex items-center gap-1.5 font-display text-sm font-semibold tracking-tight text-foreground">
+            <FileCheck2 className="h-3.5 w-3.5 text-verified" />
+            ID & income
+          </dd>
+        </div>
+      </dl>
+
       <div className="mt-5 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/dashboard/passport/edit" })}
-          className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
-        >
-          Complete my passport
-        </button>
-        <Link
-          to="/dashboard"
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary"
-        >
-          View passport
-        </Link>
         <Link
           to="/listings"
+          className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+        >
+          <Building2 className="h-3.5 w-3.5" />
+          Browse properties
+        </Link>
+        <button
+          type="button"
+          onClick={shareLink}
           className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary"
         >
-          Browse properties
+          <Share2 className="h-3.5 w-3.5" />
+          Share passport
+        </button>
+        <Link
+          to="/dashboard/passport/edit"
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary"
+        >
+          <Pencil className="h-3.5 w-3.5" />
+          Edit passport
         </Link>
       </div>
     </div>
   );
+}
+
+function formatEmployment(status: string | null | undefined): string {
+  if (!status) return "—";
+  const map: Record<string, string> = {
+    permanent_full_time: "Permanent · Full-time",
+    permanent_part_time: "Permanent · Part-time",
+    self_employed: "Self-employed",
+    contract: "Contract",
+    student: "Student",
+    retired: "Retired",
+  };
+  return map[status] ?? status;
 }
 
 function MyProperties({
