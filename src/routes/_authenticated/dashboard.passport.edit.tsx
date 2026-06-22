@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/passport/edit")(
       {
         name: "description",
         content:
-          "Complete your Tenant Passport in three short steps to earn verified ID, income and reference badges.",
+          "Complete your Tenant Passport in three short steps. Self-certify your ID, income and references so landlords can review them when you apply.",
       },
     ],
   }),
@@ -112,11 +112,12 @@ function PassportEditPage() {
                 Tenant Passport
               </p>
               <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-                Complete your verification
+                Complete your passport
               </h2>
               <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-                Three short steps to a fully verified passport. Save progress at any time —
-                landlords only ever see your verified badges, never the raw documents.
+                Three short steps to a self-certified passport. Save progress at any time — your
+                uploaded documents are shared securely with landlords when you apply. Roost does
+                not run background checks.
               </p>
             </div>
             <Link
@@ -159,8 +160,8 @@ function PassportEditPage() {
                   passport={passport}
                   onSaved={(p) => {
                     setPassport(p);
-                    toast.success("Passport fully verified", {
-                      description: "All four checks are now live on your passport.",
+                    toast.success("Passport complete", {
+                      description: "Your self-certified passport is ready to share with landlords.",
                     });
                     navigate({ to: "/dashboard" });
                   }}
@@ -172,7 +173,8 @@ function PassportEditPage() {
 
           <p className="mt-6 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
             <Lock className="h-3 w-3" />
-            Documents stored privately. Only your verified badges are shared with landlords.
+            Documents stored privately. Shared securely with landlords when you apply — Roost does
+            not run background checks.
           </p>
         </div>
       )}
@@ -474,8 +476,8 @@ function IdentityStep({
         .select("*")
         .single();
       if (error) throw error;
-      toast.success("Identity verified", {
-        description: "Right to Rent badge unlocked.",
+      toast.success("Identity saved", {
+        description: "Right to Rent step complete.",
       });
       onSaved(data as Passport);
     } catch (err: unknown) {
@@ -493,7 +495,7 @@ function IdentityStep({
         icon={IdCard}
         eyebrow="Step 01"
         title="Identity & Right to Rent"
-        desc="Confirm your government photo ID. We'll mark both Identity and Right to Rent as verified."
+        desc="Upload your government photo ID. This self-certifies Identity and Right to Rent on your passport — landlords review the document when you apply."
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Document type">
@@ -574,7 +576,7 @@ function IncomeStep({
         .select("*")
         .single();
       if (error) throw error;
-      toast.success("Income verified");
+      toast.success("Income saved");
       onSaved(data as Passport);
     } catch (err: unknown) {
       toast.error("Could not save", {

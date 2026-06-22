@@ -201,11 +201,11 @@ function TenantDashboard() {
           Tenant area
         </p>
         <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-          {doneCount === 0 ? "Start your verified passport" : "Finish your verified passport"}
+          {doneCount === 0 ? "Start your tenant passport" : "Finish your tenant passport"}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          {doneCount} of 3 verification steps complete. Landlords only see your verified badges —
-          never the raw documents.
+          {doneCount} of 3 steps complete. Documents you upload are shared securely with landlords
+          when you apply — Roost does not run background checks.
         </p>
         <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-secondary">
           <div
@@ -236,7 +236,7 @@ function TenantDashboard() {
                   s.done ? "text-verified" : "text-muted-foreground"
                 }`}
               >
-                {s.done ? "Verified" : "Pending"}
+                {s.done ? "Complete" : "Pending"}
               </span>
             </li>
           ))}
@@ -247,7 +247,7 @@ function TenantDashboard() {
             onClick={() => navigate({ to: "/dashboard/passport/edit" })}
             className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
           >
-            {doneCount === 0 ? "Complete my passport" : "Continue verification"}
+            {doneCount === 0 ? "Complete my passport" : "Continue passport"}
           </button>
           <Link
             to="/listings"
@@ -277,15 +277,16 @@ function TenantDashboard() {
             Tenant passport
           </p>
           <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-            {profile?.full_name || "Your verified passport"}
+            {profile?.full_name || "Your tenant passport"}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            All four checks are live. Share your passport with NI landlords in one tap.
+            Documents have been securely uploaded by the tenant. Landlords can review these files
+            directly upon application.
           </p>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-verified-soft px-3 py-1 text-xs font-semibold text-verified">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-verified px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--color-verified-foreground)]">
           <BadgeCheck className="h-3.5 w-3.5" />
-          Fully verified
+          Profile Complete • Self-Certified
         </span>
       </div>
 
@@ -303,7 +304,7 @@ function TenantDashboard() {
                 {b.label}
               </p>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-verified">
-                Verified
+                Self-Certified
               </p>
             </div>
           </div>
