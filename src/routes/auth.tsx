@@ -37,7 +37,7 @@ function AuthPage() {
         .select("account_type")
         .eq("id", userId)
         .maybeSingle();
-      const target = profile?.account_type === "landlord" ? "/dashboard" : "/";
+      const target = "/dashboard";
       navigate({ to: target });
     };
 
