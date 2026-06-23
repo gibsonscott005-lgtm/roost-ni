@@ -19,7 +19,9 @@ import {
   UserRoundCheck,
   Pencil,
   Share2,
-  FileCheck2,
+  FileText,
+  Image as ImageIcon,
+  ExternalLink,
   Loader2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -311,7 +313,7 @@ function TenantDashboard() {
         ))}
       </div>
 
-      <dl className="mt-5 grid grid-cols-1 gap-2 rounded-2xl border border-border bg-surface-muted/60 p-4 sm:grid-cols-3">
+      <dl className="mt-5 grid grid-cols-1 gap-2 rounded-2xl border border-border bg-surface-muted/60 p-4 sm:grid-cols-2">
         <div>
           <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Employment
@@ -328,16 +330,25 @@ function TenantDashboard() {
             {monthlyNet ? `£${Number(monthlyNet).toLocaleString()}` : "—"}
           </dd>
         </div>
-        <div>
-          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Documents on file
-          </dt>
-          <dd className="mt-0.5 flex items-center gap-1.5 font-display text-sm font-semibold tracking-tight text-foreground">
-            <FileCheck2 className="h-3.5 w-3.5 text-verified" />
-            ID & income
-          </dd>
-        </div>
       </dl>
+
+      <div className="mt-3 rounded-2xl border border-border bg-surface-muted/60 p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Documents on file
+        </p>
+        <ul className="mt-2 space-y-2">
+          <DocumentRow
+            label="Identity document"
+            path={passport?.id_document_path ?? null}
+            stepHash="identity"
+          />
+          <DocumentRow
+            label="Income document"
+            path={passport?.income_document_path ?? null}
+            stepHash="income"
+          />
+        </ul>
+      </div>
 
       <div className="mt-5 flex flex-wrap gap-2">
         <Link
@@ -378,6 +389,91 @@ function formatEmployment(status: string | null | undefined): string {
     retired: "Retired",
   };
   return map[status] ?? status;
+}
+
+function DocumentRow({
+  label,
+  path,
+  stepHash,
+}: {
+  label: string;
+  path: string | null;
+  stepHash: string;
+}) {
+  const [opening, setOpening] = useState(false);
+  const filename = path ? path.split("/").pop() ?? path : null;
+  const isImage = !!filename && /\.(jpe?g|png|webp|gif)$/i.test(filename);
+  const Icon = isImage ? ImageIcon : FileText;
+
+  const onView = async () => {
+    if (!path || opening) return;
+    setOpening(true);
+    try {
+      const { data, error } = await supabase.storage
+        .from("tenant-documents")
+        .createSignedUrl(path, 60);
+      if (error || !data?.signedUrl) throw error ?? new Error("No URL");
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      toast.error("Couldn't open document", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    } finally {
+      setOpening(false);
+    }
+  };
+
+  if (!path) {
+    return (
+      <li className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-surface px-3 py-2.5">
+        <span className="flex items-center gap-2 min-w-0">
+          <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <span className="truncate text-sm text-muted-foreground">
+            {label} — not uploaded yet
+          </span>
+        </span>
+        <Link
+          to="/dashboard/passport/edit"
+          hash={stepHash}
+          className="shrink-0 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground transition hover:bg-secondary"
+        >
+          Add
+        </Link>
+      </li>
+    );
+  }
+
+  return (
+    <li className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface px-3 py-2.5">
+      <span className="flex items-center gap-2 min-w-0">
+        <Icon className="h-4 w-4 shrink-0 text-verified" />
+        <span className="min-w-0">
+          <span className="block truncate font-display text-sm font-semibold tracking-tight text-foreground">
+            {label}
+          </span>
+          <span className="block truncate text-[11px] text-muted-foreground">{filename}</span>
+        </span>
+      </span>
+      <span className="flex shrink-0 items-center gap-1.5">
+        <span className="hidden rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified sm:inline-block">
+          Self-Certified
+        </span>
+        <button
+          type="button"
+          onClick={onView}
+          disabled={opening}
+          className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
+        >
+          {opening ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : (
+            <ExternalLink className="h-3 w-3" />
+          )}
+          View
+        </button>
+      </span>
+    </li>
+  );
 }
 
 function MyProperties({

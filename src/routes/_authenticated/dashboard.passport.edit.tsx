@@ -7,6 +7,7 @@ import {
   BadgeCheck,
   Banknote,
   Check,
+  ExternalLink,
   FileUp,
   IdCard,
   Loader2,
@@ -312,6 +313,7 @@ function FileDrop({
   onSelect: (file: File | null) => void;
 }) {
   const [hover, setHover] = useState(false);
+  const [opening, setOpening] = useState(false);
 
   const onPick = (f: File | null) => {
     if (!f) {
@@ -327,6 +329,26 @@ function FileDrop({
       return;
     }
     onSelect(f);
+  };
+
+  const onViewCurrent = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!currentPath || opening) return;
+    setOpening(true);
+    try {
+      const { data, error } = await supabase.storage
+        .from(BUCKET)
+        .createSignedUrl(currentPath, 60);
+      if (error || !data?.signedUrl) throw error ?? new Error("No URL");
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      toast.error("Couldn't open file", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    } finally {
+      setOpening(false);
+    }
   };
 
   return (
@@ -371,6 +393,19 @@ function FileDrop({
           <span>
             <span className="block text-sm font-medium text-foreground">Document on file</span>
             <span className="text-xs text-muted-foreground">Tap to replace</span>
+            <button
+              type="button"
+              onClick={onViewCurrent}
+              disabled={opening}
+              className="mt-2 inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
+            >
+              {opening ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <ExternalLink className="h-3 w-3" />
+              )}
+              View current file
+            </button>
           </span>
         ) : (
           <span>

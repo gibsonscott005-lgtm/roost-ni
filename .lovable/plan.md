@@ -1,30 +1,38 @@
-## Plan
+## Make tenant document uploads visible and verifiable on the dashboard
 
-Replace the static "Your verified passport is ready" card on the tenant dashboard with a live passport summary plus next-step actions, driven by the user's `tenant_passports` row.
+I checked the database and storage: tenant uploads **are saving correctly** — both `id_document_path` and `income_document_path` are written to `tenant_passports`, files land in the private `tenant-documents` bucket, and the storage RLS policies are correct. The reason it *feels* unreliable is that the dashboard shows a hardcoded "ID & income" label regardless of what's actually stored, and there is no way to open, preview, or confirm the saved files.
 
-### Behaviour
+This plan adds real visibility so saving is verifiable end-to-end.
 
-**If passport is incomplete** (any of identity / income / references not verified):
-- Show a progress card: "X of 3 steps complete" with a progress bar and a checklist of the three steps (tick = done, circle = pending).
-- Primary CTA: **Continue verification** → `/dashboard/passport/edit`.
-- Secondary: **Browse properties**.
+### Changes
 
-**If passport is fully verified** (identity + income + references all true):
-- Header switches to **Your verified passport** with a green "Verified" badge.
-- Show the four verified badges: Identity, Right to Rent, Income, References (matches the four checks the editor sets).
-- Show a small details strip: name, employment status (formatted), monthly net income (£), document on file indicator.
-- Action row:
-  - **Browse properties** → `/listings` (primary)
-  - **Edit passport** → `/dashboard/passport/edit`
-  - **Share passport** → copies a shareable link `${origin}/passport/${user.id}` to the clipboard with a toast (link target not built yet — copy + toast only, no new route).
+**1. `src/routes/_authenticated/dashboard.index.tsx` — replace the static "Documents on file" line with a live list**
 
-### Files
+- Read `id_document_path` and `income_document_path` from the passport (already fetched).
+- Render two rows under "Documents on file":
+  - **ID document** — shows filename + "Self-Certified" pill + a "View" button.
+  - **Income document** — same pattern.
+- If a path is missing, show a muted "Not uploaded yet" with a "Add" link to the relevant step in `/dashboard/passport/edit`.
+- "View" calls `supabase.storage.from("tenant-documents").createSignedUrl(path, 60)` and opens the URL in a new tab. Errors surface as a toast.
+- Move "Documents on file" out of the 3-column grid into its own card so the two file rows have room to breathe.
 
-1. `src/routes/_authenticated/dashboard.index.tsx`
-   - Rewrite the `TenantDashboard` component:
-     - Load the tenant's `tenant_passports` row (select identity_verified, income_verified, reference_verified, right_to_rent_verified, employment_status, monthly_income_net, id_document_path, full_name via profile).
-     - Loading skeleton while fetching.
-     - Render incomplete vs complete variants as described.
-   - Keep the existing card shell styling (rounded-3xl border, same paddings, verified-soft accents) so visual language stays consistent.
+**2. `src/routes/_authenticated/dashboard.passport.edit.tsx` — confirmation after each upload**
 
-No schema changes, no new routes, no business-logic changes to the editor.
+- In `FileDrop`, when `currentPath` is set, add a small "View current file" link that also uses `createSignedUrl`. This lets the tenant verify the saved file from inside the edit flow, not only after returning to the dashboard.
+- No changes to the save logic — it already writes the path on success.
+
+**3. No schema or RLS changes**
+
+- `tenant-documents` bucket policies are correct (INSERT/SELECT/DELETE scoped to `auth.uid()` folder). Signed URLs honour those policies.
+- No landlord-side document feature is added (per your answer — debug tenant only).
+
+### Out of scope
+
+- Landlord document uploads.
+- Replacing the upload mechanism or moving to a server function — current direct-to-storage upload works.
+
+### Technical notes
+
+- Signed URL TTL: 60 seconds is enough to open in a new tab; no caching needed.
+- File icons inferred from extension (`.pdf` → `FileText`, image → `Image`).
+- All new copy stays in British English and uses the "Self-Certified" wording.
