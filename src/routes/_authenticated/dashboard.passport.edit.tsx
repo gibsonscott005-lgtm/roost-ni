@@ -56,6 +56,19 @@ interface Passport {
   previous_landlord_phone: string | null;
   tenancy_duration: string | null;
   reference_document_path: string | null;
+  is_first_time_renter: boolean;
+  guarantor_name: string | null;
+  guarantor_address: string | null;
+  guarantor_email: string | null;
+  guarantor_phone: string | null;
+  guarantor_employment_status: string | null;
+  tenancy_start_date: string | null;
+  tenancy_end_date: string | null;
+  previous_landlord_name_2: string | null;
+  previous_landlord_email_2: string | null;
+  previous_landlord_phone_2: string | null;
+  tenancy_start_date_2: string | null;
+  tenancy_end_date_2: string | null;
 }
 
 const STEPS: { key: StepKey; label: string; sub: string }[] = [
