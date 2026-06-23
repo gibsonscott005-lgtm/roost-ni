@@ -128,7 +128,7 @@ function Dashboard() {
 
 function TenantDashboard() {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [passport, setPassport] = useState<{
     identity_verified: boolean;
@@ -152,25 +152,37 @@ function TenantDashboard() {
   } | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
-        .from("tenant_passports")
-        .select(
-          "identity_verified, income_verified, reference_verified, right_to_rent_verified, employment_status, monthly_income_net, annual_income, id_document_type, id_document_path, income_document_path, previous_landlord_name, previous_landlord_email, previous_landlord_phone, tenancy_duration, reference_document_path, is_first_time_renter, guarantor_name, previous_landlord_name_2",
-        )
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (cancelled) return;
-      setPassport(data as typeof passport);
-      setLoading(false);
+      try {
+        const { data, error } = await supabase
+          .from("tenant_passports")
+          .select(
+            "identity_verified, income_verified, reference_verified, right_to_rent_verified, employment_status, monthly_income_net, annual_income, id_document_type, id_document_path, income_document_path, previous_landlord_name, previous_landlord_email, previous_landlord_phone, tenancy_duration, reference_document_path, is_first_time_renter, guarantor_name, previous_landlord_name_2",
+          )
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (cancelled) return;
+        if (error) throw error;
+        setPassport(data as typeof passport);
+        setLoading(false);
+      } catch (err: unknown) {
+        if (cancelled) return;
+        const e = err as { code?: string; message?: string };
+        const msg = e?.message || "Please refresh.";
+        toast.error("Couldn't load passport", {
+          description: e?.code ? `[${e.code}] ${msg}` : msg,
+        });
+        // keep loading=true so we don't blank existing data with a 0/100 default
+      }
     })();
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [user?.id, authLoading]);
 
   const steps = [
     { key: "identity", label: "Identity & Right to Rent", icon: IdCard, done: !!passport?.identity_verified },

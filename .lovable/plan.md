@@ -1,31 +1,45 @@
-## Fix PDF uploads failing with "Failed to fetch" on mobile Safari
+## Fix Tenant Passport data loss + save failures
 
-PNGs upload fine; PDFs from the Files app fail with a browser-level `Failed to fetch` (no status, no server response) on identity, income and the optional reference upload. The previous attempt to buffer the `File` into a `Blob` before calling Supabase Storage didn't fix it — `supabase-js` still wraps the body in `FormData` with the original `File`/`Blob` reference, which Safari intermittently aborts mid-stream for PDF MIME bodies from cross-origin iframes.
+The passport "disappears" on refresh and edits sometimes don't persist because the data hooks race the Supabase auth session and the wizard uses `.insert()` + `.update()` (which silently no-ops if no row exists for the user yet). Errors are swallowed into a generic toast, hiding RLS / DB error codes.
 
-### Approach
+### 1. Gate every passport fetch on auth session resolution
 
-Replace the shared `uploadDoc` helper in `src/routes/_authenticated/dashboard.passport.edit.tsx` with one that:
+Update `src/hooks/use-auth.ts` so `loading` stays `true` until both `getSession()` AND the follow-up profile fetch resolve (currently `loading` flips to false before `profile` is set, so consumers can run queries thinking auth is ready).
 
-1. Reads the picked file into an `ArrayBuffer` immediately (snapshot bytes — avoids Safari's "file reference went stale" abort that happens with iCloud-backed PDFs).
-2. Wraps it in a fresh `Blob` with an explicit, extension-based content type (`application/pdf`, `image/jpeg`, `image/png`, `image/webp`, `image/heic`, falling back to the browser-reported type, then `application/octet-stream`).
-3. Validates size up front (reject > 10 MB with a friendly toast — matches the dropzone copy and prevents a silent network failure on slow mobile uploads).
-4. Calls `supabase.storage.upload(path, blob, { contentType, cacheControl: "3600", upsert: false })`.
-5. Retries the upload once on a network-level `Failed to fetch` / `TypeError` (not on Supabase API errors) before surfacing the error. Mobile Safari often succeeds on the immediate retry after the first PDF stall.
+In `src/routes/_authenticated/dashboard.index.tsx` (`PassportProgress`) and `src/routes/_authenticated/dashboard.passport.edit.tsx` (`PassportEditPage`):
+- Pull `loading` (rename locally to `authLoading`) from `useAuth()`.
+- Initialise the local `loading` state to `true` and only run the fetch effect when `!authLoading && user`.
+- While `authLoading` is true, render the existing `<Loader2 />` spinner block — never fall through to the empty `0/100` / "Loading…" defaults that overwrite real data on refresh.
+- Wrap the fetch in `try { … } catch (err) { toast.error("Couldn't load passport", { description: \`\${err.code ?? ""} \${err.message}\` }) }` and keep `loading=true` on error so the UI doesn't blank the existing state.
 
-Because all three steps (Identity, Income, References optional letter) already go through `uploadDoc`, this single helper change fixes every upload site in the wizard. No DB schema, RLS, bucket, or component-shape changes are needed — the storage bucket and policies are already correct (PNG upload from the same user/session succeeded).
+### 2. Convert all wizard saves to `upsert` with explicit `user_id`
 
-### Error surfacing
+In `src/routes/_authenticated/dashboard.passport.edit.tsx`:
 
-Update the `toast.error("Could not save", …)` calls in `IdentityStep`, `IncomeStep` and `ReferencesStep` to show a clearer description when the failure originates in storage vs. the DB write, so a future stall is diagnosable from the UI without checking the network panel ("Upload didn't complete — please try again on a stable connection").
+- **`load()` (lines 89-107)** — replace the `select → if no row, insert` pattern with a single `.upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: false }).select("*").single()`. Removes the race where two tabs both insert and the second crashes on the unique constraint.
+- **`IdentityStep.onSubmit` (line 577)**, **`IncomeStep.onSubmit` (line 677)**, **`ReferencesStep.onSubmit` (line 878)** — change `.update({...}).eq("user_id", user.id)` to `.upsert({ user_id: user.id, ...payload }, { onConflict: "user_id" }).select("*").single()`. This guarantees the row exists even if the initial `load()` upsert was interrupted, and always re-attaches `user_id` so RLS `WITH CHECK (auth.uid() = user_id)` policies cannot reject the write.
+- Confirm `tenant_passports.user_id` has a `UNIQUE` constraint (required for `onConflict`). Check via `supabase--read_query`; if missing, add it in a migration before the code change ships.
+
+### 3. Surface DB errors with code
+
+Replace every `toast.error("Could not save", { description: err.message })` in the three step submit handlers and the new `load()` catch with:
+
+```ts
+const code = (err as { code?: string })?.code;
+const msg = err instanceof Error ? err.message : "Please try again.";
+toast.error("Could not save", { description: code ? `[${code}] ${msg}` : msg });
+```
+
+So RLS rejections (`42501`), unique violations (`23505`), etc. are visible in the UI for diagnosis without opening the network panel.
 
 ### Out of scope
 
-- No new bucket, no policy edits, no edge function.
-- No image compression / PDF re-encoding — file size is fine, the issue is the request stream, not the payload.
-- Landlord-side uploads aren't in scope (debug remit is tenant uploads).
+- No schema/policy changes to `tenant_passports` beyond verifying/adding the `user_id` UNIQUE constraint.
+- No changes to upload helper, storage bucket, or any other route.
+- No changes to landlord-side flows.
 
 ### Technical notes
 
-- `file.arrayBuffer()` is supported on iOS Safari 14+; we already require modern browsers elsewhere in the wizard.
-- The retry uses a fresh `Blob` built from the same buffered bytes so the second attempt doesn't reuse a consumed stream.
-- Content-type map is keyed on the lower-cased extension; unknown types fall back to `file.type || "application/octet-stream"`.
+- `useAuth` change is additive — existing consumers that read only `user`/`profile` continue to work; the new `loading` gate just delays the first fetch by a few ms.
+- `upsert` with `onConflict: "user_id"` requires a unique index on `user_id`; the migration is a single `ALTER TABLE … ADD CONSTRAINT tenant_passports_user_id_key UNIQUE (user_id);` if it doesn't already exist.
+- Error-code surfacing uses Supabase's standard `PostgrestError.code` shape — no new dependency.

@@ -48,14 +48,18 @@ export function useAuth() {
       currentUserId = data.session?.user?.id ?? null;
       setSession(data.session);
       setUser(data.session?.user ?? null);
-      setLoading(false);
       if (data.session?.user) {
         supabase
           .from("profiles")
           .select("id, full_name, phone, account_type")
           .eq("id", data.session.user.id)
           .maybeSingle()
-          .then(({ data: p }) => setProfile(p as Profile | null));
+          .then(({ data: p }) => {
+            setProfile(p as Profile | null);
+            setLoading(false);
+          });
+      } else {
+        setLoading(false);
       }
     });
 
