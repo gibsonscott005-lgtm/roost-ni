@@ -590,14 +590,17 @@ function IdentityStep({
       if (file) path = await uploadDoc(user.id, "identity", file);
       const { data, error } = await supabase
         .from("tenant_passports")
-        .update({
-          id_document_type: docType,
-          id_document_number: docNumber,
-          id_document_path: path,
-          identity_verified: true,
-          right_to_rent_verified: true,
-        })
-        .eq("user_id", user.id)
+        .upsert(
+          {
+            user_id: user.id,
+            id_document_type: docType,
+            id_document_number: docNumber,
+            id_document_path: path,
+            identity_verified: true,
+            right_to_rent_verified: true,
+          },
+          { onConflict: "user_id" },
+        )
         .select("*")
         .single();
       if (error) throw error;
@@ -607,7 +610,7 @@ function IdentityStep({
       onSaved(data as Passport);
     } catch (err: unknown) {
       toast.error("Could not save", {
-        description: err instanceof Error ? err.message : "Please try again.",
+        description: describeDbError(err),
       });
     } finally {
       setSaving(false);
