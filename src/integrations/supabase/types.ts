@@ -150,8 +150,10 @@ export type Database = {
           previous_landlord_email: string | null
           previous_landlord_name: string | null
           previous_landlord_phone: string | null
+          reference_document_path: string | null
           reference_verified: boolean
           right_to_rent_verified: boolean
+          tenancy_duration: string | null
           updated_at: string
           user_id: string
         }
@@ -173,8 +175,10 @@ export type Database = {
           previous_landlord_email?: string | null
           previous_landlord_name?: string | null
           previous_landlord_phone?: string | null
+          reference_document_path?: string | null
           reference_verified?: boolean
           right_to_rent_verified?: boolean
+          tenancy_duration?: string | null
           updated_at?: string
           user_id: string
         }
@@ -196,8 +200,10 @@ export type Database = {
           previous_landlord_email?: string | null
           previous_landlord_name?: string | null
           previous_landlord_phone?: string | null
+          reference_document_path?: string | null
           reference_verified?: boolean
           right_to_rent_verified?: boolean
+          tenancy_duration?: string | null
           updated_at?: string
           user_id?: string
         }

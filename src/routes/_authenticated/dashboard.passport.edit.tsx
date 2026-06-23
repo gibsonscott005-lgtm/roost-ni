@@ -54,6 +54,8 @@ interface Passport {
   previous_landlord_name: string | null;
   previous_landlord_email: string | null;
   previous_landlord_phone: string | null;
+  tenancy_duration: string | null;
+  reference_document_path: string | null;
 }
 
 const STEPS: { key: StepKey; label: string; sub: string }[] = [
@@ -681,23 +683,29 @@ function ReferencesStep({
   const [name, setName] = useState(passport.previous_landlord_name ?? "");
   const [email, setEmail] = useState(passport.previous_landlord_email ?? "");
   const [phone, setPhone] = useState(passport.previous_landlord_phone ?? "");
+  const [duration, setDuration] = useState(passport.tenancy_duration ?? "");
+  const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || saving) return;
-    if (!name.trim() || !email.trim() || !phone.trim()) {
+    if (!name.trim() || !email.trim() || !phone.trim() || !duration.trim()) {
       toast.error("Please complete every field");
       return;
     }
     setSaving(true);
     try {
+      let path = passport.reference_document_path;
+      if (file) path = await uploadDoc(user.id, "references", file);
       const { data, error } = await supabase
         .from("tenant_passports")
         .update({
           previous_landlord_name: name.trim(),
           previous_landlord_email: email.trim(),
           previous_landlord_phone: phone.trim(),
+          tenancy_duration: duration.trim(),
+          reference_document_path: path,
           reference_verified: true,
         })
         .eq("user_id", user.id)
@@ -752,7 +760,25 @@ function ReferencesStep({
               className={inputCx}
             />
           </Field>
+          <Field label="Tenancy duration" className="sm:col-span-2">
+            <input
+              required
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              placeholder="e.g. 18 months"
+              className={inputCx}
+            />
+          </Field>
         </div>
+        <FileDrop
+          label="Reference letter (optional)"
+          currentPath={passport.reference_document_path}
+          file={file}
+          onSelect={setFile}
+        />
+        <p className="text-xs text-muted-foreground">
+          Optional — attach a written reference from your previous landlord if you have one.
+        </p>
         <StepActions onBack={onBack} saving={saving} submitLabel="Save & finish" />
       </StepCard>
     </form>
