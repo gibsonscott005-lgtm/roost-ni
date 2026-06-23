@@ -1,50 +1,73 @@
-## Hybrid References step — contact details + optional reference letter
+## Step 3 — Conditional References (First-Timer vs Experienced)
 
-The Step 3 form already collects previous landlord name, email and phone. I'll add a tenancy duration field, make the four text fields the required set, add an optional reference letter dropzone, store the file path alongside the passport record, and surface the document on the dashboard.
+Rework Step 3 of the Tenant Passport wizard so it branches on whether the tenant has rented before, capturing either a UK guarantor or one-to-two landlord references that together cover three years of history. Update the home passport card to reflect the chosen path.
 
 ### 1. Database migration — `tenant_passports`
 
-Add two nullable columns:
+Add the fields needed to persist either branch. All nullable so existing rows stay valid.
 
-- `tenancy_duration` (text) — free-text tenancy length (e.g. "18 months", "2 years").
-- `reference_document_path` (text) — storage path in the existing `tenant-documents` bucket.
+- `is_first_time_renter` (boolean, default false)
+- Guarantor (Branch A):
+  - `guarantor_name` (text)
+  - `guarantor_address` (text)
+  - `guarantor_email` (text)
+  - `guarantor_phone` (text)
+  - `guarantor_employment_status` (text)
+- Second landlord reference (Branch B):
+  - `previous_landlord_name_2` (text)
+  - `previous_landlord_email_2` (text)
+  - `previous_landlord_phone_2` (text)
+  - `tenancy_start_date_2` (date)
+  - `tenancy_end_date_2` (date)
+- Convert the existing free-text history into structured dates for the primary reference:
+  - `tenancy_start_date` (date)
+  - `tenancy_end_date` (date)
+  - Keep `tenancy_duration` in place for now — no data backfill — and stop writing to it from the wizard.
 
-No RLS or grant changes — existing policies on `tenant_passports` already cover the user's own row, and the `tenant-documents` bucket policies already scope INSERT/SELECT/DELETE by `auth.uid()` folder. No new bucket needed.
+No RLS, GRANT or bucket changes — existing policies already cover the user's own row.
 
 ### 2. `src/routes/_authenticated/dashboard.passport.edit.tsx`
 
-Update `Passport` interface to include `tenancy_duration` and `reference_document_path`.
+Extend the `Passport` interface with the new columns. Replace the body of `ReferencesStep` with a single form that branches on a toggle:
 
-In `ReferencesStep`:
+- **Entry toggle** — segmented "Is this your first time renting a property?" (Yes / No), seeded from `is_first_time_renter`. Defaults to whichever side already has data; otherwise No.
 
-- Add a `tenancyDuration` state, seeded from the passport.
-- Add a new `Field` for "Tenancy duration" (text input, required) alongside the existing landlord fields.
-- Add a `FileDrop` labelled **"Reference letter (optional)"** below the contact fields, with a short hint that it's not required.
-- On submit:
-  - Require all four text fields (name, email, phone, tenancy duration). The reference letter stays optional.
-  - If a file is selected, call the existing `uploadDoc(user.id, "references", file)` helper and capture the returned path.
-  - Update the row with `previous_landlord_name`, `previous_landlord_email`, `previous_landlord_phone`, `tenancy_duration`, `reference_document_path` (only when a new file was uploaded — otherwise preserve the existing path), and `reference_verified: true`.
+- **Branch A — Guarantor (first-time renters):**
+  - Section heading "Guarantor details" with helper copy: "Landlords require first-time renters to provide a UK-based guarantor who can cover rent liabilities if needed."
+  - Required fields: full name, UK residential address (textarea), email, phone, employment / income status (same select options as the income step).
+  - Reuses the existing optional `FileDrop` labelled "Supporting document (optional)" → `reference_document_path`.
 
-No changes to the identity/income steps.
+- **Branch B — Landlord references (experienced renters):**
+  - "Most recent landlord" block: name, email, phone, tenancy start date, tenancy end date (all required, native `<input type="date">`).
+  - Compute duration from the two dates in months. If `< 36` months, render a second block "Previous landlord reference" with the same five required fields. If `>= 36` months, hide and clear the second block in local state.
+  - Show an inline hint above the second block: "Add an earlier landlord so we cover the last 3 years of your history."
+  - Keep the existing optional reference-letter `FileDrop`.
 
-### 3. `src/routes/_authenticated/dashboard.index.tsx` — TenantDashboard
+- **Submit logic:**
+  - Validate the active branch only. End date must be after start date for each landlord block. Second landlord required only when first tenancy `< 36` months.
+  - On Branch A submit, write guarantor fields + `is_first_time_renter: true` and clear all landlord/tenancy date columns to null. On Branch B submit, write landlord fields (clearing landlord 2 columns when not needed) + `is_first_time_renter: false` and clear guarantor columns. Always set `reference_verified: true` and upload the optional file via the existing `uploadDoc(user.id, "references", file)` when present.
 
-- Extend the passport SELECT to fetch `tenancy_duration` and `reference_document_path`.
-- Add the field to the local `passport` state type.
-- Add a third `DocumentRow` to the "Documents on file" list:
-  - When `reference_document_path` is set → render the row exactly like ID/Income (filename + "Self-Certified" pill + View button, signed URL via the existing helper).
-  - When not set but the contact details are filled → render a muted "Reference letter — not uploaded (optional)" line with no "Add" CTA, to make clear the section is still complete.
-  - When neither contact details nor a file exist → fall back to the existing "Add" affordance.
-- The Reference badge in the 4-badge grid already reads "Self-Certified" once `reference_verified` is true — no change there. Filling in the four required text fields in Step 3 already flips that flag, so the card status is correct without any client-side recomputation.
+No changes to the identity or income steps.
+
+### 3. `src/routes/_authenticated/dashboard.index.tsx`
+
+- Extend the passport SELECT and local type with the new columns.
+- Update the "References" badge sub-label (currently a hard-coded "Self-Certified") to a dynamic value:
+  - First-time renter with guarantor name set → `Guarantor Provided`.
+  - Experienced renter with second landlord present → `2 Landlord References`.
+  - Experienced renter with only the first landlord → `1 Landlord Reference`.
+  - Otherwise (pending) → falls back to `Self-Certified` as today.
+- Update the "Reference letter" `DocumentRow` `sectionFilled` check so it stays "complete" when either guarantor or landlord details are populated, not just `previous_landlord_name`.
 
 ### Out of scope
 
-- No background-check language, no verification of the reference letter contents — it's tenant-supplied, in line with the existing "Self-Certified" framing.
-- No changes to landlord views or `passport_shares`.
-- No new storage bucket (`tenant-documents` is reused).
+- No background-check / verification of the guarantor or landlords — branch outputs remain self-certified.
+- No landlord-side views or `passport_shares` changes.
+- No new storage bucket; reuse `tenant-documents` for the optional file.
+- No data backfill of the existing free-text `tenancy_duration` into the new date columns.
 
 ### Technical notes
 
-- File constraints reuse `FileDrop`'s existing 10 MB / JPG-PNG-PDF limits.
-- Signed URL TTL of 60 s matches the ID and income rows.
-- British English copy throughout ("Reference letter", "Tenancy duration").
+- Tenancy duration computed as `Math.floor((end - start) / (1000*60*60*24*30.44))` months; the 36-month threshold is checked live in the form.
+- Date inputs use the native control for zero-cost UX (no extra deps).
+- British English copy throughout ("Guarantor", "Landlord reference", "UK residential address").
