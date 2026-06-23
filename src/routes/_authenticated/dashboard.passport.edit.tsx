@@ -435,25 +435,76 @@ function FileDrop({
   );
 }
 
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+const CONTENT_TYPE_BY_EXT: Record<string, string> = {
+  pdf: "application/pdf",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  heic: "image/heic",
+  heif: "image/heic",
+};
+
+export class UploadError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "UploadError";
+  }
+}
+
+function isNetworkFetchError(err: unknown): boolean {
+  if (!err) return false;
+  if (err instanceof TypeError) return true;
+  const msg = err instanceof Error ? err.message : String(err);
+  return /failed to fetch|network|load failed/i.test(msg);
+}
+
 async function uploadDoc(userId: string, folder: string, file: File): Promise<string> {
+  if (file.size > MAX_UPLOAD_BYTES) {
+    throw new UploadError("File is larger than 10 MB — please upload a smaller copy.");
+  }
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "bin";
   const path = `${userId}/${folder}/${Date.now()}.${ext}`;
-  const contentType = file.type || (ext === "pdf" ? "application/pdf" : "application/octet-stream");
-  // Read into an ArrayBuffer first — iOS Safari can throw "Failed to fetch"
-  // when streaming a File body through fetch (especially PDFs from the Files app).
-  let body: Blob;
+  const contentType =
+    CONTENT_TYPE_BY_EXT[ext] || file.type || "application/octet-stream";
+
+  // Snapshot the bytes immediately — iOS Safari can drop the underlying file
+  // reference (especially iCloud-backed PDFs) and abort the fetch mid-stream.
+  let buffer: ArrayBuffer;
   try {
-    const buffer = await file.arrayBuffer();
-    body = new Blob([buffer], { type: contentType });
+    buffer = await file.arrayBuffer();
   } catch {
-    body = file;
+    throw new UploadError("Couldn't read the selected file — please pick it again.");
   }
-  const { error } = await supabase.storage.from(BUCKET).upload(path, body, {
-    cacheControl: "3600",
-    upsert: false,
-    contentType,
-  });
-  if (error) throw error;
+
+  const attempt = async () => {
+    const body = new Blob([buffer], { type: contentType });
+    const { error } = await supabase.storage.from(BUCKET).upload(path, body, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType,
+    });
+    if (error) throw error;
+  };
+
+  try {
+    await attempt();
+  } catch (err) {
+    if (!isNetworkFetchError(err)) throw err;
+    // Mobile Safari often succeeds on an immediate retry after the first stall.
+    await new Promise((r) => setTimeout(r, 400));
+    try {
+      await attempt();
+    } catch (retryErr) {
+      if (isNetworkFetchError(retryErr)) {
+        throw new UploadError(
+          "Upload didn't complete — please try again on a stable connection.",
+        );
+      }
+      throw retryErr;
+    }
+  }
   return path;
 }
 
