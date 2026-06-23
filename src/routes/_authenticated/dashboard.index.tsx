@@ -351,6 +351,13 @@ function TenantDashboard() {
             path={passport?.income_document_path ?? null}
             stepHash="income"
           />
+          <DocumentRow
+            label="Reference letter"
+            path={passport?.reference_document_path ?? null}
+            stepHash="references"
+            optional
+            sectionFilled={!!passport?.previous_landlord_name}
+          />
         </ul>
       </div>
 
