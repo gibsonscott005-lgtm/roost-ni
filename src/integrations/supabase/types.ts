@@ -138,6 +138,11 @@ export type Database = {
           annual_income: number | null
           created_at: string
           employment_status: string | null
+          guarantor_address: string | null
+          guarantor_email: string | null
+          guarantor_employment_status: string | null
+          guarantor_name: string | null
+          guarantor_phone: string | null
           id: string
           id_document_number: string | null
           id_document_path: string | null
@@ -145,15 +150,23 @@ export type Database = {
           identity_verified: boolean
           income_document_path: string | null
           income_verified: boolean
+          is_first_time_renter: boolean
           monthly_income_net: number | null
           preferred_heating: string | null
           previous_landlord_email: string | null
+          previous_landlord_email_2: string | null
           previous_landlord_name: string | null
+          previous_landlord_name_2: string | null
           previous_landlord_phone: string | null
+          previous_landlord_phone_2: string | null
           reference_document_path: string | null
           reference_verified: boolean
           right_to_rent_verified: boolean
           tenancy_duration: string | null
+          tenancy_end_date: string | null
+          tenancy_end_date_2: string | null
+          tenancy_start_date: string | null
+          tenancy_start_date_2: string | null
           updated_at: string
           user_id: string
         }
@@ -163,6 +176,11 @@ export type Database = {
           annual_income?: number | null
           created_at?: string
           employment_status?: string | null
+          guarantor_address?: string | null
+          guarantor_email?: string | null
+          guarantor_employment_status?: string | null
+          guarantor_name?: string | null
+          guarantor_phone?: string | null
           id?: string
           id_document_number?: string | null
           id_document_path?: string | null
@@ -170,15 +188,23 @@ export type Database = {
           identity_verified?: boolean
           income_document_path?: string | null
           income_verified?: boolean
+          is_first_time_renter?: boolean
           monthly_income_net?: number | null
           preferred_heating?: string | null
           previous_landlord_email?: string | null
+          previous_landlord_email_2?: string | null
           previous_landlord_name?: string | null
+          previous_landlord_name_2?: string | null
           previous_landlord_phone?: string | null
+          previous_landlord_phone_2?: string | null
           reference_document_path?: string | null
           reference_verified?: boolean
           right_to_rent_verified?: boolean
           tenancy_duration?: string | null
+          tenancy_end_date?: string | null
+          tenancy_end_date_2?: string | null
+          tenancy_start_date?: string | null
+          tenancy_start_date_2?: string | null
           updated_at?: string
           user_id: string
         }
@@ -188,6 +214,11 @@ export type Database = {
           annual_income?: number | null
           created_at?: string
           employment_status?: string | null
+          guarantor_address?: string | null
+          guarantor_email?: string | null
+          guarantor_employment_status?: string | null
+          guarantor_name?: string | null
+          guarantor_phone?: string | null
           id?: string
           id_document_number?: string | null
           id_document_path?: string | null
@@ -195,15 +226,23 @@ export type Database = {
           identity_verified?: boolean
           income_document_path?: string | null
           income_verified?: boolean
+          is_first_time_renter?: boolean
           monthly_income_net?: number | null
           preferred_heating?: string | null
           previous_landlord_email?: string | null
+          previous_landlord_email_2?: string | null
           previous_landlord_name?: string | null
+          previous_landlord_name_2?: string | null
           previous_landlord_phone?: string | null
+          previous_landlord_phone_2?: string | null
           reference_document_path?: string | null
           reference_verified?: boolean
           right_to_rent_verified?: boolean
           tenancy_duration?: string | null
+          tenancy_end_date?: string | null
+          tenancy_end_date_2?: string | null
+          tenancy_start_date?: string | null
+          tenancy_start_date_2?: string | null
           updated_at?: string
           user_id?: string
         }
