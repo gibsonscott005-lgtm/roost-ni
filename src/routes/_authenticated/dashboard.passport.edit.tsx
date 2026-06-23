@@ -36,6 +36,12 @@ const BUCKET = "tenant-documents";
 const ACCEPT = "image/jpeg,image/png,application/pdf";
 const MAX_BYTES = 10 * 1024 * 1024;
 
+function describeDbError(err: unknown, fallback = "Please try again.") {
+  const e = err as { code?: string; message?: string; details?: string; hint?: string } | null;
+  const msg = (e?.message || (err instanceof Error ? err.message : "")) || fallback;
+  return e?.code ? `[${e.code}] ${msg}` : msg;
+}
+
 type StepKey = "identity" | "income" | "references";
 
 interface Passport {
@@ -78,7 +84,7 @@ const STEPS: { key: StepKey; label: string; sub: string }[] = [
 ];
 
 function PassportEditPage() {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [stepIndex, setStepIndex] = useState(0);
   const [passport, setPassport] = useState<Passport | null>(null);
@@ -88,28 +94,36 @@ function PassportEditPage() {
 
   const load = async () => {
     if (!user) return;
-    const { data } = await supabase
-      .from("tenant_passports")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    if (!data) {
-      const { data: inserted } = await supabase
+    try {
+      const { data: existing, error: selErr } = await supabase
         .from("tenant_passports")
-        .insert({ user_id: user.id })
         .select("*")
-        .single();
-      setPassport(inserted as Passport);
-    } else {
-      setPassport(data as Passport);
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (selErr) throw selErr;
+      if (existing) {
+        setPassport(existing as Passport);
+      } else {
+        const { data: upserted, error: upErr } = await supabase
+          .from("tenant_passports")
+          .upsert({ user_id: user.id }, { onConflict: "user_id", ignoreDuplicates: false })
+          .select("*")
+          .single();
+        if (upErr) throw upErr;
+        setPassport(upserted as Passport);
+      }
+      setLoading(false);
+    } catch (err: unknown) {
+      toast.error("Couldn't load passport", { description: describeDbError(err) });
+      // keep loading=true so existing UI isn't replaced with an empty default
     }
-    setLoading(false);
   };
 
   useEffect(() => {
+    if (authLoading) return;
     if (user) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [user?.id, authLoading]);
 
   const goNext = () => setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
   const goBack = () => setStepIndex((i) => Math.max(i - 1, 0));
