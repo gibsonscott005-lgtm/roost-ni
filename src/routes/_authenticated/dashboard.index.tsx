@@ -146,6 +146,9 @@ function TenantDashboard() {
     previous_landlord_phone: string | null;
     tenancy_duration: string | null;
     reference_document_path: string | null;
+    is_first_time_renter: boolean | null;
+    guarantor_name: string | null;
+    previous_landlord_name_2: string | null;
   } | null>(null);
 
   useEffect(() => {
@@ -155,7 +158,7 @@ function TenantDashboard() {
       const { data } = await supabase
         .from("tenant_passports")
         .select(
-          "identity_verified, income_verified, reference_verified, right_to_rent_verified, employment_status, monthly_income_net, annual_income, id_document_type, id_document_path, income_document_path, previous_landlord_name, previous_landlord_email, previous_landlord_phone, tenancy_duration, reference_document_path",
+          "identity_verified, income_verified, reference_verified, right_to_rent_verified, employment_status, monthly_income_net, annual_income, id_document_type, id_document_path, income_document_path, previous_landlord_name, previous_landlord_email, previous_landlord_phone, tenancy_duration, reference_document_path, is_first_time_renter, guarantor_name, previous_landlord_name_2",
         )
         .eq("user_id", user.id)
         .maybeSingle();
