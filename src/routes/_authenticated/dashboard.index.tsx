@@ -406,10 +406,14 @@ function DocumentRow({
   label,
   path,
   stepHash,
+  optional = false,
+  sectionFilled = false,
 }: {
   label: string;
   path: string | null;
   stepHash: string;
+  optional?: boolean;
+  sectionFilled?: boolean;
 }) {
   const [opening, setOpening] = useState(false);
   const filename = path ? path.split("/").pop() ?? path : null;
@@ -435,12 +439,24 @@ function DocumentRow({
   };
 
   if (!path) {
+    if (optional && sectionFilled) {
+      return (
+        <li className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-surface px-3 py-2.5">
+          <span className="flex items-center gap-2 min-w-0">
+            <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <span className="truncate text-sm text-muted-foreground">
+              {label} — not uploaded (optional)
+            </span>
+          </span>
+        </li>
+      );
+    }
     return (
       <li className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-surface px-3 py-2.5">
         <span className="flex items-center gap-2 min-w-0">
           <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
           <span className="truncate text-sm text-muted-foreground">
-            {label} — not uploaded yet
+            {label} — not uploaded {optional ? "(optional)" : "yet"}
           </span>
         </span>
         <Link
