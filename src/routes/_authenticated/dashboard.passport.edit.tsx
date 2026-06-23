@@ -897,15 +897,14 @@ function ReferencesStep({
 
       const { data, error } = await supabase
         .from("tenant_passports")
-        .update({ ...base, ...branch })
-        .eq("user_id", user.id)
+        .upsert({ user_id: user.id, ...base, ...branch }, { onConflict: "user_id" })
         .select("*")
         .single();
       if (error) throw error;
       onSaved(data as Passport);
     } catch (err: unknown) {
       toast.error("Could not save", {
-        description: err instanceof Error ? err.message : "Please try again.",
+        description: describeDbError(err),
       });
     } finally {
       setSaving(false);
