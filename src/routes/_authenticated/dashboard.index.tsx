@@ -19,7 +19,9 @@ import {
   UserRoundCheck,
   Pencil,
   Share2,
-  FileCheck2,
+  FileText,
+  Image as ImageIcon,
+  ExternalLink,
   Loader2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -311,7 +313,7 @@ function TenantDashboard() {
         ))}
       </div>
 
-      <dl className="mt-5 grid grid-cols-1 gap-2 rounded-2xl border border-border bg-surface-muted/60 p-4 sm:grid-cols-3">
+      <dl className="mt-5 grid grid-cols-1 gap-2 rounded-2xl border border-border bg-surface-muted/60 p-4 sm:grid-cols-2">
         <div>
           <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Employment
@@ -328,16 +330,25 @@ function TenantDashboard() {
             {monthlyNet ? `£${Number(monthlyNet).toLocaleString()}` : "—"}
           </dd>
         </div>
-        <div>
-          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Documents on file
-          </dt>
-          <dd className="mt-0.5 flex items-center gap-1.5 font-display text-sm font-semibold tracking-tight text-foreground">
-            <FileCheck2 className="h-3.5 w-3.5 text-verified" />
-            ID & income
-          </dd>
-        </div>
       </dl>
+
+      <div className="mt-3 rounded-2xl border border-border bg-surface-muted/60 p-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Documents on file
+        </p>
+        <ul className="mt-2 space-y-2">
+          <DocumentRow
+            label="Identity document"
+            path={passport?.id_document_path ?? null}
+            stepHash="identity"
+          />
+          <DocumentRow
+            label="Income document"
+            path={passport?.income_document_path ?? null}
+            stepHash="income"
+          />
+        </ul>
+      </div>
 
       <div className="mt-5 flex flex-wrap gap-2">
         <Link
