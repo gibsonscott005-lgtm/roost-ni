@@ -54,6 +54,8 @@ interface Passport {
   previous_landlord_name: string | null;
   previous_landlord_email: string | null;
   previous_landlord_phone: string | null;
+  tenancy_duration: string | null;
+  reference_document_path: string | null;
 }
 
 const STEPS: { key: StepKey; label: string; sub: string }[] = [
