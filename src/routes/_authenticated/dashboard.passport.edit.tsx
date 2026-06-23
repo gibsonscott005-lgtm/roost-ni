@@ -693,14 +693,17 @@ function IncomeStep({
       if (file) path = await uploadDoc(user.id, "income", file);
       const { data, error } = await supabase
         .from("tenant_passports")
-        .update({
-          employment_status: status,
-          annual_income: annualNum,
-          monthly_income_net: Math.round((annualNum / 12) * 100) / 100,
-          income_document_path: path,
-          income_verified: true,
-        })
-        .eq("user_id", user.id)
+        .upsert(
+          {
+            user_id: user.id,
+            employment_status: status,
+            annual_income: annualNum,
+            monthly_income_net: Math.round((annualNum / 12) * 100) / 100,
+            income_document_path: path,
+            income_verified: true,
+          },
+          { onConflict: "user_id" },
+        )
         .select("*")
         .single();
       if (error) throw error;
@@ -708,7 +711,7 @@ function IncomeStep({
       onSaved(data as Passport);
     } catch (err: unknown) {
       toast.error("Could not save", {
-        description: err instanceof Error ? err.message : "Please try again.",
+        description: describeDbError(err),
       });
     } finally {
       setSaving(false);
