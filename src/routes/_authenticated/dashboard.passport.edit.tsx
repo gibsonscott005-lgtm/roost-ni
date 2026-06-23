@@ -693,34 +693,130 @@ function ReferencesStep({
   onBack: () => void;
 }) {
   const { user } = useAuth();
+  // Default branch: prefer whichever side already has data; otherwise No.
+  const initialFirstTime =
+    passport.is_first_time_renter ||
+    (!passport.previous_landlord_name && !!passport.guarantor_name);
+  const [firstTime, setFirstTime] = useState<boolean>(initialFirstTime);
+
+  // Guarantor (Branch A)
+  const [gName, setGName] = useState(passport.guarantor_name ?? "");
+  const [gAddress, setGAddress] = useState(passport.guarantor_address ?? "");
+  const [gEmail, setGEmail] = useState(passport.guarantor_email ?? "");
+  const [gPhone, setGPhone] = useState(passport.guarantor_phone ?? "");
+  const [gEmployment, setGEmployment] = useState(
+    passport.guarantor_employment_status ?? "permanent_full_time",
+  );
+
+  // Landlord 1 (Branch B)
   const [name, setName] = useState(passport.previous_landlord_name ?? "");
   const [email, setEmail] = useState(passport.previous_landlord_email ?? "");
   const [phone, setPhone] = useState(passport.previous_landlord_phone ?? "");
-  const [duration, setDuration] = useState(passport.tenancy_duration ?? "");
+  const [start1, setStart1] = useState(passport.tenancy_start_date ?? "");
+  const [end1, setEnd1] = useState(passport.tenancy_end_date ?? "");
+
+  // Landlord 2 (Branch B, conditional)
+  const [name2, setName2] = useState(passport.previous_landlord_name_2 ?? "");
+  const [email2, setEmail2] = useState(passport.previous_landlord_email_2 ?? "");
+  const [phone2, setPhone2] = useState(passport.previous_landlord_phone_2 ?? "");
+  const [start2, setStart2] = useState(passport.tenancy_start_date_2 ?? "");
+  const [end2, setEnd2] = useState(passport.tenancy_end_date_2 ?? "");
+
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const months1 = monthsBetween(start1, end1);
+  const needsSecond = !firstTime && months1 !== null && months1 < 36;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || saving) return;
-    if (!name.trim() || !email.trim() || !phone.trim() || !duration.trim()) {
-      toast.error("Please complete every field");
-      return;
+
+    if (firstTime) {
+      if (
+        !gName.trim() ||
+        !gAddress.trim() ||
+        !gEmail.trim() ||
+        !gPhone.trim() ||
+        !gEmployment.trim()
+      ) {
+        toast.error("Please complete every guarantor field");
+        return;
+      }
+    } else {
+      if (!name.trim() || !email.trim() || !phone.trim() || !start1 || !end1) {
+        toast.error("Please complete every landlord field");
+        return;
+      }
+      if (months1 === null || months1 <= 0) {
+        toast.error("Tenancy end date must be after the start date");
+        return;
+      }
+      if (needsSecond) {
+        if (!name2.trim() || !email2.trim() || !phone2.trim() || !start2 || !end2) {
+          toast.error("Add a second landlord to cover the last 3 years");
+          return;
+        }
+        const m2 = monthsBetween(start2, end2);
+        if (m2 === null || m2 <= 0) {
+          toast.error("Second tenancy end date must be after the start date");
+          return;
+        }
+      }
     }
+
     setSaving(true);
     try {
       let path = passport.reference_document_path;
       if (file) path = await uploadDoc(user.id, "references", file);
+
+      const base = {
+        reference_document_path: path,
+        reference_verified: true,
+        is_first_time_renter: firstTime,
+      };
+
+      const branch = firstTime
+        ? {
+            guarantor_name: gName.trim(),
+            guarantor_address: gAddress.trim(),
+            guarantor_email: gEmail.trim(),
+            guarantor_phone: gPhone.trim(),
+            guarantor_employment_status: gEmployment,
+            // Clear landlord branch
+            previous_landlord_name: null,
+            previous_landlord_email: null,
+            previous_landlord_phone: null,
+            tenancy_start_date: null,
+            tenancy_end_date: null,
+            previous_landlord_name_2: null,
+            previous_landlord_email_2: null,
+            previous_landlord_phone_2: null,
+            tenancy_start_date_2: null,
+            tenancy_end_date_2: null,
+          }
+        : {
+            previous_landlord_name: name.trim(),
+            previous_landlord_email: email.trim(),
+            previous_landlord_phone: phone.trim(),
+            tenancy_start_date: start1,
+            tenancy_end_date: end1,
+            previous_landlord_name_2: needsSecond ? name2.trim() : null,
+            previous_landlord_email_2: needsSecond ? email2.trim() : null,
+            previous_landlord_phone_2: needsSecond ? phone2.trim() : null,
+            tenancy_start_date_2: needsSecond ? start2 : null,
+            tenancy_end_date_2: needsSecond ? end2 : null,
+            // Clear guarantor branch
+            guarantor_name: null,
+            guarantor_address: null,
+            guarantor_email: null,
+            guarantor_phone: null,
+            guarantor_employment_status: null,
+          };
+
       const { data, error } = await supabase
         .from("tenant_passports")
-        .update({
-          previous_landlord_name: name.trim(),
-          previous_landlord_email: email.trim(),
-          previous_landlord_phone: phone.trim(),
-          tenancy_duration: duration.trim(),
-          reference_document_path: path,
-          reference_verified: true,
-        })
+        .update({ ...base, ...branch })
         .eq("user_id", user.id)
         .select("*")
         .single();
@@ -741,59 +837,255 @@ function ReferencesStep({
         icon={UserRoundCheck}
         eyebrow="Step 03"
         title="Character references"
-        desc="Provide a previous landlord we can contact to confirm your tenancy history."
+        desc="Tell us about your rental history. We'll either collect landlord references or guarantor details depending on your situation."
       >
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Previous landlord's full name" className="sm:col-span-2">
-            <input
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Margaret Doherty"
-              className={inputCx}
-            />
-          </Field>
-          <Field label="Email">
-            <input
-              required
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="margaret@example.com"
-              className={inputCx}
-            />
-          </Field>
-          <Field label="Phone">
-            <input
-              required
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+44 7700 900123"
-              className={inputCx}
-            />
-          </Field>
-          <Field label="Tenancy duration" className="sm:col-span-2">
-            <input
-              required
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              placeholder="e.g. 18 months"
-              className={inputCx}
-            />
-          </Field>
+        <div>
+          <span className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Is this your first time renting a property?
+          </span>
+          <div
+            role="radiogroup"
+            className="mt-1.5 inline-flex rounded-full border border-border bg-surface-muted p-1"
+          >
+            {[
+              { v: false, label: "No, I've rented before" },
+              { v: true, label: "Yes, first time" },
+            ].map((opt) => {
+              const active = firstTime === opt.v;
+              return (
+                <button
+                  key={String(opt.v)}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  onClick={() => setFirstTime(opt.v)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    active
+                      ? "bg-verified text-[var(--color-verified-foreground)] shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
+
+        {firstTime ? (
+          <div className="space-y-4 rounded-2xl border border-border bg-surface-muted/40 p-4 sm:p-5">
+            <div>
+              <h4 className="font-display text-base font-semibold tracking-tight text-foreground">
+                Guarantor details
+              </h4>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Landlords require first-time renters to provide a UK-based guarantor who can
+                cover rent liabilities if needed.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field label="Guarantor full name" className="sm:col-span-2">
+                <input
+                  required
+                  value={gName}
+                  onChange={(e) => setGName(e.target.value)}
+                  placeholder="John Doherty"
+                  className={inputCx}
+                />
+              </Field>
+              <Field label="UK residential address" className="sm:col-span-2">
+                <textarea
+                  required
+                  value={gAddress}
+                  onChange={(e) => setGAddress(e.target.value)}
+                  placeholder="12 Malone Road, Belfast, BT9 5BN"
+                  rows={2}
+                  className={`${inputCx} h-auto min-h-[72px] py-2.5`}
+                />
+              </Field>
+              <Field label="Email">
+                <input
+                  required
+                  type="email"
+                  value={gEmail}
+                  onChange={(e) => setGEmail(e.target.value)}
+                  placeholder="john@example.com"
+                  className={inputCx}
+                />
+              </Field>
+              <Field label="Phone">
+                <input
+                  required
+                  type="tel"
+                  value={gPhone}
+                  onChange={(e) => setGPhone(e.target.value)}
+                  placeholder="+44 7700 900123"
+                  className={inputCx}
+                />
+              </Field>
+              <Field label="Employment / income status" className="sm:col-span-2">
+                <select
+                  value={gEmployment}
+                  onChange={(e) => setGEmployment(e.target.value)}
+                  className={inputCx}
+                >
+                  <option value="permanent_full_time">Permanent · Full-time</option>
+                  <option value="permanent_part_time">Permanent · Part-time</option>
+                  <option value="self_employed">Self-employed</option>
+                  <option value="contract">Contract</option>
+                  <option value="retired">Retired</option>
+                </select>
+              </Field>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="space-y-4 rounded-2xl border border-border bg-surface-muted/40 p-4 sm:p-5">
+              <h4 className="font-display text-base font-semibold tracking-tight text-foreground">
+                Most recent landlord
+              </h4>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field label="Landlord's full name" className="sm:col-span-2">
+                  <input
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Margaret Doherty"
+                    className={inputCx}
+                  />
+                </Field>
+                <Field label="Email">
+                  <input
+                    required
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="margaret@example.com"
+                    className={inputCx}
+                  />
+                </Field>
+                <Field label="Phone">
+                  <input
+                    required
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+44 7700 900123"
+                    className={inputCx}
+                  />
+                </Field>
+                <Field label="Tenancy start date">
+                  <input
+                    required
+                    type="date"
+                    value={start1}
+                    onChange={(e) => setStart1(e.target.value)}
+                    className={inputCx}
+                  />
+                </Field>
+                <Field label="Tenancy end date">
+                  <input
+                    required
+                    type="date"
+                    value={end1}
+                    onChange={(e) => setEnd1(e.target.value)}
+                    className={inputCx}
+                  />
+                </Field>
+              </div>
+              {months1 !== null && months1 > 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Tenancy length: {months1} {months1 === 1 ? "month" : "months"}
+                  {months1 >= 36 ? " — covers the full 3-year history." : ""}
+                </p>
+              ) : null}
+            </div>
+
+            {needsSecond ? (
+              <div className="space-y-4 rounded-2xl border border-border bg-surface-muted/40 p-4 sm:p-5">
+                <div>
+                  <h4 className="font-display text-base font-semibold tracking-tight text-foreground">
+                    Previous landlord reference
+                  </h4>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Add an earlier landlord so we cover the last 3 years of your history.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Field label="Landlord's full name" className="sm:col-span-2">
+                    <input
+                      required
+                      value={name2}
+                      onChange={(e) => setName2(e.target.value)}
+                      placeholder="Patrick O'Neill"
+                      className={inputCx}
+                    />
+                  </Field>
+                  <Field label="Email">
+                    <input
+                      required
+                      type="email"
+                      value={email2}
+                      onChange={(e) => setEmail2(e.target.value)}
+                      placeholder="patrick@example.com"
+                      className={inputCx}
+                    />
+                  </Field>
+                  <Field label="Phone">
+                    <input
+                      required
+                      type="tel"
+                      value={phone2}
+                      onChange={(e) => setPhone2(e.target.value)}
+                      placeholder="+44 7700 900456"
+                      className={inputCx}
+                    />
+                  </Field>
+                  <Field label="Tenancy start date">
+                    <input
+                      required
+                      type="date"
+                      value={start2}
+                      onChange={(e) => setStart2(e.target.value)}
+                      className={inputCx}
+                    />
+                  </Field>
+                  <Field label="Tenancy end date">
+                    <input
+                      required
+                      type="date"
+                      value={end2}
+                      onChange={(e) => setEnd2(e.target.value)}
+                      className={inputCx}
+                    />
+                  </Field>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        )}
+
         <FileDrop
-          label="Reference letter (optional)"
+          label={firstTime ? "Supporting document (optional)" : "Reference letter (optional)"}
           currentPath={passport.reference_document_path}
           file={file}
           onSelect={setFile}
         />
         <p className="text-xs text-muted-foreground">
-          Optional — attach a written reference from your previous landlord if you have one.
+          Optional — attach a written reference or supporting document if you have one.
         </p>
         <StepActions onBack={onBack} saving={saving} submitLabel="Save & finish" />
       </StepCard>
     </form>
   );
+}
+
+function monthsBetween(start: string, end: string): number | null {
+  if (!start || !end) return null;
+  const s = new Date(start);
+  const e = new Date(end);
+  if (isNaN(s.getTime()) || isNaN(e.getTime())) return null;
+  const ms = e.getTime() - s.getTime();
+  if (ms <= 0) return 0;
+  return Math.floor(ms / (1000 * 60 * 60 * 24 * 30.44));
 }
