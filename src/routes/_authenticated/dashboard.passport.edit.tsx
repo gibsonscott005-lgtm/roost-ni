@@ -438,10 +438,20 @@ function FileDrop({
 async function uploadDoc(userId: string, folder: string, file: File): Promise<string> {
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "bin";
   const path = `${userId}/${folder}/${Date.now()}.${ext}`;
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+  const contentType = file.type || (ext === "pdf" ? "application/pdf" : "application/octet-stream");
+  // Read into an ArrayBuffer first — iOS Safari can throw "Failed to fetch"
+  // when streaming a File body through fetch (especially PDFs from the Files app).
+  let body: Blob;
+  try {
+    const buffer = await file.arrayBuffer();
+    body = new Blob([buffer], { type: contentType });
+  } catch {
+    body = file;
+  }
+  const { error } = await supabase.storage.from(BUCKET).upload(path, body, {
     cacheControl: "3600",
     upsert: false,
-    contentType: file.type,
+    contentType,
   });
   if (error) throw error;
   return path;
