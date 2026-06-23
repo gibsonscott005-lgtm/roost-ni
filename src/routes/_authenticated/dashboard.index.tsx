@@ -271,11 +271,19 @@ function TenantDashboard() {
 
   const employmentLabel = formatEmployment(passport?.employment_status);
   const monthlyNet = passport?.monthly_income_net ?? null;
-  const badges = [
+  const referencesSubLabel = (() => {
+    if (passport?.is_first_time_renter && passport?.guarantor_name) {
+      return "Guarantor Provided";
+    }
+    if (passport?.previous_landlord_name_2) return "2 Landlord References";
+    if (passport?.previous_landlord_name) return "1 Landlord Reference";
+    return "Self-Certified";
+  })();
+  const badges: { label: string; icon: typeof IdCard; sub?: string }[] = [
     { label: "Identity", icon: IdCard },
     { label: "Right to Rent", icon: ShieldCheck },
     { label: "Income", icon: Banknote },
-    { label: "References", icon: UserRoundCheck },
+    { label: "References", icon: UserRoundCheck, sub: referencesSubLabel },
   ];
 
   return (
@@ -313,7 +321,7 @@ function TenantDashboard() {
                 {b.label}
               </p>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-verified">
-                Self-Certified
+                {b.sub ?? "Self-Certified"}
               </p>
             </div>
           </div>
@@ -359,7 +367,9 @@ function TenantDashboard() {
             path={passport?.reference_document_path ?? null}
             stepHash="references"
             optional
-            sectionFilled={!!passport?.previous_landlord_name}
+            sectionFilled={
+              !!passport?.previous_landlord_name || !!passport?.guarantor_name
+            }
           />
         </ul>
       </div>
