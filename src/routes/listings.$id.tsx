@@ -28,6 +28,7 @@ interface ListingDetail {
   heating_type: string;
   enforce_empty_in_full_out: boolean;
   tenant_preferences: string[];
+  status: string;
 }
 
 export const Route = createFileRoute("/listings/$id")({
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/listings/$id")({
     const { data, error } = await supabase
       .from("property_listings")
       .select(
-        "id, title, address, location, monthly_rent, deposit, ni_landlord_reg_number, heating_type, enforce_empty_in_full_out, tenant_preferences",
+        "id, title, address, location, monthly_rent, deposit, ni_landlord_reg_number, heating_type, enforce_empty_in_full_out, tenant_preferences, status",
       )
       .eq("id", params.id)
       .eq("is_published", true)
@@ -117,12 +118,19 @@ function ListingDetailPage() {
               {listing.location ? ` · ${listing.location}` : null}
             </p>
           </div>
-          {listing.enforce_empty_in_full_out ? (
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-verified-soft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-verified">
-              <ShieldCheck className="h-3 w-3" />
-              Fair fuel
-            </span>
-          ) : null}
+          <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+            {listing.status === "under_offer" ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-800">
+                Under Offer
+              </span>
+            ) : null}
+            {listing.enforce_empty_in_full_out ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-verified-soft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-verified">
+                <ShieldCheck className="h-3 w-3" />
+                Fair fuel
+              </span>
+            ) : null}
+          </div>
         </div>
 
         <PhotoGalleryPlaceholder />
@@ -197,13 +205,13 @@ function ListingDetailPage() {
           ) : null}
         </section>
 
-        <ApplyCard listingId={listing.id} />
+        <ApplyCard listingId={listing.id} listingStatus={listing.status} />
       </main>
     </div>
   );
 }
 
-function ApplyCard({ listingId }: { listingId: string }) {
+function ApplyCard({ listingId, listingStatus }: { listingId: string; listingStatus: string }) {
   const { user, profile, loading } = useAuth();
   const queryClient = useQueryClient();
   const isTenant = !!user && profile?.account_type === "tenant";
@@ -224,6 +232,7 @@ function ApplyCard({ listingId }: { listingId: string }) {
   });
 
   const sent = !!shareQuery.data;
+  const underOffer = listingStatus === "under_offer";
 
   const applyMutation = useMutation({
     mutationFn: async () => {
@@ -264,6 +273,28 @@ function ApplyCard({ listingId }: { listingId: string }) {
   const submitting = applyMutation.isPending;
 
   if (loading) return null;
+
+  if (underOffer) {
+    return (
+      <div className="mt-6 flex flex-col items-start gap-3 rounded-3xl border border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div>
+          <p className="font-display text-base font-semibold tracking-tight text-amber-900">
+            This property is currently Under Offer
+          </p>
+          <p className="mt-0.5 text-sm text-amber-800/80">
+            The landlord has accepted an applicant. Applications are paused while the lease is finalised.
+          </p>
+        </div>
+        <button
+          type="button"
+          disabled
+          className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-amber-200/70 px-5 py-3 font-display text-sm font-semibold text-amber-900 sm:w-auto"
+        >
+          Applications paused
+        </button>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
