@@ -66,7 +66,7 @@ const TENANT_PREFS = [
 ];
 
 function Dashboard() {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [tab, setTab] = useState<Tab>("properties");
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,6 +86,7 @@ function Dashboard() {
   };
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) return;
     loadListings();
     if (isLandlord) {
@@ -95,7 +96,18 @@ function Dashboard() {
         .then(({ count }) => setApplicationsCount(count ?? 0));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, isLandlord]);
+  }, [user?.id, isLandlord, authLoading]);
+
+  if (authLoading) {
+    return (
+      <DashboardShell user={user} profile={profile} activeKey={tab}>
+        <div className="rounded-3xl border border-border bg-surface p-10 text-center text-sm text-muted-foreground">
+          <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+          <p className="mt-2">Checking your session…</p>
+        </div>
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell
