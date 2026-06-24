@@ -1,12 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { format } from "date-fns";
 import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
   Banknote,
   Check,
+  Calendar as CalendarIcon,
   ExternalLink,
   FileUp,
   IdCard,
@@ -17,6 +19,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export const Route = createFileRoute("/_authenticated/dashboard/passport/edit")({
   head: () => ({
@@ -329,6 +333,55 @@ function Field({
 
 const inputCx =
   "mt-1.5 block h-11 w-full rounded-xl border border-border bg-surface-muted px-3.5 text-sm text-foreground placeholder:text-muted-foreground/80 transition focus:border-verified/40 focus:bg-surface focus:outline-none focus:ring-2 focus:ring-verified/20";
+
+function DateField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const date = value ? new Date(`${value}T00:00:00`) : undefined;
+  const currentYear = new Date().getFullYear();
+  return (
+    <Field label={label}>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className={`${inputCx} flex items-center justify-between text-left`}
+          >
+            <span className={date ? "" : "text-muted-foreground/80"}>
+              {date ? format(date, "d MMM yyyy") : "Select date"}
+            </span>
+            <CalendarIcon className="ml-2 h-4 w-4 text-muted-foreground" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={(d) => {
+              if (d) {
+                onChange(format(d, "yyyy-MM-dd"));
+                setOpen(false);
+              }
+            }}
+            captionLayout="dropdown"
+            startMonth={new Date(currentYear - 30, 0)}
+            endMonth={new Date(currentYear + 1, 11)}
+            defaultMonth={date ?? new Date()}
+            disabled={{ after: new Date(currentYear + 1, 11, 31) }}
+            className="pointer-events-auto p-3"
+          />
+        </PopoverContent>
+      </Popover>
+    </Field>
+  );
+}
 
 function FileDrop({
   label,
@@ -1054,24 +1107,8 @@ function ReferencesStep({
                     className={inputCx}
                   />
                 </Field>
-                <Field label="Tenancy start date">
-                  <input
-                    required
-                    type="date"
-                    value={start1}
-                    onChange={(e) => setStart1(e.target.value)}
-                    className={inputCx}
-                  />
-                </Field>
-                <Field label="Tenancy end date">
-                  <input
-                    required
-                    type="date"
-                    value={end1}
-                    onChange={(e) => setEnd1(e.target.value)}
-                    className={inputCx}
-                  />
-                </Field>
+                <DateField label="Tenancy start date" value={start1} onChange={setStart1} />
+                <DateField label="Tenancy end date" value={end1} onChange={setEnd1} />
               </div>
               {months1 !== null && months1 > 0 ? (
                 <p className="text-xs text-muted-foreground">
@@ -1121,24 +1158,8 @@ function ReferencesStep({
                       className={inputCx}
                     />
                   </Field>
-                  <Field label="Tenancy start date">
-                    <input
-                      required
-                      type="date"
-                      value={start2}
-                      onChange={(e) => setStart2(e.target.value)}
-                      className={inputCx}
-                    />
-                  </Field>
-                  <Field label="Tenancy end date">
-                    <input
-                      required
-                      type="date"
-                      value={end2}
-                      onChange={(e) => setEnd2(e.target.value)}
-                      className={inputCx}
-                    />
-                  </Field>
+                  <DateField label="Tenancy start date" value={start2} onChange={setStart2} />
+                  <DateField label="Tenancy end date" value={end2} onChange={setEnd2} />
                 </div>
               </div>
             ) : null}
