@@ -8,6 +8,7 @@ import {
   Check,
   Flame,
   Home,
+  ImageIcon,
   MapPin,
   PoundSterling,
   ShieldCheck,
@@ -123,6 +124,8 @@ function ListingDetailPage() {
             </span>
           ) : null}
         </div>
+
+        <PhotoGalleryPlaceholder />
 
         <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Stat
