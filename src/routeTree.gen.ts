@@ -13,6 +13,7 @@ import { Route as ListingsRouteImport } from './routes/listings'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
@@ -37,6 +38,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ListingsIndexRoute = ListingsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ListingsRoute,
 } as any)
 const ListingsIdRoute = ListingsIdRouteImport.update({
   id: '/$id',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/listings': typeof ListingsRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/listings/$id': typeof ListingsIdRoute
+  '/listings/': typeof ListingsIndexRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
@@ -80,8 +87,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/listings': typeof ListingsRouteWithChildren
   '/listings/$id': typeof ListingsIdRoute
+  '/listings': typeof ListingsIndexRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
@@ -94,6 +101,7 @@ export interface FileRoutesById {
   '/listings': typeof ListingsRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/listings/$id': typeof ListingsIdRoute
+  '/listings/': typeof ListingsIndexRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
@@ -106,6 +114,7 @@ export interface FileRouteTypes {
     | '/listings'
     | '/dashboard'
     | '/listings/$id'
+    | '/listings/'
     | '/dashboard/applications'
     | '/dashboard/'
     | '/dashboard/passport/edit'
@@ -113,8 +122,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/listings'
     | '/listings/$id'
+    | '/listings'
     | '/dashboard/applications'
     | '/dashboard'
     | '/dashboard/passport/edit'
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/listings'
     | '/_authenticated/dashboard'
     | '/listings/$id'
+    | '/listings/'
     | '/_authenticated/dashboard/applications'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/passport/edit'
@@ -167,6 +177,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/listings/': {
+      id: '/listings/'
+      path: '/'
+      fullPath: '/listings/'
+      preLoaderRoute: typeof ListingsIndexRouteImport
+      parentRoute: typeof ListingsRoute
     }
     '/listings/$id': {
       id: '/listings/$id'
@@ -239,10 +256,12 @@ const AuthenticatedRouteRouteWithChildren =
 
 interface ListingsRouteChildren {
   ListingsIdRoute: typeof ListingsIdRoute
+  ListingsIndexRoute: typeof ListingsIndexRoute
 }
 
 const ListingsRouteChildren: ListingsRouteChildren = {
   ListingsIdRoute: ListingsIdRoute,
+  ListingsIndexRoute: ListingsIndexRoute,
 }
 
 const ListingsRouteWithChildren = ListingsRoute._addFileChildren(
