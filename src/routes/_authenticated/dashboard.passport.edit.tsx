@@ -334,6 +334,55 @@ function Field({
 const inputCx =
   "mt-1.5 block h-11 w-full rounded-xl border border-border bg-surface-muted px-3.5 text-sm text-foreground placeholder:text-muted-foreground/80 transition focus:border-verified/40 focus:bg-surface focus:outline-none focus:ring-2 focus:ring-verified/20";
 
+function DateField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const date = value ? new Date(`${value}T00:00:00`) : undefined;
+  const currentYear = new Date().getFullYear();
+  return (
+    <Field label={label}>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className={`${inputCx} flex items-center justify-between text-left`}
+          >
+            <span className={date ? "" : "text-muted-foreground/80"}>
+              {date ? format(date, "d MMM yyyy") : "Select date"}
+            </span>
+            <CalendarIcon className="ml-2 h-4 w-4 text-muted-foreground" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={(d) => {
+              if (d) {
+                onChange(format(d, "yyyy-MM-dd"));
+                setOpen(false);
+              }
+            }}
+            captionLayout="dropdown"
+            startMonth={new Date(currentYear - 30, 0)}
+            endMonth={new Date(currentYear + 1, 11)}
+            defaultMonth={date ?? new Date()}
+            disabled={{ after: new Date(currentYear + 1, 11, 31) }}
+            className="pointer-events-auto p-3"
+          />
+        </PopoverContent>
+      </Popover>
+    </Field>
+  );
+}
+
 function FileDrop({
   label,
   currentPath,
