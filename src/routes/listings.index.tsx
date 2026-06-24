@@ -5,6 +5,7 @@ import {
   ChevronDown,
   Flame,
   Home,
+  ImageIcon,
   MapPin,
   PoundSterling,
   Search,
@@ -13,7 +14,7 @@ import {
 import { ViewSwitcher } from "../components/view-switcher";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/listings")({
+export const Route = createFileRoute("/listings/")({
   head: () => ({
     meta: [
       { title: "Browse Properties — Roost NI" },
@@ -30,7 +31,7 @@ export const Route = createFileRoute("/listings")({
       },
     ],
   }),
-  component: ListingsPage,
+  component: ListingsIndexPage,
 });
 
 interface Listing {
@@ -43,7 +44,7 @@ interface Listing {
   enforce_empty_in_full_out: boolean;
 }
 
-function ListingsPage() {
+function ListingsIndexPage() {
   const [query, setQuery] = useState("");
   const [rows, setRows] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,7 +87,8 @@ function ListingsPage() {
             Verified rentals across Northern Ireland
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Every listing comes from a registered NI landlord. {loading ? "Loading…" : `${filtered.length} listings live.`}
+            Every listing comes from a registered NI landlord.{" "}
+            {loading ? "Loading…" : `${filtered.length} listings live.`}
           </p>
         </div>
 
@@ -168,46 +170,72 @@ function Header() {
 
 function ListingCard({ listing }: { listing: Listing }) {
   return (
-    <article className="flex flex-col rounded-2xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.03),0_12px_28px_-24px_rgba(15,23,42,0.18)] transition hover:border-foreground/15">
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="font-display text-base font-semibold tracking-tight text-foreground">
-          {listing.title}
-        </h3>
-        {listing.enforce_empty_in_full_out ? (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
-            <ShieldCheck className="h-3 w-3" />
-            Fair fuel
-          </span>
-        ) : null}
-      </div>
-      <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
-        <MapPin className="h-3.5 w-3.5" />
-        {listing.address}
-        {listing.location ? ` · ${listing.location}` : null}
-      </p>
-      <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-        <Flame className="h-3.5 w-3.5" />
-        {listing.heating_type}
-      </p>
-      <div className="mt-4 flex items-end justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-            Monthly rent
-          </p>
-          <p className="mt-0.5 font-display text-xl font-semibold tracking-tight text-foreground">
-            <PoundSterling className="-mt-1 mr-0.5 inline h-4 w-4 text-muted-foreground" />
-            {Number(listing.monthly_rent).toLocaleString()}
-            <span className="ml-1 text-xs font-medium text-muted-foreground">pcm</span>
-          </p>
+    <Link
+      to="/listings/$id"
+      params={{ id: listing.id }}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_0_rgba(15,23,42,0.03),0_12px_28px_-24px_rgba(15,23,42,0.18)] transition hover:border-foreground/15 hover:shadow-[0_1px_0_rgba(15,23,42,0.04),0_20px_36px_-24px_rgba(15,23,42,0.25)]"
+    >
+      <PhotoPlaceholder />
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="font-display text-base font-semibold tracking-tight text-foreground">
+            {listing.title}
+          </h3>
+          {listing.enforce_empty_in_full_out ? (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
+              <ShieldCheck className="h-3 w-3" />
+              Fair fuel
+            </span>
+          ) : null}
         </div>
-        <Link
-          to="/listings/$id"
-          params={{ id: listing.id }}
-          className="rounded-full border border-border bg-surface-muted px-3.5 py-2 text-xs font-medium text-foreground transition hover:bg-secondary"
-        >
-          View details
-        </Link>
+        <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
+          <MapPin className="h-3.5 w-3.5" />
+          {listing.address}
+          {listing.location ? ` · ${listing.location}` : null}
+        </p>
+        <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+          <Flame className="h-3.5 w-3.5" />
+          {listing.heating_type}
+        </p>
+        <div className="mt-4 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+              Monthly rent
+            </p>
+            <p className="mt-0.5 font-display text-xl font-semibold tracking-tight text-foreground">
+              <PoundSterling className="-mt-1 mr-0.5 inline h-4 w-4 text-muted-foreground" />
+              {Number(listing.monthly_rent).toLocaleString()}
+              <span className="ml-1 text-xs font-medium text-muted-foreground">pcm</span>
+            </p>
+          </div>
+          <span className="rounded-full border border-border bg-surface-muted px-3.5 py-2 text-xs font-medium text-foreground transition group-hover:bg-secondary">
+            View details
+          </span>
+        </div>
       </div>
-    </article>
+    </Link>
+  );
+}
+
+function PhotoPlaceholder() {
+  return (
+    <div className="relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden border-b border-border bg-[linear-gradient(135deg,var(--color-surface-muted)_0%,var(--color-secondary)_100%)]">
+      <div
+        className="absolute inset-0 opacity-60"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 1px 1px, rgba(15,23,42,0.08) 1px, transparent 0)",
+          backgroundSize: "14px 14px",
+        }}
+      />
+      <div className="relative flex flex-col items-center gap-1.5 text-muted-foreground">
+        <span className="grid h-10 w-10 place-items-center rounded-full border border-border bg-surface/80 backdrop-blur">
+          <ImageIcon className="h-4 w-4" />
+        </span>
+        <span className="text-[10px] font-medium uppercase tracking-[0.18em]">
+          Photos coming soon
+        </span>
+      </div>
+    </div>
   );
 }
