@@ -1107,24 +1107,8 @@ function ReferencesStep({
                     className={inputCx}
                   />
                 </Field>
-                <Field label="Tenancy start date">
-                  <input
-                    required
-                    type="date"
-                    value={start1}
-                    onChange={(e) => setStart1(e.target.value)}
-                    className={inputCx}
-                  />
-                </Field>
-                <Field label="Tenancy end date">
-                  <input
-                    required
-                    type="date"
-                    value={end1}
-                    onChange={(e) => setEnd1(e.target.value)}
-                    className={inputCx}
-                  />
-                </Field>
+                <DateField label="Tenancy start date" value={start1} onChange={setStart1} />
+                <DateField label="Tenancy end date" value={end1} onChange={setEnd1} />
               </div>
               {months1 !== null && months1 > 0 ? (
                 <p className="text-xs text-muted-foreground">
@@ -1174,24 +1158,8 @@ function ReferencesStep({
                       className={inputCx}
                     />
                   </Field>
-                  <Field label="Tenancy start date">
-                    <input
-                      required
-                      type="date"
-                      value={start2}
-                      onChange={(e) => setStart2(e.target.value)}
-                      className={inputCx}
-                    />
-                  </Field>
-                  <Field label="Tenancy end date">
-                    <input
-                      required
-                      type="date"
-                      value={end2}
-                      onChange={(e) => setEnd2(e.target.value)}
-                      className={inputCx}
-                    />
-                  </Field>
+                  <DateField label="Tenancy start date" value={start2} onChange={setStart2} />
+                  <DateField label="Tenancy end date" value={end2} onChange={setEnd2} />
                 </div>
               </div>
             ) : null}
