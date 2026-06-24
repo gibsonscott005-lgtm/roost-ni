@@ -197,9 +197,37 @@ function TenantDashboard() {
   }, [user?.id, authLoading]);
 
   const steps = [
-    { key: "identity", label: "Identity & Right to Rent", icon: IdCard, done: !!passport?.identity_verified },
-    { key: "income", label: "Income verification", icon: Banknote, done: !!passport?.income_verified },
-    { key: "references", label: "Character references", icon: UserRoundCheck, done: !!passport?.reference_verified },
+    {
+      key: "identity",
+      label: "Identity & Right to Rent",
+      icon: IdCard,
+      // Treat the step as complete if the flag is set OR the underlying
+      // fields are present — protects against historic rows where the
+      // boolean flag was never written but the document + type exist.
+      done:
+        !!passport?.identity_verified ||
+        (!!passport?.id_document_path && !!passport?.id_document_type),
+    },
+    {
+      key: "income",
+      label: "Income verification",
+      icon: Banknote,
+      done:
+        !!passport?.income_verified ||
+        (!!passport?.employment_status &&
+          !!passport?.annual_income &&
+          !!passport?.income_document_path),
+    },
+    {
+      key: "references",
+      label: "Character references",
+      icon: UserRoundCheck,
+      done:
+        !!passport?.reference_verified ||
+        (passport?.is_first_time_renter
+          ? !!passport?.guarantor_name
+          : !!passport?.previous_landlord_name),
+    },
   ];
   const doneCount = steps.filter((s) => s.done).length;
   const isComplete = doneCount === 3;
