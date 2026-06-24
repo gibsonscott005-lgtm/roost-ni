@@ -42,6 +42,7 @@ interface Listing {
   location: string | null;
   heating_type: string;
   enforce_empty_in_full_out: boolean;
+  status: string;
 }
 
 function ListingsIndexPage() {
@@ -53,7 +54,7 @@ function ListingsIndexPage() {
     supabase
       .from("property_listings")
       .select(
-        "id, title, monthly_rent, address, location, heating_type, enforce_empty_in_full_out",
+        "id, title, monthly_rent, address, location, heating_type, enforce_empty_in_full_out, status",
       )
       .eq("is_published", true)
       .order("created_at", { ascending: false })
@@ -181,7 +182,11 @@ function ListingCard({ listing }: { listing: Listing }) {
           <h3 className="font-display text-base font-semibold tracking-tight text-foreground">
             {listing.title}
           </h3>
-          {listing.enforce_empty_in_full_out ? (
+          {listing.status === "under_offer" ? (
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800">
+              Under Offer
+            </span>
+          ) : listing.enforce_empty_in_full_out ? (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
               <ShieldCheck className="h-3 w-3" />
               Fair fuel
