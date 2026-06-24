@@ -87,6 +87,21 @@ const STEPS: { key: StepKey; label: string; sub: string }[] = [
   { key: "references", label: "Character references", sub: "Step 3" },
 ];
 
+function firstIncompleteStep(p: Passport): number {
+  const identityDone =
+    !!p.identity_verified || (!!p.id_document_path && !!p.id_document_type);
+  if (!identityDone) return 0;
+  const incomeDone =
+    !!p.income_verified ||
+    (!!p.employment_status && !!p.annual_income && !!p.income_document_path);
+  if (!incomeDone) return 1;
+  const refsDone =
+    !!p.reference_verified ||
+    (p.is_first_time_renter ? !!p.guarantor_name : !!p.previous_landlord_name);
+  if (!refsDone) return 2;
+  return 2;
+}
+
 function PassportEditPage() {
   const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -107,6 +122,7 @@ function PassportEditPage() {
       if (selErr) throw selErr;
       if (existing) {
         setPassport(existing as Passport);
+        setStepIndex(firstIncompleteStep(existing as Passport));
       } else {
         const { data: upserted, error: upErr } = await supabase
           .from("tenant_passports")
