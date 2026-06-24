@@ -1,12 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { format } from "date-fns";
 import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
   Banknote,
   Check,
+  Calendar as CalendarIcon,
   ExternalLink,
   FileUp,
   IdCard,
@@ -17,6 +19,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export const Route = createFileRoute("/_authenticated/dashboard/passport/edit")({
   head: () => ({
