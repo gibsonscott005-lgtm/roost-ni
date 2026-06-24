@@ -40,11 +40,27 @@ export function DashboardShell({
     navigate({ to: "/auth" });
   };
 
+  // Defensive native-navigation fallback: if router click handling is
+  // ever swallowed by a parent (preventDefault, overlay, etc.) we still
+  // navigate via the browser.
+  const goDashboard = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // allow cmd/ctrl/middle-click default behaviour
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || (e as React.MouseEvent).button === 1) return;
+    e.preventDefault();
+    window.location.href = "/dashboard";
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link to="/dashboard" className="flex items-center gap-2">
+          <a
+            href="/dashboard"
+            onClick={goDashboard}
+            style={{ cursor: "pointer", pointerEvents: "auto" }}
+            className="flex items-center gap-2"
+          >
             <span className="grid h-8 w-8 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
               <Home className="h-4 w-4" strokeWidth={2.25} />
             </span>
@@ -52,12 +68,30 @@ export function DashboardShell({
               Roost<span className="text-verified">.</span>ni
             </span>
             {profile ? (
-              <span className="ml-2 hidden rounded-full border border-border bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground sm:inline">
+              <span
+                role="link"
+                tabIndex={0}
+                onClick={goDashboard}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") goDashboard(e as unknown as React.MouseEvent);
+                }}
+                style={{ cursor: "pointer", pointerEvents: "auto" }}
+                className="ml-2 hidden rounded-full border border-border bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground transition hover:bg-secondary sm:inline"
+              >
                 {profile.account_type}
               </span>
             ) : null}
-          </Link>
+          </a>
           <div className="flex items-center gap-1.5">
+            <a
+              href="/dashboard"
+              onClick={goDashboard}
+              style={{ cursor: "pointer", pointerEvents: "auto" }}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-foreground px-3 py-1.5 text-xs font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/90"
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              Dashboard
+            </a>
             <Link
               to="/listings"
               className="hidden rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary sm:inline"
