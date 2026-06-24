@@ -103,14 +103,22 @@ function ApplicationsPage() {
         .update({ status: "accepted" })
         .eq("id", share.id);
       if (error) throw error;
+      // Mark the property as Under Offer so it shows on public listings
+      // and disables further applications.
+      const { error: listingErr } = await supabase
+        .from("property_listings")
+        .update({ status: "under_offer" })
+        .eq("id", share.listing_id);
+      if (listingErr) throw listingErr;
       return share;
     },
     onSuccess: (share) => {
       toast.success("Applicant accepted", {
-        description: `${share.tenant?.full_name ?? "Tenant"} has been marked as accepted.`,
+        description: `${share.tenant?.full_name ?? "Tenant"} accepted. Listing marked as Under Offer.`,
       });
       setOpen((o) => (o ? { ...o, status: "accepted" } : null));
       queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["passport-share"] });
     },
     onError: (err: unknown) => {
       toast.error("Could not update", {
@@ -337,11 +345,6 @@ function PassportModal({
 
           <dl className="divide-y divide-border rounded-2xl border border-border bg-surface-muted/50 text-sm">
             <Row k="Monthly net income" v={passport?.monthly_income_net ? `£${Number(passport.monthly_income_net).toLocaleString()}` : "—"} />
-            <Row k="Preferred heating" v={passport?.preferred_heating ?? "—"} />
-            <Row
-              k="Accepts Empty-in / Full-out"
-              v={passport ? (passport.accept_empty_in_full_out ? "Yes" : "No") : "—"}
-            />
             <Row k="Shared" v={timeAgo(share.shared_at)} />
           </dl>
         </div>
