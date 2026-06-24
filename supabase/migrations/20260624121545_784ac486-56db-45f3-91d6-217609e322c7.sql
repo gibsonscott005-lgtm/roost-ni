@@ -1,0 +1,2 @@
+ALTER TABLE public.property_listings ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'available';
+ALTER TABLE public.property_listings ADD CONSTRAINT property_listings_status_check CHECK (status IN ('available','under_offer','let'));

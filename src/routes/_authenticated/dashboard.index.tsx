@@ -142,6 +142,9 @@ function TenantDashboard() {
   const navigate = useNavigate();
   const { user, profile, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [acceptedShares, setAcceptedShares] = useState<
+    { id: string; listing: { id: string; title: string; address: string; location: string | null } | null }[]
+  >([]);
   const [passport, setPassport] = useState<{
     identity_verified: boolean;
     income_verified: boolean;
@@ -180,6 +183,17 @@ function TenantDashboard() {
         if (error) throw error;
         setPassport(data as typeof passport);
         setLoading(false);
+        const { data: shares } = await supabase
+          .from("passport_shares")
+          .select("id, listing:property_listings!listing_id(id, title, address, location)")
+          .eq("tenant_id", user.id)
+          .eq("status", "accepted")
+          .order("shared_at", { ascending: false });
+        if (!cancelled) {
+          setAcceptedShares(
+            (shares as unknown as { id: string; listing: { id: string; title: string; address: string; location: string | null } | null }[] | null) ?? [],
+          );
+        }
       } catch (err: unknown) {
         if (cancelled) return;
         const e = err as { code?: string; message?: string };
@@ -254,9 +268,57 @@ function TenantDashboard() {
     );
   }
 
+  const acceptedBanner = acceptedShares.length > 0 ? (
+    <div className="mb-5 overflow-hidden rounded-3xl border border-verified/40 bg-verified-soft/70 p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
+      <div className="flex items-start gap-3">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-verified text-[var(--color-verified-foreground)]">
+          <BadgeCheck className="h-5 w-5" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-verified">
+            Application accepted
+          </p>
+          <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
+            {acceptedShares.length === 1
+              ? "Congratulations — your application was accepted"
+              : `${acceptedShares.length} of your applications were accepted`}
+          </h2>
+          <ul className="mt-3 space-y-2">
+            {acceptedShares.map((s) => (
+              <li key={s.id} className="rounded-2xl border border-verified/30 bg-surface/80 p-3.5">
+                <p className="font-display text-sm font-semibold tracking-tight text-foreground">
+                  {s.listing?.title ?? "Your accepted property"}
+                </p>
+                {s.listing?.address ? (
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {s.listing.address}{s.listing.location ? ` · ${s.listing.location}` : ""}
+                  </p>
+                ) : null}
+                {s.listing?.id ? (
+                  <Link
+                    to="/listings/$id"
+                    params={{ id: s.listing.id }}
+                    className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-foreground underline-offset-2 hover:underline"
+                  >
+                    View listing
+                  </Link>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-sm text-foreground/80">
+            Your lease is pending signature. The landlord will be in touch shortly with next steps.
+          </p>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
   if (!isComplete) {
     const pct = Math.round((doneCount / 3) * 100);
     return (
+      <>
+      {acceptedBanner}
       <div className="rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Tenant area
@@ -318,6 +380,7 @@ function TenantDashboard() {
           </Link>
         </div>
       </div>
+      </>
     );
   }
 
@@ -339,6 +402,8 @@ function TenantDashboard() {
   ];
 
   return (
+    <>
+    {acceptedBanner}
     <div className="rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -451,6 +516,7 @@ function TenantDashboard() {
         </Link>
       </div>
     </div>
+    </>
   );
 }
 

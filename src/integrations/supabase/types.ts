@@ -93,6 +93,7 @@ export type Database = {
           location: string | null
           monthly_rent: number
           ni_landlord_reg_number: string
+          status: string
           tenant_preferences: string[]
           title: string
           updated_at: string
@@ -109,6 +110,7 @@ export type Database = {
           location?: string | null
           monthly_rent: number
           ni_landlord_reg_number: string
+          status?: string
           tenant_preferences?: string[]
           title: string
           updated_at?: string
@@ -125,6 +127,7 @@ export type Database = {
           location?: string | null
           monthly_rent?: number
           ni_landlord_reg_number?: string
+          status?: string
           tenant_preferences?: string[]
           title?: string
           updated_at?: string
