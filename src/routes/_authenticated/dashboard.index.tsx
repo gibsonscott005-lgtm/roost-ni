@@ -597,11 +597,16 @@ function MyProperties({
           {listings.map((l, i) => (
             <li
               key={l.id}
-              className={`flex items-start justify-between gap-3 p-4 sm:items-center sm:p-5 ${
+              className={`flex items-start justify-between gap-3 p-4 transition hover:bg-surface-muted/60 sm:items-center sm:p-5 ${
                 i > 0 ? "border-t border-border" : ""
               }`}
             >
-              <div className="min-w-0">
+              <Link
+                to="/listings/$id"
+                params={{ id: l.id }}
+                className="min-w-0 flex-1 outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 rounded-lg"
+                aria-label={`View ${l.title}`}
+              >
                 <p className="truncate font-display text-base font-semibold tracking-tight">
                   {l.title}
                 </p>
@@ -614,14 +619,14 @@ function MyProperties({
                   <Flame className="h-3 w-3" />
                   {l.heating_type}
                 </p>
-              </div>
-              <div className="text-right">
+              </Link>
+              <div className="flex shrink-0 flex-col items-end gap-2 text-right">
                 <p className="font-display text-base font-semibold tracking-tight">
                   £{Number(l.monthly_rent).toLocaleString()}
                   <span className="ml-1 text-[11px] font-medium text-muted-foreground">pcm</span>
                 </p>
                 <span
-                  className={`mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
                     l.is_published
                       ? "bg-verified-soft text-verified"
                       : "bg-surface-muted text-muted-foreground"
@@ -630,6 +635,24 @@ function MyProperties({
                   {l.is_published ? <ShieldCheck className="h-3 w-3" /> : null}
                   {l.is_published ? "Live" : "Draft"}
                 </span>
+                <div className="mt-1 flex flex-wrap items-center justify-end gap-1.5">
+                  <Link
+                    to="/dashboard/applications"
+                    search={{ listing: l.id }}
+                    className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                  >
+                    <Users className="h-3 w-3" />
+                    View applicants
+                  </Link>
+                  <Link
+                    to="/listings/$id"
+                    params={{ id: l.id }}
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    View listing
+                  </Link>
+                </div>
               </div>
             </li>
           ))}
