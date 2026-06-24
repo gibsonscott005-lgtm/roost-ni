@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { z } from "zod";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -8,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 
 export const Route = createFileRoute("/_authenticated/dashboard/applications")({
+  validateSearch: z.object({ listing: z.string().optional() }),
   head: () => ({
     meta: [
       { title: "Received Passports — Roost NI" },
@@ -47,6 +49,7 @@ function ApplicationsPage() {
   const { user, profile } = useAuth();
   const [open, setOpen] = useState<Share | null>(null);
   const queryClient = useQueryClient();
+  const { listing: listingFilter } = Route.useSearch();
 
   const isLandlord = profile?.account_type === "landlord";
 
@@ -85,7 +88,10 @@ function ApplicationsPage() {
     },
   });
 
-  const shares = inboxQuery.data?.shares ?? [];
+  const allShares = inboxQuery.data?.shares ?? [];
+  const shares = listingFilter
+    ? allShares.filter((s) => s.listing_id === listingFilter)
+    : allShares;
   const passports = inboxQuery.data?.passports ?? {};
   const listingCount = inboxQuery.data?.listingCount ?? 0;
   const loading = inboxQuery.isPending && isLandlord;
@@ -138,6 +144,22 @@ function ApplicationsPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               Verified tenants who applied to your live listings.
             </p>
+            {listingFilter ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2 rounded-full border border-border bg-surface-muted/60 px-3 py-1.5 text-xs text-muted-foreground w-fit">
+                <span>
+                  Filtered to:{" "}
+                  <span className="font-medium text-foreground">
+                    {allShares.find((s) => s.listing_id === listingFilter)?.listing?.title ?? "Selected listing"}
+                  </span>
+                </span>
+                <Link
+                  to="/dashboard/applications"
+                  className="rounded-full bg-surface px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-secondary"
+                >
+                  Clear
+                </Link>
+              </div>
+            ) : null}
           </div>
 
           {loading ? (
