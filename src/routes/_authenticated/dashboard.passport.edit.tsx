@@ -107,6 +107,7 @@ function PassportEditPage() {
       if (selErr) throw selErr;
       if (existing) {
         setPassport(existing as Passport);
+        setStepIndex(firstIncompleteStep(existing as Passport));
       } else {
         const { data: upserted, error: upErr } = await supabase
           .from("tenant_passports")
