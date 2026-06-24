@@ -159,12 +159,17 @@ export function DashboardShell({
               />
             </nav>
           ) : (
-            <div className="rounded-2xl border border-border bg-surface p-4 text-sm text-muted-foreground">
-              You're signed in as a Tenant. Manage your completed passport from your{" "}
-              <Link to="/dashboard" className="font-medium text-foreground underline-offset-2 hover:underline">
-                dashboard
-              </Link>
-              .
+            <div className="space-y-3 rounded-2xl border border-border bg-surface p-4 text-sm text-muted-foreground">
+              <p>You're signed in as a Tenant. Jump back to your dashboard anytime.</p>
+              <a
+                href="/dashboard"
+                onClick={goDashboard}
+                style={{ cursor: "pointer", pointerEvents: "auto" }}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-3 py-2 text-sm font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/90"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                Open Tenant Dashboard
+              </a>
             </div>
           )}
         </aside>
