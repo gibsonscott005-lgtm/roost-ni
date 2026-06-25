@@ -236,6 +236,27 @@ function NavLink({
   );
 }
 
+function TenantNavLink({
+  to,
+  active,
+  icon: Icon,
+  label,
+}: {
+  to: "/dashboard" | "/dashboard/passport";
+  active: boolean;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+}) {
+  return (
+    <Link to={to} className={itemCx(active)}>
+      <span className="flex items-center gap-2">
+        <Icon className="h-4 w-4" />
+        {label}
+      </span>
+    </Link>
+  );
+}
+
 function Badge({ value }: { value: number }) {
   return (
     <span className="rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
