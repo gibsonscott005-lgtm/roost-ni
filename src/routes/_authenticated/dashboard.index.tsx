@@ -17,12 +17,10 @@ import {
   IdCard,
   Banknote,
   UserRoundCheck,
-  Pencil,
-  Share2,
   FileText,
-  Image as ImageIcon,
   ExternalLink,
   Loader2,
+  ArrowRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
