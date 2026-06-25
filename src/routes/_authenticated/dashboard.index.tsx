@@ -140,6 +140,14 @@ function TenantDashboard() {
   const [acceptedShares, setAcceptedShares] = useState<
     { id: string; listing: { id: string; title: string; address: string; location: string | null } | null }[]
   >([]);
+  const [allShares, setAllShares] = useState<
+    {
+      id: string;
+      status: string;
+      shared_at: string;
+      listing: { id: string; title: string; address: string; location: string | null; monthly_rent: number | null } | null;
+    }[]
+  >([]);
   const [passport, setPassport] = useState<{
     identity_verified: boolean;
     income_verified: boolean;
@@ -178,15 +186,17 @@ function TenantDashboard() {
         setLoading(false);
         const { data: shares } = await supabase
           .from("passport_shares")
-          .select("id, status, listing:property_listings!listing_id(id, title, address, location)")
+          .select("id, status, shared_at, listing:property_listings!listing_id(id, title, address, location, monthly_rent)")
           .eq("tenant_id", user.id)
           .order("shared_at", { ascending: false });
         if (!cancelled) {
           const rows = (shares as unknown as {
             id: string;
             status: string;
-            listing: { id: string; title: string; address: string; location: string | null } | null;
+            shared_at: string;
+            listing: { id: string; title: string; address: string; location: string | null; monthly_rent: number | null } | null;
           }[] | null) ?? [];
+          setAllShares(rows);
           setAcceptedShares(rows.filter((r) => r.status === "accepted"));
           setApplicationCounts({
             sent: rows.length,
