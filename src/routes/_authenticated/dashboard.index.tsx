@@ -332,6 +332,7 @@ function TenantDashboard() {
             sub={`${applicationCounts.pending} awaiting reply`}
             tone="muted"
             icon={Building2}
+            href="#applications"
           />
           <StatCard
             label="Accepted"
@@ -339,6 +340,7 @@ function TenantDashboard() {
             sub={applicationCounts.accepted > 0 ? "Lease pending" : "Keep applying"}
             tone={applicationCounts.accepted > 0 ? "verified" : "muted"}
             icon={Check}
+            href="#applications"
           />
         </div>
       </div>
@@ -500,15 +502,25 @@ function StatCard({
   sub,
   tone,
   icon: Icon,
+  href,
 }: {
   label: string;
   value: string;
   sub: string;
   tone: "verified" | "muted";
   icon: React.ComponentType<{ className?: string }>;
+  href?: string;
 }) {
+  const Wrapper: React.ElementType = href ? "a" : "div";
+  const wrapperProps = href
+    ? {
+        href,
+        className:
+          "block rounded-2xl border border-border bg-surface-muted/60 p-4 transition hover:border-foreground/30 hover:bg-surface-muted",
+      }
+    : { className: "rounded-2xl border border-border bg-surface-muted/60 p-4" };
   return (
-    <div className="rounded-2xl border border-border bg-surface-muted/60 p-4">
+    <Wrapper {...wrapperProps}>
       <div className="flex items-center justify-between">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           {label}
@@ -525,7 +537,7 @@ function StatCard({
       </div>
       <p className="mt-2 font-display text-2xl font-semibold tracking-tight text-foreground">{value}</p>
       <p className="mt-0.5 text-[11px] text-muted-foreground">{sub}</p>
-    </div>
+    </Wrapper>
   );
 }
 
