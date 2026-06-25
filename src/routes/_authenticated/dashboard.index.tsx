@@ -15,14 +15,9 @@ import {
   Users,
   BadgeCheck,
   IdCard,
-  Banknote,
-  UserRoundCheck,
-  Pencil,
-  Share2,
-  FileText,
-  Image as ImageIcon,
   ExternalLink,
   Loader2,
+  ArrowRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -149,22 +144,20 @@ function TenantDashboard() {
     identity_verified: boolean;
     income_verified: boolean;
     reference_verified: boolean;
-    right_to_rent_verified: boolean;
     employment_status: string | null;
-    monthly_income_net: number | null;
-    annual_income: number | null;
-    id_document_type: string | null;
     id_document_path: string | null;
+    id_document_type: string | null;
     income_document_path: string | null;
+    annual_income: number | null;
     previous_landlord_name: string | null;
-    previous_landlord_email: string | null;
-    previous_landlord_phone: string | null;
-    tenancy_duration: string | null;
-    reference_document_path: string | null;
     is_first_time_renter: boolean | null;
     guarantor_name: string | null;
-    previous_landlord_name_2: string | null;
   } | null>(null);
+  const [applicationCounts, setApplicationCounts] = useState<{ sent: number; accepted: number; pending: number }>({
+    sent: 0,
+    accepted: 0,
+    pending: 0,
+  });
 
   useEffect(() => {
     if (authLoading) return;
@@ -175,7 +168,7 @@ function TenantDashboard() {
         const { data, error } = await supabase
           .from("tenant_passports")
           .select(
-            "identity_verified, income_verified, reference_verified, right_to_rent_verified, employment_status, monthly_income_net, annual_income, id_document_type, id_document_path, income_document_path, previous_landlord_name, previous_landlord_email, previous_landlord_phone, tenancy_duration, reference_document_path, is_first_time_renter, guarantor_name, previous_landlord_name_2",
+            "identity_verified, income_verified, reference_verified, employment_status, id_document_path, id_document_type, income_document_path, annual_income, previous_landlord_name, is_first_time_renter, guarantor_name",
           )
           .eq("user_id", user.id)
           .maybeSingle();
@@ -185,14 +178,21 @@ function TenantDashboard() {
         setLoading(false);
         const { data: shares } = await supabase
           .from("passport_shares")
-          .select("id, listing:property_listings!listing_id(id, title, address, location)")
+          .select("id, status, listing:property_listings!listing_id(id, title, address, location)")
           .eq("tenant_id", user.id)
-          .eq("status", "accepted")
           .order("shared_at", { ascending: false });
         if (!cancelled) {
-          setAcceptedShares(
-            (shares as unknown as { id: string; listing: { id: string; title: string; address: string; location: string | null } | null }[] | null) ?? [],
-          );
+          const rows = (shares as unknown as {
+            id: string;
+            status: string;
+            listing: { id: string; title: string; address: string; location: string | null } | null;
+          }[] | null) ?? [];
+          setAcceptedShares(rows.filter((r) => r.status === "accepted"));
+          setApplicationCounts({
+            sent: rows.length,
+            accepted: rows.filter((r) => r.status === "accepted").length,
+            pending: rows.filter((r) => r.status !== "accepted" && r.status !== "rejected").length,
+          });
         }
       } catch (err: unknown) {
         if (cancelled) return;
@@ -213,19 +213,12 @@ function TenantDashboard() {
   const steps = [
     {
       key: "identity",
-      label: "Identity & Right to Rent",
-      icon: IdCard,
-      // Treat the step as complete if the flag is set OR the underlying
-      // fields are present — protects against historic rows where the
-      // boolean flag was never written but the document + type exist.
       done:
         !!passport?.identity_verified ||
         (!!passport?.id_document_path && !!passport?.id_document_type),
     },
     {
       key: "income",
-      label: "Income verification",
-      icon: Banknote,
       done:
         !!passport?.income_verified ||
         (!!passport?.employment_status &&
@@ -234,8 +227,6 @@ function TenantDashboard() {
     },
     {
       key: "references",
-      label: "Character references",
-      icon: UserRoundCheck,
       done:
         !!passport?.reference_verified ||
         (passport?.is_first_time_renter
@@ -245,25 +236,13 @@ function TenantDashboard() {
   ];
   const doneCount = steps.filter((s) => s.done).length;
   const isComplete = doneCount === 3;
-
-  const shareLink = async () => {
-    if (!user) return;
-    const url = `${window.location.origin}/passport/${user.id}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success("Passport link copied", {
-        description: "Share it with a landlord to instantly verify your badges.",
-      });
-    } catch {
-      toast.error("Could not copy link", { description: url });
-    }
-  };
+  const pct = Math.round((doneCount / 3) * 100);
 
   if (loading) {
     return (
       <div className="rounded-3xl border border-border bg-surface p-10 text-center text-sm text-muted-foreground shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)]">
         <Loader2 className="mx-auto h-5 w-5 animate-spin" />
-        <p className="mt-2">Loading your passport…</p>
+        <p className="mt-2">Loading your dashboard…</p>
       </div>
     );
   }
@@ -314,323 +293,150 @@ function TenantDashboard() {
     </div>
   ) : null;
 
-  if (!isComplete) {
-    const pct = Math.round((doneCount / 3) * 100);
-    return (
-      <>
-      {acceptedBanner}
-      <div className="rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Tenant area
-        </p>
-        <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-          {doneCount === 0 ? "Start your tenant passport" : "Finish your tenant passport"}
-        </h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {doneCount} of 3 steps complete. Documents you upload are shared securely with landlords
-          when you apply — Roost does not run background checks.
-        </p>
-        <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-secondary">
-          <div
-            className="h-full rounded-full bg-verified transition-all"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        <ul className="mt-5 space-y-2">
-          {steps.map((s) => (
-            <li
-              key={s.key}
-              className="flex items-center gap-3 rounded-2xl border border-border bg-surface-muted/60 px-3.5 py-2.5"
-            >
-              <span
-                className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ${
-                  s.done
-                    ? "bg-verified text-[var(--color-verified-foreground)]"
-                    : "bg-surface text-muted-foreground"
-                }`}
-              >
-                {s.done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : <s.icon className="h-3.5 w-3.5" />}
-              </span>
-              <span className="font-display text-sm font-medium tracking-tight text-foreground">
-                {s.label}
-              </span>
-              <span
-                className={`ml-auto text-[11px] font-semibold uppercase tracking-wider ${
-                  s.done ? "text-verified" : "text-muted-foreground"
-                }`}
-              >
-                {s.done ? "Complete" : "Pending"}
-              </span>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => navigate({ to: "/dashboard/passport/edit" })}
-            className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
-          >
-            {doneCount === 0 ? "Complete my passport" : "Continue passport"}
-          </button>
-          <Link
-            to="/listings"
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary"
-          >
-            Browse properties
-          </Link>
-        </div>
-      </div>
-      </>
-    );
-  }
-
-  const employmentLabel = formatEmployment(passport?.employment_status);
-  const monthlyNet = passport?.monthly_income_net ?? null;
-  const referencesSubLabel = (() => {
-    if (passport?.is_first_time_renter && passport?.guarantor_name) {
-      return "Guarantor Provided";
-    }
-    if (passport?.previous_landlord_name_2) return "2 Landlord References";
-    if (passport?.previous_landlord_name) return "1 Landlord Reference";
-    return "Self-Certified";
-  })();
-  const badges: { label: string; icon: typeof IdCard; sub?: string }[] = [
-    { label: "Identity", icon: IdCard },
-    { label: "Right to Rent", icon: ShieldCheck },
-    { label: "Income", icon: Banknote },
-    { label: "References", icon: UserRoundCheck, sub: referencesSubLabel },
-  ];
-
   return (
     <>
-    {acceptedBanner}
-    <div className="rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Tenant passport
-          </p>
-          <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-            {profile?.full_name || "Your tenant passport"}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Documents have been securely uploaded by the tenant. Landlords can review these files
-            directly upon application.
-          </p>
-        </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-verified px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--color-verified-foreground)]">
-          <BadgeCheck className="h-3.5 w-3.5" />
-          Profile Complete • Self-Certified
-        </span>
-      </div>
+      {acceptedBanner}
 
-      <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {badges.map((b) => (
-          <div
-            key={b.label}
-            className="flex items-center gap-2 rounded-2xl border border-verified/30 bg-verified-soft/50 px-3 py-2.5"
-          >
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-verified text-[var(--color-verified-foreground)]">
-              <b.icon className="h-3.5 w-3.5" />
-            </span>
-            <div className="min-w-0">
-              <p className="truncate font-display text-xs font-semibold tracking-tight text-foreground">
-                {b.label}
-              </p>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-verified">
-                {b.sub ?? "Self-Certified"}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <dl className="mt-5 grid grid-cols-1 gap-2 rounded-2xl border border-border bg-surface-muted/60 p-4 sm:grid-cols-2">
-        <div>
-          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Employment
-          </dt>
-          <dd className="mt-0.5 font-display text-sm font-semibold tracking-tight text-foreground">
-            {employmentLabel}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Monthly net income
-          </dt>
-          <dd className="mt-0.5 font-display text-sm font-semibold tracking-tight text-foreground">
-            {monthlyNet ? `£${Number(monthlyNet).toLocaleString()}` : "—"}
-          </dd>
-        </div>
-      </dl>
-
-      <div className="mt-3 rounded-2xl border border-border bg-surface-muted/60 p-4">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Documents on file
+      <div className="rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Dashboard overview
         </p>
-        <ul className="mt-2 space-y-2">
-          <DocumentRow
-            label="Identity document"
-            path={passport?.id_document_path ?? null}
-            stepHash="identity"
+        <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
+          Welcome back{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Here's a snapshot of your tenant activity on Roost.
+        </p>
+
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <StatCard
+            label="Passport complete"
+            value={isComplete ? "100%" : `${pct}%`}
+            sub={isComplete ? "Self-certified" : `${doneCount} of 3 steps`}
+            tone={isComplete ? "verified" : "muted"}
+            icon={BadgeCheck}
           />
-          <DocumentRow
-            label="Income document"
-            path={passport?.income_document_path ?? null}
-            stepHash="income"
+          <StatCard
+            label="Applications sent"
+            value={String(applicationCounts.sent)}
+            sub={`${applicationCounts.pending} awaiting reply`}
+            tone="muted"
+            icon={Building2}
           />
-          <DocumentRow
-            label="Reference letter"
-            path={passport?.reference_document_path ?? null}
-            stepHash="references"
-            optional
-            sectionFilled={
-              !!passport?.previous_landlord_name || !!passport?.guarantor_name
-            }
+          <StatCard
+            label="Accepted"
+            value={String(applicationCounts.accepted)}
+            sub={applicationCounts.accepted > 0 ? "Lease pending" : "Keep applying"}
+            tone={applicationCounts.accepted > 0 ? "verified" : "muted"}
+            icon={Check}
           />
-        </ul>
+        </div>
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-2">
-        <Link
-          to="/listings"
-          className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
-        >
-          <Building2 className="h-3.5 w-3.5" />
-          Browse properties
-        </Link>
+      <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <button
           type="button"
-          onClick={shareLink}
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary"
+          onClick={() =>
+            navigate({ to: isComplete ? "/dashboard/passport" : "/dashboard/passport/edit" })
+          }
+          className="group flex items-start gap-3 rounded-3xl border border-border bg-surface p-5 text-left transition hover:border-foreground/30"
         >
-          <Share2 className="h-3.5 w-3.5" />
-          Share passport
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-verified-soft text-verified">
+            <IdCard className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-base font-semibold tracking-tight">
+              {isComplete ? "View my passport" : "Build my passport"}
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {isComplete
+                ? "Identity, income & references — ready to share."
+                : "Add identity, income & references to start applying."}
+            </p>
+          </div>
+          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
         </button>
+
         <Link
-          to="/dashboard/passport/edit"
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary"
+          to="/listings"
+          className="group flex items-start gap-3 rounded-3xl border border-border bg-surface p-5 text-left transition hover:border-foreground/30"
         >
-          <Pencil className="h-3.5 w-3.5" />
-          Edit passport
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-surface-muted text-foreground">
+            <Building2 className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-base font-semibold tracking-tight">
+              Browse properties
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Live NI listings — apply with one click using your passport.
+            </p>
+          </div>
+          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
         </Link>
       </div>
-    </div>
+
+      {!isComplete ? (
+        <div className="mt-5 rounded-3xl border border-border bg-surface p-5 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Passport progress
+              </p>
+              <p className="mt-1 font-display text-base font-semibold tracking-tight">
+                {doneCount} of 3 steps complete
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/dashboard/passport/edit" })}
+              className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-2 text-xs font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+            >
+              {doneCount === 0 ? "Start now" : "Continue"}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-secondary">
+            <div className="h-full rounded-full bg-verified transition-all" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
 
-function formatEmployment(status: string | null | undefined): string {
-  if (!status) return "—";
-  const map: Record<string, string> = {
-    permanent_full_time: "Permanent · Full-time",
-    permanent_part_time: "Permanent · Part-time",
-    self_employed: "Self-employed",
-    contract: "Contract",
-    student: "Student",
-    retired: "Retired",
-  };
-  return map[status] ?? status;
-}
-
-function DocumentRow({
+function StatCard({
   label,
-  path,
-  stepHash,
-  optional = false,
-  sectionFilled = false,
+  value,
+  sub,
+  tone,
+  icon: Icon,
 }: {
   label: string;
-  path: string | null;
-  stepHash: string;
-  optional?: boolean;
-  sectionFilled?: boolean;
+  value: string;
+  sub: string;
+  tone: "verified" | "muted";
+  icon: React.ComponentType<{ className?: string }>;
 }) {
-  const [opening, setOpening] = useState(false);
-  const filename = path ? path.split("/").pop() ?? path : null;
-  const isImage = !!filename && /\.(jpe?g|png|webp|gif)$/i.test(filename);
-  const Icon = isImage ? ImageIcon : FileText;
-
-  const onView = async () => {
-    if (!path || opening) return;
-    setOpening(true);
-    try {
-      const { data, error } = await supabase.storage
-        .from("tenant-documents")
-        .createSignedUrl(path, 60);
-      if (error || !data?.signedUrl) throw error ?? new Error("No URL");
-      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
-    } catch (err) {
-      toast.error("Couldn't open document", {
-        description: err instanceof Error ? err.message : "Please try again.",
-      });
-    } finally {
-      setOpening(false);
-    }
-  };
-
-  if (!path) {
-    if (optional && sectionFilled) {
-      return (
-        <li className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-surface px-3 py-2.5">
-          <span className="flex items-center gap-2 min-w-0">
-            <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <span className="truncate text-sm text-muted-foreground">
-              {label} — not uploaded (optional)
-            </span>
-          </span>
-        </li>
-      );
-    }
-    return (
-      <li className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-surface px-3 py-2.5">
-        <span className="flex items-center gap-2 min-w-0">
-          <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-          <span className="truncate text-sm text-muted-foreground">
-            {label} — not uploaded {optional ? "(optional)" : "yet"}
-          </span>
-        </span>
-        <Link
-          to="/dashboard/passport/edit"
-          hash={stepHash}
-          className="shrink-0 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground transition hover:bg-secondary"
-        >
-          Add
-        </Link>
-      </li>
-    );
-  }
-
   return (
-    <li className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface px-3 py-2.5">
-      <span className="flex items-center gap-2 min-w-0">
-        <Icon className="h-4 w-4 shrink-0 text-verified" />
-        <span className="min-w-0">
-          <span className="block truncate font-display text-sm font-semibold tracking-tight text-foreground">
-            {label}
-          </span>
-          <span className="block truncate text-[11px] text-muted-foreground">{filename}</span>
-        </span>
-      </span>
-      <span className="flex shrink-0 items-center gap-1.5">
-        <span className="hidden rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified sm:inline-block">
-          Self-Certified
-        </span>
-        <button
-          type="button"
-          onClick={onView}
-          disabled={opening}
-          className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
+    <div className="rounded-2xl border border-border bg-surface-muted/60 p-4">
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </p>
+        <span
+          className={`grid h-6 w-6 place-items-center rounded-full ${
+            tone === "verified"
+              ? "bg-verified text-[var(--color-verified-foreground)]"
+              : "bg-surface text-muted-foreground"
+          }`}
         >
-          {opening ? (
-            <Loader2 className="h-3 w-3 animate-spin" />
-          ) : (
-            <ExternalLink className="h-3 w-3" />
-          )}
-          View
-        </button>
-      </span>
-    </li>
+          <Icon className="h-3 w-3" />
+        </span>
+      </div>
+      <p className="mt-2 font-display text-2xl font-semibold tracking-tight text-foreground">{value}</p>
+      <p className="mt-0.5 text-[11px] text-muted-foreground">{sub}</p>
+    </div>
   );
 }
 
