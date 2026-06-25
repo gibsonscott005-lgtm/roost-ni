@@ -359,10 +359,17 @@ function PassportModal({
             Close
           </button>
           {share.status === "accepted" ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-verified px-4 py-2 text-xs font-semibold text-[var(--color-verified-foreground)]">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                navigate({ to: "/landlord/issue-lease", search: { share: share.id } });
+              }}
+              className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
+            >
               <ShieldCheck className="h-3.5 w-3.5" />
-              Accepted
-            </span>
+              Prepare &amp; Issue Lease
+            </button>
           ) : (
             <button
               type="button"
