@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -310,6 +310,7 @@ function PassportModal({
   onAccept: () => void;
   onClose: () => void;
 }) {
+  const navigate = useNavigate();
   return (
     <div className="fixed inset-0 z-50 grid place-items-end bg-foreground/30 px-4 py-6 backdrop-blur-sm sm:place-items-center">
       <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-surface shadow-[0_24px_64px_-24px_rgba(15,23,42,0.35)]">
@@ -358,10 +359,17 @@ function PassportModal({
             Close
           </button>
           {share.status === "accepted" ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-verified px-4 py-2 text-xs font-semibold text-[var(--color-verified-foreground)]">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                navigate({ to: "/landlord/issue-lease", search: { share: share.id } });
+              }}
+              className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
+            >
               <ShieldCheck className="h-3.5 w-3.5" />
-              Accepted
-            </span>
+              Prepare &amp; Issue Lease
+            </button>
           ) : (
             <button
               type="button"
