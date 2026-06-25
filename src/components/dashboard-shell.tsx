@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Bell,
   Home,
@@ -6,6 +6,7 @@ import {
   LayoutGrid,
   LogOut,
   Plus,
+  IdCard,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/hooks/use-auth";
@@ -34,6 +35,7 @@ export function DashboardShell({
 }: Props) {
   const navigate = useNavigate();
   const isLandlord = profile?.account_type === "landlord";
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -159,18 +161,20 @@ export function DashboardShell({
               />
             </nav>
           ) : (
-            <div className="space-y-3 rounded-2xl border border-border bg-surface p-4 text-sm text-muted-foreground">
-              <p>You're signed in as a Tenant. Jump back to your dashboard anytime.</p>
-              <a
-                href="/dashboard"
-                onClick={goDashboard}
-                style={{ cursor: "pointer", pointerEvents: "auto" }}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-3 py-2 text-sm font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/90"
-              >
-                <LayoutGrid className="h-4 w-4" />
-                Open Tenant Dashboard
-              </a>
-            </div>
+            <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-border bg-surface p-2 lg:flex-col lg:overflow-visible">
+              <TenantNavLink
+                to="/dashboard"
+                active={pathname === "/dashboard"}
+                icon={LayoutGrid}
+                label="Overview"
+              />
+              <TenantNavLink
+                to="/dashboard/passport"
+                active={pathname.startsWith("/dashboard/passport")}
+                icon={IdCard}
+                label="My Passport"
+              />
+            </nav>
           )}
         </aside>
 
