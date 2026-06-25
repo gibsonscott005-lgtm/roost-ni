@@ -207,10 +207,8 @@ function TenantDashboard() {
         });
 
         // Step B: hydrate listing details separately. Missing rows are tolerated.
-        let listingMap = new Map<
-          string,
-          { id: string; title: string; address: string; location: string | null; monthly_rent: number | null }
-        >();
+        type ListingLite = { id: string; title: string; address: string; location: string | null; monthly_rent: number | null };
+        const listingMap = new Map<string, ListingLite>();
         const ids = Array.from(new Set(shareRows.map((s) => s.listing_id).filter(Boolean)));
         if (ids.length > 0) {
           const { data: listings, error: listingsErr } = await supabase
@@ -223,7 +221,7 @@ function TenantDashboard() {
               description: listingsErr.code ? `[${listingsErr.code}] ${listingsErr.message}` : listingsErr.message,
             });
           } else {
-            for (const l of (listings as typeof listingMap extends Map<string, infer V> ? V[] : never) ?? []) {
+            for (const l of ((listings as ListingLite[] | null) ?? [])) {
               listingMap.set(l.id, l);
             }
           }
