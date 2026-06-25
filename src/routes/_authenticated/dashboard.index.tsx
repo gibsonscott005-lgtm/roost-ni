@@ -171,7 +171,7 @@ function TenantDashboard() {
     if (authLoading) return;
     if (!user) return;
     let cancelled = false;
-    (async () => {
+    const load = async () => {
       try {
         const { data, error } = await supabase
           .from("tenant_passports")
@@ -184,26 +184,59 @@ function TenantDashboard() {
         if (error) throw error;
         setPassport(data as typeof passport);
         setLoading(false);
-        const { data: shares } = await supabase
+        // Step A: fetch shares with NO embed so counts can never be blocked
+        // by a join/RLS issue on property_listings.
+        const { data: sharesRaw, error: sharesErr } = await supabase
           .from("passport_shares")
-          .select("id, status, shared_at, listing:property_listings!listing_id(id, title, address, location, monthly_rent)")
+          .select("id, status, shared_at, listing_id")
           .eq("tenant_id", user.id)
           .order("shared_at", { ascending: false });
-        if (!cancelled) {
-          const rows = (shares as unknown as {
-            id: string;
-            status: string;
-            shared_at: string;
-            listing: { id: string; title: string; address: string; location: string | null; monthly_rent: number | null } | null;
-          }[] | null) ?? [];
-          setAllShares(rows);
-          setAcceptedShares(rows.filter((r) => r.status === "accepted"));
-          setApplicationCounts({
-            sent: rows.length,
-            accepted: rows.filter((r) => r.status === "accepted").length,
-            pending: rows.filter((r) => r.status !== "accepted" && r.status !== "rejected").length,
+        if (cancelled) return;
+        if (sharesErr) {
+          toast.error("Couldn't load applications", {
+            description: sharesErr.code ? `[${sharesErr.code}] ${sharesErr.message}` : sharesErr.message,
           });
+          return;
         }
+        const shareRows = (sharesRaw as { id: string; status: string; shared_at: string; listing_id: string }[] | null) ?? [];
+        // Counts depend ONLY on Step A — never on the listing join.
+        setApplicationCounts({
+          sent: shareRows.length,
+          accepted: shareRows.filter((r) => r.status === "accepted").length,
+          pending: shareRows.filter((r) => r.status !== "accepted" && r.status !== "rejected").length,
+        });
+
+        // Step B: hydrate listing details separately. Missing rows are tolerated.
+        let listingMap = new Map<
+          string,
+          { id: string; title: string; address: string; location: string | null; monthly_rent: number | null }
+        >();
+        const ids = Array.from(new Set(shareRows.map((s) => s.listing_id).filter(Boolean)));
+        if (ids.length > 0) {
+          const { data: listings, error: listingsErr } = await supabase
+            .from("property_listings")
+            .select("id, title, address, location, monthly_rent")
+            .in("id", ids);
+          if (cancelled) return;
+          if (listingsErr) {
+            toast.error("Couldn't load listing details", {
+              description: listingsErr.code ? `[${listingsErr.code}] ${listingsErr.message}` : listingsErr.message,
+            });
+          } else {
+            for (const l of (listings as typeof listingMap extends Map<string, infer V> ? V[] : never) ?? []) {
+              listingMap.set(l.id, l);
+            }
+          }
+        }
+
+        const merged = shareRows.map((s) => ({
+          id: s.id,
+          status: s.status,
+          shared_at: s.shared_at,
+          listing: listingMap.get(s.listing_id) ?? null,
+        }));
+        setAllShares(merged);
+        setAcceptedShares(merged.filter((r) => r.status === "accepted"));
       } catch (err: unknown) {
         if (cancelled) return;
         const e = err as { code?: string; message?: string };
@@ -213,9 +246,17 @@ function TenantDashboard() {
         });
         // keep loading=true so we don't blank existing data with a 0/100 default
       }
-    })();
+    };
+    load();
+    const onFocus = () => {
+      if (document.visibilityState === "visible") load();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, authLoading]);
