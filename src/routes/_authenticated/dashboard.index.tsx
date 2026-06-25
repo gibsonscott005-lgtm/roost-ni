@@ -411,6 +411,85 @@ function TenantDashboard() {
           </div>
         </div>
       ) : null}
+
+      <div id="applications" className="mt-5 rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Your applications
+            </p>
+            <h3 className="mt-1 font-display text-lg font-semibold tracking-tight sm:text-xl">
+              {allShares.length === 0
+                ? "No applications yet"
+                : `${allShares.length} application${allShares.length === 1 ? "" : "s"} sent`}
+            </h3>
+          </div>
+          <Link
+            to="/listings"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 py-2 text-xs font-medium text-foreground transition hover:bg-secondary"
+          >
+            Browse properties
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
+        {allShares.length === 0 ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            When you apply to a listing with your passport, it will show up here with a live status.
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-2">
+            {allShares.map((s) => {
+              const tone =
+                s.status === "accepted"
+                  ? "bg-verified text-[var(--color-verified-foreground)]"
+                  : s.status === "rejected"
+                  ? "bg-rose-100 text-rose-700"
+                  : "bg-secondary text-foreground";
+              const label =
+                s.status === "accepted"
+                  ? "Accepted"
+                  : s.status === "rejected"
+                  ? "Not selected"
+                  : "Awaiting reply";
+              return (
+                <li
+                  key={s.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface-muted/50 p-3.5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-display text-sm font-semibold tracking-tight text-foreground">
+                      {s.listing?.title ?? "Listing unavailable"}
+                    </p>
+                    {s.listing?.address ? (
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {s.listing.address}
+                        {s.listing.location ? ` · ${s.listing.location}` : ""}
+                        {s.listing.monthly_rent ? ` · £${Number(s.listing.monthly_rent).toLocaleString()}/mo` : ""}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${tone}`}>
+                      {label}
+                    </span>
+                    {s.listing?.id ? (
+                      <Link
+                        to="/listings/$id"
+                        params={{ id: s.listing.id }}
+                        className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-foreground transition hover:bg-secondary"
+                      >
+                        View
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    ) : null}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
     </>
   );
 }
