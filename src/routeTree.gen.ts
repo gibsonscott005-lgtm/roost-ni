@@ -16,6 +16,7 @@ import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
+import { Route as AuthenticatedLandlordIssueLeaseRouteImport } from './routes/_authenticated/landlord.issue-lease'
 import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
 import { Route as AuthenticatedDashboardPassportEditRouteImport } from './routes/_authenticated/dashboard.passport.edit'
 
@@ -54,6 +55,12 @@ const AuthenticatedDashboardIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedLandlordIssueLeaseRoute =
+  AuthenticatedLandlordIssueLeaseRouteImport.update({
+    id: '/landlord/issue-lease',
+    path: '/landlord/issue-lease',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardApplicationsRoute =
   AuthenticatedDashboardApplicationsRouteImport.update({
     id: '/applications',
@@ -74,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/listings/$id': typeof ListingsIdRoute
   '/listings/': typeof ListingsIndexRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/landlord/issue-lease': typeof AuthenticatedLandlordIssueLeaseRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
 }
@@ -83,6 +91,7 @@ export interface FileRoutesByTo {
   '/listings/$id': typeof ListingsIdRoute
   '/listings': typeof ListingsIndexRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/landlord/issue-lease': typeof AuthenticatedLandlordIssueLeaseRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
 }
@@ -95,6 +104,7 @@ export interface FileRoutesById {
   '/listings/$id': typeof ListingsIdRoute
   '/listings/': typeof ListingsIndexRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/_authenticated/landlord/issue-lease': typeof AuthenticatedLandlordIssueLeaseRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
 }
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/listings/$id'
     | '/listings/'
     | '/dashboard/applications'
+    | '/landlord/issue-lease'
     | '/dashboard/'
     | '/dashboard/passport/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/listings/$id'
     | '/listings'
     | '/dashboard/applications'
+    | '/landlord/issue-lease'
     | '/dashboard'
     | '/dashboard/passport/edit'
   id:
@@ -127,6 +139,7 @@ export interface FileRouteTypes {
     | '/listings/$id'
     | '/listings/'
     | '/_authenticated/dashboard/applications'
+    | '/_authenticated/landlord/issue-lease'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/passport/edit'
   fileRoutesById: FileRoutesById
@@ -190,6 +203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/landlord/issue-lease': {
+      id: '/_authenticated/landlord/issue-lease'
+      path: '/landlord/issue-lease'
+      fullPath: '/landlord/issue-lease'
+      preLoaderRoute: typeof AuthenticatedLandlordIssueLeaseRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard/applications': {
       id: '/_authenticated/dashboard/applications'
       path: '/applications'
@@ -229,10 +249,12 @@ const AuthenticatedDashboardRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
+  AuthenticatedLandlordIssueLeaseRoute: typeof AuthenticatedLandlordIssueLeaseRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
+  AuthenticatedLandlordIssueLeaseRoute: AuthenticatedLandlordIssueLeaseRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
