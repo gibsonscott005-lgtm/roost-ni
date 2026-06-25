@@ -58,7 +58,7 @@ function IssueLeasePage() {
   const landlordName = profile?.full_name || "Landlord";
   const propertyAddress = ctx?.listing?.address || ctx?.listing?.location || ctx?.listing?.title || "Property address";
   const monthlyRent = ctx?.listing?.monthly_rent ?? 0;
-  const deposit = ctx?.listing?.deposit ?? Number(monthlyRent) || 0;
+  const deposit = ctx?.listing?.deposit ?? (Number(monthlyRent) || 0);
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
