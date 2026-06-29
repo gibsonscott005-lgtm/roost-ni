@@ -99,7 +99,7 @@ function ReviewLeasePage() {
   };
 
   return (
-    <DashboardShell user={user} profile={profile} activeKey="dashboard">
+    <DashboardShell user={user} profile={profile} activeKey="passport">
       <div className="mb-5 flex items-center justify-between gap-3">
         <div>
           <Link
