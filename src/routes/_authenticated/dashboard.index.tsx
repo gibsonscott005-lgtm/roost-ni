@@ -338,7 +338,12 @@ function TenantDashboard() {
                   </p>
                 ) : null}
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  {s.lease_status === "sent_to_tenant" ? (
+                  {s.lease_status === "counter_signed" ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-verified px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-verified-foreground)]">
+                      <BadgeCheck className="h-3.5 w-3.5" />
+                      Lease fully signed — tenancy confirmed
+                    </span>
+                  ) : s.lease_status === "sent_to_tenant" ? (
                     <Link
                       to="/tenant/review-lease"
                       search={{ share: s.id }}
@@ -352,7 +357,12 @@ function TenantDashboard() {
                       <Check className="h-3.5 w-3.5" strokeWidth={3} />
                       Lease Signed — Awaiting Landlord Counter-Signature
                     </span>
-                  ) : null}
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      <FileSignature className="h-3.5 w-3.5" />
+                      Awaiting lease from landlord
+                    </span>
+                  )}
                   {s.listing?.id ? (
                     <Link
                       to="/listings/$id"
@@ -367,7 +377,13 @@ function TenantDashboard() {
             ))}
           </ul>
           <p className="mt-3 text-sm text-foreground/80">
-            Your lease is pending signature. The landlord will be in touch shortly with next steps.
+            {acceptedShares.some((s) => s.lease_status === "counter_signed")
+              ? "Your tenancy is fully signed. Welcome home — your landlord will be in touch with move-in details."
+              : acceptedShares.some((s) => s.lease_status === "signed_pending_landlord")
+              ? "You've signed the lease. We'll notify you the moment your landlord counter-signs."
+              : acceptedShares.some((s) => s.lease_status === "sent_to_tenant")
+              ? "Your landlord has issued a lease. Review and sign it above to secure the tenancy."
+              : "Your landlord will issue the lease shortly. You'll see a Review & Sign button here when it's ready."}
           </p>
         </div>
       </div>
@@ -561,6 +577,14 @@ function TenantDashboard() {
                   : s.status === "rejected"
                   ? "Not selected"
                   : "Awaiting reply";
+              const leaseLabel =
+                s.lease_status === "counter_signed"
+                  ? "Lease fully signed"
+                  : s.lease_status === "signed_pending_landlord"
+                  ? "Awaiting landlord counter-sign"
+                  : s.lease_status === "sent_to_tenant"
+                  ? "Lease ready to sign"
+                  : null;
               return (
                 <li
                   key={s.id}
@@ -582,6 +606,21 @@ function TenantDashboard() {
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${tone}`}>
                       {label}
                     </span>
+                    {leaseLabel ? (
+                      <span className="inline-flex items-center rounded-full bg-verified-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
+                        {leaseLabel}
+                      </span>
+                    ) : null}
+                    {s.lease_status === "sent_to_tenant" ? (
+                      <Link
+                        to="/tenant/review-lease"
+                        search={{ share: s.id }}
+                        className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-background transition hover:brightness-110"
+                      >
+                        <FileSignature className="h-3 w-3" />
+                        Sign
+                      </Link>
+                    ) : null}
                     {s.listing?.id ? (
                       <Link
                         to="/listings/$id"
