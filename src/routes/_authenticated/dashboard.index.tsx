@@ -577,6 +577,14 @@ function TenantDashboard() {
                   : s.status === "rejected"
                   ? "Not selected"
                   : "Awaiting reply";
+              const leaseLabel =
+                s.lease_status === "counter_signed"
+                  ? "Lease fully signed"
+                  : s.lease_status === "signed_pending_landlord"
+                  ? "Awaiting landlord counter-sign"
+                  : s.lease_status === "sent_to_tenant"
+                  ? "Lease ready to sign"
+                  : null;
               return (
                 <li
                   key={s.id}
@@ -598,6 +606,21 @@ function TenantDashboard() {
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${tone}`}>
                       {label}
                     </span>
+                    {leaseLabel ? (
+                      <span className="inline-flex items-center rounded-full bg-verified-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
+                        {leaseLabel}
+                      </span>
+                    ) : null}
+                    {s.lease_status === "sent_to_tenant" ? (
+                      <Link
+                        to="/tenant/review-lease"
+                        search={{ share: s.id }}
+                        className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-background transition hover:brightness-110"
+                      >
+                        <FileSignature className="h-3 w-3" />
+                        Sign
+                      </Link>
+                    ) : null}
                     {s.listing?.id ? (
                       <Link
                         to="/listings/$id"
