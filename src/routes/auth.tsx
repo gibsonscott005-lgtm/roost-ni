@@ -21,6 +21,59 @@ export const Route = createFileRoute("/auth")({
 type Role = "tenant" | "landlord";
 type Mode = "signup" | "login";
 
+const COMMON_EMAIL_DOMAINS = [
+  "gmail.com",
+  "googlemail.com",
+  "outlook.com",
+  "hotmail.com",
+  "icloud.com",
+  "yahoo.com",
+  "yahoo.co.uk",
+  "live.com",
+  "me.com",
+  "aol.com",
+  "protonmail.com",
+  "proton.me",
+  "btinternet.com",
+] as const;
+
+function levenshtein(a: string, b: string): number {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  const prev = new Array(b.length + 1);
+  for (let j = 0; j <= b.length; j++) prev[j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    let prevDiag = prev[0];
+    prev[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const tmp = prev[j];
+      prev[j] = a[i - 1] === b[j - 1]
+        ? prevDiag
+        : 1 + Math.min(prevDiag, prev[j - 1], prev[j]);
+      prevDiag = tmp;
+    }
+  }
+  return prev[b.length];
+}
+
+function suggestEmailFix(email: string): string | null {
+  const at = email.lastIndexOf("@");
+  if (at < 1 || at === email.length - 1) return null;
+  const local = email.slice(0, at);
+  const domain = email.slice(at + 1).toLowerCase();
+  if (!domain.includes(".")) return null;
+  if ((COMMON_EMAIL_DOMAINS as readonly string[]).includes(domain)) return null;
+  let best: { domain: string; dist: number } | null = null;
+  for (const candidate of COMMON_EMAIL_DOMAINS) {
+    const dist = levenshtein(domain, candidate);
+    if (dist > 0 && dist <= 2 && (!best || dist < best.dist)) {
+      best = { domain: candidate, dist };
+    }
+  }
+  return best ? `${local}@${best.domain}` : null;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [role, setRole] = useState<Role>("tenant");
@@ -29,6 +82,8 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
+  const [suggestionDismissed, setSuggestionDismissed] = useState(false);
 
   useEffect(() => {
     const routeByAccountType = async (userId: string) => {
@@ -63,11 +118,20 @@ function AuthPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
+    const normalizedEmail = email.trim().toLowerCase();
+    if (normalizedEmail !== email) setEmail(normalizedEmail);
+    if (!suggestionDismissed) {
+      const suggestion = suggestEmailFix(normalizedEmail);
+      if (suggestion) {
+        setEmailSuggestion(suggestion);
+        return;
+      }
+    }
     setSubmitting(true);
     try {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
-          email,
+          email: normalizedEmail,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth`,
@@ -83,7 +147,7 @@ function AuthPage() {
         });
         // onAuthStateChange will handle the role-based redirect
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
         if (error) throw error;
         toast.success("Signed in");
         // onAuthStateChange will handle the role-based redirect
