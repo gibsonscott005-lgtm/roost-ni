@@ -67,9 +67,25 @@ function IssueLeasePage() {
     if (f) setCustomFile(f);
   };
 
-  const issue = () => {
+  const issue = async () => {
     if (choice === "custom" && !customFile) {
       toast.error("Upload a lease PDF first");
+      return;
+    }
+    if (!shareId) {
+      toast.error("Missing application reference");
+      return;
+    }
+    const { error } = await supabase
+      .from("passport_shares")
+      .update({
+        lease_status: "sent_to_tenant",
+        lease_oil_clause: oilClause,
+        lease_sent_at: new Date().toISOString(),
+      })
+      .eq("id", shareId);
+    if (error) {
+      toast.error("Couldn't send lease", { description: error.message });
       return;
     }
     setSent(true);
