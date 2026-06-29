@@ -227,7 +227,18 @@ function ApplicationsPage() {
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <StatusPill status={s.status} />
-                      {s.status === "accepted" ? (
+                      {s.lease_status === "signed_pending_landlord" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-verified-soft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-verified">
+                          <ShieldCheck className="h-3 w-3" />
+                          Tenant signed
+                        </span>
+                      ) : s.lease_status === "sent_to_tenant" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          Awaiting tenant
+                        </span>
+                      ) : null}
+                      {s.status === "accepted" && s.lease_status !== "signed_pending_landlord" ? (
                         <button
                           type="button"
                           onClick={() =>
@@ -236,7 +247,17 @@ function ApplicationsPage() {
                           className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-2 text-xs font-semibold text-background transition hover:brightness-110"
                         >
                           <ShieldCheck className="h-3.5 w-3.5" />
-                          Issue lease
+                          {s.lease_status === "sent_to_tenant" ? "View lease" : "Issue lease"}
+                        </button>
+                      ) : null}
+                      {s.lease_status === "signed_pending_landlord" ? (
+                        <button
+                          type="button"
+                          onClick={() => countersign(s)}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-verified px-3.5 py-2 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95"
+                        >
+                          <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                          Counter-sign
                         </button>
                       ) : null}
                       <button
