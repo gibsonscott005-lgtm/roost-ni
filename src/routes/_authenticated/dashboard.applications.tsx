@@ -291,6 +291,18 @@ function ApplicationsPage() {
                           Counter-sign
                         </button>
                       ) : null}
+                      {s.lease_status === "counter_signed" ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate({ to: "/landlord/manage-tenancy", search: { share: s.id } })
+                          }
+                          className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-2 text-xs font-semibold text-background transition hover:brightness-110"
+                        >
+                          <ShieldCheck className="h-3.5 w-3.5" />
+                          Manage tenancy
+                        </button>
+                      ) : null}
                       <button
                         type="button"
                         onClick={() => setOpen(s)}
