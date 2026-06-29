@@ -67,6 +67,7 @@ function Dashboard() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [applicationsCount, setApplicationsCount] = useState<number | undefined>(undefined);
+  const [executedByListing, setExecutedByListing] = useState<Record<string, string>>({});
 
   const isLandlord = profile?.account_type === "landlord";
 
@@ -77,7 +78,23 @@ function Dashboard() {
       .select("id, title, address, location, monthly_rent, heating_type, is_published, created_at")
       .eq("landlord_id", user.id)
       .order("created_at", { ascending: false });
-    setListings((data as Listing[] | null) ?? []);
+    const rows = (data as Listing[] | null) ?? [];
+    setListings(rows);
+    if (rows.length) {
+      const ids = rows.map((r) => r.id);
+      const { data: shares } = await supabase
+        .from("passport_shares")
+        .select("id, listing_id, lease_status")
+        .in("listing_id", ids)
+        .eq("lease_status", "counter_signed");
+      const map: Record<string, string> = {};
+      ((shares as { id: string; listing_id: string }[] | null) ?? []).forEach((s) => {
+        if (!map[s.listing_id]) map[s.listing_id] = s.id;
+      });
+      setExecutedByListing(map);
+    } else {
+      setExecutedByListing({});
+    }
     setLoading((prev) => (prev ? false : prev));
   };
 
@@ -120,6 +137,7 @@ function Dashboard() {
         <MyProperties
           listings={listings}
           loading={loading}
+          executedByListing={executedByListing}
           onAdd={() => setTab("add")}
         />
       ) : (
