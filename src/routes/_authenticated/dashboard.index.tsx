@@ -708,10 +708,12 @@ function StatCard({
 function MyProperties({
   listings,
   loading,
+  executedByListing,
   onAdd,
 }: {
   listings: Listing[];
   loading: boolean;
+  executedByListing: Record<string, string>;
   onAdd: () => void;
 }) {
   return (
@@ -790,6 +792,12 @@ function MyProperties({
                   £{Number(l.monthly_rent).toLocaleString()}
                   <span className="ml-1 text-[11px] font-medium text-muted-foreground">pcm</span>
                 </p>
+                {executedByListing[l.id] ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#1d4ed8] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+                    <BadgeCheck className="h-3 w-3" />
+                    Let Agreed
+                  </span>
+                ) : (
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
                     l.is_published
@@ -800,7 +808,18 @@ function MyProperties({
                   {l.is_published ? <ShieldCheck className="h-3 w-3" /> : null}
                   {l.is_published ? "Live" : "Draft"}
                 </span>
+                )}
                 <div className="mt-1 flex flex-wrap items-center justify-end gap-1.5">
+                  {executedByListing[l.id] ? (
+                    <Link
+                      to="/landlord/issue-lease"
+                      search={{ share: executedByListing[l.id] }}
+                      className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                    >
+                      <FileSignature className="h-3 w-3" />
+                      Manage Tenancy
+                    </Link>
+                  ) : (
                   <Link
                     to="/dashboard/applications"
                     search={{ listing: l.id }}
@@ -809,6 +828,7 @@ function MyProperties({
                     <Users className="h-3 w-3" />
                     View applicants
                   </Link>
+                  )}
                   <Link
                     to="/listings/$id"
                     params={{ id: l.id }}
