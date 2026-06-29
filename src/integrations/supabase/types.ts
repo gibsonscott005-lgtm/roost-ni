@@ -16,37 +16,64 @@ export type Database = {
     Tables: {
       passport_shares: {
         Row: {
+          deposit_cert_number: string | null
+          deposit_payment_method: string | null
+          deposit_protected_at: string | null
+          deposit_scheme: string | null
+          deposit_status: string
           id: string
+          inventory_completed_at: string | null
           lease_oil_clause: boolean | null
           lease_sent_at: string | null
           lease_signed_at: string | null
           lease_signed_name: string | null
           lease_status: string | null
           listing_id: string
+          oil_handover_level: string | null
+          rent_payment_method: string | null
+          rent_status: string
           shared_at: string
           status: Database["public"]["Enums"]["share_status"]
           tenant_id: string
         }
         Insert: {
+          deposit_cert_number?: string | null
+          deposit_payment_method?: string | null
+          deposit_protected_at?: string | null
+          deposit_scheme?: string | null
+          deposit_status?: string
           id?: string
+          inventory_completed_at?: string | null
           lease_oil_clause?: boolean | null
           lease_sent_at?: string | null
           lease_signed_at?: string | null
           lease_signed_name?: string | null
           lease_status?: string | null
           listing_id: string
+          oil_handover_level?: string | null
+          rent_payment_method?: string | null
+          rent_status?: string
           shared_at?: string
           status?: Database["public"]["Enums"]["share_status"]
           tenant_id: string
         }
         Update: {
+          deposit_cert_number?: string | null
+          deposit_payment_method?: string | null
+          deposit_protected_at?: string | null
+          deposit_scheme?: string | null
+          deposit_status?: string
           id?: string
+          inventory_completed_at?: string | null
           lease_oil_clause?: boolean | null
           lease_sent_at?: string | null
           lease_signed_at?: string | null
           lease_signed_name?: string | null
           lease_status?: string | null
           listing_id?: string
+          oil_handover_level?: string | null
+          rent_payment_method?: string | null
+          rent_status?: string
           shared_at?: string
           status?: Database["public"]["Enums"]["share_status"]
           tenant_id?: string
@@ -148,6 +175,97 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      tenancy_inventory_items: {
+        Row: {
+          condition: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          photo_path: string | null
+          room: string
+          share_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          condition?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          photo_path?: string | null
+          room: string
+          share_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          condition?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          photo_path?: string | null
+          room?: string
+          share_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenancy_inventory_items_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: false
+            referencedRelation: "passport_shares"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenancy_receipts: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          issued_at: string
+          kind: string
+          method: string
+          notes: string | null
+          share_id: string
+          statutory_cash: boolean
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          issued_at?: string
+          kind: string
+          method: string
+          notes?: string | null
+          share_id: string
+          statutory_cash?: boolean
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          issued_at?: string
+          kind?: string
+          method?: string
+          notes?: string | null
+          share_id?: string
+          statutory_cash?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenancy_receipts_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: false
+            referencedRelation: "passport_shares"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tenant_passports: {
         Row: {
