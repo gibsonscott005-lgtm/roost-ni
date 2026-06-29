@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -1171,6 +1171,3 @@ function leaseHtml(opts: {
     </div>
     </body></html>`;
 }
-
-// Suppress unused-var helper for the imported useMemo
-void useMemo;
