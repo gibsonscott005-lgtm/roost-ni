@@ -132,6 +132,30 @@ function ApplicationsPage() {
   });
   const accept = (share: Share) => acceptMutation.mutate(share);
 
+  const countersignMutation = useMutation({
+    mutationFn: async (share: Share) => {
+      const { error } = await supabase
+        .from("passport_shares")
+        .update({ lease_status: "counter_signed" })
+        .eq("id", share.id);
+      if (error) throw error;
+      return share;
+    },
+    onSuccess: (share) => {
+      toast.success("Lease counter-signed", {
+        description: `${share.tenant?.full_name ?? "Tenant"} has been notified. Lease is fully executed.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["passport-share"] });
+    },
+    onError: (err: unknown) => {
+      toast.error("Could not counter-sign", {
+        description: err instanceof Error ? err.message : "Please try again",
+      });
+    },
+  });
+  const countersign = (share: Share) => countersignMutation.mutate(share);
+
   return (
     <DashboardShell
       user={user}
