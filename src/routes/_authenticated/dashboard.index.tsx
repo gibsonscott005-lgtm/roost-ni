@@ -138,13 +138,20 @@ function TenantDashboard() {
   const { user, profile, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [acceptedShares, setAcceptedShares] = useState<
-    { id: string; listing: { id: string; title: string; address: string; location: string | null } | null }[]
+    {
+      id: string;
+      lease_status: string | null;
+      lease_signed_name: string | null;
+      listing: { id: string; title: string; address: string; location: string | null } | null;
+    }[]
   >([]);
   const [allShares, setAllShares] = useState<
     {
       id: string;
       status: string;
       shared_at: string;
+      lease_status: string | null;
+      lease_signed_name: string | null;
       listing: { id: string; title: string; address: string; location: string | null; monthly_rent: number | null } | null;
     }[]
   >([]);
