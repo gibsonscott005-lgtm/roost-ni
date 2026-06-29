@@ -254,13 +254,44 @@ function AuthPage() {
                 <input
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setEmailSuggestion(null);
+                    setSuggestionDismissed(false);
+                  }}
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
                   className={`${inputCx} pl-9`}
                 />
               </div>
+              {emailSuggestion ? (
+                <div className="mt-2 rounded-xl border border-verified/30 bg-verified-soft/60 px-3 py-2 text-xs text-foreground">
+                  Did you mean{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmail(emailSuggestion);
+                      setEmailSuggestion(null);
+                      setSuggestionDismissed(true);
+                    }}
+                    className="font-mono font-semibold text-verified underline-offset-2 hover:underline"
+                  >
+                    {emailSuggestion}
+                  </button>
+                  ?{" "}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEmailSuggestion(null);
+                      setSuggestionDismissed(true);
+                    }}
+                    className="ml-1 text-muted-foreground underline-offset-2 hover:underline"
+                  >
+                    Keep typed
+                  </button>
+                </div>
+              ) : null}
             </label>
 
             <label className="block">
