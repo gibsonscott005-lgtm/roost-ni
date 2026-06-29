@@ -251,7 +251,12 @@ function ApplicationsPage() {
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <StatusPill status={s.status} />
-                      {s.lease_status === "signed_pending_landlord" ? (
+                      {s.lease_status === "counter_signed" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-verified px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-verified-foreground)]">
+                          <ShieldCheck className="h-3 w-3" />
+                          Lease fully executed
+                        </span>
+                      ) : s.lease_status === "signed_pending_landlord" ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-verified-soft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-verified">
                           <ShieldCheck className="h-3 w-3" />
                           Tenant signed
@@ -262,7 +267,9 @@ function ApplicationsPage() {
                           Awaiting tenant
                         </span>
                       ) : null}
-                      {s.status === "accepted" && s.lease_status !== "signed_pending_landlord" ? (
+                      {s.status === "accepted" &&
+                      s.lease_status !== "signed_pending_landlord" &&
+                      s.lease_status !== "counter_signed" ? (
                         <button
                           type="button"
                           onClick={() =>
