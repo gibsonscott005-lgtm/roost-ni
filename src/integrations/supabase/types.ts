@@ -17,6 +17,11 @@ export type Database = {
       passport_shares: {
         Row: {
           id: string
+          lease_oil_clause: boolean | null
+          lease_sent_at: string | null
+          lease_signed_at: string | null
+          lease_signed_name: string | null
+          lease_status: string | null
           listing_id: string
           shared_at: string
           status: Database["public"]["Enums"]["share_status"]
@@ -24,6 +29,11 @@ export type Database = {
         }
         Insert: {
           id?: string
+          lease_oil_clause?: boolean | null
+          lease_sent_at?: string | null
+          lease_signed_at?: string | null
+          lease_signed_name?: string | null
+          lease_status?: string | null
           listing_id: string
           shared_at?: string
           status?: Database["public"]["Enums"]["share_status"]
@@ -31,6 +41,11 @@ export type Database = {
         }
         Update: {
           id?: string
+          lease_oil_clause?: boolean | null
+          lease_sent_at?: string | null
+          lease_signed_at?: string | null
+          lease_signed_name?: string | null
+          lease_status?: string | null
           listing_id?: string
           shared_at?: string
           status?: Database["public"]["Enums"]["share_status"]
