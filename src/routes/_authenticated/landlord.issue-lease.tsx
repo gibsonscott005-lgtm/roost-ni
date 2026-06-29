@@ -118,6 +118,24 @@ function IssueLeasePage() {
         ) : null}
       </div>
 
+      {!shareId ? (
+        <div className="rounded-3xl border border-border bg-surface p-8 text-center">
+          <p className="font-display text-base font-semibold tracking-tight">No application selected</p>
+          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+            Open this page from an accepted application so we know which tenant
+            and property the lease is for.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate({ to: "/dashboard/applications" })}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Go to applications
+          </button>
+        </div>
+      ) : (
+      <>
+
       {/* Layout choice cards */}
       <div className="grid gap-3 sm:grid-cols-2">
         <ChoiceCard
@@ -296,6 +314,8 @@ function IssueLeasePage() {
           </button>
         )}
       </div>
+      </>
+      )}
     </DashboardShell>
   );
 }
