@@ -67,6 +67,7 @@ function Dashboard() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [applicationsCount, setApplicationsCount] = useState<number | undefined>(undefined);
+  const [executedByListing, setExecutedByListing] = useState<Record<string, string>>({});
 
   const isLandlord = profile?.account_type === "landlord";
 
@@ -77,7 +78,23 @@ function Dashboard() {
       .select("id, title, address, location, monthly_rent, heating_type, is_published, created_at")
       .eq("landlord_id", user.id)
       .order("created_at", { ascending: false });
-    setListings((data as Listing[] | null) ?? []);
+    const rows = (data as Listing[] | null) ?? [];
+    setListings(rows);
+    if (rows.length) {
+      const ids = rows.map((r) => r.id);
+      const { data: shares } = await supabase
+        .from("passport_shares")
+        .select("id, listing_id, lease_status")
+        .in("listing_id", ids)
+        .eq("lease_status", "counter_signed");
+      const map: Record<string, string> = {};
+      ((shares as { id: string; listing_id: string }[] | null) ?? []).forEach((s) => {
+        if (!map[s.listing_id]) map[s.listing_id] = s.id;
+      });
+      setExecutedByListing(map);
+    } else {
+      setExecutedByListing({});
+    }
     setLoading((prev) => (prev ? false : prev));
   };
 
@@ -120,6 +137,7 @@ function Dashboard() {
         <MyProperties
           listings={listings}
           loading={loading}
+          executedByListing={executedByListing}
           onAdd={() => setTab("add")}
         />
       ) : (
@@ -690,10 +708,12 @@ function StatCard({
 function MyProperties({
   listings,
   loading,
+  executedByListing,
   onAdd,
 }: {
   listings: Listing[];
   loading: boolean;
+  executedByListing: Record<string, string>;
   onAdd: () => void;
 }) {
   return (
@@ -772,6 +792,12 @@ function MyProperties({
                   £{Number(l.monthly_rent).toLocaleString()}
                   <span className="ml-1 text-[11px] font-medium text-muted-foreground">pcm</span>
                 </p>
+                {executedByListing[l.id] ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#1d4ed8] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+                    <BadgeCheck className="h-3 w-3" />
+                    Let Agreed
+                  </span>
+                ) : (
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
                     l.is_published
@@ -782,7 +808,18 @@ function MyProperties({
                   {l.is_published ? <ShieldCheck className="h-3 w-3" /> : null}
                   {l.is_published ? "Live" : "Draft"}
                 </span>
+                )}
                 <div className="mt-1 flex flex-wrap items-center justify-end gap-1.5">
+                  {executedByListing[l.id] ? (
+                    <Link
+                      to="/landlord/issue-lease"
+                      search={{ share: executedByListing[l.id] }}
+                      className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                    >
+                      <FileSignature className="h-3 w-3" />
+                      Manage Tenancy
+                    </Link>
+                  ) : (
                   <Link
                     to="/dashboard/applications"
                     search={{ listing: l.id }}
@@ -791,6 +828,7 @@ function MyProperties({
                     <Users className="h-3 w-3" />
                     View applicants
                   </Link>
+                  )}
                   <Link
                     to="/listings/$id"
                     params={{ id: l.id }}
