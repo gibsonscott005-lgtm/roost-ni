@@ -269,6 +269,11 @@ function TenantDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, authLoading]);
 
+  const handleSwitchAccount = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/auth" });
+  };
+
   const steps = [
     {
       key: "identity",
@@ -383,6 +388,20 @@ function TenantDashboard() {
         <p className="mt-1 text-sm text-muted-foreground">
           Here's a snapshot of your tenant activity on Roost.
         </p>
+
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+          <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-surface-muted px-2.5 py-1 text-muted-foreground">
+            <span className="font-medium text-foreground/80">Signed in as</span>
+            <span className="truncate font-mono text-[11px] text-foreground">{user?.email}</span>
+          </span>
+          <button
+            type="button"
+            onClick={handleSwitchAccount}
+            className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-foreground transition hover:bg-secondary"
+          >
+            Not you? Switch account
+          </button>
+        </div>
 
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
           <StatCard
@@ -502,9 +521,31 @@ function TenantDashboard() {
         </div>
 
         {allShares.length === 0 ? (
-          <p className="mt-4 text-sm text-muted-foreground">
-            When you apply to a listing with your passport, it will show up here with a live status.
-          </p>
+          <div className="mt-4 rounded-2xl border border-dashed border-border bg-surface-muted/40 p-5">
+            <p className="text-sm text-foreground">
+              No applications on <span className="font-mono text-[12px]">{user?.email}</span> yet.
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              If you've applied before and don't see it here, you may be signed in to a different account
+              (check the email above for typos like <span className="font-mono">mail.com</span> vs <span className="font-mono">gmail.com</span>).
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link
+                to="/listings"
+                className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-semibold text-[var(--color-primary-foreground)] transition hover:bg-foreground/90"
+              >
+                Browse properties
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+              <button
+                type="button"
+                onClick={handleSwitchAccount}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary"
+              >
+                Switch account
+              </button>
+            </div>
+          </div>
         ) : (
           <ul className="mt-4 space-y-2">
             {allShares.map((s) => {
