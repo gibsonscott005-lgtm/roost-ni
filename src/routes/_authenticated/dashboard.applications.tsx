@@ -30,6 +30,9 @@ interface Share {
   shared_at: string;
   tenant_id: string;
   listing_id: string;
+  lease_status: string | null;
+  lease_signed_at: string | null;
+  lease_signature_name: string | null;
   tenant: { id: string; full_name: string } | null;
   listing: { id: string; title: string } | null;
 }
@@ -61,7 +64,7 @@ function ApplicationsPage() {
       const { data: rows, error: rowsErr } = await supabase
         .from("passport_shares")
         .select(
-          "id, status, shared_at, tenant_id, listing_id, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title)",
+          "id, status, shared_at, tenant_id, listing_id, lease_status, lease_signed_at, lease_signature_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title)",
         )
         .order("shared_at", { ascending: false });
       if (rowsErr) throw rowsErr;
