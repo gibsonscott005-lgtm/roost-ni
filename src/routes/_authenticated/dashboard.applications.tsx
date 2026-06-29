@@ -47,6 +47,7 @@ interface Passport {
 
 function ApplicationsPage() {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState<Share | null>(null);
   const queryClient = useQueryClient();
   const { listing: listingFilter } = Route.useSearch();
@@ -223,6 +224,18 @@ function ApplicationsPage() {
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <StatusPill status={s.status} />
+                      {s.status === "accepted" ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate({ to: "/landlord/issue-lease", search: { share: s.id } })
+                          }
+                          className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-2 text-xs font-semibold text-background transition hover:brightness-110"
+                        >
+                          <ShieldCheck className="h-3.5 w-3.5" />
+                          Issue lease
+                        </button>
+                      ) : null}
                       <button
                         type="button"
                         onClick={() => setOpen(s)}
