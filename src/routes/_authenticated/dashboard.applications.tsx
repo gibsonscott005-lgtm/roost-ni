@@ -30,6 +30,9 @@ interface Share {
   shared_at: string;
   tenant_id: string;
   listing_id: string;
+  lease_status: string | null;
+  lease_signed_at: string | null;
+  lease_signed_name: string | null;
   tenant: { id: string; full_name: string } | null;
   listing: { id: string; title: string } | null;
 }
@@ -61,7 +64,7 @@ function ApplicationsPage() {
       const { data: rows, error: rowsErr } = await supabase
         .from("passport_shares")
         .select(
-          "id, status, shared_at, tenant_id, listing_id, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title)",
+          "id, status, shared_at, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title)",
         )
         .order("shared_at", { ascending: false });
       if (rowsErr) throw rowsErr;
@@ -128,6 +131,30 @@ function ApplicationsPage() {
     },
   });
   const accept = (share: Share) => acceptMutation.mutate(share);
+
+  const countersignMutation = useMutation({
+    mutationFn: async (share: Share) => {
+      const { error } = await supabase
+        .from("passport_shares")
+        .update({ lease_status: "counter_signed" })
+        .eq("id", share.id);
+      if (error) throw error;
+      return share;
+    },
+    onSuccess: (share) => {
+      toast.success("Lease counter-signed", {
+        description: `${share.tenant?.full_name ?? "Tenant"} has been notified. Lease is fully executed.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["passport-share"] });
+    },
+    onError: (err: unknown) => {
+      toast.error("Could not counter-sign", {
+        description: err instanceof Error ? err.message : "Please try again",
+      });
+    },
+  });
+  const countersign = (share: Share) => countersignMutation.mutate(share);
 
   return (
     <DashboardShell
@@ -224,7 +251,18 @@ function ApplicationsPage() {
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <StatusPill status={s.status} />
-                      {s.status === "accepted" ? (
+                      {s.lease_status === "signed_pending_landlord" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-verified-soft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-verified">
+                          <ShieldCheck className="h-3 w-3" />
+                          Tenant signed
+                        </span>
+                      ) : s.lease_status === "sent_to_tenant" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          Awaiting tenant
+                        </span>
+                      ) : null}
+                      {s.status === "accepted" && s.lease_status !== "signed_pending_landlord" ? (
                         <button
                           type="button"
                           onClick={() =>
@@ -233,7 +271,17 @@ function ApplicationsPage() {
                           className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-2 text-xs font-semibold text-background transition hover:brightness-110"
                         >
                           <ShieldCheck className="h-3.5 w-3.5" />
-                          Issue lease
+                          {s.lease_status === "sent_to_tenant" ? "View lease" : "Issue lease"}
+                        </button>
+                      ) : null}
+                      {s.lease_status === "signed_pending_landlord" ? (
+                        <button
+                          type="button"
+                          onClick={() => countersign(s)}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-verified px-3.5 py-2 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95"
+                        >
+                          <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                          Counter-sign
                         </button>
                       ) : null}
                       <button
