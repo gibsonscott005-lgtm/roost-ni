@@ -74,6 +74,7 @@ export function DashboardShell({
                 role="link"
                 tabIndex={0}
                 onClick={goDashboard}
+                title={user?.email ?? undefined}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") goDashboard(e as unknown as React.MouseEvent);
                 }}
