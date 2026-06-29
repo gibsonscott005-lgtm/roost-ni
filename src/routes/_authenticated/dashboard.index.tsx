@@ -812,7 +812,7 @@ function MyProperties({
                 <div className="mt-1 flex flex-wrap items-center justify-end gap-1.5">
                   {executedByListing[l.id] ? (
                     <Link
-                      to="/landlord/issue-lease"
+                      to="/landlord/manage-tenancy"
                       search={{ share: executedByListing[l.id] }}
                       className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
                     >
