@@ -286,7 +286,7 @@ function TenantTenancyPage() {
         </div>
       </div>
 
-      {tenancyQuery.isPending || resolvedIdQuery.isPending ? (
+      {(!searchShareId && resolvedIdQuery.isFetching) || (!!shareId && tenancyQuery.isPending) ? (
         <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
           Loading your tenancy…
         </div>
