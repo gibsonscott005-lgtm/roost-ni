@@ -507,6 +507,20 @@ function ManageTenancyPage() {
             />
           </TabsContent>
 
+          <TabsContent value="maintenance" className="mt-5">
+            {listing?.id && user?.id ? (
+              <LandlordMaintenanceTab
+                propertyId={listing.id}
+                landlordId={user.id}
+                address={address}
+              />
+            ) : (
+              <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+                Maintenance tickets will appear once this tenancy is linked to a property.
+              </div>
+            )}
+          </TabsContent>
+
           <TabsContent value="documents" className="mt-5 space-y-4">
             <DocumentsTab
               share={share}
