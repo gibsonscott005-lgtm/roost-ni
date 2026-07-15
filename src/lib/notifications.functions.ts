@@ -16,6 +16,9 @@ export const NOTIFICATION_TYPES = [
   "deposit_deadline_approaching",
   "inventory_submitted",
   "inventory_approved",
+  "maintenance_reported",
+  "maintenance_updated",
+  "maintenance_resolved",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -28,6 +31,7 @@ export const emitNotificationSchema = z.object({
     "property_listing",
     "tenancy_receipt",
     "inventory_item",
+    "maintenance_ticket",
   ]),
   entity_id: z.string().uuid(),
   title: z.string().min(1).max(140),
