@@ -90,7 +90,8 @@ export function NotificationsBell({ userId }: { userId: string | null | undefine
             description: row.body ?? undefined,
             action: {
               label: "View",
-              onClick: () => navigate({ to: row.link_path }),
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onClick: () => navigate({ to: row.link_path as any }),
             },
           });
         },
@@ -114,7 +115,8 @@ export function NotificationsBell({ userId }: { userId: string | null | undefine
   const handleClick = async (n: NotificationRow) => {
     setOpen(false);
     if (!n.read_at) markRead.mutate(n.id);
-    navigate({ to: n.link_path });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    navigate({ to: n.link_path as any });
   };
 
   return (
