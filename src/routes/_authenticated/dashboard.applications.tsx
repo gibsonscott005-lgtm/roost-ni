@@ -7,9 +7,9 @@ import { Check, Clock, Inbox, ShieldCheck, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
-import { emitNotification } from "@/lib/notifications.functions";
+import { emitNotification, type EmitNotificationInput } from "@/lib/notifications.functions";
 
-function notify(payload: Parameters<typeof emitNotification>[0]["data"]) {
+function notify(payload: EmitNotificationInput) {
   emitNotification({ data: payload }).catch((err) =>
     console.error("[notify]", err),
   );
