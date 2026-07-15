@@ -559,6 +559,7 @@ function TenantTenancyPage() {
                 tenantId={user.id}
                 tenantName={profile?.full_name ?? "Tenant"}
                 address={address}
+                shareId={shareId}
               />
             ) : (
               <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
