@@ -357,10 +357,19 @@ function TenantDashboard() {
                 ) : null}
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   {s.lease_status === "counter_signed" ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-verified px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-verified-foreground)]">
-                      <BadgeCheck className="h-3.5 w-3.5" />
-                      Lease fully signed — tenancy confirmed
-                    </span>
+                    <>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-verified px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-verified-foreground)]">
+                        <BadgeCheck className="h-3.5 w-3.5" />
+                        Lease fully signed — tenancy confirmed
+                      </span>
+                      <Link
+                        to="/tenant/tenancy"
+                        search={{ share: s.id }}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-2 text-xs font-semibold text-background shadow-sm transition hover:brightness-110"
+                      >
+                        Open tenancy workspace
+                      </Link>
+                    </>
                   ) : s.lease_status === "sent_to_tenant" ? (
                     <Link
                       to="/tenant/review-lease"
