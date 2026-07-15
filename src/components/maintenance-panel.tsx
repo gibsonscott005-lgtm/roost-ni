@@ -145,12 +145,14 @@ export function TenantMaintenanceTab({
   tenantId,
   tenantName,
   address,
+  shareId,
 }: {
   propertyId: string;
   landlordId: string;
   tenantId: string;
   tenantName: string;
   address: string;
+  shareId?: string;
 }) {
   const qc = useQueryClient();
   const [title, setTitle] = useState("");
@@ -210,7 +212,9 @@ export function TenantMaintenanceTab({
           entity_id: (ticket as { id: string }).id,
           title: `Maintenance reported — ${urgency}`,
           body: `${tenantName} logged an issue at ${address}: "${title.trim()}"`,
-          link_path: `/landlord/manage-tenancy?share=&tab=maintenance&property=${propertyId}`,
+          link_path: shareId
+            ? `/landlord/manage-tenancy?share=${shareId}&tab=maintenance`
+            : `/dashboard`,
         },
       }).catch((err) => console.error("[notify]", err));
     },
