@@ -136,7 +136,7 @@ function TenantTenancyPage() {
       const { data: share, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_sent_at, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_protected_at, oil_handover_level, inventory_completed_at, listing:property_listings!listing_id(id, title, address, location, monthly_rent, deposit, heating_type, enforce_empty_in_full_out)",
+          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_sent_at, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_protected_at, oil_handover_level, inventory_completed_at, listing:property_listings!listing_id(id, landlord_id, title, address, location, monthly_rent, deposit, heating_type, enforce_empty_in_full_out)",
         )
         .eq("id", shareId!)
         .maybeSingle();
