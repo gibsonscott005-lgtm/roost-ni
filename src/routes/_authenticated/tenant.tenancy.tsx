@@ -58,6 +58,7 @@ interface ShareRow {
   inventory_completed_at: string | null;
   listing: {
     id: string;
+    landlord_id: string;
     title: string;
     address: string | null;
     location: string | null;
