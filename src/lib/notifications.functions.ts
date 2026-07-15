@@ -53,7 +53,7 @@ export const emitNotification = createServerFn({ method: "POST" })
       p_entity_type: data.entity_type,
       p_entity_id: data.entity_id,
       p_title: data.title,
-      p_body: data.body ?? null,
+      p_body: data.body ?? "",
       p_link_path: data.link_path,
     });
 
