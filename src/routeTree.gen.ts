@@ -16,6 +16,7 @@ import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
+import { Route as AuthenticatedTenantTenancyRouteImport } from './routes/_authenticated/tenant.tenancy'
 import { Route as AuthenticatedTenantReviewLeaseRouteImport } from './routes/_authenticated/tenant.review-lease'
 import { Route as AuthenticatedLandlordManageTenancyRouteImport } from './routes/_authenticated/landlord.manage-tenancy'
 import { Route as AuthenticatedLandlordIssueLeaseRouteImport } from './routes/_authenticated/landlord.issue-lease'
@@ -57,6 +58,12 @@ const AuthenticatedDashboardIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedTenantTenancyRoute =
+  AuthenticatedTenantTenancyRouteImport.update({
+    id: '/tenant/tenancy',
+    path: '/tenant/tenancy',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedTenantReviewLeaseRoute =
   AuthenticatedTenantReviewLeaseRouteImport.update({
@@ -105,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/landlord/issue-lease': typeof AuthenticatedLandlordIssueLeaseRoute
   '/landlord/manage-tenancy': typeof AuthenticatedLandlordManageTenancyRoute
   '/tenant/review-lease': typeof AuthenticatedTenantReviewLeaseRoute
+  '/tenant/tenancy': typeof AuthenticatedTenantTenancyRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
   '/dashboard/passport/': typeof AuthenticatedDashboardPassportIndexRoute
@@ -118,6 +126,7 @@ export interface FileRoutesByTo {
   '/landlord/issue-lease': typeof AuthenticatedLandlordIssueLeaseRoute
   '/landlord/manage-tenancy': typeof AuthenticatedLandlordManageTenancyRoute
   '/tenant/review-lease': typeof AuthenticatedTenantReviewLeaseRoute
+  '/tenant/tenancy': typeof AuthenticatedTenantTenancyRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
   '/dashboard/passport': typeof AuthenticatedDashboardPassportIndexRoute
@@ -134,6 +143,7 @@ export interface FileRoutesById {
   '/_authenticated/landlord/issue-lease': typeof AuthenticatedLandlordIssueLeaseRoute
   '/_authenticated/landlord/manage-tenancy': typeof AuthenticatedLandlordManageTenancyRoute
   '/_authenticated/tenant/review-lease': typeof AuthenticatedTenantReviewLeaseRoute
+  '/_authenticated/tenant/tenancy': typeof AuthenticatedTenantTenancyRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
   '/_authenticated/dashboard/passport/': typeof AuthenticatedDashboardPassportIndexRoute
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/landlord/issue-lease'
     | '/landlord/manage-tenancy'
     | '/tenant/review-lease'
+    | '/tenant/tenancy'
     | '/dashboard/'
     | '/dashboard/passport/edit'
     | '/dashboard/passport/'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/landlord/issue-lease'
     | '/landlord/manage-tenancy'
     | '/tenant/review-lease'
+    | '/tenant/tenancy'
     | '/dashboard'
     | '/dashboard/passport/edit'
     | '/dashboard/passport'
@@ -178,6 +190,7 @@ export interface FileRouteTypes {
     | '/_authenticated/landlord/issue-lease'
     | '/_authenticated/landlord/manage-tenancy'
     | '/_authenticated/tenant/review-lease'
+    | '/_authenticated/tenant/tenancy'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/passport/edit'
     | '/_authenticated/dashboard/passport/'
@@ -241,6 +254,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/'
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/tenant/tenancy': {
+      id: '/_authenticated/tenant/tenancy'
+      path: '/tenant/tenancy'
+      fullPath: '/tenant/tenancy'
+      preLoaderRoute: typeof AuthenticatedTenantTenancyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tenant/review-lease': {
       id: '/_authenticated/tenant/review-lease'
@@ -315,6 +335,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLandlordIssueLeaseRoute: typeof AuthenticatedLandlordIssueLeaseRoute
   AuthenticatedLandlordManageTenancyRoute: typeof AuthenticatedLandlordManageTenancyRoute
   AuthenticatedTenantReviewLeaseRoute: typeof AuthenticatedTenantReviewLeaseRoute
+  AuthenticatedTenantTenancyRoute: typeof AuthenticatedTenantTenancyRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -323,6 +344,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLandlordManageTenancyRoute:
     AuthenticatedLandlordManageTenancyRoute,
   AuthenticatedTenantReviewLeaseRoute: AuthenticatedTenantReviewLeaseRoute,
+  AuthenticatedTenantTenancyRoute: AuthenticatedTenantTenancyRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -338,13 +360,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
