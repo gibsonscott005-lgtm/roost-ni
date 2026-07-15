@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      notification_preferences: {
+        Row: {
+          in_app_enabled: boolean
+          muted_types: Database["public"]["Enums"]["notification_type"][]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          in_app_enabled?: boolean
+          muted_types?: Database["public"]["Enums"]["notification_type"][]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          in_app_enabled?: boolean
+          muted_types?: Database["public"]["Enums"]["notification_type"][]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          body: string | null
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          link_path: string
+          read_at: string | null
+          recipient_id: string
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+        }
+        Insert: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          link_path: string
+          read_at?: string | null
+          recipient_id: string
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+        }
+        Update: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          link_path?: string
+          read_at?: string | null
+          recipient_id?: string
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+        }
+        Relationships: []
+      }
       passport_shares: {
         Row: {
           deposit_cert_number: string | null
@@ -389,10 +452,36 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      emit_notification: {
+        Args: {
+          p_actor_id: string
+          p_body: string
+          p_entity_id: string
+          p_entity_type: string
+          p_link_path: string
+          p_recipient_id: string
+          p_title: string
+          p_type: Database["public"]["Enums"]["notification_type"]
+        }
+        Returns: string
+      }
     }
     Enums: {
       account_type: "tenant" | "landlord" | "admin"
+      notification_type:
+        | "application_received"
+        | "application_accepted"
+        | "application_declined"
+        | "lease_issued"
+        | "lease_signed_by_tenant"
+        | "lease_counter_signed"
+        | "property_let_agreed"
+        | "receipt_logged"
+        | "receipt_confirmed"
+        | "deposit_protected"
+        | "deposit_deadline_approaching"
+        | "inventory_submitted"
+        | "inventory_approved"
       share_status: "pending" | "reviewed" | "accepted"
     }
     CompositeTypes: {
@@ -522,6 +611,21 @@ export const Constants = {
   public: {
     Enums: {
       account_type: ["tenant", "landlord", "admin"],
+      notification_type: [
+        "application_received",
+        "application_accepted",
+        "application_declined",
+        "lease_issued",
+        "lease_signed_by_tenant",
+        "lease_counter_signed",
+        "property_let_agreed",
+        "receipt_logged",
+        "receipt_confirmed",
+        "deposit_protected",
+        "deposit_deadline_approaching",
+        "inventory_submitted",
+        "inventory_approved",
+      ],
       share_status: ["pending", "reviewed", "accepted"],
     },
   },
