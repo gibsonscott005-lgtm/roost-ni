@@ -22,9 +22,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification } from "@/lib/notifications.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LandlordMaintenanceTab } from "@/components/maintenance-panel";
 
 export const Route = createFileRoute("/_authenticated/landlord/manage-tenancy")({
-  validateSearch: z.object({ share: z.string().optional() }),
+  validateSearch: z.object({
+    share: z.string().optional(),
+    tab: z.string().optional(),
+  }),
   head: () => ({
     meta: [
       { title: "Tenancy Workspace — Roost NI" },
@@ -118,7 +122,7 @@ const DEPOSIT_SCHEMES = ["TDS NI", "MyDeposits NI", "LPS NI"];
 function ManageTenancyPage() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const { share: shareId } = Route.useSearch();
+  const { share: shareId, tab: searchTab } = Route.useSearch();
   const qc = useQueryClient();
 
   const tenancyQuery = useQuery({
@@ -385,7 +389,7 @@ function ManageTenancyPage() {
       ) : !share ? (
         <EmptyState onBack={() => navigate({ to: "/dashboard" })} />
       ) : (
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs defaultValue={searchTab || "overview"} className="w-full">
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-surface-muted p-1">
             <TabsTrigger value="overview" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
               Overview &amp; Rent Ledger
@@ -395,6 +399,9 @@ function ManageTenancyPage() {
             </TabsTrigger>
             <TabsTrigger value="inventory" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
               Inventory &amp; Utilities
+            </TabsTrigger>
+            <TabsTrigger value="maintenance" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
+              Maintenance
             </TabsTrigger>
             <TabsTrigger value="documents" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
               Documents
