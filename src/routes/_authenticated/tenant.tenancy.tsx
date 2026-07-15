@@ -550,10 +550,7 @@ function TenantTenancyPage() {
             </div>
           </TabsContent>
 
-          {/* Documents */}
-          <TabsContent value="documents" className="mt-5 space-y-4">
-            {/* placeholder anchor for below-inserted maintenance tab moved above */}
-          </TabsContent>
+          {/* Maintenance */}
           <TabsContent value="maintenance" className="mt-5">
             {listing?.id && listing?.landlord_id && user?.id ? (
               <TenantMaintenanceTab
@@ -569,7 +566,9 @@ function TenantTenancyPage() {
               </div>
             )}
           </TabsContent>
-          <TabsContent value="documents-real" className="mt-5 space-y-4">
+
+          {/* Documents */}
+          <TabsContent value="documents" className="mt-5 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col justify-between rounded-3xl border border-border bg-surface p-5 transition hover:border-foreground/20">
                 <div>
