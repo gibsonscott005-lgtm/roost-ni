@@ -1,7 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { Database } from "@/integrations/supabase/types";
 
 export const NOTIFICATION_TYPES = [
   "application_received",
@@ -47,23 +46,7 @@ export const emitNotification = createServerFn({ method: "POST" })
       "@/integrations/supabase/client.server"
     );
 
-    const { data: rpcData, error } = await (
-      supabaseAdmin as unknown as {
-        rpc: (
-          fn: "emit_notification",
-          args: {
-            p_recipient_id: string;
-            p_actor_id: string | null;
-            p_type: Database["public"]["Enums"]["notification_type"];
-            p_entity_type: string;
-            p_entity_id: string;
-            p_title: string;
-            p_body: string | null;
-            p_link_path: string;
-          },
-        ) => Promise<{ data: string | null; error: { message: string } | null }>;
-      }
-    ).rpc("emit_notification", {
+    const { data: rpcData, error } = await supabaseAdmin.rpc("emit_notification", {
       p_recipient_id: data.recipient_id,
       p_actor_id: context.userId,
       p_type: data.type,
