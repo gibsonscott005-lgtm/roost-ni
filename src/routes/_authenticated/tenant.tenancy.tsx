@@ -19,6 +19,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { emitNotification } from "@/lib/notifications.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/tenant/tenancy")({
@@ -194,6 +195,20 @@ function TenantTenancyPage() {
         : { rent_status: "pending_verification" },
     );
     toast("Marked as sent", { description: "Your landlord will verify receipt." });
+    const landlordId = share?.listing?.landlord_id;
+    if (landlordId && shareId) {
+      emitNotification({
+        data: {
+          recipient_id: landlordId,
+          type: "receipt_logged",
+          entity_type: "passport_share",
+          entity_id: shareId,
+          title: kind === "deposit" ? "Deposit marked as sent" : "Rent marked as sent",
+          body: `${profile?.full_name ?? "Your tenant"} flagged ${kind} as sent for ${address}. Confirm receipt.`,
+          link_path: `/landlord/manage-tenancy?share=${shareId}`,
+        },
+      }).catch((err) => console.error("[notify]", err));
+    }
   };
 
   const approveInventory = () => {
@@ -201,6 +216,20 @@ function TenantTenancyPage() {
     toast.success("Handover approved", {
       description: "Your sign-off has been logged.",
     });
+    const landlordId = share?.listing?.landlord_id;
+    if (landlordId && shareId) {
+      emitNotification({
+        data: {
+          recipient_id: landlordId,
+          type: "inventory_approved",
+          entity_type: "passport_share",
+          entity_id: shareId,
+          title: "Inventory approved",
+          body: `${profile?.full_name ?? "Your tenant"} approved the handover inventory for ${address}.`,
+          link_path: `/landlord/manage-tenancy?share=${shareId}`,
+        },
+      }).catch((err) => console.error("[notify]", err));
+    }
   };
 
   // Deposit 28-day countdown from lease signed (or sent)
