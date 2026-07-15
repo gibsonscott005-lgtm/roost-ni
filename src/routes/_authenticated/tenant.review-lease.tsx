@@ -7,6 +7,7 @@ import { ArrowLeft, FileText, ShieldCheck, Check, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { emitNotification } from "@/lib/notifications.functions";
 
 export const Route = createFileRoute("/_authenticated/tenant/review-lease")({
   validateSearch: z.object({ share: z.string().optional() }),
@@ -95,6 +96,25 @@ function ReviewLeasePage() {
     toast.success("🎉 Lease signed — congratulations!", {
       description: "Status: Lease Signed — Pending Landlord Counter-Signature.",
     });
+    const { data: share } = await supabase
+      .from("passport_shares")
+      .select("listing:property_listings!listing_id(landlord_id, title)")
+      .eq("id", shareId)
+      .maybeSingle<{ listing: { landlord_id: string; title: string | null } | null }>();
+    const landlordId = share?.listing?.landlord_id;
+    if (landlordId) {
+      emitNotification({
+        data: {
+          recipient_id: landlordId,
+          type: "lease_signed_by_tenant",
+          entity_type: "passport_share",
+          entity_id: shareId,
+          title: "Tenant signed lease",
+          body: `${tenantName} signed the lease for ${share?.listing?.title ?? propertyAddress}. Counter-sign to execute.`,
+          link_path: "/dashboard/applications",
+        },
+      }).catch((err) => console.error("[notify]", err));
+    }
     navigate({ to: "/dashboard" });
   };
 
