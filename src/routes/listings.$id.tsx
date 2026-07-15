@@ -1,5 +1,12 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { emitNotification, type EmitNotificationInput } from "@/lib/notifications.functions";
+
+function notify(payload: EmitNotificationInput) {
+  emitNotification({ data: payload }).catch((err) =>
+    console.error("[notify]", err),
+  );
+}
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -237,12 +244,20 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
   const applyMutation = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Not signed in");
-      const { error } = await supabase
+      const { data: inserted, error } = await supabase
         .from("passport_shares")
-        .insert({ tenant_id: user.id, listing_id: listingId, status: "pending" });
+        .insert({ tenant_id: user.id, listing_id: listingId, status: "pending" })
+        .select("id")
+        .single();
       if (error) throw error;
+      const { data: listing } = await supabase
+        .from("property_listings")
+        .select("landlord_id, title")
+        .eq("id", listingId)
+        .maybeSingle();
+      return { shareId: inserted.id, listing };
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
       toast.success("Passport shared successfully", {
         description: "The landlord has received your verified compliance data.",
         className:
@@ -252,6 +267,17 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
         queryKey: ["passport-share", listingId, user?.id ?? null],
       });
       queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
+      if (res?.listing?.landlord_id) {
+        notify({
+          recipient_id: res.listing.landlord_id,
+          type: "application_received",
+          entity_type: "passport_share",
+          entity_id: res.shareId,
+          title: "New passport received",
+          body: `A verified tenant applied to ${res.listing.title ?? "your listing"}.`,
+          link_path: "/dashboard/applications",
+        });
+      }
     },
     onError: (err: unknown) => {
       const e = err as { code?: string; message?: string };
