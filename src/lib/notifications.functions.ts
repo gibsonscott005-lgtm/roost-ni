@@ -20,7 +20,7 @@ export const NOTIFICATION_TYPES = [
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
-const emitSchema = z.object({
+export const emitNotificationSchema = z.object({
   recipient_id: z.string().uuid(),
   type: z.enum(NOTIFICATION_TYPES),
   entity_type: z.enum([
@@ -35,9 +35,11 @@ const emitSchema = z.object({
   link_path: z.string().min(1).max(500),
 });
 
+export type EmitNotificationInput = z.infer<typeof emitNotificationSchema>;
+
 export const emitNotification = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => emitSchema.parse(input))
+  .inputValidator((input: unknown) => emitNotificationSchema.parse(input))
   .handler(async ({ data, context }) => {
     // Never send a notification to yourself.
     if (data.recipient_id === context.userId) return { id: null };
