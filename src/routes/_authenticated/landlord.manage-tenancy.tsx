@@ -20,6 +20,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { emitNotification } from "@/lib/notifications.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/landlord/manage-tenancy")({
@@ -231,6 +232,19 @@ function ManageTenancyPage() {
       });
     }
     invalidate();
+    if (share?.tenant_id && shareId) {
+      emitNotification({
+        data: {
+          recipient_id: share.tenant_id,
+          type: "receipt_confirmed",
+          entity_type: "passport_share",
+          entity_id: shareId,
+          title: kind === "deposit" ? "Deposit confirmed" : "Rent confirmed",
+          body: `Your landlord verified £${amount.toLocaleString()} ${kind} for ${address}.`,
+          link_path: "/tenant/tenancy",
+        },
+      }).catch((err) => console.error("[notify]", err));
+    }
   };
 
   const saveDepositCert = (scheme: string, cert: string) => {
@@ -246,6 +260,19 @@ function ManageTenancyPage() {
     toast.success("Deposit registered", {
       description: `Logged with ${scheme} · cert ${cert.trim()}.`,
     });
+    if (share?.tenant_id && shareId) {
+      emitNotification({
+        data: {
+          recipient_id: share.tenant_id,
+          type: "deposit_protected",
+          entity_type: "passport_share",
+          entity_id: shareId,
+          title: "Deposit protected",
+          body: `Your deposit is protected with ${scheme} (cert ${cert.trim()}).`,
+          link_path: "/tenant/tenancy",
+        },
+      }).catch((err) => console.error("[notify]", err));
+    }
   };
 
   const setOilLevel = (lvl: OilLevel) => {
