@@ -1,6 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  Bell,
   Home,
   Inbox,
   LayoutGrid,
@@ -11,6 +10,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/hooks/use-auth";
 import type { User } from "@supabase/supabase-js";
+import { NotificationsBell } from "@/components/notifications-bell";
 
 export type DashboardKey = "properties" | "add" | "applications" | "passport";
 
@@ -101,13 +101,7 @@ export function DashboardShell({
             >
               Browse properties
             </Link>
-            <button
-              type="button"
-              aria-label="Notifications"
-              className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-surface text-foreground/80 transition hover:bg-secondary"
-            >
-              <Bell className="h-4 w-4" />
-            </button>
+            <NotificationsBell userId={user?.id} />
             <button
               type="button"
               onClick={handleSignOut}

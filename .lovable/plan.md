@@ -1,76 +1,68 @@
-# Tenancy Management Workspace
+## Notifications Milestone — Ready to Build
 
-New route `/landlord/manage-tenancy?share={id}` opened from the "Manage Tenancy" button on let-agreed property cards and from `/landlord/issue-lease` after a lease is counter-signed. Loads the executed `passport_shares` row + tenant + listing.
+Approved decisions:
+- Skip deposit-deadline cron; event-driven only this milestone.
+- Build `notification_preferences` table but no settings UI yet.
+- Fanout stays in TypeScript at mutation sites; no DB triggers on domain tables.
 
-## Tabs (radix `Tabs`, four panels, sticky header summary)
+### 1. Migration (single call)
 
-Header summary above the tabs: tenant name, property address, monthly rent, deposit, lease commencement date, "Lease executed" badge.
+Enum + two tables + RLS + grants + realtime publication + `emit_notification(...)` SECURITY DEFINER fn, exactly as specified:
 
-### Tab 1 — Overview & Rent Ledger
+- `notification_type` enum with all 13 values.
+- `public.notifications` (recipient_id, actor_id, type, title, body, entity_type, entity_id, link_path, read_at, created_at).
+- `public.notification_preferences` (user_id PK, in_app_enabled, muted_types[]).
+- RLS: recipients SELECT + UPDATE their own notifications; users manage own preferences. No client INSERT on notifications.
+- Grants: `SELECT, UPDATE` on notifications to authenticated; full CRUD on preferences to authenticated; `ALL` to service_role on both.
+- `ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;`
+- `emit_notification(p_recipient_id, p_actor_id, p_type, p_entity_type, p_entity_id, p_title, p_body, p_link_path)` — reads prefs (default on if row missing), skips if muted, inserts row, returns id.
 
-**Move-In Funds Tracker** (two cards, side-by-side on desktop):
-- Security Deposit — £{deposit}
-- First Month's Rent — £{monthly_rent}
+Small correctness tweak vs the pasted script: add `SET search_path = public` to the SECURITY DEFINER fn (Supabase linter flags it otherwise) — behaviour unchanged.
 
-Each card shows a status pill that transitions:
-`Awaiting Payment` → `Pending Landlord Verification` → `Paid & Verified`.
+### 2. Server-side fanout wiring
 
-Landlord-side actions per card:
-- "Confirm Funds Received" button (enabled once status is `pending_verification`).
-- Payment method selector inside the confirm flow: Bank Transfer / Cash / Standing Order.
-- If method = Cash, on confirm show an emerald notice: "Statutory cash receipt generated and issued to the tenant under the Private Tenancies Act NI 2022." A receipt row is recorded in `tenancy_receipts`.
+Add `supabase.rpc('emit_notification', {...})` calls inside the existing mutation handlers. Fire-and-forget after the domain write succeeds; failures logged but never block the primary mutation.
 
-Tenant-side trigger ("mark as sent") is out of scope for this milestone — landlord can also flip status forward manually to simulate the tenant action in the prototype, with a small "Simulate: tenant marked as sent" link.
+Event map (recipient → type → link):
 
-Below trackers: rolling **Rent Ledger** table (date, amount, method, status, receipt link). Seeded with the deposit + first month rows; empty state otherwise.
+| Mutation site | Recipient | Type | link_path |
+|---|---|---|---|
+| Tenant applies (`ApplyCard`) | landlord | `application_received` | `/dashboard/applications` |
+| Landlord accepts | tenant | `application_accepted` | `/dashboard` |
+| Landlord declines | tenant | `application_declined` | `/dashboard` |
+| Landlord issues lease | tenant | `lease_issued` | `/tenant/review-lease?share=…` |
+| Tenant signs lease | landlord | `lease_signed_by_tenant` | `/dashboard/applications` |
+| Landlord counter-signs | tenant | `lease_counter_signed` + `property_let_agreed` | `/tenant/tenancy` |
+| Tenant marks payment sent | landlord | `receipt_logged` | `/landlord/manage-tenancy?share=…` |
+| Landlord confirms receipt | tenant | `receipt_confirmed` | `/tenant/tenancy` |
+| Landlord saves deposit scheme cert | tenant | `deposit_protected` | `/tenant/tenancy` |
+| Tenant submits inventory sign-off | landlord | `inventory_submitted` | `/landlord/manage-tenancy?share=…` |
+| Landlord approves inventory | tenant | `inventory_approved` | `/tenant/tenancy` |
 
-### Tab 2 — Deposit Protection
+British-English copy in titles/bodies (no emoji spam — one tasteful glyph max, per Roost tone).
 
-- Visual 28-day countdown clock (circular SVG ring) anchored on `lease_signed_at` (counter-signed timestamp). Shows days/hours remaining; turns amber <7 days, red when overdue.
-- Scheme selector: TDS NI / MyDeposits NI / LPS NI.
-- Text input for **Scheme Certificate Number** + "Save certificate" button.
-- Once saved, the countdown card flips to a green "Deposit protected" state showing scheme + cert + date logged.
+### 3. Frontend — `NotificationsBell` refactor
 
-### Tab 3 — Inventory & Utilities
+Rewrite `src/components/notifications-bell.tsx` (currently derives from `passport_shares`) to:
+- `useQuery(['notifications', userId])` → latest 20 from the new table.
+- Single `useEffect` Realtime channel `notif:{userId}` filtered by `recipient_id=eq.{userId}`; on INSERT invalidate the query and toast via existing `sonner` (not `window.Notification` — matches project style).
+- Unread badge from `notifications.filter(n => !n.read_at).length`.
+- Click → mark-read mutation (`update read_at`) → `navigate({ to: n.link_path })`.
+- Keep the current dropdown chrome/styling — only swap the data source.
+- Import path: `@/integrations/supabase/client` (not `~/utils/supabaseClient`).
 
-- Room-by-room condition checklist. Default rooms: Living Room, Kitchen, Bathroom, Bedroom 1, Bedroom 2, Hallway/Exterior. Landlord can add custom rooms. Each row: condition (Excellent / Good / Fair / Poor), notes textarea, optional photo upload to `tenant_documents/{share_id}/inventory/`.
-- **Domestic Heating Oil Handover Gauge**: large SVG fuel gauge (semi-circular dial with needle) and five selectable level chips: Full, 3/4, 1/2, 1/4, Empty. Selected level updates the needle. Emerald info strip reminding of Fair Fuel "Empty-In / Full-Out" if the listing had that toggle on.
-- "Save handover record" persists the gauge level + checklist snapshot.
+Header usage in `src/routes/index.tsx` and `src/components/dashboard-shell.tsx` unchanged — same component, same prop.
 
-### Tab 4 — Documents
+### 4. Out of scope this milestone
 
-- Download card: "Roost Standard NI Tenancy Agreement (Executed)" — generates a printable HTML view (re-uses the template from `landlord.issue-lease`) with both signatures + download as PDF via `window.print()` for the prototype.
-- Placeholder card: "Generate Statutory Tenancy Information Notice" — disabled button with "Coming soon — auto-fills Private Tenancies Act NI 2022 disclosures" helper text.
-- Card listing the signed lease metadata (tenant signature name, signed-at, counter-signed-at).
+- No settings/preferences UI.
+- No cron / deposit-deadline reminder.
+- No email/SMS channels.
+- No backfill of historical events.
 
-## Data model (single migration)
+### Verification
 
-Add to `passport_shares`:
-- `deposit_status` text default `'awaiting'` (`awaiting` | `pending_verification` | `verified`)
-- `rent_status` text default `'awaiting'`
-- `deposit_payment_method` text
-- `rent_payment_method` text
-- `deposit_scheme` text
-- `deposit_cert_number` text
-- `deposit_protected_at` timestamptz
-- `oil_handover_level` text (`full`|`three_quarter`|`half`|`quarter`|`empty`)
-- `inventory_completed_at` timestamptz
+- Preview: apply as tenant → landlord bell pings in realtime; landlord accepts → tenant bell pings; complete lease + funds + inventory loop and confirm each event lands with the right deep-link.
+- `supabase--linter` clean after migration.
 
-New tables:
-- `tenancy_receipts` (id, share_id FK, kind `deposit`|`rent`|`other`, amount, method, issued_at, statutory_cash boolean, notes)
-- `tenancy_inventory_items` (id, share_id FK, room, condition, notes, photo_path, sort_order)
-
-All with `created_at`/`updated_at`, GRANTs to authenticated + service_role, RLS scoped so the landlord (`property_listings.landlord_id = auth.uid()`) and the tenant (`passport_shares.tenant_id = auth.uid()`) of the parent share can read; only the landlord can write. Update triggers via existing `update_updated_at_column()` helper.
-
-## Entry points
-
-- `dashboard.index.tsx` "Manage Tenancy" link → update from `/landlord/issue-lease?share=` to `/landlord/manage-tenancy?share=`.
-- `dashboard.applications.tsx` "Lease fully executed" badge row → add a small "Manage tenancy" button next to it.
-- `landlord.issue-lease.tsx` once `lease_status === 'counter_signed'` → primary CTA becomes "Open tenancy workspace" linking to the new route.
-
-## Technical notes
-
-- New file: `src/routes/_authenticated/landlord.manage-tenancy.tsx` using `DashboardShell`, shadcn `Tabs`, existing semantic tokens (`bg-verified`, `bg-surface`, emerald accents). British English copy throughout, no hardcoded colors outside tokens.
-- Countdown clock + fuel gauge: inline SVG components in the same file (no new deps).
-- Reuses TanStack Query patterns from `dashboard.applications.tsx`; mutations invalidate `['tenancy', shareId]` plus `['landlord-applications']`.
-- Receipt "PDF" is an in-app printable modal for the prototype — no PDF library added.
+Ready to switch to build mode and ship.

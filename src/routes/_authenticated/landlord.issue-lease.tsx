@@ -7,6 +7,7 @@ import { ArrowLeft, FileText, Upload, ShieldCheck, Check, Send } from "lucide-re
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { emitNotification } from "@/lib/notifications.functions";
 
 export const Route = createFileRoute("/_authenticated/landlord/issue-lease")({
   validateSearch: z.object({ share: z.string().optional() }),
@@ -92,6 +93,24 @@ function IssueLeasePage() {
     toast.success("Lease sent to tenant", {
       description: `${tenantName} has been notified. Status: Sent to Tenant.`,
     });
+    const { data: share } = await supabase
+      .from("passport_shares")
+      .select("tenant_id")
+      .eq("id", shareId)
+      .maybeSingle();
+    if (share?.tenant_id) {
+      emitNotification({
+        data: {
+          recipient_id: share.tenant_id,
+          type: "lease_issued",
+          entity_type: "passport_share",
+          entity_id: shareId,
+          title: "Lease ready to review",
+          body: `Your landlord issued a lease for ${propertyAddress}. Review and sign to secure the tenancy.`,
+          link_path: "/tenant/review-lease",
+        },
+      }).catch((err) => console.error("[notify]", err));
+    }
   };
 
   return (

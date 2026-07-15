@@ -19,6 +19,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { emitNotification } from "@/lib/notifications.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/tenant/tenancy")({
@@ -58,6 +59,7 @@ interface ShareRow {
   inventory_completed_at: string | null;
   listing: {
     id: string;
+    landlord_id: string;
     title: string;
     address: string | null;
     location: string | null;
@@ -136,7 +138,7 @@ function TenantTenancyPage() {
       const { data: share, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_sent_at, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_protected_at, oil_handover_level, inventory_completed_at, listing:property_listings!listing_id(id, title, address, location, monthly_rent, deposit, heating_type, enforce_empty_in_full_out)",
+          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_sent_at, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_protected_at, oil_handover_level, inventory_completed_at, listing:property_listings!listing_id(id, landlord_id, title, address, location, monthly_rent, deposit, heating_type, enforce_empty_in_full_out)",
         )
         .eq("id", shareId!)
         .maybeSingle();
@@ -193,6 +195,20 @@ function TenantTenancyPage() {
         : { rent_status: "pending_verification" },
     );
     toast("Marked as sent", { description: "Your landlord will verify receipt." });
+    const landlordId = share?.listing?.landlord_id;
+    if (landlordId && shareId) {
+      emitNotification({
+        data: {
+          recipient_id: landlordId,
+          type: "receipt_logged",
+          entity_type: "passport_share",
+          entity_id: shareId,
+          title: kind === "deposit" ? "Deposit marked as sent" : "Rent marked as sent",
+          body: `${profile?.full_name ?? "Your tenant"} flagged ${kind} as sent for ${address}. Confirm receipt.`,
+          link_path: `/landlord/manage-tenancy?share=${shareId}`,
+        },
+      }).catch((err) => console.error("[notify]", err));
+    }
   };
 
   const approveInventory = () => {
@@ -200,6 +216,20 @@ function TenantTenancyPage() {
     toast.success("Handover approved", {
       description: "Your sign-off has been logged.",
     });
+    const landlordId = share?.listing?.landlord_id;
+    if (landlordId && shareId) {
+      emitNotification({
+        data: {
+          recipient_id: landlordId,
+          type: "inventory_approved",
+          entity_type: "passport_share",
+          entity_id: shareId,
+          title: "Inventory approved",
+          body: `${profile?.full_name ?? "Your tenant"} approved the handover inventory for ${address}.`,
+          link_path: `/landlord/manage-tenancy?share=${shareId}`,
+        },
+      }).catch((err) => console.error("[notify]", err));
+    }
   };
 
   // Deposit 28-day countdown from lease signed (or sent)
