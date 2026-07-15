@@ -224,7 +224,7 @@ function TenantTenancyPage() {
   }, [profile, navigate]);
 
   return (
-    <DashboardShell user={user} profile={profile} activeKey="overview">
+    <DashboardShell user={user} profile={profile} activeKey="passport">
       <div className="mb-5">
         <Link
           to="/dashboard"
