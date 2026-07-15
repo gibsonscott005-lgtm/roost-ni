@@ -7,6 +7,13 @@ import { Check, Clock, Inbox, ShieldCheck, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { emitNotification } from "@/lib/notifications.functions";
+
+function notify(payload: Parameters<typeof emitNotification>[0]["data"]) {
+  emitNotification({ data: payload }).catch((err) =>
+    console.error("[notify]", err),
+  );
+}
 
 export const Route = createFileRoute("/_authenticated/dashboard/applications")({
   validateSearch: z.object({ listing: z.string().optional() }),
@@ -123,6 +130,15 @@ function ApplicationsPage() {
       setOpen((o) => (o ? { ...o, status: "accepted" } : null));
       queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
       queryClient.invalidateQueries({ queryKey: ["passport-share"] });
+      notify({
+        recipient_id: share.tenant_id,
+        type: "application_accepted",
+        entity_type: "passport_share",
+        entity_id: share.id,
+        title: "Application accepted",
+        body: `Your application for ${share.listing?.title ?? "the property"} has been accepted. Prepare for lease documents.`,
+        link_path: "/dashboard",
+      });
     },
     onError: (err: unknown) => {
       toast.error("Could not update", {
@@ -147,6 +163,15 @@ function ApplicationsPage() {
       });
       queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
       queryClient.invalidateQueries({ queryKey: ["passport-share"] });
+      notify({
+        recipient_id: share.tenant_id,
+        type: "lease_counter_signed",
+        entity_type: "passport_share",
+        entity_id: share.id,
+        title: "Lease fully executed",
+        body: `Your lease for ${share.listing?.title ?? "the property"} is signed by both parties. Welcome to your tenancy workspace.`,
+        link_path: "/tenant/tenancy",
+      });
     },
     onError: (err: unknown) => {
       toast.error("Could not counter-sign", {
