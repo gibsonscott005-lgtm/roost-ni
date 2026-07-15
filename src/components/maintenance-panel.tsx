@@ -410,6 +410,7 @@ export function LandlordMaintenanceTab({
   address: string;
 }) {
   const qc = useQueryClient();
+  void landlordId; // reserved for future direct assignment / audit
   const { data: tickets = [], isLoading } = useTickets(
     propertyId,
     "landlord-maintenance-tickets",
@@ -607,8 +608,6 @@ export function LandlordMaintenanceTab({
           </div>
         </div>
       )}
-      {/* landlordId is retained for future direct assignment; suppress unused warning */}
-      <input type="hidden" value={landlordId} readOnly />
     </div>
   );
 }
