@@ -21,9 +21,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification } from "@/lib/notifications.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TenantMaintenanceTab } from "@/components/maintenance-panel";
 
 export const Route = createFileRoute("/_authenticated/tenant/tenancy")({
-  validateSearch: z.object({ share: z.string().optional() }),
+  validateSearch: z.object({
+    share: z.string().optional(),
+    tab: z.string().optional(),
+  }),
   head: () => ({
     meta: [
       { title: "My Tenancy — Roost NI" },
@@ -108,7 +112,7 @@ const OIL_LABEL: Record<OilLevel, string> = {
 function TenantTenancyPage() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const { share: searchShareId } = Route.useSearch();
+  const { share: searchShareId, tab: searchTab } = Route.useSearch();
   const qc = useQueryClient();
 
   // If no share id provided, auto-pick the tenant's most recent counter-signed share
@@ -291,7 +295,7 @@ function TenantTenancyPage() {
           You don't have an active tenancy yet. Once your landlord counter-signs your lease it will appear here.
         </div>
       ) : (
-        <Tabs defaultValue="overview" className="w-full">
+        <Tabs defaultValue={searchTab || "overview"} className="w-full">
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-surface-muted p-1">
             <TabsTrigger value="overview" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
               Overview &amp; Ledger
@@ -301,6 +305,9 @@ function TenantTenancyPage() {
             </TabsTrigger>
             <TabsTrigger value="inventory" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
               Inventory &amp; Utilities
+            </TabsTrigger>
+            <TabsTrigger value="maintenance" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
+              Maintenance
             </TabsTrigger>
             <TabsTrigger value="documents" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
               Documents
@@ -541,6 +548,24 @@ function TenantTenancyPage() {
                 </div>
               )}
             </div>
+          </TabsContent>
+
+          {/* Maintenance */}
+          <TabsContent value="maintenance" className="mt-5">
+            {listing?.id && listing?.landlord_id && user?.id ? (
+              <TenantMaintenanceTab
+                propertyId={listing.id}
+                landlordId={listing.landlord_id}
+                tenantId={user.id}
+                tenantName={profile?.full_name ?? "Tenant"}
+                address={address}
+                shareId={shareId}
+              />
+            ) : (
+              <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+                Maintenance reporting will unlock once your tenancy is fully linked to a property.
+              </div>
+            )}
           </TabsContent>
 
           {/* Documents */}

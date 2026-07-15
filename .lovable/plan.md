@@ -1,68 +1,34 @@
-## Notifications Milestone — Ready to Build
+## Maintenance Reporting UI — Tenant & Landlord
 
-Approved decisions:
-- Skip deposit-deadline cron; event-driven only this milestone.
-- Build `notification_preferences` table but no settings UI yet.
-- Fanout stays in TypeScript at mutation sites; no DB triggers on domain tables.
+Wire the maintenance workflow into the existing tenancy workspaces, adapted to Roost's stack (TanStack Start, `emitNotification` server function, private `tenant-documents` bucket, British English).
 
-### 1. Migration (single call)
+### 1. Extend notification enum validator
+`src/lib/notifications.functions.ts` — add `maintenance_reported`, `maintenance_updated`, `maintenance_resolved` to the Zod enum list so `emitNotification` accepts them.
 
-Enum + two tables + RLS + grants + realtime publication + `emit_notification(...)` SECURITY DEFINER fn, exactly as specified:
+### 2. Tenant Maintenance tab
+Add a new **"Maintenance"** tab to `src/routes/_authenticated/tenant.tenancy.tsx`:
+- Report form: Title, Urgency (Low/Medium/High/Emergency), Description, optional photos.
+- Photos upload to `tenant-documents/maintenance/{userId}/{uuid}.{ext}` (private bucket → store paths, render via signed URLs; not `getPublicUrl` since bucket is private).
+- Insert row into `maintenance_tickets`, then call `emitNotification` (our server fn, not the client RPC) with type `maintenance_reported`, entity `property_listing`, link `/landlord/manage-tenancy?id={propertyId}&tab=maintenance`.
+- History list below form: status + urgency pills, landlord response block, thumbnails opening signed URLs.
+- Invalidate `['maintenance-tickets', propertyId]` on success; toast via existing `sonner` pattern.
 
-- `notification_type` enum with all 13 values.
-- `public.notifications` (recipient_id, actor_id, type, title, body, entity_type, entity_id, link_path, read_at, created_at).
-- `public.notification_preferences` (user_id PK, in_app_enabled, muted_types[]).
-- RLS: recipients SELECT + UPDATE their own notifications; users manage own preferences. No client INSERT on notifications.
-- Grants: `SELECT, UPDATE` on notifications to authenticated; full CRUD on preferences to authenticated; `ALL` to service_role on both.
-- `ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;`
-- `emit_notification(p_recipient_id, p_actor_id, p_type, p_entity_type, p_entity_id, p_title, p_body, p_link_path)` — reads prefs (default on if row missing), skips if muted, inserts row, returns id.
+### 3. Landlord Maintenance tab
+Add a **"Maintenance"** tab to `src/routes/_authenticated/landlord.manage-tenancy.tsx`:
+- Left column: ticket list for that property.
+- Right column: selected ticket editor — status dropdown (Reported / In Progress / Resolved / Cancelled), landlord notes textarea, photo thumbnails.
+- On save: update `maintenance_tickets` (set `resolved_at` when status=resolved), then `emitNotification` with `maintenance_resolved` if resolved else `maintenance_updated`, link `/tenant/tenancy?tab=maintenance`.
+- Invalidate `['landlord-maintenance-tickets', propertyId]`.
 
-Small correctness tweak vs the pasted script: add `SET search_path = public` to the SECURITY DEFINER fn (Supabase linter flags it otherwise) — behaviour unchanged.
+### 4. Deep-link tab state
+Both tenancy pages already use tabbed layouts. Read `?tab=maintenance` from search params so notification link-paths open the correct tab.
 
-### 2. Server-side fanout wiring
-
-Add `supabase.rpc('emit_notification', {...})` calls inside the existing mutation handlers. Fire-and-forget after the domain write succeeds; failures logged but never block the primary mutation.
-
-Event map (recipient → type → link):
-
-| Mutation site | Recipient | Type | link_path |
-|---|---|---|---|
-| Tenant applies (`ApplyCard`) | landlord | `application_received` | `/dashboard/applications` |
-| Landlord accepts | tenant | `application_accepted` | `/dashboard` |
-| Landlord declines | tenant | `application_declined` | `/dashboard` |
-| Landlord issues lease | tenant | `lease_issued` | `/tenant/review-lease?share=…` |
-| Tenant signs lease | landlord | `lease_signed_by_tenant` | `/dashboard/applications` |
-| Landlord counter-signs | tenant | `lease_counter_signed` + `property_let_agreed` | `/tenant/tenancy` |
-| Tenant marks payment sent | landlord | `receipt_logged` | `/landlord/manage-tenancy?share=…` |
-| Landlord confirms receipt | tenant | `receipt_confirmed` | `/tenant/tenancy` |
-| Landlord saves deposit scheme cert | tenant | `deposit_protected` | `/tenant/tenancy` |
-| Tenant submits inventory sign-off | landlord | `inventory_submitted` | `/landlord/manage-tenancy?share=…` |
-| Landlord approves inventory | tenant | `inventory_approved` | `/tenant/tenancy` |
-
-British-English copy in titles/bodies (no emoji spam — one tasteful glyph max, per Roost tone).
-
-### 3. Frontend — `NotificationsBell` refactor
-
-Rewrite `src/components/notifications-bell.tsx` (currently derives from `passport_shares`) to:
-- `useQuery(['notifications', userId])` → latest 20 from the new table.
-- Single `useEffect` Realtime channel `notif:{userId}` filtered by `recipient_id=eq.{userId}`; on INSERT invalidate the query and toast via existing `sonner` (not `window.Notification` — matches project style).
-- Unread badge from `notifications.filter(n => !n.read_at).length`.
-- Click → mark-read mutation (`update read_at`) → `navigate({ to: n.link_path })`.
-- Keep the current dropdown chrome/styling — only swap the data source.
-- Import path: `@/integrations/supabase/client` (not `~/utils/supabaseClient`).
-
-Header usage in `src/routes/index.tsx` and `src/components/dashboard-shell.tsx` unchanged — same component, same prop.
-
-### 4. Out of scope this milestone
-
-- No settings/preferences UI.
-- No cron / deposit-deadline reminder.
-- No email/SMS channels.
-- No backfill of historical events.
+### Adaptations from your snippet
+- Use existing `emitNotification` TanStack server fn (keeps the "TypeScript-first, no DB triggers" architecture); the client RPC `supabase.rpc('emit_notification', ...)` would bypass our Zod layer.
+- Private bucket → signed URLs (not `getPublicUrl`), matching how passport documents are rendered.
+- British English copy ("colour", "organise", "Emergency (risk to safety)"), Roost minimalist gray/white + emerald palette, `sonner` toasts instead of `alert()`.
+- No SQL migration needed — schema and RLS already in place from the previous milestone.
 
 ### Verification
-
-- Preview: apply as tenant → landlord bell pings in realtime; landlord accepts → tenant bell pings; complete lease + funds + inventory loop and confirm each event lands with the right deep-link.
-- `supabase--linter` clean after migration.
-
-Ready to switch to build mode and ship.
+- `tsgo --noEmit` after wiring.
+- Manual: log a ticket as tenant → landlord bell fires → landlord updates status → tenant bell fires → resolved state renders correctly.
