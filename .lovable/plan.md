@@ -1,34 +1,33 @@
-## Maintenance Reporting UI — Tenant & Landlord
+## Comprehensive End-to-End Walkthrough — Tenant & Landlord
 
-Wire the maintenance workflow into the existing tenancy workspaces, adapted to Roost's stack (TanStack Start, `emitNotification` server function, private `tenant-documents` bucket, British English).
+I'll drive the live preview with Playwright using the two existing test accounts, capture screenshots at every step, and produce a pass/fail report per surface.
 
-### 1. Extend notification enum validator
-`src/lib/notifications.functions.ts` — add `maintenance_reported`, `maintenance_updated`, `maintenance_resolved` to the Zod enum list so `emitNotification` accepts them.
+### Accounts
+- **Tenant:** `gibsonscott005@gmail.com` (password on file)
+- **Landlord:** `usgibsons2004@gmail.com` (needs password — see question below)
 
-### 2. Tenant Maintenance tab
-Add a new **"Maintenance"** tab to `src/routes/_authenticated/tenant.tenancy.tsx`:
-- Report form: Title, Urgency (Low/Medium/High/Emergency), Description, optional photos.
-- Photos upload to `tenant-documents/maintenance/{userId}/{uuid}.{ext}` (private bucket → store paths, render via signed URLs; not `getPublicUrl` since bucket is private).
-- Insert row into `maintenance_tickets`, then call `emitNotification` (our server fn, not the client RPC) with type `maintenance_reported`, entity `property_listing`, link `/landlord/manage-tenancy?id={propertyId}&tab=maintenance`.
-- History list below form: status + urgency pills, landlord response block, thumbnails opening signed URLs.
-- Invalidate `['maintenance-tickets', propertyId]` on success; toast via existing `sonner` pattern.
+### Landlord route (signed in as landlord)
+1. `/auth` → sign in → land on `/dashboard`
+2. Dashboard overview — active listings, "Let Agreed" badges, Manage Tenancy links
+3. Create a new listing via **Add Property** (NI fields, Fair Fuel toggle for Oil)
+4. `/dashboard/applications` — Received Passports, Accept flow, Issue Lease button
+5. `/landlord/issue-lease?share=...` — Roost template preview, Fair Fuel clause, issue
+6. Counter-sign flow on an already tenant-signed lease
+7. `/landlord/manage-tenancy?share=...` — all 4 tabs (Overview, Deposit, Inventory, Documents) + Maintenance tab (respond to a ticket, mark resolved)
+8. Notifications bell — Realtime insert visible
 
-### 3. Landlord Maintenance tab
-Add a **"Maintenance"** tab to `src/routes/_authenticated/landlord.manage-tenancy.tsx`:
-- Left column: ticket list for that property.
-- Right column: selected ticket editor — status dropdown (Reported / In Progress / Resolved / Cancelled), landlord notes textarea, photo thumbnails.
-- On save: update `maintenance_tickets` (set `resolved_at` when status=resolved), then `emitNotification` with `maintenance_resolved` if resolved else `maintenance_updated`, link `/tenant/tenancy?tab=maintenance`.
-- Invalidate `['landlord-maintenance-tickets', propertyId]`.
+### Tenant route (signed in as tenant)
+1. `/auth` → sign in → land on `/dashboard`
+2. Overview — Trust score, Application sent/accepted cards, banners
+3. `/dashboard/passport` — verify all 3 self-certified sections + document links
+4. `/dashboard/passport/edit` — open wizard, confirm inputs accept values, resume-from-incomplete-step works
+5. `/listings` browse → `/listings/:id` detail → **Apply with Passport** (verify duplicate prevention)
+6. `/tenant/review-lease?share=...` — sign lease, submit
+7. `/tenant/tenancy?share=...` — all 4 tabs + Maintenance tab (report an issue with photo upload)
+8. Notifications bell — receives landlord's status updates
 
-### 4. Deep-link tab state
-Both tenancy pages already use tabbed layouts. Read `?tab=maintenance` from search params so notification link-paths open the correct tab.
+### Deliverable
+A single report per route with: URL, screenshot filename, observed state, and any console errors / broken buttons / missing data. Screenshots saved under `/tmp/browser/walkthrough/`.
 
-### Adaptations from your snippet
-- Use existing `emitNotification` TanStack server fn (keeps the "TypeScript-first, no DB triggers" architecture); the client RPC `supabase.rpc('emit_notification', ...)` would bypass our Zod layer.
-- Private bucket → signed URLs (not `getPublicUrl`), matching how passport documents are rendered.
-- British English copy ("colour", "organise", "Emergency (risk to safety)"), Roost minimalist gray/white + emerald palette, `sonner` toasts instead of `alert()`.
-- No SQL migration needed — schema and RLS already in place from the previous milestone.
-
-### Verification
-- `tsgo --noEmit` after wiring.
-- Manual: log a ticket as tenant → landlord bell fires → landlord updates status → tenant bell fires → resolved state renders correctly.
+### One question before starting
+The landlord account (`usgibsons2004@gmail.com`) doesn't have a stored test password. Should I reset it to a known value (same convention as tenant: `Roost-Test-2026!xK9`) via admin script before running the walkthrough, or do you want to provide one?
