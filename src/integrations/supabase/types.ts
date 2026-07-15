@@ -14,6 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
+      maintenance_tickets: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          landlord_notes: string | null
+          photo_urls: string[]
+          property_id: string
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["maintenance_status"]
+          tenant_id: string
+          title: string
+          updated_at: string
+          urgency: Database["public"]["Enums"]["maintenance_urgency"]
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          landlord_notes?: string | null
+          photo_urls?: string[]
+          property_id: string
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["maintenance_status"]
+          tenant_id: string
+          title: string
+          updated_at?: string
+          urgency?: Database["public"]["Enums"]["maintenance_urgency"]
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          landlord_notes?: string | null
+          photo_urls?: string[]
+          property_id?: string
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["maintenance_status"]
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+          urgency?: Database["public"]["Enums"]["maintenance_urgency"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_tickets_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           in_app_enabled: boolean
@@ -468,6 +521,8 @@ export type Database = {
     }
     Enums: {
       account_type: "tenant" | "landlord" | "admin"
+      maintenance_status: "reported" | "in_progress" | "resolved" | "cancelled"
+      maintenance_urgency: "low" | "medium" | "high" | "emergency"
       notification_type:
         | "application_received"
         | "application_accepted"
@@ -482,6 +537,9 @@ export type Database = {
         | "deposit_deadline_approaching"
         | "inventory_submitted"
         | "inventory_approved"
+        | "maintenance_reported"
+        | "maintenance_updated"
+        | "maintenance_resolved"
       share_status: "pending" | "reviewed" | "accepted"
     }
     CompositeTypes: {
@@ -611,6 +669,8 @@ export const Constants = {
   public: {
     Enums: {
       account_type: ["tenant", "landlord", "admin"],
+      maintenance_status: ["reported", "in_progress", "resolved", "cancelled"],
+      maintenance_urgency: ["low", "medium", "high", "emergency"],
       notification_type: [
         "application_received",
         "application_accepted",
@@ -625,6 +685,9 @@ export const Constants = {
         "deposit_deadline_approaching",
         "inventory_submitted",
         "inventory_approved",
+        "maintenance_reported",
+        "maintenance_updated",
+        "maintenance_resolved",
       ],
       share_status: ["pending", "reviewed", "accepted"],
     },
