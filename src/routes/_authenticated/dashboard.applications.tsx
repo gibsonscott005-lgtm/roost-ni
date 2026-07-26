@@ -3,7 +3,7 @@ import { z } from "zod";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, Clock, Inbox, ShieldCheck, X } from "lucide-react";
+import { BadgeCheck, Check, Clock, ExternalLink, Inbox, Loader2, ShieldCheck, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
@@ -53,6 +53,10 @@ interface Passport {
   monthly_income_net: number | null;
   preferred_heating: string | null;
   accept_empty_in_full_out: boolean;
+  id_status: string | null;
+  id_verified_at: string | null;
+  issuing_country: string | null;
+  id_document_path: string | null;
 }
 
 function ApplicationsPage() {
@@ -88,7 +92,7 @@ function ApplicationsPage() {
         const { data: p } = await supabase
           .from("tenant_passports")
           .select(
-            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, preferred_heating, accept_empty_in_full_out",
+            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
           )
           .in("user_id", tenantIds);
         ((p as Passport[] | null) ?? []).forEach((row) => {
