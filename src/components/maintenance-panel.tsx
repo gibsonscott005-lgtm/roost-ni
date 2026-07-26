@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { emitNotification } from "@/lib/notifications.functions";
+import { Skeleton } from "@/components/ui/skeleton";
+import { RefreshCw } from "lucide-react";
 
 type Urgency = "low" | "medium" | "high" | "emergency";
 type Status = "reported" | "in_progress" | "resolved" | "cancelled";
@@ -79,7 +81,7 @@ function urgencyPill(urgency: Urgency) {
 }
 
 function SignedPhoto({ path }: { path: string }) {
-  const { data } = useQuery({
+  const { data, isError, refetch, isFetching } = useQuery({
     queryKey: ["maintenance-photo", path],
     queryFn: async () => {
       const { data, error } = await supabase.storage
@@ -89,10 +91,24 @@ function SignedPhoto({ path }: { path: string }) {
       return data.signedUrl;
     },
     staleTime: 60 * 1000 * 8,
+    retry: 1,
   });
+  if (isError) {
+    return (
+      <button
+        type="button"
+        onClick={() => refetch()}
+        title="Signed link expired — click to refresh"
+        className="inline-flex h-14 w-14 flex-col items-center justify-center gap-0.5 rounded-lg border border-dashed border-border bg-surface-muted text-[9px] font-medium text-muted-foreground transition hover:bg-secondary"
+      >
+        <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
+        Refresh link
+      </button>
+    );
+  }
   if (!data) {
     return (
-      <div className="h-14 w-14 animate-pulse rounded-lg border border-border bg-surface-muted" />
+      <Skeleton className="h-14 w-14 rounded-lg" />
     );
   }
   return (
@@ -101,6 +117,7 @@ function SignedPhoto({ path }: { path: string }) {
         src={data}
         alt="Maintenance photo"
         className="h-14 w-14 rounded-lg border border-border object-cover transition hover:opacity-80"
+        onError={() => refetch()}
       />
     </a>
   );
