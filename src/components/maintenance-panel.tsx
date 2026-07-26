@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { emitNotification } from "@/lib/notifications.functions";
+import { Skeleton } from "@/components/ui/skeleton";
+import { RefreshCw } from "lucide-react";
 
 type Urgency = "low" | "medium" | "high" | "emergency";
 type Status = "reported" | "in_progress" | "resolved" | "cancelled";
@@ -79,7 +81,7 @@ function urgencyPill(urgency: Urgency) {
 }
 
 function SignedPhoto({ path }: { path: string }) {
-  const { data } = useQuery({
+  const { data, isError, refetch, isFetching } = useQuery({
     queryKey: ["maintenance-photo", path],
     queryFn: async () => {
       const { data, error } = await supabase.storage
@@ -89,10 +91,24 @@ function SignedPhoto({ path }: { path: string }) {
       return data.signedUrl;
     },
     staleTime: 60 * 1000 * 8,
+    retry: 1,
   });
+  if (isError) {
+    return (
+      <button
+        type="button"
+        onClick={() => refetch()}
+        title="Signed link expired — click to refresh"
+        className="inline-flex h-14 w-14 flex-col items-center justify-center gap-0.5 rounded-lg border border-dashed border-border bg-surface-muted text-[9px] font-medium text-muted-foreground transition hover:bg-secondary"
+      >
+        <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
+        Refresh link
+      </button>
+    );
+  }
   if (!data) {
     return (
-      <div className="h-14 w-14 animate-pulse rounded-lg border border-border bg-surface-muted" />
+      <Skeleton className="h-14 w-14 rounded-lg" />
     );
   }
   return (
@@ -101,6 +117,7 @@ function SignedPhoto({ path }: { path: string }) {
         src={data}
         alt="Maintenance photo"
         className="h-14 w-14 rounded-lg border border-border object-cover transition hover:opacity-80"
+        onError={() => refetch()}
       />
     </a>
   );
@@ -114,6 +131,33 @@ function Photos({ paths }: { paths: string[] }) {
         <SignedPhoto key={p} path={p} />
       ))}
     </div>
+  );
+}
+
+function TicketSkeletonList({ compact = false }: { compact?: boolean }) {
+  const rows = compact ? 2 : 3;
+  return (
+    <ul className="space-y-3" aria-busy="true" aria-label="Loading tickets">
+      {Array.from({ length: rows }).map((_, i) => (
+        <li
+          key={i}
+          className={`space-y-3 rounded-2xl border border-border bg-surface ${compact ? "p-4" : "p-5"}`}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+            <div className="flex shrink-0 gap-1.5">
+              <Skeleton className="h-5 w-16 rounded-full" />
+              <Skeleton className="h-5 w-14 rounded-full" />
+            </div>
+          </div>
+          <Skeleton className="h-3 w-full" />
+          <Skeleton className="h-3 w-5/6" />
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -355,12 +399,10 @@ export function TenantMaintenanceTab({
           Your maintenance history
         </p>
         {isLoading ? (
-          <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-muted-foreground">
-            Loading tickets…
-          </div>
+          <TicketSkeletonList compact />
         ) : tickets.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-surface p-6 text-center text-sm text-muted-foreground">
-            No tickets yet. Submit one on the left to get started.
+            No maintenance tickets yet — you're all clear. Report an issue on the left when something needs your landlord's attention.
           </div>
         ) : (
           <ul className="space-y-3">
@@ -487,15 +529,13 @@ export function LandlordMaintenanceTab({
       </div>
 
       {isLoading ? (
-        <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
-          Loading tickets…
-        </div>
+        <TicketSkeletonList />
       ) : tickets.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border bg-surface p-8 text-center">
-          <AlertTriangle className="mx-auto mb-2 h-5 w-5 text-muted-foreground" />
-          <p className="text-sm font-semibold text-foreground">No tickets logged yet</p>
+          <Check className="mx-auto mb-2 h-5 w-5 text-verified" />
+          <p className="text-sm font-semibold text-foreground">No active maintenance tickets — all clear!</p>
           <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground">
-            When your tenant reports an issue it will appear here for you to triage and respond.
+            When your tenant reports an issue it will appear here for you to triage, update, and mark resolved.
           </p>
         </div>
       ) : (

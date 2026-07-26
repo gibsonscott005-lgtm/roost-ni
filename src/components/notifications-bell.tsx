@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type NotificationRow = {
   id: string;
@@ -31,7 +32,7 @@ export function NotificationsBell({ userId }: { userId: string | null | undefine
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
-  const { data: notifications = [] } = useQuery<NotificationRow[]>({
+  const { data: notifications = [], isLoading } = useQuery<NotificationRow[]>({
     queryKey: ["notifications", userId],
     enabled: !!userId,
     queryFn: async () => {
@@ -152,7 +153,20 @@ export function NotificationsBell({ userId }: { userId: string | null | undefine
             )}
           </div>
           <div className="max-h-96 overflow-y-auto">
-            {notifications.length === 0 ? (
+            {isLoading ? (
+              <ul className="divide-y divide-border" aria-busy="true">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <li key={i} className="flex items-start gap-2 px-3 py-2.5">
+                    <Skeleton className="mt-1.5 h-2 w-2 rounded-full" />
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <Skeleton className="h-3 w-3/5" />
+                      <Skeleton className="h-2.5 w-full" />
+                      <Skeleton className="h-2 w-16" />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : notifications.length === 0 ? (
               <p className="px-3 py-6 text-center text-xs text-muted-foreground">
                 All quiet for now.
               </p>

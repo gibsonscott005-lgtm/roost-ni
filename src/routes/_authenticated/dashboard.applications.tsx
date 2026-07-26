@@ -3,11 +3,12 @@ import { z } from "zod";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BadgeCheck, Check, Clock, ExternalLink, Inbox, Loader2, ShieldCheck, X } from "lucide-react";
+import { BadgeCheck, Check, Clock, ExternalLink, Inbox, Loader2, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification, type EmitNotificationInput } from "@/lib/notifications.functions";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function notify(payload: EmitNotificationInput) {
   emitNotification({ data: payload }).catch((err) =>
@@ -228,17 +229,37 @@ function ApplicationsPage() {
           </div>
 
           {loading ? (
-            <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-muted-foreground">
-              Loading applicants…
-            </div>
+            <ul
+              className="overflow-hidden rounded-2xl border border-border bg-surface"
+              aria-busy="true"
+              aria-label="Loading applicants"
+            >
+              {Array.from({ length: 3 }).map((_, i) => (
+                <li
+                  key={i}
+                  className={`flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between ${i > 0 ? "border-t border-border" : ""}`}
+                >
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-3 w-56" />
+                    <div className="flex gap-1.5 pt-1">
+                      <Skeleton className="h-5 w-20 rounded-full" />
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                      <Skeleton className="h-5 w-24 rounded-full" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-8 w-28 rounded-full" />
+                </li>
+              ))}
+            </ul>
           ) : shares.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-border bg-surface p-10 text-center">
               <Inbox className="mx-auto h-8 w-8 text-muted-foreground" />
               <p className="mt-3 font-display text-base font-semibold tracking-tight">
-                No applications yet
+                No applications yet — inbox is clear
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                When a tenant shares their passport with one of your listings, they'll appear here.
+                When a tenant shares their Roost passport with one of your listings, they'll land here with a full self-certified summary.
               </p>
               <Link
                 to="/dashboard"
@@ -402,6 +423,7 @@ function SelfCertifiedIdBadge({
 
 function ViewIdDocButton({ path }: { path: string }) {
   const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
   const onOpen = async () => {
     if (loading) return;
     setLoading(true);
@@ -411,7 +433,9 @@ function ViewIdDocButton({ path }: { path: string }) {
         .createSignedUrl(path, 60);
       if (error || !data?.signedUrl) throw error ?? new Error("No URL");
       window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+      setFailed(false);
     } catch (err) {
+      setFailed(true);
       toast.error("Couldn't open document", {
         description: err instanceof Error ? err.message : "Please try again.",
       });
@@ -419,6 +443,19 @@ function ViewIdDocButton({ path }: { path: string }) {
       setLoading(false);
     }
   };
+  if (failed) {
+    return (
+      <button
+        type="button"
+        onClick={onOpen}
+        disabled={loading}
+        className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-800 transition hover:bg-amber-100 disabled:opacity-60"
+      >
+        {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+        Refresh document link
+      </button>
+    );
+  }
   return (
     <button
       type="button"
