@@ -134,6 +134,33 @@ function Photos({ paths }: { paths: string[] }) {
   );
 }
 
+function TicketSkeletonList({ compact = false }: { compact?: boolean }) {
+  const rows = compact ? 2 : 3;
+  return (
+    <ul className="space-y-3" aria-busy="true" aria-label="Loading tickets">
+      {Array.from({ length: rows }).map((_, i) => (
+        <li
+          key={i}
+          className={`space-y-3 rounded-2xl border border-border bg-surface ${compact ? "p-4" : "p-5"}`}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton className="h-4 w-2/3" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+            <div className="flex shrink-0 gap-1.5">
+              <Skeleton className="h-5 w-16 rounded-full" />
+              <Skeleton className="h-5 w-14 rounded-full" />
+            </div>
+          </div>
+          <Skeleton className="h-3 w-full" />
+          <Skeleton className="h-3 w-5/6" />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function useTickets(propertyId: string | undefined, queryKey: string) {
   return useQuery({
     enabled: !!propertyId,
