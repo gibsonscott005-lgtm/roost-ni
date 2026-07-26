@@ -58,6 +58,10 @@ interface Passport {
   id_document_type: string | null;
   id_document_number: string | null;
   id_document_path: string | null;
+  id_status: string | null;
+  id_verified_at: string | null;
+  id_provider: string | null;
+  issuing_country: string | null;
   employment_status: string | null;
   annual_income: number | null;
   income_document_path: string | null;
