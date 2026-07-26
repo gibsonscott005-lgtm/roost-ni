@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification, type EmitNotificationInput } from "@/lib/notifications.functions";
+import { signIdDocumentUrl } from "@/lib/identity-docs.functions";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function notify(payload: EmitNotificationInput) {
@@ -421,18 +422,16 @@ function SelfCertifiedIdBadge({
   );
 }
 
-function ViewIdDocButton({ path }: { path: string }) {
+function ViewIdDocButton({ shareId }: { shareId: string }) {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const onOpen = async () => {
     if (loading) return;
     setLoading(true);
     try {
-      const { data, error } = await supabase.storage
-        .from("tenant-documents")
-        .createSignedUrl(path, 60);
-      if (error || !data?.signedUrl) throw error ?? new Error("No URL");
-      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+      const { url } = await signIdDocumentUrl({ data: { share_id: shareId } });
+      if (!url) throw new Error("No URL");
+      window.open(url, "_blank", "noopener,noreferrer");
       setFailed(false);
     } catch (err) {
       setFailed(true);
@@ -561,7 +560,7 @@ function PassportModal({
                   Self-certified by tenant · shared with this application
                 </p>
               </div>
-              <ViewIdDocButton path={passport.id_document_path} />
+              <ViewIdDocButton shareId={s.id} />
             </div>
           ) : null}
 
