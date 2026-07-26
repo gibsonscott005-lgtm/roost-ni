@@ -402,6 +402,7 @@ function SelfCertifiedIdBadge({
 
 function ViewIdDocButton({ path }: { path: string }) {
   const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
   const onOpen = async () => {
     if (loading) return;
     setLoading(true);
@@ -411,7 +412,9 @@ function ViewIdDocButton({ path }: { path: string }) {
         .createSignedUrl(path, 60);
       if (error || !data?.signedUrl) throw error ?? new Error("No URL");
       window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+      setFailed(false);
     } catch (err) {
+      setFailed(true);
       toast.error("Couldn't open document", {
         description: err instanceof Error ? err.message : "Please try again.",
       });
@@ -419,6 +422,19 @@ function ViewIdDocButton({ path }: { path: string }) {
       setLoading(false);
     }
   };
+  if (failed) {
+    return (
+      <button
+        type="button"
+        onClick={onOpen}
+        disabled={loading}
+        className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-800 transition hover:bg-amber-100 disabled:opacity-60"
+      >
+        {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+        Refresh document link
+      </button>
+    );
+  }
   return (
     <button
       type="button"
