@@ -3,7 +3,7 @@ import { z } from "zod";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BadgeCheck, Check, Clock, ExternalLink, Inbox, Loader2, ShieldCheck, X } from "lucide-react";
+import { BadgeCheck, Check, Clock, ExternalLink, Inbox, Loader2, RefreshCw, ShieldCheck, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
