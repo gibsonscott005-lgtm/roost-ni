@@ -399,10 +399,15 @@ export type Database = {
           id_document_number: string | null
           id_document_path: string | null
           id_document_type: string | null
+          id_provider: string | null
+          id_session_id: string | null
+          id_status: Database["public"]["Enums"]["verification_status"]
+          id_verified_at: string | null
           identity_verified: boolean
           income_document_path: string | null
           income_verified: boolean
           is_first_time_renter: boolean
+          issuing_country: string | null
           monthly_income_net: number | null
           preferred_heating: string | null
           previous_landlord_email: string | null
@@ -437,10 +442,15 @@ export type Database = {
           id_document_number?: string | null
           id_document_path?: string | null
           id_document_type?: string | null
+          id_provider?: string | null
+          id_session_id?: string | null
+          id_status?: Database["public"]["Enums"]["verification_status"]
+          id_verified_at?: string | null
           identity_verified?: boolean
           income_document_path?: string | null
           income_verified?: boolean
           is_first_time_renter?: boolean
+          issuing_country?: string | null
           monthly_income_net?: number | null
           preferred_heating?: string | null
           previous_landlord_email?: string | null
@@ -475,10 +485,15 @@ export type Database = {
           id_document_number?: string | null
           id_document_path?: string | null
           id_document_type?: string | null
+          id_provider?: string | null
+          id_session_id?: string | null
+          id_status?: Database["public"]["Enums"]["verification_status"]
+          id_verified_at?: string | null
           identity_verified?: boolean
           income_document_path?: string | null
           income_verified?: boolean
           is_first_time_renter?: boolean
+          issuing_country?: string | null
           monthly_income_net?: number | null
           preferred_heating?: string | null
           previous_landlord_email?: string | null
@@ -497,6 +512,36 @@ export type Database = {
           tenancy_start_date_2?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      verification_audit_logs: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          provider: string
+          session_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+          provider: string
+          session_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          provider?: string
+          session_id?: string
+          tenant_id?: string
         }
         Relationships: []
       }
@@ -541,6 +586,7 @@ export type Database = {
         | "maintenance_updated"
         | "maintenance_resolved"
       share_status: "pending" | "reviewed" | "accepted"
+      verification_status: "unverified" | "pending" | "verified" | "failed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -690,6 +736,7 @@ export const Constants = {
         "maintenance_resolved",
       ],
       share_status: ["pending", "reviewed", "accepted"],
+      verification_status: ["unverified", "pending", "verified", "failed"],
     },
   },
 } as const
