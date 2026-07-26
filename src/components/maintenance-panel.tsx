@@ -372,12 +372,10 @@ export function TenantMaintenanceTab({
           Your maintenance history
         </p>
         {isLoading ? (
-          <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-muted-foreground">
-            Loading tickets…
-          </div>
+          <TicketSkeletonList compact />
         ) : tickets.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-surface p-6 text-center text-sm text-muted-foreground">
-            No tickets yet. Submit one on the left to get started.
+            No maintenance tickets yet — you're all clear. Report an issue on the left when something needs your landlord's attention.
           </div>
         ) : (
           <ul className="space-y-3">
@@ -504,15 +502,13 @@ export function LandlordMaintenanceTab({
       </div>
 
       {isLoading ? (
-        <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
-          Loading tickets…
-        </div>
+        <TicketSkeletonList />
       ) : tickets.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border bg-surface p-8 text-center">
-          <AlertTriangle className="mx-auto mb-2 h-5 w-5 text-muted-foreground" />
-          <p className="text-sm font-semibold text-foreground">No tickets logged yet</p>
+          <Check className="mx-auto mb-2 h-5 w-5 text-verified" />
+          <p className="text-sm font-semibold text-foreground">No active maintenance tickets — all clear!</p>
           <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground">
-            When your tenant reports an issue it will appear here for you to triage and respond.
+            When your tenant reports an issue it will appear here for you to triage, update, and mark resolved.
           </p>
         </div>
       ) : (
