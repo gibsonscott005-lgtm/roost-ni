@@ -560,7 +560,7 @@ function PassportModal({
                   Self-certified by tenant · shared with this application
                 </p>
               </div>
-              <ViewIdDocButton shareId={s.id} />
+              <ViewIdDocButton shareId={share.id} />
             </div>
           ) : null}
 
