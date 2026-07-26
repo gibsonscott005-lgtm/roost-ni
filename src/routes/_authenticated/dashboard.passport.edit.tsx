@@ -647,6 +647,7 @@ function IdentityStep({
   const { user } = useAuth();
   const [docType, setDocType] = useState<string>(passport.id_document_type ?? "passport");
   const [docNumber, setDocNumber] = useState(passport.id_document_number ?? "");
+  const [country, setCountry] = useState<string>(passport.issuing_country ?? "GB");
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -661,6 +662,7 @@ function IdentityStep({
     try {
       let path = passport.id_document_path;
       if (file) path = await uploadDoc(user.id, "identity", file);
+      const verifiedAt = new Date().toISOString();
       const { data, error } = await supabase
         .from("tenant_passports")
         .upsert(
@@ -671,12 +673,32 @@ function IdentityStep({
             id_document_path: path,
             identity_verified: true,
             right_to_rent_verified: true,
+            id_status: "self_certified",
+            id_verified_at: verifiedAt,
+            id_provider: "self_certified",
+            issuing_country: country,
           },
           { onConflict: "user_id" },
         )
         .select("*")
         .single();
       if (error) throw error;
+      // Append-only audit entry — RLS lets tenants insert their own rows only.
+      const { error: auditErr } = await supabase
+        .from("verification_audit_logs")
+        .insert({
+          tenant_id: user.id,
+          provider: "self_certified",
+          session_id: `self-${user.id}-${Date.now()}`,
+          event_type: "self_certified_id_submitted",
+          payload: {
+            timestamp: verifiedAt,
+            document_path: path,
+            document_type: docType,
+            issuing_country: country,
+          },
+        });
+      if (auditErr) console.error("[verification_audit_logs]", auditErr);
       toast.success("Identity saved", {
         description: "Right to Rent step complete.",
       });
@@ -698,6 +720,17 @@ function IdentityStep({
         title="Identity & Right to Rent"
         desc="Upload your government photo ID. This self-certifies Identity and Right to Rent on your passport — landlords review the document when you apply."
       >
+        {passport.id_status === "self_certified" && passport.id_verified_at ? (
+          <div className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-700">
+            <Check className="h-4 w-4 shrink-0" strokeWidth={3} />
+            <span className="min-w-0">
+              <span className="font-semibold">Self-Certified ID</span>
+              <span className="ml-1.5 text-xs text-emerald-700/80">
+                {passport.issuing_country ?? "GB"} · {format(new Date(passport.id_verified_at), "d MMM yyyy")}
+              </span>
+            </span>
+          </div>
+        ) : null}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Document type">
             <select
@@ -717,6 +750,18 @@ function IdentityStep({
               placeholder="e.g. 123456789"
               className={`${inputCx} uppercase tracking-wider`}
             />
+          </Field>
+          <Field label="Issuing country" className="sm:col-span-2">
+            <select
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              className={inputCx}
+            >
+              <option value="GB">United Kingdom (GB)</option>
+              <option value="IE">Ireland (IE)</option>
+              <option value="EU">Other EU / EEA</option>
+              <option value="OTHER">Other</option>
+            </select>
           </Field>
         </div>
         <FileDrop
