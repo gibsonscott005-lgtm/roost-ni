@@ -586,7 +586,12 @@ export type Database = {
         | "maintenance_updated"
         | "maintenance_resolved"
       share_status: "pending" | "reviewed" | "accepted"
-      verification_status: "unverified" | "pending" | "verified" | "failed"
+      verification_status:
+        | "unverified"
+        | "pending"
+        | "verified"
+        | "failed"
+        | "self_certified"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -736,7 +741,13 @@ export const Constants = {
         "maintenance_resolved",
       ],
       share_status: ["pending", "reviewed", "accepted"],
-      verification_status: ["unverified", "pending", "verified", "failed"],
+      verification_status: [
+        "unverified",
+        "pending",
+        "verified",
+        "failed",
+        "self_certified",
+      ],
     },
   },
 } as const

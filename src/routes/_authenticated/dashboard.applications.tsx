@@ -3,7 +3,7 @@ import { z } from "zod";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Check, Clock, Inbox, ShieldCheck, X } from "lucide-react";
+import { BadgeCheck, Check, Clock, ExternalLink, Inbox, Loader2, ShieldCheck, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
@@ -53,6 +53,10 @@ interface Passport {
   monthly_income_net: number | null;
   preferred_heating: string | null;
   accept_empty_in_full_out: boolean;
+  id_status: string | null;
+  id_verified_at: string | null;
+  issuing_country: string | null;
+  id_document_path: string | null;
 }
 
 function ApplicationsPage() {
@@ -88,7 +92,7 @@ function ApplicationsPage() {
         const { data: p } = await supabase
           .from("tenant_passports")
           .select(
-            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, preferred_heating, accept_empty_in_full_out",
+            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
           )
           .in("user_id", tenantIds);
         ((p as Passport[] | null) ?? []).forEach((row) => {
@@ -265,7 +269,11 @@ function ApplicationsPage() {
                         Applied to <span className="text-foreground/90">{s.listing?.title ?? "your listing"}</span> · {timeAgo(s.shared_at)}
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                        <VerifyBadge label="ID" ok={!!p?.identity_verified} />
+                        {p?.id_status === "self_certified" ? (
+                          <SelfCertifiedIdBadge country={p.issuing_country} verifiedAt={p.id_verified_at} />
+                        ) : (
+                          <VerifyBadge label="ID" ok={!!p?.identity_verified} />
+                        )}
                         <VerifyBadge label="Income" ok={!!p?.income_verified} />
                         <VerifyBadge label="References" ok={!!p?.reference_verified} />
                         <VerifyBadge label="Right to rent" ok={!!p?.right_to_rent_verified} />
@@ -369,6 +377,61 @@ function VerifyBadge({ label, ok }: { label: string; ok: boolean }) {
   );
 }
 
+function SelfCertifiedIdBadge({
+  country,
+  verifiedAt,
+}: {
+  country: string | null;
+  verifiedAt: string | null;
+}) {
+  const when = verifiedAt ? new Date(verifiedAt).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }) : null;
+  return (
+    <span
+      title={when ? `Self-certified on ${when}` : undefined}
+      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700"
+    >
+      <BadgeCheck className="h-3 w-3" strokeWidth={2.5} />
+      Self-Certified ID{country ? ` (${country})` : ""}
+    </span>
+  );
+}
+
+function ViewIdDocButton({ path }: { path: string }) {
+  const [loading, setLoading] = useState(false);
+  const onOpen = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.storage
+        .from("tenant-documents")
+        .createSignedUrl(path, 60);
+      if (error || !data?.signedUrl) throw error ?? new Error("No URL");
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      toast.error("Couldn't open document", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      disabled={loading}
+      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-60"
+    >
+      {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ExternalLink className="h-3 w-3" />}
+      View ID document
+    </button>
+  );
+}
+
 function StatusPill({ status }: { status: Status }) {
   if (status === "accepted") {
     return (
@@ -442,15 +505,41 @@ function PassportModal({
         </div>
 
         <div className="space-y-4 p-5">
-          <div className="grid grid-cols-2 gap-2">
-            <VerifyBadge label="Identity" ok={!!passport?.identity_verified} />
+          <div className="flex flex-wrap gap-2">
+            {passport?.id_status === "self_certified" ? (
+              <SelfCertifiedIdBadge country={passport.issuing_country} verifiedAt={passport.id_verified_at} />
+            ) : (
+              <VerifyBadge label="Identity" ok={!!passport?.identity_verified} />
+            )}
             <VerifyBadge label="Income" ok={!!passport?.income_verified} />
             <VerifyBadge label="References" ok={!!passport?.reference_verified} />
             <VerifyBadge label="Right to rent" ok={!!passport?.right_to_rent_verified} />
           </div>
 
+          {passport?.id_document_path ? (
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5">
+              <div className="min-w-0 text-xs text-emerald-800">
+                <p className="font-semibold">Identity document on file</p>
+                <p className="text-emerald-700/80">
+                  Self-certified by tenant · shared with this application
+                </p>
+              </div>
+              <ViewIdDocButton path={passport.id_document_path} />
+            </div>
+          ) : null}
+
           <dl className="divide-y divide-border rounded-2xl border border-border bg-surface-muted/50 text-sm">
             <Row k="Monthly net income" v={passport?.monthly_income_net ? `£${Number(passport.monthly_income_net).toLocaleString()}` : "—"} />
+            {passport?.id_verified_at ? (
+              <Row
+                k="ID verified"
+                v={new Date(passport.id_verified_at).toLocaleString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              />
+            ) : null}
             <Row k="Shared" v={timeAgo(share.shared_at)} />
           </dl>
         </div>
