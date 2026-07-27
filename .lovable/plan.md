@@ -1,48 +1,37 @@
-# Update project memory with core systems documentation
+## Current test accounts
 
-Add three feature-memory files so future sessions apply these rules automatically, plus update `mem://index.md` to reference them.
+Two accounts exist from previous testing:
 
-## Files to create
+| Account | Role | User ID |
+|---|---|---|
+| Scott Gibson (`gibsonscott005@gmail.com`) | tenant | `a287f3a2-d0b4-42e5-9b71-7cc330547f40` |
+| Patricia Gibson (`usgibsons2004@gmail.com`) | landlord | `90ab437a-68fa-48f5-b3e9-1d304a5c38f7` |
 
-### 1. `mem://features/notifications-ledger`
-Type: `feature`
-- Unified `notifications` table = polymorphic ledger for tenants + landlords.
-- Fanout is event-driven from TS mutations, not DB triggers. Client calls the `emitNotification` server function (`src/lib/notifications.functions.ts`) which invokes the `emit_notification` Postgres SECURITY DEFINER function.
-- `emit_notification` respects `notification_preferences` (`in_app_enabled`, `muted_types`) and self-sends are suppressed at the server-function layer.
-- Fixed enums (keep these in sync when adding events):
-  - `type`: `application_received | application_accepted | application_declined | lease_issued | lease_signed_by_tenant | lease_counter_signed | property_let_agreed | receipt_logged | receipt_confirmed | deposit_protected | deposit_deadline_approaching | inventory_submitted | inventory_approved | maintenance_reported | maintenance_updated | maintenance_resolved`
-  - `entity_type`: `passport_share | property_listing | tenancy_receipt | inventory_item | maintenance_ticket`
-- Realtime: single subscription lives in `NotificationsBell` (`src/components/notifications-bell.tsx`), scoped to `recipient_id=eq.${userId}`, cleaned up on unmount. Do not add competing per-page channels.
-- **How to apply:** every new milestone mutation (accept, sign, log receipt, resolve ticket, etc.) must call `emitNotification` for the counterparty with a working `link_path`. Add new `type` values in both the TS enum and any DB check before use.
+Associated data currently in the database:
+- 2 property listings, 2 passport shares, 2 tenant passports
+- 1 maintenance ticket, 12 inventory items, 7 notifications
+- 0 tenancy receipts, 0 verification audit logs
 
-### 2. `mem://features/maintenance-tickets`
-Type: `feature`
-- Table `maintenance_tickets` drives the tenant/landlord Maintenance tab in the Tenancy Workspaces.
-- Enums: `urgency` (low/medium/high/emergency) and `status` (open/acknowledged/in_progress/resolved). Photos live in the private `tenant-documents` bucket under `maintenance/<tenant_id>/…`.
-- Storage RLS: tenant reads own uploads; landlord read is gated by `Landlords view maintenance photos on their listings` policy (path must be referenced in a `maintenance_tickets` row on a listing they own).
-- UI split lives in `src/components/maintenance-panel.tsx` (`TenantMaintenanceTab` reports + uploads, `LandlordMaintenanceTab` acknowledges/resolves). Uses skeleton loaders + friendly empty states ("No active maintenance tickets — all clear!").
-- Every status change must fanout the corresponding notification (`maintenance_reported | maintenance_updated | maintenance_resolved`) to the counterparty via `emitNotification`.
-- **How to apply:** never bypass the panel components for maintenance UI; extend them. Never expose raw photo URLs — always mint 60s signed URLs (`SignedPhoto` component pattern with Refresh-link fallback).
+## Clean-slate deletion plan
 
-### 3. `mem://features/self-certified-passport`
-Type: `feature`
-- Roost does **not** perform background checks. All passport verification is tenant-self-certification. User-facing copy must say "Self-Certified", never "Verified by Roost". Include the disclaimer wherever verification is surfaced.
-- `tenant_passports` verification fields: `id_status` (enum incl. `self_certified`), `id_verified_at`, `issuing_country`, `id_document_path` (private storage), plus booleans `identity_verified`, `income_verified`, `reference_verified`, `right_to_rent_verified` (flipped true instantly on submission for this prototype).
-- Wizard (`src/routes/_authenticated/dashboard.passport.edit.tsx`): 3 steps — Identity & Right to Rent (with issuing-country selector), Income, References (branch: First-Time Renter guarantor vs Experienced Renter 3-year rule with optional 2nd landlord ref).
-- Every self-certification writes an immutable row to `verification_audit_logs` (append-only; RLS restricts reads).
-- Landlord ID document viewing: NEVER let the landlord browser client sign the URL directly — tenant-only RLS on `identity/`. Use the `signIdDocumentUrl` server fn (`src/lib/identity-docs.functions.ts`) which verifies landlord owns the listing referenced by the `passport_share`, then admin-signs a 60s URL.
-- Documents bucket `tenant-documents` is `public=false`; anon access fully blocked. iOS Safari PDF uploads must go via `arrayBuffer()` (streaming form uploads fail).
-- **How to apply:** any new passport field must persist via `.upsert({ user_id }, { onConflict: 'user_id' })` and be gated behind the auth-loading spinner in the wizard/dashboard to avoid remount data-loss.
+Wipe both users and all their associated data so you can re-run the full flow from scratch.
 
-## Index update
+1. **Delete storage objects** in the `tenant-documents` bucket under both users' folders (identity, income, references, maintenance photos).
+2. **Delete public-schema rows** in FK-safe order:
+   - `maintenance_tickets`, `tenancy_receipts`, `tenancy_inventory_items`
+   - `notifications`, `notification_preferences`, `verification_audit_logs`
+   - `passport_shares`, `tenant_passports`, `property_listings`
+   - `profiles`
+3. **Delete auth users** for both IDs via the admin API (this also cascades any remaining `auth.*` rows).
+4. **Verify** counts return zero across all tables and `auth.users` no longer contains either email.
 
-Replace `mem://index.md` Memories section with:
-- Notifications ledger — polymorphic table, event-driven fanout, single realtime channel in NotificationsBell
-- Maintenance tickets — table + panel components, storage RLS, notification fanout on status changes
-- Self-certified passport — wizard schema, audit logs, landlord ID viewing server fn, storage rules
+After this you'll have a clean canvas: sign up fresh tenant + landlord accounts at `/auth` and run the end-to-end flow (listing → apply → accept → issue lease → sign → counter-sign → tenancy workspace → maintenance).
 
-Core rules stay unchanged (already correct: Roost.ni brand, UK English, minimalist emerald palette, PostHog, zero-cost philosophy).
+### Options
 
-## Out of scope
+- **A. Delete both accounts** (fresh tenant + landlord signups).
+- **B. Delete only the tenant** (`gibsonscott005@gmail.com`) — keep the landlord + their listings so you can test applying from a brand new tenant against existing inventory.
+- **C. Delete only the landlord** (`usgibsons2004@gmail.com`).
+- **D. Keep both, just wipe transactional data** (listings, shares, tickets, receipts, inventory, notifications) so the accounts remain but the workspace is empty.
 
-No code or schema changes — memory files only.
+Which option do you want? Default recommendation: **A** for a truly clean trial.
