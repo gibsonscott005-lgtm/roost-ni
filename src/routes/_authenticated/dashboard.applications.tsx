@@ -105,7 +105,7 @@ function ApplicationsPage() {
         const { data: p } = await supabase
           .from("tenant_passports")
           .select(
-            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, annual_income, employment_status, income_document_path, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
+            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, annual_income, employment_status, income_document_path, income_breakdown, willing_direct_payment_apa, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
           )
           .in("user_id", tenantIds);
         ((p as Passport[] | null) ?? []).forEach((row) => {
