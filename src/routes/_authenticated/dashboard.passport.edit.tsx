@@ -864,7 +864,7 @@ function IncomeStep({
             employment_status: status,
             annual_income: totalAnnual,
             monthly_income_net: Math.round((totalAnnual / 12) * 100) / 100,
-            income_breakdown: breakdown,
+            income_breakdown: breakdown as unknown as Record<string, number>,
             willing_direct_payment_apa: apa,
             income_document_path: path,
             income_verified: true,
