@@ -56,6 +56,14 @@ interface Passport {
   annual_income: number | null;
   employment_status: string | null;
   income_document_path: string | null;
+  income_breakdown: {
+    employment_gross_annual?: number;
+    universal_credit_annual?: number;
+    housing_element_annual?: number;
+    disability_benefits_annual?: number;
+    other_benefits_annual?: number;
+  } | null;
+  willing_direct_payment_apa: boolean | null;
   preferred_heating: string | null;
   accept_empty_in_full_out: boolean;
   id_status: string | null;
