@@ -48,6 +48,22 @@ function describeDbError(err: unknown, fallback = "Please try again.") {
 
 type StepKey = "identity" | "income" | "references";
 
+interface IncomeBreakdown {
+  employment_gross_annual: number;
+  universal_credit_annual: number;
+  housing_element_annual: number;
+  disability_benefits_annual: number;
+  other_benefits_annual: number;
+}
+
+const EMPTY_BREAKDOWN: IncomeBreakdown = {
+  employment_gross_annual: 0,
+  universal_credit_annual: 0,
+  housing_element_annual: 0,
+  disability_benefits_annual: 0,
+  other_benefits_annual: 0,
+};
+
 interface Passport {
   user_id: string;
   identity_verified: boolean;
