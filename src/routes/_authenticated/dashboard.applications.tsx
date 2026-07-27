@@ -685,7 +685,17 @@ function PassportModal({
             <VerifyBadge label="Income" ok={!!passport?.income_verified} />
             <VerifyBadge label="References" ok={!!passport?.reference_verified} />
             <VerifyBadge label="Right to rent" ok={!!passport?.right_to_rent_verified} />
+            <AffordabilityBadge
+              annualIncome={passport?.annual_income ?? null}
+              monthlyRent={share.listing?.monthly_rent ?? null}
+            />
           </div>
+
+          <IncomeSummaryRow
+            shareId={share.id}
+            employmentStatus={passport?.employment_status ?? null}
+            hasIncomeDoc={!!passport?.income_document_path}
+          />
 
           {passport?.id_document_path ? (
             <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5">
