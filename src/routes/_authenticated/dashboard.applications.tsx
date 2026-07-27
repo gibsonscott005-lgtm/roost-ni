@@ -314,9 +314,10 @@ function ApplicationsPage() {
                           {verifiedCount}/4
                         </span>
                         <AffordabilityBadge
-                          annualIncome={p?.annual_income ?? null}
+                          passport={p ?? null}
                           monthlyRent={s.listing?.monthly_rent ?? null}
                         />
+                        {p?.willing_direct_payment_apa ? <ApaPill /> : null}
                       </div>
                       <IncomeSummaryRow
                         shareId={s.id}
