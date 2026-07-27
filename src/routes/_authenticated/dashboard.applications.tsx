@@ -3,12 +3,12 @@ import { z } from "zod";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BadgeCheck, Check, Clock, ExternalLink, Inbox, Loader2, RefreshCw, ShieldCheck, X } from "lucide-react";
+import { BadgeCheck, Briefcase, Check, Clock, ExternalLink, Inbox, Loader2, RefreshCw, ShieldCheck, TrendingUp, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification, type EmitNotificationInput } from "@/lib/notifications.functions";
-import { signIdDocumentUrl } from "@/lib/identity-docs.functions";
+import { signIdDocumentUrl, signIncomeDocumentUrl } from "@/lib/identity-docs.functions";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function notify(payload: EmitNotificationInput) {
@@ -43,7 +43,7 @@ interface Share {
   lease_signed_at: string | null;
   lease_signed_name: string | null;
   tenant: { id: string; full_name: string } | null;
-  listing: { id: string; title: string } | null;
+  listing: { id: string; title: string; monthly_rent: number | null } | null;
 }
 
 interface Passport {
@@ -53,6 +53,9 @@ interface Passport {
   reference_verified: boolean;
   right_to_rent_verified: boolean;
   monthly_income_net: number | null;
+  annual_income: number | null;
+  employment_status: string | null;
+  income_document_path: string | null;
   preferred_heating: string | null;
   accept_empty_in_full_out: boolean;
   id_status: string | null;
@@ -77,7 +80,7 @@ function ApplicationsPage() {
       const { data: rows, error: rowsErr } = await supabase
         .from("passport_shares")
         .select(
-          "id, status, shared_at, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title)",
+          "id, status, shared_at, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title, monthly_rent)",
         )
         .order("shared_at", { ascending: false });
       if (rowsErr) throw rowsErr;
@@ -94,7 +97,7 @@ function ApplicationsPage() {
         const { data: p } = await supabase
           .from("tenant_passports")
           .select(
-            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
+            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, annual_income, employment_status, income_document_path, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
           )
           .in("user_id", tenantIds);
         ((p as Passport[] | null) ?? []).forEach((row) => {
