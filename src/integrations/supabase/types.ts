@@ -427,6 +427,7 @@ export type Database = {
           tenancy_start_date_2: string | null
           updated_at: string
           user_id: string
+          willing_direct_payment_apa: boolean
         }
         Insert: {
           accept_empty_in_full_out?: boolean
@@ -471,6 +472,7 @@ export type Database = {
           tenancy_start_date_2?: string | null
           updated_at?: string
           user_id: string
+          willing_direct_payment_apa?: boolean
         }
         Update: {
           accept_empty_in_full_out?: boolean
@@ -515,6 +517,7 @@ export type Database = {
           tenancy_start_date_2?: string | null
           updated_at?: string
           user_id?: string
+          willing_direct_payment_apa?: boolean
         }
         Relationships: []
       }

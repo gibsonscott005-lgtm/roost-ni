@@ -48,6 +48,22 @@ function describeDbError(err: unknown, fallback = "Please try again.") {
 
 type StepKey = "identity" | "income" | "references";
 
+interface IncomeBreakdown {
+  employment_gross_annual: number;
+  universal_credit_annual: number;
+  housing_element_annual: number;
+  disability_benefits_annual: number;
+  other_benefits_annual: number;
+}
+
+const EMPTY_BREAKDOWN: IncomeBreakdown = {
+  employment_gross_annual: 0,
+  universal_credit_annual: 0,
+  housing_element_annual: 0,
+  disability_benefits_annual: 0,
+  other_benefits_annual: 0,
+};
+
 interface Passport {
   user_id: string;
   identity_verified: boolean;
@@ -65,6 +81,8 @@ interface Passport {
   employment_status: string | null;
   annual_income: number | null;
   income_document_path: string | null;
+  income_breakdown: IncomeBreakdown | null;
+  willing_direct_payment_apa: boolean | null;
   previous_landlord_name: string | null;
   previous_landlord_email: string | null;
   previous_landlord_phone: string | null;
@@ -787,18 +805,47 @@ function IncomeStep({
 }) {
   const { user } = useAuth();
   const [status, setStatus] = useState(passport.employment_status ?? "permanent_full_time");
-  const [annual, setAnnual] = useState(
-    passport.annual_income ? String(passport.annual_income) : "",
-  );
+  const initialBd: IncomeBreakdown = {
+    ...EMPTY_BREAKDOWN,
+    ...(passport.income_breakdown ?? {}),
+  };
+  const [employment, setEmployment] = useState(String(initialBd.employment_gross_annual || ""));
+  const [uc, setUc] = useState(String(initialBd.universal_credit_annual || ""));
+  const [housing, setHousing] = useState(String(initialBd.housing_element_annual || ""));
+  const [disability, setDisability] = useState(String(initialBd.disability_benefits_annual || ""));
+  const [otherBen, setOtherBen] = useState(String(initialBd.other_benefits_annual || ""));
+  const [apa, setApa] = useState<boolean>(!!passport.willing_direct_payment_apa);
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const num = (v: string) => {
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  };
+  const breakdown: IncomeBreakdown = {
+    employment_gross_annual: num(employment),
+    universal_credit_annual: num(uc),
+    housing_element_annual: num(housing),
+    disability_benefits_annual: num(disability),
+    other_benefits_annual: num(otherBen),
+  };
+  const totalAnnual =
+    breakdown.employment_gross_annual +
+    breakdown.universal_credit_annual +
+    breakdown.housing_element_annual +
+    breakdown.disability_benefits_annual +
+    breakdown.other_benefits_annual;
+  const benefitsTotal =
+    breakdown.universal_credit_annual +
+    breakdown.housing_element_annual +
+    breakdown.disability_benefits_annual +
+    breakdown.other_benefits_annual;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || saving) return;
-    const annualNum = Number(annual);
-    if (!annualNum || annualNum <= 0) {
-      toast.error("Enter your annual income");
+    if (totalAnnual <= 0) {
+      toast.error("Enter at least one income source");
       return;
     }
     if (!file && !passport.income_document_path) {
@@ -815,8 +862,10 @@ function IncomeStep({
           {
             user_id: user.id,
             employment_status: status,
-            annual_income: annualNum,
-            monthly_income_net: Math.round((annualNum / 12) * 100) / 100,
+            annual_income: totalAnnual,
+            monthly_income_net: Math.round((totalAnnual / 12) * 100) / 100,
+            income_breakdown: breakdown as unknown as Record<string, number>,
+            willing_direct_payment_apa: apa,
             income_document_path: path,
             income_verified: true,
           },
@@ -842,34 +891,97 @@ function IncomeStep({
         icon={Banknote}
         eyebrow="Step 02"
         title="Income verification"
-        desc="Tell us about your employment and upload a recent payslip or tax summary."
+        desc="Break down each income source. Benefits (Universal Credit, Housing Element, PIP, etc.) are counted separately so landlords see your full affordability picture."
       >
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Employment status">
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className={inputCx}
-            >
-              <option value="permanent_full_time">Permanent · Full-time</option>
-              <option value="permanent_part_time">Permanent · Part-time</option>
-              <option value="self_employed">Self-employed</option>
-              <option value="contract">Contract</option>
-              <option value="student">Student</option>
-              <option value="retired">Retired</option>
-            </select>
-          </Field>
-          <Field label="Annual income (£, gross)">
-            <input
-              required
-              inputMode="numeric"
-              value={annual}
-              onChange={(e) => setAnnual(e.target.value.replace(/[^0-9.]/g, ""))}
-              placeholder="34000"
-              className={inputCx}
+        <Field label="Employment status">
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className={inputCx}
+          >
+            <option value="permanent_full_time">Permanent · Full-time</option>
+            <option value="permanent_part_time">Permanent · Part-time</option>
+            <option value="self_employed">Self-employed</option>
+            <option value="contract">Contract</option>
+            <option value="student">Student</option>
+            <option value="retired">Retired</option>
+            <option value="unemployed">Not currently employed</option>
+          </select>
+        </Field>
+
+        <div className="mt-4 rounded-2xl border border-border bg-surface-muted/40 p-4">
+          <p className="font-display text-sm font-semibold tracking-tight text-foreground">
+            Annual income breakdown
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Enter yearly amounts (£). Leave blank or 0 for anything that doesn't apply.
+          </p>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <CurrencyField
+              label="Gross salary / self-employment"
+              hint="Before tax, from employment or trading"
+              value={employment}
+              onChange={setEmployment}
+              placeholder="24000"
             />
-          </Field>
+            <CurrencyField
+              label="Universal Credit (standard allowance)"
+              hint="Excluding housing element"
+              value={uc}
+              onChange={setUc}
+              placeholder="4200"
+            />
+            <CurrencyField
+              label="Housing Element"
+              hint="LHA / housing costs portion of UC"
+              value={housing}
+              onChange={setHousing}
+              placeholder="7200"
+            />
+            <CurrencyField
+              label="Disability benefits"
+              hint="PIP, DLA, Carer's Allowance"
+              value={disability}
+              onChange={setDisability}
+              placeholder="0"
+            />
+            <CurrencyField
+              label="Other benefits"
+              hint="Child Benefit, Tax Credits, etc."
+              value={otherBen}
+              onChange={setOtherBen}
+              placeholder="0"
+            />
+          </div>
+          <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs">
+            <span className="font-semibold uppercase tracking-wider text-emerald-700">
+              Total annual income
+            </span>
+            <span className="font-display text-base font-semibold tracking-tight text-emerald-800">
+              £{totalAnnual.toLocaleString()}
+            </span>
+          </div>
         </div>
+
+        {benefitsTotal > 0 ? (
+          <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface px-3.5 py-3">
+            <input
+              type="checkbox"
+              checked={apa}
+              onChange={(e) => setApa(e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-emerald-600"
+            />
+            <span className="min-w-0">
+              <span className="block font-display text-sm font-semibold tracking-tight text-foreground">
+                Willing to set up Direct Payment (APA) to landlord
+              </span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                Your Housing Element would be paid direct to the landlord under an Alternative Payment Arrangement — many landlords see this as a strong affordability signal.
+              </span>
+            </span>
+          </label>
+        ) : null}
+
         <FileDrop
           label="Recent payslip or HMRC tax summary"
           currentPath={passport.income_document_path}
@@ -879,6 +991,37 @@ function IncomeStep({
         <StepActions onBack={onBack} saving={saving} submitLabel="Save & continue" />
       </StepCard>
     </form>
+  );
+}
+
+function CurrencyField({
+  label,
+  hint,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="text-xs font-medium text-foreground">{label}</span>
+      {hint ? <span className="mt-0.5 block text-[11px] text-muted-foreground">{hint}</span> : null}
+      <div className="mt-1.5 relative">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">£</span>
+        <input
+          inputMode="numeric"
+          value={value}
+          onChange={(e) => onChange(e.target.value.replace(/[^0-9.]/g, ""))}
+          placeholder={placeholder}
+          className={`${inputCx} pl-7`}
+        />
+      </div>
+    </label>
   );
 }
 

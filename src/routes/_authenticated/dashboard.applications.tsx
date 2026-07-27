@@ -56,6 +56,14 @@ interface Passport {
   annual_income: number | null;
   employment_status: string | null;
   income_document_path: string | null;
+  income_breakdown: {
+    employment_gross_annual?: number;
+    universal_credit_annual?: number;
+    housing_element_annual?: number;
+    disability_benefits_annual?: number;
+    other_benefits_annual?: number;
+  } | null;
+  willing_direct_payment_apa: boolean | null;
   preferred_heating: string | null;
   accept_empty_in_full_out: boolean;
   id_status: string | null;
@@ -97,7 +105,7 @@ function ApplicationsPage() {
         const { data: p } = await supabase
           .from("tenant_passports")
           .select(
-            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, annual_income, employment_status, income_document_path, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
+            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, annual_income, employment_status, income_document_path, income_breakdown, willing_direct_payment_apa, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
           )
           .in("user_id", tenantIds);
         ((p as Passport[] | null) ?? []).forEach((row) => {
@@ -306,9 +314,10 @@ function ApplicationsPage() {
                           {verifiedCount}/4
                         </span>
                         <AffordabilityBadge
-                          annualIncome={p?.annual_income ?? null}
+                          passport={p ?? null}
                           monthlyRent={s.listing?.monthly_rent ?? null}
                         />
+                        {p?.willing_direct_payment_apa ? <ApaPill /> : null}
                       </div>
                       <IncomeSummaryRow
                         shareId={s.id}
@@ -447,35 +456,130 @@ function formatEmployment(status: string | null): string {
   return map[status] ?? status;
 }
 
+function computeAffordability(
+  passport: Passport | null | undefined,
+  monthlyRent: number | null | undefined,
+): {
+  employment: number;
+  benefits: number;
+  effectiveCapacity: number;
+  ratio: number;
+  annualRent: number;
+} | null {
+  if (!passport || !monthlyRent || monthlyRent <= 0) return null;
+  const bd = passport.income_breakdown ?? null;
+  const employment = Number(bd?.employment_gross_annual ?? 0) || 0;
+  const benefits =
+    (Number(bd?.universal_credit_annual ?? 0) || 0) +
+    (Number(bd?.housing_element_annual ?? 0) || 0) +
+    (Number(bd?.disability_benefits_annual ?? 0) || 0) +
+    (Number(bd?.other_benefits_annual ?? 0) || 0);
+  let effective = employment + benefits * 1.25;
+  if (effective <= 0 && passport.annual_income) {
+    // Fallback for legacy passports without a breakdown.
+    effective = Number(passport.annual_income) || 0;
+  }
+  if (effective <= 0) return null;
+  const annualRent = monthlyRent * 12;
+  return {
+    employment,
+    benefits,
+    effectiveCapacity: effective,
+    ratio: effective / annualRent,
+    annualRent,
+  };
+}
+
 function AffordabilityBadge({
-  annualIncome,
+  passport,
   monthlyRent,
 }: {
-  annualIncome: number | null;
-  monthlyRent: number | null;
+  passport: Passport | null | undefined;
+  monthlyRent: number | null | undefined;
 }) {
-  if (!annualIncome || !monthlyRent || monthlyRent <= 0) return null;
-  const ratio = annualIncome / (monthlyRent * 12);
-  const rounded = Math.round(ratio * 10) / 10;
-  if (ratio >= 1) {
+  const result = computeAffordability(passport, monthlyRent);
+  if (!result) return null;
+  const rounded = Math.round(result.ratio * 10) / 10;
+  const tooltip = `Effective annual capacity £${Math.round(result.effectiveCapacity).toLocaleString()} vs £${result.annualRent.toLocaleString()} annual rent (benefits weighted 1.25×)`;
+  if (result.ratio >= 1) {
     return (
       <span
-        title={`Annual income £${annualIncome.toLocaleString()} vs £${(monthlyRent * 12).toLocaleString()} annual rent`}
+        title={tooltip}
         className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700"
       >
         <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
-        Affordability: Covered ({rounded}x Rent)
+        Affordability: Covered ({rounded.toFixed(1)}x)
       </span>
     );
   }
   return (
     <span
-      title={`Annual income £${annualIncome.toLocaleString()} vs £${(monthlyRent * 12).toLocaleString()} annual rent`}
+      title={tooltip}
       className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800"
     >
       <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
-      Affordability: Guarantor Recommended ({rounded}x)
+      Affordability: Guarantor Recommended ({rounded.toFixed(1)}x)
     </span>
+  );
+}
+
+function ApaPill() {
+  return (
+    <span
+      title="Tenant is willing to have Housing Element paid directly to the landlord (Alternative Payment Arrangement)."
+      className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-sky-700"
+    >
+      <BadgeCheck className="h-3 w-3" strokeWidth={2.5} />
+      Direct Payment (APA) Offered
+    </span>
+  );
+}
+
+function IncomeBreakdownBlock({
+  passport,
+  monthlyRent,
+}: {
+  passport: Passport | null;
+  monthlyRent: number | null | undefined;
+}) {
+  const result = computeAffordability(passport, monthlyRent);
+  if (!passport || !result) return null;
+  const bd = passport.income_breakdown ?? {};
+  const rows: Array<{ label: string; amount: number }> = [
+    { label: "Salary / self-employment", amount: result.employment },
+    { label: "Universal Credit", amount: Number(bd.universal_credit_annual ?? 0) || 0 },
+    { label: "Housing Element", amount: Number(bd.housing_element_annual ?? 0) || 0 },
+    { label: "Disability benefits", amount: Number(bd.disability_benefits_annual ?? 0) || 0 },
+    { label: "Other benefits", amount: Number(bd.other_benefits_annual ?? 0) || 0 },
+  ].filter((r) => r.amount > 0);
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-3.5">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Income breakdown
+      </p>
+      <ul className="mt-2 divide-y divide-border text-sm">
+        {rows.map((r) => (
+          <li key={r.label} className="flex items-center justify-between gap-3 py-1.5">
+            <span className="text-foreground/80">{r.label}</span>
+            <span className="font-medium text-foreground">£{Math.round(r.amount).toLocaleString()}/yr</span>
+          </li>
+        ))}
+      </ul>
+      {result.benefits > 0 ? (
+        <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-surface-muted/60 px-2.5 py-1.5 text-[11px] text-muted-foreground">
+          <span>Benefits (tax-free) subtotal</span>
+          <span className="font-medium text-foreground">£{Math.round(result.benefits).toLocaleString()}/yr</span>
+        </div>
+      ) : null}
+      <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs">
+        <span className="font-semibold uppercase tracking-wider text-emerald-700">
+          Effective capacity (1.25× benefits)
+        </span>
+        <span className="font-display text-sm font-semibold tracking-tight text-emerald-800">
+          £{Math.round(result.effectiveCapacity).toLocaleString()}/yr
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -686,9 +790,10 @@ function PassportModal({
             <VerifyBadge label="References" ok={!!passport?.reference_verified} />
             <VerifyBadge label="Right to rent" ok={!!passport?.right_to_rent_verified} />
             <AffordabilityBadge
-              annualIncome={passport?.annual_income ?? null}
+              passport={passport}
               monthlyRent={share.listing?.monthly_rent ?? null}
             />
+            {passport?.willing_direct_payment_apa ? <ApaPill /> : null}
           </div>
 
           <IncomeSummaryRow
@@ -696,6 +801,8 @@ function PassportModal({
             employmentStatus={passport?.employment_status ?? null}
             hasIncomeDoc={!!passport?.income_document_path}
           />
+
+          <IncomeBreakdownBlock passport={passport} monthlyRent={share.listing?.monthly_rent ?? null} />
 
           {passport?.id_document_path ? (
             <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5">
