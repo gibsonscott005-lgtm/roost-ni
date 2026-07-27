@@ -434,6 +434,129 @@ function SelfCertifiedIdBadge({
   );
 }
 
+function formatEmployment(status: string | null): string {
+  if (!status) return "Not provided";
+  const map: Record<string, string> = {
+    permanent_full_time: "Permanent · Full-time",
+    permanent_part_time: "Permanent · Part-time",
+    self_employed: "Self-employed",
+    contract: "Contract",
+    student: "Student",
+    retired: "Retired",
+  };
+  return map[status] ?? status;
+}
+
+function AffordabilityBadge({
+  annualIncome,
+  monthlyRent,
+}: {
+  annualIncome: number | null;
+  monthlyRent: number | null;
+}) {
+  if (!annualIncome || !monthlyRent || monthlyRent <= 0) return null;
+  const ratio = annualIncome / (monthlyRent * 12);
+  const rounded = Math.round(ratio * 10) / 10;
+  if (ratio >= 1) {
+    return (
+      <span
+        title={`Annual income £${annualIncome.toLocaleString()} vs £${(monthlyRent * 12).toLocaleString()} annual rent`}
+        className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700"
+      >
+        <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
+        Affordability: Covered ({rounded}x Rent)
+      </span>
+    );
+  }
+  return (
+    <span
+      title={`Annual income £${annualIncome.toLocaleString()} vs £${(monthlyRent * 12).toLocaleString()} annual rent`}
+      className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800"
+    >
+      <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
+      Affordability: Guarantor Recommended ({rounded}x)
+    </span>
+  );
+}
+
+function IncomeSummaryRow({
+  shareId,
+  employmentStatus,
+  hasIncomeDoc,
+}: {
+  shareId: string;
+  employmentStatus: string | null;
+  hasIncomeDoc: boolean;
+}) {
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+      <span className="inline-flex items-center gap-1">
+        <Briefcase className="h-3 w-3" />
+        <span className="text-foreground/90 font-medium">{formatEmployment(employmentStatus)}</span>
+      </span>
+      <span aria-hidden className="text-border">·</span>
+      <span>Employer: <span className="text-foreground/80">Self-reported</span></span>
+      {hasIncomeDoc ? (
+        <>
+          <span aria-hidden className="text-border">·</span>
+          <ViewIncomeDocButton shareId={shareId} />
+        </>
+      ) : (
+        <>
+          <span aria-hidden className="text-border">·</span>
+          <span className="italic">No income document on file</span>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ViewIncomeDocButton({ shareId }: { shareId: string }) {
+  const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const onOpen = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const { url } = await signIncomeDocumentUrl({ data: { share_id: shareId } });
+      if (!url) throw new Error("No URL");
+      window.open(url, "_blank", "noopener,noreferrer");
+      setFailed(false);
+    } catch (err) {
+      setFailed(true);
+      toast.error("Couldn't open income document", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  if (failed) {
+    return (
+      <button
+        type="button"
+        onClick={onOpen}
+        disabled={loading}
+        className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-800 transition hover:bg-amber-100 disabled:opacity-60"
+      >
+        {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+        Refresh income link
+      </button>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      disabled={loading}
+      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-60"
+    >
+      {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ExternalLink className="h-3 w-3" />}
+      View income document
+    </button>
+  );
+}
+
 function ViewIdDocButton({ shareId }: { shareId: string }) {
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
