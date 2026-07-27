@@ -3,12 +3,12 @@ import { z } from "zod";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BadgeCheck, Check, Clock, ExternalLink, Inbox, Loader2, RefreshCw, ShieldCheck, X } from "lucide-react";
+import { BadgeCheck, Briefcase, Check, Clock, ExternalLink, Inbox, Loader2, RefreshCw, ShieldCheck, TrendingUp, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification, type EmitNotificationInput } from "@/lib/notifications.functions";
-import { signIdDocumentUrl } from "@/lib/identity-docs.functions";
+import { signIdDocumentUrl, signIncomeDocumentUrl } from "@/lib/identity-docs.functions";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function notify(payload: EmitNotificationInput) {
@@ -43,7 +43,7 @@ interface Share {
   lease_signed_at: string | null;
   lease_signed_name: string | null;
   tenant: { id: string; full_name: string } | null;
-  listing: { id: string; title: string } | null;
+  listing: { id: string; title: string; monthly_rent: number | null } | null;
 }
 
 interface Passport {
@@ -53,6 +53,9 @@ interface Passport {
   reference_verified: boolean;
   right_to_rent_verified: boolean;
   monthly_income_net: number | null;
+  annual_income: number | null;
+  employment_status: string | null;
+  income_document_path: string | null;
   preferred_heating: string | null;
   accept_empty_in_full_out: boolean;
   id_status: string | null;
@@ -77,7 +80,7 @@ function ApplicationsPage() {
       const { data: rows, error: rowsErr } = await supabase
         .from("passport_shares")
         .select(
-          "id, status, shared_at, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title)",
+          "id, status, shared_at, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title, monthly_rent)",
         )
         .order("shared_at", { ascending: false });
       if (rowsErr) throw rowsErr;
@@ -94,7 +97,7 @@ function ApplicationsPage() {
         const { data: p } = await supabase
           .from("tenant_passports")
           .select(
-            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
+            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, annual_income, employment_status, income_document_path, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
           )
           .in("user_id", tenantIds);
         ((p as Passport[] | null) ?? []).forEach((row) => {
@@ -302,7 +305,16 @@ function ApplicationsPage() {
                         <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                           {verifiedCount}/4
                         </span>
+                        <AffordabilityBadge
+                          annualIncome={p?.annual_income ?? null}
+                          monthlyRent={s.listing?.monthly_rent ?? null}
+                        />
                       </div>
+                      <IncomeSummaryRow
+                        shareId={s.id}
+                        employmentStatus={p?.employment_status ?? null}
+                        hasIncomeDoc={!!p?.income_document_path}
+                      />
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <StatusPill status={s.status} />
@@ -419,6 +431,129 @@ function SelfCertifiedIdBadge({
       <BadgeCheck className="h-3 w-3" strokeWidth={2.5} />
       Self-Certified ID{country ? ` (${country})` : ""}
     </span>
+  );
+}
+
+function formatEmployment(status: string | null): string {
+  if (!status) return "Not provided";
+  const map: Record<string, string> = {
+    permanent_full_time: "Permanent · Full-time",
+    permanent_part_time: "Permanent · Part-time",
+    self_employed: "Self-employed",
+    contract: "Contract",
+    student: "Student",
+    retired: "Retired",
+  };
+  return map[status] ?? status;
+}
+
+function AffordabilityBadge({
+  annualIncome,
+  monthlyRent,
+}: {
+  annualIncome: number | null;
+  monthlyRent: number | null;
+}) {
+  if (!annualIncome || !monthlyRent || monthlyRent <= 0) return null;
+  const ratio = annualIncome / (monthlyRent * 12);
+  const rounded = Math.round(ratio * 10) / 10;
+  if (ratio >= 1) {
+    return (
+      <span
+        title={`Annual income £${annualIncome.toLocaleString()} vs £${(monthlyRent * 12).toLocaleString()} annual rent`}
+        className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700"
+      >
+        <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
+        Affordability: Covered ({rounded}x Rent)
+      </span>
+    );
+  }
+  return (
+    <span
+      title={`Annual income £${annualIncome.toLocaleString()} vs £${(monthlyRent * 12).toLocaleString()} annual rent`}
+      className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800"
+    >
+      <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
+      Affordability: Guarantor Recommended ({rounded}x)
+    </span>
+  );
+}
+
+function IncomeSummaryRow({
+  shareId,
+  employmentStatus,
+  hasIncomeDoc,
+}: {
+  shareId: string;
+  employmentStatus: string | null;
+  hasIncomeDoc: boolean;
+}) {
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+      <span className="inline-flex items-center gap-1">
+        <Briefcase className="h-3 w-3" />
+        <span className="text-foreground/90 font-medium">{formatEmployment(employmentStatus)}</span>
+      </span>
+      <span aria-hidden className="text-border">·</span>
+      <span>Employer: <span className="text-foreground/80">Self-reported</span></span>
+      {hasIncomeDoc ? (
+        <>
+          <span aria-hidden className="text-border">·</span>
+          <ViewIncomeDocButton shareId={shareId} />
+        </>
+      ) : (
+        <>
+          <span aria-hidden className="text-border">·</span>
+          <span className="italic">No income document on file</span>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ViewIncomeDocButton({ shareId }: { shareId: string }) {
+  const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const onOpen = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const { url } = await signIncomeDocumentUrl({ data: { share_id: shareId } });
+      if (!url) throw new Error("No URL");
+      window.open(url, "_blank", "noopener,noreferrer");
+      setFailed(false);
+    } catch (err) {
+      setFailed(true);
+      toast.error("Couldn't open income document", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  if (failed) {
+    return (
+      <button
+        type="button"
+        onClick={onOpen}
+        disabled={loading}
+        className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[11px] font-medium text-amber-800 transition hover:bg-amber-100 disabled:opacity-60"
+      >
+        {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+        Refresh income link
+      </button>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      disabled={loading}
+      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-60"
+    >
+      {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ExternalLink className="h-3 w-3" />}
+      View income document
+    </button>
   );
 }
 
@@ -550,7 +685,17 @@ function PassportModal({
             <VerifyBadge label="Income" ok={!!passport?.income_verified} />
             <VerifyBadge label="References" ok={!!passport?.reference_verified} />
             <VerifyBadge label="Right to rent" ok={!!passport?.right_to_rent_verified} />
+            <AffordabilityBadge
+              annualIncome={passport?.annual_income ?? null}
+              monthlyRent={share.listing?.monthly_rent ?? null}
+            />
           </div>
+
+          <IncomeSummaryRow
+            shareId={share.id}
+            employmentStatus={passport?.employment_status ?? null}
+            hasIncomeDoc={!!passport?.income_document_path}
+          />
 
           {passport?.id_document_path ? (
             <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5">
