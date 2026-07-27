@@ -500,8 +500,8 @@ function AffordabilityBadge({
   const result = computeAffordability(passport, monthlyRent);
   if (!result) return null;
   const rounded = Math.round(result.ratio * 10) / 10;
-  const tooltip = `Effective annual capacity £${Math.round(result.effectiveCapacity).toLocaleString()} vs £${result.annualRent.toLocaleString()} annual rent (benefits weighted 1.25×)`;
-  if (result.ratio >= 1) {
+  const tooltip = `Effective annual capacity £${Math.round(result.effectiveCapacity).toLocaleString()} vs £${result.annualRent.toLocaleString()} annual rent (benefits weighted 1.25×). Covered threshold: 2.5× annual rent (30× monthly).`;
+  if (result.ratio >= 2.5) {
     return (
       <span
         title={tooltip}
