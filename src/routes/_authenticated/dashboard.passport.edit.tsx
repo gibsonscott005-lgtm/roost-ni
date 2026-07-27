@@ -65,6 +65,8 @@ interface Passport {
   employment_status: string | null;
   annual_income: number | null;
   income_document_path: string | null;
+  income_breakdown: IncomeBreakdown | null;
+  willing_direct_payment_apa: boolean | null;
   previous_landlord_name: string | null;
   previous_landlord_email: string | null;
   previous_landlord_phone: string | null;
