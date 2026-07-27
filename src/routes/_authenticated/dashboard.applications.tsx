@@ -305,7 +305,16 @@ function ApplicationsPage() {
                         <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                           {verifiedCount}/4
                         </span>
+                        <AffordabilityBadge
+                          annualIncome={p?.annual_income ?? null}
+                          monthlyRent={s.listing?.monthly_rent ?? null}
+                        />
                       </div>
+                      <IncomeSummaryRow
+                        shareId={s.id}
+                        employmentStatus={p?.employment_status ?? null}
+                        hasIncomeDoc={!!p?.income_document_path}
+                      />
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <StatusPill status={s.status} />
