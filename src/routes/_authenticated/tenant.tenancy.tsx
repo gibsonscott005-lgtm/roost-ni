@@ -20,6 +20,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification } from "@/lib/notifications.functions";
+import { leaseDocumentHtml, openPrintable, tenancyInfoNoticeHtml } from "@/lib/tenancy-docs";
+import {
+  arrearsSummary,
+  buildRentSchedule,
+  RENT_STATE_LABEL,
+  rentStateClasses,
+} from "@/lib/rent-schedule";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TenantMaintenanceTab } from "@/components/maintenance-panel";
 
@@ -52,15 +59,21 @@ interface ShareRow {
   lease_status: string | null;
   lease_signed_at: string | null;
   lease_sent_at: string | null;
+  lease_signed_name: string | null;
+  lease_oil_clause: boolean | null;
+  lease_kind: string | null;
+  lease_document_path: string | null;
   deposit_status: FundStatus;
   rent_status: FundStatus;
   deposit_payment_method: PaymentMethod | null;
   rent_payment_method: PaymentMethod | null;
   deposit_scheme: string | null;
   deposit_cert_number: string | null;
+  deposit_cert_path: string | null;
   deposit_protected_at: string | null;
   oil_handover_level: OilLevel | null;
   inventory_completed_at: string | null;
+  tenancy_start_date: string | null;
   listing: {
     id: string;
     landlord_id: string;
@@ -71,6 +84,7 @@ interface ShareRow {
     deposit: number | null;
     heating_type: string | null;
     enforce_empty_in_full_out: boolean | null;
+    ni_landlord_reg_number?: string | null;
   } | null;
 }
 
@@ -82,6 +96,8 @@ interface ReceiptRow {
   method: string;
   statutory_cash: boolean;
   issued_at: string;
+  due_date?: string | null;
+  period_label?: string | null;
 }
 
 interface InventoryRow {
@@ -142,7 +158,7 @@ function TenantTenancyPage() {
       const { data: share, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_sent_at, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_protected_at, oil_handover_level, inventory_completed_at, listing:property_listings!listing_id(id, landlord_id, title, address, location, monthly_rent, deposit, heating_type, enforce_empty_in_full_out)",
+          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_sent_at, lease_signed_name, lease_oil_clause, lease_kind, lease_document_path, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_cert_path, deposit_protected_at, oil_handover_level, inventory_completed_at, tenancy_start_date, listing:property_listings!listing_id(id, landlord_id, title, address, location, monthly_rent, deposit, heating_type, enforce_empty_in_full_out, ni_landlord_reg_number)",
         )
         .eq("id", shareId!)
         .maybeSingle();
@@ -237,6 +253,50 @@ function TenantTenancyPage() {
   };
 
   // Deposit 28-day countdown from lease signed (or sent)
+  const schedule = useMemo(
+    () =>
+      buildRentSchedule({
+        startDate: share?.tenancy_start_date ?? null,
+        monthlyRent: rent,
+        receipts,
+      }),
+    [share?.tenancy_start_date, rent, receipts],
+  );
+  const arrears = useMemo(() => arrearsSummary(schedule), [schedule]);
+
+  const notifyRentSent = (periodLabel: string, amount: number) => {
+    const landlordId = share?.listing?.landlord_id;
+    if (!landlordId || !shareId) return;
+    emitNotification({
+      data: {
+        recipient_id: landlordId,
+        type: "receipt_logged",
+        entity_type: "passport_share",
+        entity_id: shareId,
+        title: `${periodLabel} rent marked as sent`,
+        body: `${profile?.full_name ?? "Your tenant"} says £${amount.toLocaleString()} rent for ${periodLabel} has been paid at ${address}. Confirm receipt.`,
+        link_path: `/landlord/manage-tenancy?share=${shareId}`,
+      },
+    })
+      .then(() =>
+        toast.success("Landlord notified", {
+          description: "They'll confirm and issue a receipt.",
+        }),
+      )
+      .catch((err) => console.error("[notify]", err));
+  };
+
+  const openStoredDoc = async (path: string) => {
+    const { data, error } = await supabase.storage
+      .from("tenancy-documents")
+      .createSignedUrl(path, 120);
+    if (error || !data?.signedUrl) {
+      toast.error("Could not open document", { description: error?.message });
+      return;
+    }
+    window.open(data.signedUrl, "_blank", "noopener");
+  };
+
   const depositStart = useMemo(
     () => share?.lease_signed_at || share?.lease_sent_at || null,
     [share],
@@ -333,6 +393,77 @@ function TenantTenancyPage() {
               />
             </div>
 
+            {share.tenancy_start_date ? (
+              <div className="overflow-hidden rounded-3xl border border-border bg-surface">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      Monthly rent schedule
+                    </p>
+                    <p className="mt-1 font-display text-base font-semibold tracking-tight">
+                      £{rent.toLocaleString()} pcm from{" "}
+                      {new Date(`${share.tenancy_start_date}T00:00:00`).toLocaleDateString("en-GB")}
+                    </p>
+                  </div>
+                  <Clock className="h-5 w-5 text-muted-foreground" />
+                </div>
+                {arrears.monthsBehind > 0 ? (
+                  <div className="flex items-start gap-2 border-b border-border bg-red-50 px-5 py-3 text-sm text-red-700">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>
+                      <span className="font-semibold">
+                        £{arrears.total.toLocaleString()} outstanding
+                      </span>{" "}
+                      · {arrears.monthsBehind} month{arrears.monthsBehind === 1 ? "" : "s"} behind.
+                      Pay your landlord directly, then mark the month as sent.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="border-b border-border bg-verified-soft px-5 py-3 text-sm text-verified">
+                    Your rent account is up to date.
+                  </div>
+                )}
+                <ul className="divide-y divide-border text-sm">
+                  {schedule.map((m) => (
+                    <li
+                      key={m.periodLabel}
+                      className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
+                    >
+                      <div className="min-w-[150px]">
+                        <p className="font-medium">{m.periodLabel}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Due {new Date(`${m.dueDate}T00:00:00`).toLocaleDateString("en-GB")}
+                        </p>
+                      </div>
+                      <span>£{Number(m.amount).toLocaleString()}</span>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${rentStateClasses(m.state)}`}
+                      >
+                        {RENT_STATE_LABEL[m.state]}
+                      </span>
+                      {m.state === "due" || m.state === "overdue" ? (
+                        <button
+                          type="button"
+                          onClick={() => notifyRentSent(m.periodLabel, Number(m.amount))}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-semibold transition hover:bg-secondary"
+                        >
+                          <Check className="h-3.5 w-3.5" /> Mark as sent
+                        </button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          {m.state === "paid"
+                            ? m.receipt?.statutory_cash
+                              ? "Cash receipt issued"
+                              : "Receipted"
+                            : "—"}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             <div className="overflow-hidden rounded-3xl border border-border bg-surface">
               <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
                 <div>
@@ -360,7 +491,11 @@ function TenantTenancyPage() {
                         {new Date(r.issued_at).toLocaleDateString("en-GB")}
                       </span>
                       <span className="font-medium capitalize">
-                        {r.kind === "rent" ? "First month rent" : r.kind}
+                        {r.kind === "rent"
+                          ? r.period_label
+                            ? `Rent · ${r.period_label}`
+                            : "First month rent"
+                          : r.kind}
                       </span>
                       <span>£{Number(r.amount).toLocaleString()}</span>
                       <span className="capitalize text-muted-foreground">
@@ -411,6 +546,15 @@ function TenantTenancyPage() {
                     <p className="mt-1 text-xs text-muted-foreground">
                       Registered on {new Date(share.deposit_protected_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                     </p>
+                  ) : null}
+                  {share.deposit_cert_path ? (
+                    <button
+                      type="button"
+                      onClick={() => void openStoredDoc(share.deposit_cert_path!)}
+                      className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-semibold transition hover:bg-secondary"
+                    >
+                      <FileText className="h-3.5 w-3.5" /> View protection certificate
+                    </button>
                   ) : null}
                 </div>
               </div>
@@ -583,10 +727,31 @@ function TenantTenancyPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => window.print()}
+                  onClick={() => {
+                    if (share.lease_kind === "custom" && share.lease_document_path) {
+                      void openStoredDoc(share.lease_document_path);
+                      return;
+                    }
+                    openPrintable(
+                      leaseDocumentHtml({
+                        tenantName: profile?.full_name || "Tenant",
+                        landlordName: "Your landlord",
+                        address,
+                        rent,
+                        deposit,
+                        tenantSignature: share.lease_signed_name || profile?.full_name || "",
+                        tenantSignedAt: share.lease_signed_at,
+                        oilClause: !!share.lease_oil_clause,
+                        counterSigned: share.lease_status === "counter_signed",
+                      }),
+                    );
+                  }}
                   className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-foreground shadow-sm transition hover:bg-surface-muted"
                 >
-                  <Download className="h-3.5 w-3.5" /> Download printable PDF
+                  <Download className="h-3.5 w-3.5" />
+                  {share.lease_kind === "custom" && share.lease_document_path
+                    ? "Open lease PDF"
+                    : "Download printable PDF"}
                 </button>
               </div>
               <div className="flex flex-col justify-between rounded-3xl border border-border bg-surface p-5 transition hover:border-foreground/20">
@@ -601,10 +766,27 @@ function TenantTenancyPage() {
                 </div>
                 <button
                   type="button"
-                  disabled
-                  className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-muted-foreground shadow-sm"
+                  onClick={() =>
+                    openPrintable(
+                      tenancyInfoNoticeHtml({
+                        tenantName: profile?.full_name || "Tenant",
+                        landlordName: "Your landlord",
+                        address,
+                        rent,
+                        deposit,
+                        depositScheme: share.deposit_scheme,
+                        depositCertNumber: share.deposit_cert_number,
+                        depositProtectedAt: share.deposit_protected_at,
+                        tenancyStart: share.tenancy_start_date || share.lease_signed_at,
+                        heatingType: listing?.heating_type ?? null,
+                        landlordRegNumber: listing?.ni_landlord_reg_number ?? null,
+                        oilClause: !!share.lease_oil_clause,
+                      }),
+                    )
+                  }
+                  className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-foreground shadow-sm transition hover:bg-surface-muted"
                 >
-                  <Download className="h-3.5 w-3.5" /> Coming soon
+                  <Download className="h-3.5 w-3.5" /> Download notice
                 </button>
               </div>
             </div>
