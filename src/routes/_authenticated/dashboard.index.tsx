@@ -847,6 +847,14 @@ function MyProperties({
                     <ExternalLink className="h-3 w-3" />
                     View listing
                   </Link>
+                  <Link
+                    to="/dashboard/listing-edit"
+                    search={{ id: l.id }}
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary"
+                  >
+                    <Pencil className="h-3 w-3" />
+                    Edit
+                  </Link>
                 </div>
               </div>
             </li>
