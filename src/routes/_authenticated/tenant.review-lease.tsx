@@ -3,11 +3,12 @@ import { z } from "zod";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, FileText, ShieldCheck, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, FileText, ShieldCheck, Check, Loader2, Download, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification } from "@/lib/notifications.functions";
+import { leaseDocumentHtml, openPrintable } from "@/lib/tenancy-docs";
 
 export const Route = createFileRoute("/_authenticated/tenant/review-lease")({
   validateSearch: z.object({ share: z.string().optional() }),
@@ -35,7 +36,7 @@ function ReviewLeasePage() {
       const { data, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, lease_status, lease_oil_clause, lease_signed_name, listing:property_listings!listing_id(title, address, location, monthly_rent, deposit)",
+          "id, lease_status, lease_oil_clause, lease_signed_name, lease_signed_at, lease_kind, lease_document_path, listing:property_listings!listing_id(title, address, location, monthly_rent, deposit)",
         )
         .eq("id", shareId!)
         .maybeSingle();
@@ -45,6 +46,9 @@ function ReviewLeasePage() {
         lease_status: string | null;
         lease_oil_clause: boolean | null;
         lease_signed_name: string | null;
+        lease_signed_at: string | null;
+        lease_kind: string | null;
+        lease_document_path: string | null;
         listing: { title: string; address: string | null; location: string | null; monthly_rent: number | null; deposit: number | null } | null;
       } | null;
     },
@@ -57,6 +61,36 @@ function ReviewLeasePage() {
   const deposit = ctx?.listing?.deposit ?? (Number(monthlyRent) || 0);
   const oilClause = !!ctx?.lease_oil_clause;
   const alreadySigned = ctx?.lease_status === "signed_pending_landlord" || ctx?.lease_status === "counter_signed";
+  const isCustom = ctx?.lease_kind === "custom" && !!ctx?.lease_document_path;
+
+  const openCustomLease = async () => {
+    if (!ctx?.lease_document_path) return;
+    const { data, error } = await supabase.storage
+      .from("tenancy-documents")
+      .createSignedUrl(ctx.lease_document_path, 120);
+    if (error || !data?.signedUrl) {
+      toast.error("Couldn't open the lease document", { description: error?.message });
+      return;
+    }
+    window.open(data.signedUrl, "_blank", "noopener");
+  };
+
+  const printStandardLease = () => {
+    const html = leaseDocumentHtml({
+      tenantName,
+      landlordName: "Your landlord",
+      address: propertyAddress,
+      rent: Number(monthlyRent) || 0,
+      deposit: Number(deposit) || 0,
+      tenantSignature: ctx?.lease_signed_name || tenantName,
+      tenantSignedAt: ctx?.lease_signed_at ?? null,
+      oilClause,
+      counterSigned: ctx?.lease_status === "counter_signed",
+    });
+    if (!openPrintable(html)) {
+      toast.error("Pop-up blocked — please allow pop-ups to download your copy.");
+    }
+  };
 
   const canSubmit =
     !!shareId &&
