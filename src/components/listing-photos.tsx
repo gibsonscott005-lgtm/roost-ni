@@ -107,6 +107,94 @@ export function ListingCover({
 }
 
 /** Swipeable gallery for the property detail page. */
+export function PhotoPicker({
+  files,
+  onChange,
+  existing,
+  onRemoveExisting,
+}: {
+  files: File[];
+  onChange: (files: File[]) => void;
+  existing?: string[];
+  onRemoveExisting?: (path: string) => void;
+}) {
+  const [previews, setPreviews] = useState<string[]>([]);
+  const existingUrls = useSignedPhotoUrls(existing);
+
+  useEffect(() => {
+    const urls = files.map((f) => URL.createObjectURL(f));
+    setPreviews(urls);
+    return () => urls.forEach((u) => URL.revokeObjectURL(u));
+  }, [files]);
+
+  const add = (list: FileList | null) => {
+    if (!list) return;
+    const picked = Array.from(list).filter((f) => f.type.startsWith("image/"));
+    onChange([...files, ...picked].slice(0, 10));
+  };
+
+  return (
+    <div>
+      <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
+        {(existing ?? []).map((path, i) => (
+          <div
+            key={path}
+            className="relative aspect-square overflow-hidden rounded-xl border border-border bg-surface-muted"
+          >
+            {existingUrls[i] ? (
+              <img src={existingUrls[i]} alt="" className="h-full w-full object-cover" />
+            ) : null}
+            {onRemoveExisting ? (
+              <button
+                type="button"
+                aria-label="Remove photo"
+                onClick={() => onRemoveExisting(path)}
+                className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-foreground/75 text-background"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            ) : null}
+          </div>
+        ))}
+        {previews.map((src, i) => (
+          <div
+            key={src}
+            className="relative aspect-square overflow-hidden rounded-xl border border-border bg-surface-muted"
+          >
+            <img src={src} alt="" className="h-full w-full object-cover" />
+            <button
+              type="button"
+              aria-label="Remove photo"
+              onClick={() => onChange(files.filter((_, idx) => idx !== i))}
+              className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-foreground/75 text-background"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        ))}
+        <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-surface-muted text-muted-foreground transition hover:bg-secondary">
+          <Upload className="h-4 w-4" />
+          <span className="text-[10px] font-medium uppercase tracking-[0.14em]">Add</span>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              add(e.target.files);
+              e.target.value = "";
+            }}
+          />
+        </label>
+      </div>
+      <p className="mt-2.5 text-xs text-muted-foreground">
+        Up to 10 photos. The first image is used as the cover on search results.
+      </p>
+    </div>
+  );
+}
+
+/** Swipeable gallery for the property detail page. */
 export function ListingGallery({
   paths,
   alt,
