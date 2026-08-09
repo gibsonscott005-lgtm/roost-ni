@@ -188,18 +188,49 @@ function ReviewLeasePage() {
       ) : (
         <>
           <div className="overflow-hidden rounded-3xl border border-border bg-surface">
-            <div className="flex items-center gap-2 border-b border-border px-5 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-4">
+              <div className="flex items-center gap-2">
               <FileText className="h-4 w-4 text-muted-foreground" />
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                   Document preview
                 </p>
                 <p className="mt-0.5 font-display text-base font-semibold tracking-tight">
-                  Private Residential Tenancy Agreement (NI)
+                  {isCustom
+                    ? "Landlord's own tenancy agreement (PDF)"
+                    : "Private Residential Tenancy Agreement (NI)"}
                 </p>
               </div>
+              </div>
+              <button
+                type="button"
+                onClick={isCustom ? openCustomLease : printStandardLease}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+              >
+                {isCustom ? <ExternalLink className="h-3.5 w-3.5" /> : <Download className="h-3.5 w-3.5" />}
+                {isCustom ? "Open in new tab" : "Download / print"}
+              </button>
             </div>
 
+            {isCustom ? (
+              <div className="bg-surface-muted/30 px-6 py-8 text-center">
+                <p className="text-sm text-foreground/90">
+                  Your landlord uploaded their own tenancy agreement instead of the Roost standard
+                  template.
+                </p>
+                <p className="mx-auto mt-2 max-w-md text-xs text-muted-foreground">
+                  Open the PDF and read it in full before signing below. Your signature applies to
+                  that document. If anything is unclear, ask your landlord before you sign.
+                </p>
+                <button
+                  type="button"
+                  onClick={openCustomLease}
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-foreground px-5 py-2 text-xs font-semibold text-background transition hover:brightness-110"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" /> Open lease PDF
+                </button>
+              </div>
+            ) : (
             <div className="max-h-[520px] overflow-y-auto bg-surface-muted/30 px-6 py-6">
               <article className="mx-auto max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-6 text-sm leading-relaxed text-foreground/90 shadow-sm">
                 <header className="border-b border-border pb-3">
@@ -248,6 +279,7 @@ function ReviewLeasePage() {
                 </Clause>
               </article>
             </div>
+            )}
           </div>
 
           {/* Signature block */}
