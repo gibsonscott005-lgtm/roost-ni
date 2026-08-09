@@ -58,6 +58,7 @@ export const emitNotification = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
+    const { resolveParties } = await import("@/lib/notifications.server");
 
     // Verify the caller and the recipient are the two counterparties of the
     // entity referenced. Without this, any signed-in user could push
