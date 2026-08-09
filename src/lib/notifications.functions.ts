@@ -12,6 +12,8 @@ export const NOTIFICATION_TYPES = [
   "property_let_agreed",
   "receipt_logged",
   "receipt_confirmed",
+  "rent_due_reminder",
+  "rent_overdue",
   "deposit_protected",
   "deposit_deadline_approaching",
   "inventory_submitted",
