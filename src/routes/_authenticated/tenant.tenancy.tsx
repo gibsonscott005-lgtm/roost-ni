@@ -393,6 +393,77 @@ function TenantTenancyPage() {
               />
             </div>
 
+            {share.tenancy_start_date ? (
+              <div className="overflow-hidden rounded-3xl border border-border bg-surface">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      Monthly rent schedule
+                    </p>
+                    <p className="mt-1 font-display text-base font-semibold tracking-tight">
+                      £{rent.toLocaleString()} pcm from{" "}
+                      {new Date(`${share.tenancy_start_date}T00:00:00`).toLocaleDateString("en-GB")}
+                    </p>
+                  </div>
+                  <Clock className="h-5 w-5 text-muted-foreground" />
+                </div>
+                {arrears.monthsBehind > 0 ? (
+                  <div className="flex items-start gap-2 border-b border-border bg-red-50 px-5 py-3 text-sm text-red-700">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>
+                      <span className="font-semibold">
+                        £{arrears.total.toLocaleString()} outstanding
+                      </span>{" "}
+                      · {arrears.monthsBehind} month{arrears.monthsBehind === 1 ? "" : "s"} behind.
+                      Pay your landlord directly, then mark the month as sent.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="border-b border-border bg-verified-soft px-5 py-3 text-sm text-verified">
+                    Your rent account is up to date.
+                  </div>
+                )}
+                <ul className="divide-y divide-border text-sm">
+                  {schedule.map((m) => (
+                    <li
+                      key={m.periodLabel}
+                      className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
+                    >
+                      <div className="min-w-[150px]">
+                        <p className="font-medium">{m.periodLabel}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Due {new Date(`${m.dueDate}T00:00:00`).toLocaleDateString("en-GB")}
+                        </p>
+                      </div>
+                      <span>£{Number(m.amount).toLocaleString()}</span>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${rentStateClasses(m.state)}`}
+                      >
+                        {RENT_STATE_LABEL[m.state]}
+                      </span>
+                      {m.state === "due" || m.state === "overdue" ? (
+                        <button
+                          type="button"
+                          onClick={() => notifyRentSent(m.periodLabel, Number(m.amount))}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-semibold transition hover:bg-secondary"
+                        >
+                          <Check className="h-3.5 w-3.5" /> Mark as sent
+                        </button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          {m.state === "paid"
+                            ? m.receipt?.statutory_cash
+                              ? "Cash receipt issued"
+                              : "Receipted"
+                            : "—"}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
             <div className="overflow-hidden rounded-3xl border border-border bg-surface">
               <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
                 <div>
@@ -420,7 +491,11 @@ function TenantTenancyPage() {
                         {new Date(r.issued_at).toLocaleDateString("en-GB")}
                       </span>
                       <span className="font-medium capitalize">
-                        {r.kind === "rent" ? "First month rent" : r.kind}
+                        {r.kind === "rent"
+                          ? r.period_label
+                            ? `Rent · ${r.period_label}`
+                            : "First month rent"
+                          : r.kind}
                       </span>
                       <span>£{Number(r.amount).toLocaleString()}</span>
                       <span className="capitalize text-muted-foreground">
@@ -471,6 +546,15 @@ function TenantTenancyPage() {
                     <p className="mt-1 text-xs text-muted-foreground">
                       Registered on {new Date(share.deposit_protected_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                     </p>
+                  ) : null}
+                  {share.deposit_cert_path ? (
+                    <button
+                      type="button"
+                      onClick={() => void openStoredDoc(share.deposit_cert_path!)}
+                      className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-semibold transition hover:bg-secondary"
+                    >
+                      <FileText className="h-3.5 w-3.5" /> View protection certificate
+                    </button>
                   ) : null}
                 </div>
               </div>
