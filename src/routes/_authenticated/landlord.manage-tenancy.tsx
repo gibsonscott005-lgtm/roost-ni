@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -364,6 +364,159 @@ function ManageTenancyPage() {
     updateShareMutation.mutate({ inventory_completed_at: new Date().toISOString() });
     toast.success("Handover record saved");
   };
+
+  // ---------------------------------------------------------------------
+  // Rent schedule (ongoing ledger)
+  // ---------------------------------------------------------------------
+  const startDate =
+    share?.tenancy_start_date ??
+    (share?.lease_signed_at ? share.lease_signed_at.slice(0, 10) : null);
+
+  const schedule = useMemo(
+    () =>
+      buildRentSchedule({
+        startDate: share?.tenancy_start_date ?? null,
+        monthlyRent: rent,
+        receipts,
+      }),
+    [share?.tenancy_start_date, rent, receipts],
+  );
+  const arrears = useMemo(() => arrearsSummary(schedule), [schedule]);
+
+  const saveStartDate = (value: string) => {
+    if (!value) return;
+    updateShareMutation.mutate({ tenancy_start_date: value });
+    toast.success("Tenancy start date saved", {
+      description: "The monthly rent schedule is now live for both of you.",
+    });
+  };
+
+  const logRentPayment = async (
+    month: RentMonth,
+    method: PaymentMethod,
+    amount: number,
+  ) => {
+    const isCash = method === "cash";
+    const { error } = await supabase.from("tenancy_receipts").insert({
+      share_id: shareId!,
+      kind: "rent",
+      amount,
+      method,
+      statutory_cash: isCash,
+      due_date: month.dueDate,
+      period_label: month.periodLabel,
+      notes: isCash
+        ? "Statutory cash receipt issued under Private Tenancies Act NI 2022"
+        : null,
+    } as never);
+    if (error) {
+      toast.error("Could not log payment", { description: error.message });
+      return;
+    }
+    toast.success(`${month.periodLabel} rent recorded`, {
+      description: isCash
+        ? "A statutory cash receipt has been issued to your tenant."
+        : `£${amount.toLocaleString()} marked as received.`,
+    });
+    invalidate();
+    if (share?.tenant_id && shareId) {
+      emitNotification({
+        data: {
+          recipient_id: share.tenant_id,
+          type: "receipt_confirmed",
+          entity_type: "passport_share",
+          entity_id: shareId,
+          title: `${month.periodLabel} rent receipted`,
+          body: `Your landlord recorded £${amount.toLocaleString()} rent for ${month.periodLabel} at ${address}.`,
+          link_path: "/tenant/tenancy",
+        },
+      }).catch((err) => console.error("[notify]", err));
+    }
+  };
+
+  const sendRentReminder = (month: RentMonth) => {
+    if (!share?.tenant_id || !shareId) return;
+    const overdue = month.state === "overdue";
+    emitNotification({
+      data: {
+        recipient_id: share.tenant_id,
+        type: overdue ? "rent_overdue" : "rent_due_reminder",
+        entity_type: "passport_share",
+        entity_id: shareId,
+        title: overdue
+          ? `${month.periodLabel} rent is overdue`
+          : `${month.periodLabel} rent is due`,
+        body: `£${Number(month.amount).toLocaleString()} for ${address} was due on ${new Date(
+          `${month.dueDate}T00:00:00`,
+        ).toLocaleDateString("en-GB")}.`,
+        link_path: "/tenant/tenancy",
+      },
+    })
+      .then(() => toast.success("Reminder sent to your tenant"))
+      .catch((err) => {
+        console.error("[notify]", err);
+        toast.error("Could not send reminder");
+      });
+  };
+
+  // Deposit certificate upload
+  const uploadDepositCert = async (file: File) => {
+    if (!shareId) return;
+    const ext = file.name.split(".").pop()?.toLowerCase() || "pdf";
+    const path = `${shareId}/deposit-certificate-${Date.now()}.${ext}`;
+    const buffer = await file.arrayBuffer();
+    const { error } = await supabase.storage
+      .from("tenancy-documents")
+      .upload(path, buffer, { contentType: file.type || "application/pdf", upsert: true });
+    if (error) {
+      toast.error("Upload failed", { description: error.message });
+      return;
+    }
+    updateShareMutation.mutate({ deposit_cert_path: path });
+    toast.success("Certificate uploaded", {
+      description: "Your tenant can now view the protection certificate.",
+    });
+  };
+
+  const openDepositCert = async () => {
+    if (!share?.deposit_cert_path) return;
+    const { data, error } = await supabase.storage
+      .from("tenancy-documents")
+      .createSignedUrl(share.deposit_cert_path, 120);
+    if (error || !data?.signedUrl) {
+      toast.error("Could not open certificate", { description: error?.message });
+      return;
+    }
+    window.open(data.signedUrl, "_blank", "noopener");
+  };
+
+  // 28-day deposit deadline reminder (at most once per day per tenancy)
+  useEffect(() => {
+    if (!share || !shareId || share.deposit_protected_at) return;
+    const anchor = share.lease_signed_at || share.lease_sent_at;
+    if (!anchor) return;
+    const daysLeft = Math.ceil(
+      (new Date(anchor).getTime() + 28 * 864e5 - Date.now()) / 864e5,
+    );
+    if (daysLeft > 7) return;
+    const key = `roost:deposit-reminder:${shareId}:${new Date().toDateString()}`;
+    if (typeof window === "undefined" || window.localStorage.getItem(key)) return;
+    window.localStorage.setItem(key, "1");
+    emitNotification({
+      data: {
+        recipient_id: share.tenant_id,
+        type: "deposit_deadline_approaching",
+        entity_type: "passport_share",
+        entity_id: shareId,
+        title:
+          daysLeft < 0
+            ? "Deposit protection deadline passed"
+            : `Deposit protection due in ${daysLeft} day${daysLeft === 1 ? "" : "s"}`,
+        body: `Your deposit for ${address} has not yet been registered with an approved NI scheme.`,
+        link_path: "/tenant/tenancy?tab=deposit",
+      },
+    }).catch((err) => console.error("[notify]", err));
+  }, [share, shareId, address]);
 
   return (
     <DashboardShell user={user} profile={profile} activeKey="applications">
