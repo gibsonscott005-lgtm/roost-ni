@@ -20,6 +20,7 @@ import { Route as AuthenticatedTenantTenancyRouteImport } from './routes/_authen
 import { Route as AuthenticatedTenantReviewLeaseRouteImport } from './routes/_authenticated/tenant.review-lease'
 import { Route as AuthenticatedLandlordManageTenancyRouteImport } from './routes/_authenticated/landlord.manage-tenancy'
 import { Route as AuthenticatedLandlordIssueLeaseRouteImport } from './routes/_authenticated/landlord.issue-lease'
+import { Route as AuthenticatedDashboardListingEditRouteImport } from './routes/_authenticated/dashboard.listing-edit'
 import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
 import { Route as AuthenticatedDashboardPassportIndexRouteImport } from './routes/_authenticated/dashboard.passport.index'
 import { Route as AuthenticatedDashboardPassportEditRouteImport } from './routes/_authenticated/dashboard.passport.edit'
@@ -83,6 +84,12 @@ const AuthenticatedLandlordIssueLeaseRoute =
     path: '/landlord/issue-lease',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDashboardListingEditRoute =
+  AuthenticatedDashboardListingEditRouteImport.update({
+    id: '/listing-edit',
+    path: '/listing-edit',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardApplicationsRoute =
   AuthenticatedDashboardApplicationsRouteImport.update({
     id: '/applications',
@@ -109,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/listings/$id': typeof ListingsIdRoute
   '/listings/': typeof ListingsIndexRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/dashboard/listing-edit': typeof AuthenticatedDashboardListingEditRoute
   '/landlord/issue-lease': typeof AuthenticatedLandlordIssueLeaseRoute
   '/landlord/manage-tenancy': typeof AuthenticatedLandlordManageTenancyRoute
   '/tenant/review-lease': typeof AuthenticatedTenantReviewLeaseRoute
@@ -123,6 +131,7 @@ export interface FileRoutesByTo {
   '/listings/$id': typeof ListingsIdRoute
   '/listings': typeof ListingsIndexRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/dashboard/listing-edit': typeof AuthenticatedDashboardListingEditRoute
   '/landlord/issue-lease': typeof AuthenticatedLandlordIssueLeaseRoute
   '/landlord/manage-tenancy': typeof AuthenticatedLandlordManageTenancyRoute
   '/tenant/review-lease': typeof AuthenticatedTenantReviewLeaseRoute
@@ -140,6 +149,7 @@ export interface FileRoutesById {
   '/listings/$id': typeof ListingsIdRoute
   '/listings/': typeof ListingsIndexRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/_authenticated/dashboard/listing-edit': typeof AuthenticatedDashboardListingEditRoute
   '/_authenticated/landlord/issue-lease': typeof AuthenticatedLandlordIssueLeaseRoute
   '/_authenticated/landlord/manage-tenancy': typeof AuthenticatedLandlordManageTenancyRoute
   '/_authenticated/tenant/review-lease': typeof AuthenticatedTenantReviewLeaseRoute
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/listings/$id'
     | '/listings/'
     | '/dashboard/applications'
+    | '/dashboard/listing-edit'
     | '/landlord/issue-lease'
     | '/landlord/manage-tenancy'
     | '/tenant/review-lease'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/listings/$id'
     | '/listings'
     | '/dashboard/applications'
+    | '/dashboard/listing-edit'
     | '/landlord/issue-lease'
     | '/landlord/manage-tenancy'
     | '/tenant/review-lease'
@@ -187,6 +199,7 @@ export interface FileRouteTypes {
     | '/listings/$id'
     | '/listings/'
     | '/_authenticated/dashboard/applications'
+    | '/_authenticated/dashboard/listing-edit'
     | '/_authenticated/landlord/issue-lease'
     | '/_authenticated/landlord/manage-tenancy'
     | '/_authenticated/tenant/review-lease'
@@ -283,6 +296,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLandlordIssueLeaseRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard/listing-edit': {
+      id: '/_authenticated/dashboard/listing-edit'
+      path: '/listing-edit'
+      fullPath: '/dashboard/listing-edit'
+      preLoaderRoute: typeof AuthenticatedDashboardListingEditRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/applications': {
       id: '/_authenticated/dashboard/applications'
       path: '/applications'
@@ -309,6 +329,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardApplicationsRoute: typeof AuthenticatedDashboardApplicationsRoute
+  AuthenticatedDashboardListingEditRoute: typeof AuthenticatedDashboardListingEditRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedDashboardPassportEditRoute: typeof AuthenticatedDashboardPassportEditRoute
   AuthenticatedDashboardPassportIndexRoute: typeof AuthenticatedDashboardPassportIndexRoute
@@ -318,6 +339,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
     AuthenticatedDashboardApplicationsRoute:
       AuthenticatedDashboardApplicationsRoute,
+    AuthenticatedDashboardListingEditRoute:
+      AuthenticatedDashboardListingEditRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
     AuthenticatedDashboardPassportEditRoute:
       AuthenticatedDashboardPassportEditRoute,
