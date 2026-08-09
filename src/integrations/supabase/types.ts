@@ -133,12 +133,15 @@ export type Database = {
       passport_shares: {
         Row: {
           deposit_cert_number: string | null
+          deposit_cert_path: string | null
           deposit_payment_method: string | null
           deposit_protected_at: string | null
           deposit_scheme: string | null
           deposit_status: string
           id: string
           inventory_completed_at: string | null
+          lease_document_path: string | null
+          lease_kind: string
           lease_oil_clause: boolean | null
           lease_sent_at: string | null
           lease_signed_at: string | null
@@ -150,16 +153,20 @@ export type Database = {
           rent_status: string
           shared_at: string
           status: Database["public"]["Enums"]["share_status"]
+          tenancy_start_date: string | null
           tenant_id: string
         }
         Insert: {
           deposit_cert_number?: string | null
+          deposit_cert_path?: string | null
           deposit_payment_method?: string | null
           deposit_protected_at?: string | null
           deposit_scheme?: string | null
           deposit_status?: string
           id?: string
           inventory_completed_at?: string | null
+          lease_document_path?: string | null
+          lease_kind?: string
           lease_oil_clause?: boolean | null
           lease_sent_at?: string | null
           lease_signed_at?: string | null
@@ -171,16 +178,20 @@ export type Database = {
           rent_status?: string
           shared_at?: string
           status?: Database["public"]["Enums"]["share_status"]
+          tenancy_start_date?: string | null
           tenant_id: string
         }
         Update: {
           deposit_cert_number?: string | null
+          deposit_cert_path?: string | null
           deposit_payment_method?: string | null
           deposit_protected_at?: string | null
           deposit_scheme?: string | null
           deposit_status?: string
           id?: string
           inventory_completed_at?: string | null
+          lease_document_path?: string | null
+          lease_kind?: string
           lease_oil_clause?: boolean | null
           lease_sent_at?: string | null
           lease_signed_at?: string | null
@@ -192,6 +203,7 @@ export type Database = {
           rent_status?: string
           shared_at?: string
           status?: Database["public"]["Enums"]["share_status"]
+          tenancy_start_date?: string | null
           tenant_id?: string
         }
         Relationships: [
@@ -251,6 +263,7 @@ export type Database = {
           location: string | null
           monthly_rent: number
           ni_landlord_reg_number: string
+          photo_urls: string[]
           status: string
           tenant_preferences: string[]
           title: string
@@ -268,6 +281,7 @@ export type Database = {
           location?: string | null
           monthly_rent: number
           ni_landlord_reg_number: string
+          photo_urls?: string[]
           status?: string
           tenant_preferences?: string[]
           title: string
@@ -285,6 +299,7 @@ export type Database = {
           location?: string | null
           monthly_rent?: number
           ni_landlord_reg_number?: string
+          photo_urls?: string[]
           status?: string
           tenant_preferences?: string[]
           title?: string
@@ -302,6 +317,8 @@ export type Database = {
           room: string
           share_id: string
           sort_order: number
+          tenant_comment: string | null
+          tenant_disputed: boolean
           updated_at: string
         }
         Insert: {
@@ -313,6 +330,8 @@ export type Database = {
           room: string
           share_id: string
           sort_order?: number
+          tenant_comment?: string | null
+          tenant_disputed?: boolean
           updated_at?: string
         }
         Update: {
@@ -324,6 +343,8 @@ export type Database = {
           room?: string
           share_id?: string
           sort_order?: number
+          tenant_comment?: string | null
+          tenant_disputed?: boolean
           updated_at?: string
         }
         Relationships: [
@@ -340,11 +361,13 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
+          due_date: string | null
           id: string
           issued_at: string
           kind: string
           method: string
           notes: string | null
+          period_label: string | null
           share_id: string
           statutory_cash: boolean
           updated_at: string
@@ -352,11 +375,13 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string
+          due_date?: string | null
           id?: string
           issued_at?: string
           kind: string
           method: string
           notes?: string | null
+          period_label?: string | null
           share_id: string
           statutory_cash?: boolean
           updated_at?: string
@@ -364,11 +389,13 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
+          due_date?: string | null
           id?: string
           issued_at?: string
           kind?: string
           method?: string
           notes?: string | null
+          period_label?: string | null
           share_id?: string
           statutory_cash?: boolean
           updated_at?: string
