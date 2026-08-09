@@ -253,6 +253,50 @@ function TenantTenancyPage() {
   };
 
   // Deposit 28-day countdown from lease signed (or sent)
+  const schedule = useMemo(
+    () =>
+      buildRentSchedule({
+        startDate: share?.tenancy_start_date ?? null,
+        monthlyRent: rent,
+        receipts,
+      }),
+    [share?.tenancy_start_date, rent, receipts],
+  );
+  const arrears = useMemo(() => arrearsSummary(schedule), [schedule]);
+
+  const notifyRentSent = (periodLabel: string, amount: number) => {
+    const landlordId = share?.listing?.landlord_id;
+    if (!landlordId || !shareId) return;
+    emitNotification({
+      data: {
+        recipient_id: landlordId,
+        type: "receipt_logged",
+        entity_type: "passport_share",
+        entity_id: shareId,
+        title: `${periodLabel} rent marked as sent`,
+        body: `${profile?.full_name ?? "Your tenant"} says £${amount.toLocaleString()} rent for ${periodLabel} has been paid at ${address}. Confirm receipt.`,
+        link_path: `/landlord/manage-tenancy?share=${shareId}`,
+      },
+    })
+      .then(() =>
+        toast.success("Landlord notified", {
+          description: "They'll confirm and issue a receipt.",
+        }),
+      )
+      .catch((err) => console.error("[notify]", err));
+  };
+
+  const openStoredDoc = async (path: string) => {
+    const { data, error } = await supabase.storage
+      .from("tenancy-documents")
+      .createSignedUrl(path, 120);
+    if (error || !data?.signedUrl) {
+      toast.error("Could not open document", { description: error?.message });
+      return;
+    }
+    window.open(data.signedUrl, "_blank", "noopener");
+  };
+
   const depositStart = useMemo(
     () => share?.lease_signed_at || share?.lease_sent_at || null,
     [share],
