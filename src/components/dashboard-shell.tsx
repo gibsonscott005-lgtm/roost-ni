@@ -227,7 +227,7 @@ function NavLink({
   label,
   badge,
 }: {
-  to: "/dashboard/applications";
+  to: "/dashboard/applications" | "/dashboard/settings";
   active: boolean;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
@@ -250,7 +250,7 @@ function TenantNavLink({
   icon: Icon,
   label,
 }: {
-  to: "/dashboard" | "/dashboard/passport";
+  to: "/dashboard" | "/dashboard/passport" | "/dashboard/settings";
   active: boolean;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
