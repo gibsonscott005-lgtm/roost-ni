@@ -891,12 +891,18 @@ function DepositProtection({
   scheme,
   cert,
   onSave,
+  certPath,
+  onUploadCert,
+  onOpenCert,
 }: {
   startedAt: string | null;
   protectedAt: string | null;
   scheme: string | null;
   cert: string | null;
   onSave: (scheme: string, cert: string) => void;
+  certPath: string | null;
+  onUploadCert: (file: File) => void | Promise<void>;
+  onOpenCert: () => void | Promise<void>;
 }) {
   const [chosenScheme, setChosenScheme] = useState(scheme || DEPOSIT_SCHEMES[0]);
   const [certInput, setCertInput] = useState(cert || "");
@@ -1043,8 +1049,248 @@ function DepositProtection({
               {new Date(protectedAt!).toLocaleDateString("en-GB")}.
             </div>
           ) : null}
+
+          <div className="rounded-2xl border border-dashed border-border p-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              Protection certificate
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Upload the scheme's certificate (PDF or image). Only you and your tenant can open it.
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-semibold transition hover:bg-secondary">
+                <Plus className="h-3.5 w-3.5" />
+                {certPath ? "Replace certificate" : "Upload certificate"}
+                <input
+                  type="file"
+                  accept="application/pdf,image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void onUploadCert(f);
+                    e.currentTarget.value = "";
+                  }}
+                />
+              </label>
+              {certPath ? (
+                <button
+                  type="button"
+                  onClick={() => void onOpenCert()}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-semibold transition hover:bg-secondary"
+                >
+                  <FileText className="h-3.5 w-3.5" /> View certificate
+                </button>
+              ) : null}
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function RentScheduleCard({
+  startDate,
+  suggestedStart,
+  schedule,
+  arrears,
+  rent,
+  onSaveStartDate,
+  onLogPayment,
+  onRemind,
+}: {
+  startDate: string | null;
+  suggestedStart: string | null;
+  schedule: RentMonth[];
+  arrears: { monthsBehind: number; total: number };
+  rent: number;
+  onSaveStartDate: (v: string) => void;
+  onLogPayment: (m: RentMonth, method: PaymentMethod, amount: number) => void | Promise<void>;
+  onRemind: (m: RentMonth) => void;
+}) {
+  const [draftStart, setDraftStart] = useState(
+    startDate || suggestedStart || new Date().toISOString().slice(0, 10),
+  );
+  const [openMonth, setOpenMonth] = useState<string | null>(null);
+
+  if (!startDate) {
+    return (
+      <div className="rounded-3xl border border-border bg-surface p-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Monthly rent schedule
+        </p>
+        <h3 className="mt-1 font-display text-lg font-semibold tracking-tight">
+          Set the tenancy start date
+        </h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          The move-in date anchors every rent due date. Both you and your tenant will see the same
+          schedule once it's set.
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <input
+            type="date"
+            value={draftStart}
+            onChange={(e) => setDraftStart(e.target.value)}
+            className="rounded-xl border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-verified"
+          />
+          <button
+            type="button"
+            onClick={() => onSaveStartDate(draftStart)}
+            className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
+          >
+            <Check className="h-3.5 w-3.5" /> Save start date
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-hidden rounded-3xl border border-border bg-surface">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Monthly rent schedule
+          </p>
+          <p className="mt-1 font-display text-base font-semibold tracking-tight">
+            £{rent.toLocaleString()} pcm from{" "}
+            {new Date(`${startDate}T00:00:00`).toLocaleDateString("en-GB")}
+          </p>
+        </div>
+        <ClipboardList className="h-5 w-5 text-muted-foreground" />
+      </div>
+
+      {arrears.monthsBehind > 0 ? (
+        <div className="border-b border-border bg-red-50 px-5 py-3 text-sm text-red-700">
+          <span className="font-semibold">
+            £{arrears.total.toLocaleString()} in arrears
+          </span>{" "}
+          · {arrears.monthsBehind} month{arrears.monthsBehind === 1 ? "" : "s"} behind.
+        </div>
+      ) : (
+        <div className="border-b border-border bg-verified-soft px-5 py-3 text-sm text-verified">
+          Rent account is up to date.
+        </div>
+      )}
+
+      <ul className="divide-y divide-border text-sm">
+        {schedule.map((m) => (
+          <li key={m.periodLabel} className="px-5 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-[160px]">
+                <p className="font-medium">{m.periodLabel}</p>
+                <p className="text-xs text-muted-foreground">
+                  Due {new Date(`${m.dueDate}T00:00:00`).toLocaleDateString("en-GB")}
+                </p>
+              </div>
+              <span className="text-sm">£{Number(m.amount).toLocaleString()}</span>
+              <span
+                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${rentStateClasses(m.state)}`}
+              >
+                {RENT_STATE_LABEL[m.state]}
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                {m.state !== "paid" ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setOpenMonth(openMonth === m.periodLabel ? null : m.periodLabel)}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3 py-1.5 text-xs font-semibold text-background transition hover:brightness-110"
+                    >
+                      <Receipt className="h-3.5 w-3.5" /> Log payment
+                    </button>
+                    {m.state === "overdue" || m.state === "due" ? (
+                      <button
+                        type="button"
+                        onClick={() => onRemind(m)}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-semibold transition hover:bg-secondary"
+                      >
+                        Send reminder
+                      </button>
+                    ) : null}
+                  </>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <Check className="h-3.5 w-3.5 text-verified" />
+                    {m.receipt?.statutory_cash ? "Cash receipt issued" : "Receipted"}
+                  </span>
+                )}
+              </div>
+            </div>
+            {openMonth === m.periodLabel && m.state !== "paid" ? (
+              <LogPaymentRow
+                defaultAmount={Number(m.amount)}
+                onCancel={() => setOpenMonth(null)}
+                onSubmit={(method, amount) => {
+                  setOpenMonth(null);
+                  void onLogPayment(m, method, amount);
+                }}
+              />
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function LogPaymentRow({
+  defaultAmount,
+  onSubmit,
+  onCancel,
+}: {
+  defaultAmount: number;
+  onSubmit: (method: PaymentMethod, amount: number) => void;
+  onCancel: () => void;
+}) {
+  const [method, setMethod] = useState<PaymentMethod>("bank_transfer");
+  const [amount, setAmount] = useState(String(defaultAmount));
+
+  return (
+    <div className="mt-3 rounded-2xl bg-surface-muted/60 p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          type="number"
+          min={0}
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          className="w-28 rounded-xl border border-border bg-surface px-3 py-1.5 text-sm outline-none focus:border-verified"
+        />
+        {(["bank_transfer", "standing_order", "cash"] as PaymentMethod[]).map((m) => (
+          <button
+            key={m}
+            type="button"
+            onClick={() => setMethod(m)}
+            className={`rounded-full border px-3 py-1.5 text-xs font-medium capitalize transition ${
+              method === m
+                ? "border-verified bg-verified text-[var(--color-verified-foreground)]"
+                : "border-border bg-surface hover:bg-secondary"
+            }`}
+          >
+            {m.replace(/_/g, " ")}
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={() => onSubmit(method, Number(amount) || defaultAmount)}
+          className="inline-flex items-center gap-1.5 rounded-full bg-verified px-3 py-1.5 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95"
+        >
+          <Check className="h-3.5 w-3.5" strokeWidth={3} /> Record
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+        >
+          Cancel
+        </button>
+      </div>
+      {method === "cash" ? (
+        <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <Info className="h-3.5 w-3.5" /> A statutory cash receipt will be issued automatically
+          under the Private Tenancies Act (NI) 2022.
+        </p>
+      ) : null}
     </div>
   );
 }
