@@ -596,6 +596,17 @@ function ManageTenancyPage() {
               />
             </div>
 
+            <RentScheduleCard
+              startDate={share.tenancy_start_date}
+              suggestedStart={startDate}
+              schedule={schedule}
+              arrears={arrears}
+              rent={rent}
+              onSaveStartDate={saveStartDate}
+              onLogPayment={logRentPayment}
+              onRemind={sendRentReminder}
+            />
+
             <div className="overflow-hidden rounded-3xl border border-border bg-surface">
               <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
                 <div>
@@ -623,7 +634,11 @@ function ManageTenancyPage() {
                         {new Date(r.issued_at).toLocaleDateString("en-GB")}
                       </span>
                       <span className="font-medium capitalize">
-                        {r.kind === "rent" ? "First month rent" : r.kind}
+                        {r.kind === "rent"
+                          ? r.period_label
+                            ? `Rent · ${r.period_label}`
+                            : "First month rent"
+                          : r.kind}
                       </span>
                       <span>£{Number(r.amount).toLocaleString()}</span>
                       <span className="capitalize text-muted-foreground">
@@ -655,6 +670,9 @@ function ManageTenancyPage() {
               scheme={share.deposit_scheme}
               cert={share.deposit_cert_number}
               onSave={saveDepositCert}
+              certPath={share.deposit_cert_path}
+              onUploadCert={uploadDepositCert}
+              onOpenCert={openDepositCert}
             />
           </TabsContent>
 
