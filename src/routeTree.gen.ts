@@ -9,36 +9,41 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
-import { Route as AuthenticatedTenantTenancyRouteImport } from './routes/_authenticated/tenant.tenancy'
-import { Route as AuthenticatedTenantReviewLeaseRouteImport } from './routes/_authenticated/tenant.review-lease'
-import { Route as AuthenticatedLandlordManageTenancyRouteImport } from './routes/_authenticated/landlord.manage-tenancy'
-import { Route as AuthenticatedLandlordIssueLeaseRouteImport } from './routes/_authenticated/landlord.issue-lease'
-import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
-import { Route as AuthenticatedDashboardListingEditRouteImport } from './routes/_authenticated/dashboard.listing-edit'
 import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
+import { Route as AuthenticatedDashboardListingEditRouteImport } from './routes/_authenticated/dashboard.listing-edit'
+import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
+import { Route as AuthenticatedLandlordIssueLeaseRouteImport } from './routes/_authenticated/landlord.issue-lease'
+import { Route as AuthenticatedLandlordManageTenancyRouteImport } from './routes/_authenticated/landlord.manage-tenancy'
+import { Route as AuthenticatedTenantReviewLeaseRouteImport } from './routes/_authenticated/tenant.review-lease'
+import { Route as AuthenticatedTenantTenancyRouteImport } from './routes/_authenticated/tenant.tenancy'
 import { Route as AuthenticatedDashboardPassportIndexRouteImport } from './routes/_authenticated/dashboard.passport.index'
 import { Route as AuthenticatedDashboardPassportEditRouteImport } from './routes/_authenticated/dashboard.passport.edit'
 
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ListingsIndexRoute = ListingsIndexRouteImport.update({
   id: '/listings/',
@@ -50,45 +55,16 @@ const ListingsIdRoute = ListingsIdRouteImport.update({
   path: '/listings/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
-const AuthenticatedTenantTenancyRoute =
-  AuthenticatedTenantTenancyRouteImport.update({
-    id: '/tenant/tenancy',
-    path: '/tenant/tenancy',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedTenantReviewLeaseRoute =
-  AuthenticatedTenantReviewLeaseRouteImport.update({
-    id: '/tenant/review-lease',
-    path: '/tenant/review-lease',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedLandlordManageTenancyRoute =
-  AuthenticatedLandlordManageTenancyRouteImport.update({
-    id: '/landlord/manage-tenancy',
-    path: '/landlord/manage-tenancy',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedLandlordIssueLeaseRoute =
-  AuthenticatedLandlordIssueLeaseRouteImport.update({
-    id: '/landlord/issue-lease',
-    path: '/landlord/issue-lease',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedDashboardSettingsRoute =
-  AuthenticatedDashboardSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
+const AuthenticatedDashboardApplicationsRoute =
+  AuthenticatedDashboardApplicationsRouteImport.update({
+    id: '/applications',
+    path: '/applications',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardListingEditRoute =
@@ -97,11 +73,35 @@ const AuthenticatedDashboardListingEditRoute =
     path: '/listing-edit',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
-const AuthenticatedDashboardApplicationsRoute =
-  AuthenticatedDashboardApplicationsRouteImport.update({
-    id: '/applications',
-    path: '/applications',
+const AuthenticatedDashboardSettingsRoute =
+  AuthenticatedDashboardSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
     getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedLandlordIssueLeaseRoute =
+  AuthenticatedLandlordIssueLeaseRouteImport.update({
+    id: '/landlord/issue-lease',
+    path: '/landlord/issue-lease',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLandlordManageTenancyRoute =
+  AuthenticatedLandlordManageTenancyRouteImport.update({
+    id: '/landlord/manage-tenancy',
+    path: '/landlord/manage-tenancy',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTenantReviewLeaseRoute =
+  AuthenticatedTenantReviewLeaseRouteImport.update({
+    id: '/tenant/review-lease',
+    path: '/tenant/review-lease',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTenantTenancyRoute =
+  AuthenticatedTenantTenancyRouteImport.update({
+    id: '/tenant/tenancy',
+    path: '/tenant/tenancy',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDashboardPassportIndexRoute =
   AuthenticatedDashboardPassportIndexRouteImport.update({
@@ -232,11 +232,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -246,12 +246,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/listings/': {
       id: '/listings/'
@@ -267,13 +274,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/dashboard/': {
       id: '/_authenticated/dashboard/'
       path: '/'
@@ -281,39 +281,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/_authenticated/tenant/tenancy': {
-      id: '/_authenticated/tenant/tenancy'
-      path: '/tenant/tenancy'
-      fullPath: '/tenant/tenancy'
-      preLoaderRoute: typeof AuthenticatedTenantTenancyRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/tenant/review-lease': {
-      id: '/_authenticated/tenant/review-lease'
-      path: '/tenant/review-lease'
-      fullPath: '/tenant/review-lease'
-      preLoaderRoute: typeof AuthenticatedTenantReviewLeaseRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/landlord/manage-tenancy': {
-      id: '/_authenticated/landlord/manage-tenancy'
-      path: '/landlord/manage-tenancy'
-      fullPath: '/landlord/manage-tenancy'
-      preLoaderRoute: typeof AuthenticatedLandlordManageTenancyRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/landlord/issue-lease': {
-      id: '/_authenticated/landlord/issue-lease'
-      path: '/landlord/issue-lease'
-      fullPath: '/landlord/issue-lease'
-      preLoaderRoute: typeof AuthenticatedLandlordIssueLeaseRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/dashboard/settings': {
-      id: '/_authenticated/dashboard/settings'
-      path: '/settings'
-      fullPath: '/dashboard/settings'
-      preLoaderRoute: typeof AuthenticatedDashboardSettingsRouteImport
+    '/_authenticated/dashboard/applications': {
+      id: '/_authenticated/dashboard/applications'
+      path: '/applications'
+      fullPath: '/dashboard/applications'
+      preLoaderRoute: typeof AuthenticatedDashboardApplicationsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/listing-edit': {
@@ -323,12 +295,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardListingEditRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/_authenticated/dashboard/applications': {
-      id: '/_authenticated/dashboard/applications'
-      path: '/applications'
-      fullPath: '/dashboard/applications'
-      preLoaderRoute: typeof AuthenticatedDashboardApplicationsRouteImport
+    '/_authenticated/dashboard/settings': {
+      id: '/_authenticated/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof AuthenticatedDashboardSettingsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/landlord/issue-lease': {
+      id: '/_authenticated/landlord/issue-lease'
+      path: '/landlord/issue-lease'
+      fullPath: '/landlord/issue-lease'
+      preLoaderRoute: typeof AuthenticatedLandlordIssueLeaseRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/landlord/manage-tenancy': {
+      id: '/_authenticated/landlord/manage-tenancy'
+      path: '/landlord/manage-tenancy'
+      fullPath: '/landlord/manage-tenancy'
+      preLoaderRoute: typeof AuthenticatedLandlordManageTenancyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tenant/review-lease': {
+      id: '/_authenticated/tenant/review-lease'
+      path: '/tenant/review-lease'
+      fullPath: '/tenant/review-lease'
+      preLoaderRoute: typeof AuthenticatedTenantReviewLeaseRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tenant/tenancy': {
+      id: '/_authenticated/tenant/tenancy'
+      path: '/tenant/tenancy'
+      fullPath: '/tenant/tenancy'
+      preLoaderRoute: typeof AuthenticatedTenantTenancyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard/passport/': {
       id: '/_authenticated/dashboard/passport/'
@@ -405,3 +405,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
