@@ -1,37 +1,41 @@
-## Current test accounts
+# Outstanding items in the Roost build
 
-Two accounts exist from previous testing:
+A read-through of the routes, components and schema turned up the following gaps. Nothing here is broken — these are unbuilt or stubbed pieces.
 
-| Account | Role | User ID |
-|---|---|---|
-| Scott Gibson (`gibsonscott005@gmail.com`) | tenant | `a287f3a2-d0b4-42e5-9b71-7cc330547f40` |
-| Patricia Gibson (`usgibsons2004@gmail.com`) | landlord | `90ab437a-68fa-48f5-b3e9-1d304a5c38f7` |
+## 1. Explicitly stubbed "Coming soon" buttons
+- **Tenancy Information Notice (NI)** download — disabled button in the tenant Documents tab and in the landlord Documents tab. No generator exists for the statutory notice yet.
+- The landlord side has a working "Download / print" for the lease; the tenant side has no equivalent lease copy download.
 
-Associated data currently in the database:
-- 2 property listings, 2 passport shares, 2 tenant passports
-- 1 maintenance ticket, 12 inventory items, 7 notifications
-- 0 tenancy receipts, 0 verification audit logs
+## 2. Property photos
+No image upload anywhere. Listing cards and the detail page both render a "Photos coming soon" placeholder. Needs a storage bucket, an upload control in the create-listing form, and a gallery on the card and detail page.
 
-## Clean-slate deletion plan
+## 3. Custom lease PDF path
+"Issue lease" lets a landlord pick **Custom PDF** and select a file, but the file is only held in component state — it is not uploaded to storage, and the tenant review screen only renders the Roost standard template. A landlord choosing Custom currently issues a lease the tenant cannot read.
 
-Wipe both users and all their associated data so you can re-run the full flow from scratch.
+## 4. Rent ledger stops after move-in
+`tenancy_receipts` only records the one-off deposit and first month's rent. There is no ongoing monthly rent schedule, arrears view, or recurring reminder — so the workspace goes quiet after move-in.
 
-1. **Delete storage objects** in the `tenant-documents` bucket under both users' folders (identity, income, references, maintenance photos).
-2. **Delete public-schema rows** in FK-safe order:
-   - `maintenance_tickets`, `tenancy_receipts`, `tenancy_inventory_items`
-   - `notifications`, `notification_preferences`, `verification_audit_logs`
-   - `passport_shares`, `tenant_passports`, `property_listings`
-   - `profiles`
-3. **Delete auth users** for both IDs via the admin API (this also cascades any remaining `auth.*` rows).
-4. **Verify** counts return zero across all tables and `auth.users` no longer contains either email.
+## 5. Deposit protection — certificate document
+The scheme name and certificate number are saved, but there is no upload of the actual certificate PDF for the tenant to view. The 28-day countdown has no reminder notification attached either.
 
-After this you'll have a clean canvas: sign up fresh tenant + landlord accounts at `/auth` and run the end-to-end flow (listing → apply → accept → issue lease → sign → counter-sign → tenancy workspace → maintenance).
+## 6. `notification_preferences` table is unused
+The table exists in the schema but no app code reads or writes it — there is no settings screen and no per-type mute. The bell shows everything.
 
-### Options
+## 7. Listings browse is search-only
+One free-text box. No filters for rent range, bedrooms, heating type, location, or "hide Let Agreed", and no sort. Fine for a handful of listings, thin once the feed grows.
 
-- **A. Delete both accounts** (fresh tenant + landlord signups).
-- **B. Delete only the tenant** (`gibsonscott005@gmail.com`) — keep the landlord + their listings so you can test applying from a brand new tenant against existing inventory.
-- **C. Delete only the landlord** (`usgibsons2004@gmail.com`).
-- **D. Keep both, just wipe transactional data** (listings, shares, tickets, receipts, inventory, notifications) so the accounts remain but the workspace is empty.
+## 8. Smaller items
+- No account/profile settings page (change name, email, password, delete account).
+- No way for a landlord to edit or unpublish a listing after creating it; drafts can be saved but not reopened.
+- No tenant-side view of past or ended tenancies — the workspace only handles the current one.
+- Inventory has landlord entry and tenant sign-off, but no dispute or comment path if the tenant disagrees.
 
-Which option do you want? Default recommendation: **A** for a truly clean trial.
+## Suggested order
+1. Property photos (biggest visible gap for tenants browsing)
+2. Custom lease PDF upload and tenant rendering (correctness issue)
+3. Ongoing rent ledger and arrears
+4. Listing edit/unpublish plus browse filters
+5. Statutory notice generator and deposit certificate upload
+6. Notification preferences and account settings
+
+Approve this to work through the list in that order, or tell me which item to start with and I'll scope just that one.
