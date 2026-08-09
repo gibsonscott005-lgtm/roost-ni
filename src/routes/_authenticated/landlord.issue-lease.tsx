@@ -77,12 +77,33 @@ function IssueLeasePage() {
       toast.error("Missing application reference");
       return;
     }
+
+    let documentPath: string | null = null;
+    if (choice === "custom" && customFile) {
+      const ext = (customFile.name.split(".").pop() ?? "pdf").toLowerCase();
+      const path = `${shareId}/lease-${Date.now()}.${ext}`;
+      const bytes = await customFile.arrayBuffer();
+      const { error: upErr } = await supabase.storage
+        .from("tenancy-documents")
+        .upload(path, bytes, {
+          contentType: customFile.type || "application/pdf",
+          upsert: true,
+        });
+      if (upErr) {
+        toast.error("Couldn't upload the lease document", { description: upErr.message });
+        return;
+      }
+      documentPath = path;
+    }
+
     const { error } = await supabase
       .from("passport_shares")
       .update({
         lease_status: "sent_to_tenant",
         lease_oil_clause: oilClause,
         lease_sent_at: new Date().toISOString(),
+        lease_kind: choice === "custom" ? "custom" : "standard",
+        lease_document_path: documentPath,
       })
       .eq("id", shareId);
     if (error) {
