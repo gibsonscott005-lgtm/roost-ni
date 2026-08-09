@@ -727,10 +727,31 @@ function TenantTenancyPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => window.print()}
+                  onClick={() => {
+                    if (share.lease_kind === "custom" && share.lease_document_path) {
+                      void openStoredDoc(share.lease_document_path);
+                      return;
+                    }
+                    openPrintable(
+                      leaseDocumentHtml({
+                        tenantName: profile?.full_name || "Tenant",
+                        landlordName: "Your landlord",
+                        address,
+                        rent,
+                        deposit,
+                        tenantSignature: share.lease_signed_name || profile?.full_name || "",
+                        tenantSignedAt: share.lease_signed_at,
+                        oilClause: !!share.lease_oil_clause,
+                        counterSigned: share.lease_status === "counter_signed",
+                      }),
+                    );
+                  }}
                   className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-foreground shadow-sm transition hover:bg-surface-muted"
                 >
-                  <Download className="h-3.5 w-3.5" /> Download printable PDF
+                  <Download className="h-3.5 w-3.5" />
+                  {share.lease_kind === "custom" && share.lease_document_path
+                    ? "Open lease PDF"
+                    : "Download printable PDF"}
                 </button>
               </div>
               <div className="flex flex-col justify-between rounded-3xl border border-border bg-surface p-5 transition hover:border-foreground/20">
@@ -745,10 +766,27 @@ function TenantTenancyPage() {
                 </div>
                 <button
                   type="button"
-                  disabled
-                  className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-muted-foreground shadow-sm"
+                  onClick={() =>
+                    openPrintable(
+                      tenancyInfoNoticeHtml({
+                        tenantName: profile?.full_name || "Tenant",
+                        landlordName: "Your landlord",
+                        address,
+                        rent,
+                        deposit,
+                        depositScheme: share.deposit_scheme,
+                        depositCertNumber: share.deposit_cert_number,
+                        depositProtectedAt: share.deposit_protected_at,
+                        tenancyStart: share.tenancy_start_date || share.lease_signed_at,
+                        heatingType: listing?.heating_type ?? null,
+                        landlordRegNumber: listing?.ni_landlord_reg_number ?? null,
+                        oilClause: !!share.lease_oil_clause,
+                      }),
+                    )
+                  }
+                  className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-foreground shadow-sm transition hover:bg-surface-muted"
                 >
-                  <Download className="h-3.5 w-3.5" /> Coming soon
+                  <Download className="h-3.5 w-3.5" /> Download notice
                 </button>
               </div>
             </div>
