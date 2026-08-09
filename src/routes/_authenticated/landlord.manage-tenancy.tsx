@@ -19,6 +19,13 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { leaseDocumentHtml, openPrintable, tenancyInfoNoticeHtml } from "@/lib/tenancy-docs";
+import {
+  arrearsSummary,
+  buildRentSchedule,
+  RENT_STATE_LABEL,
+  rentStateClasses,
+  type RentMonth,
+} from "@/lib/rent-schedule";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification } from "@/lib/notifications.functions";
@@ -67,6 +74,8 @@ interface ShareRow {
   deposit_protected_at: string | null;
   oil_handover_level: OilLevel | null;
   inventory_completed_at: string | null;
+  tenancy_start_date: string | null;
+  deposit_cert_path: string | null;
   tenant: { full_name: string | null } | null;
   listing: {
     id: string;
@@ -90,6 +99,8 @@ interface ReceiptRow {
   statutory_cash: boolean;
   notes: string | null;
   issued_at: string;
+  due_date: string | null;
+  period_label: string | null;
 }
 
 interface InventoryRow {
