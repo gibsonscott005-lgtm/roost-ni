@@ -20,6 +20,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification } from "@/lib/notifications.functions";
+import { leaseDocumentHtml, openPrintable, tenancyInfoNoticeHtml } from "@/lib/tenancy-docs";
+import {
+  arrearsSummary,
+  buildRentSchedule,
+  RENT_STATE_LABEL,
+  rentStateClasses,
+} from "@/lib/rent-schedule";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TenantMaintenanceTab } from "@/components/maintenance-panel";
 
@@ -52,15 +59,21 @@ interface ShareRow {
   lease_status: string | null;
   lease_signed_at: string | null;
   lease_sent_at: string | null;
+  lease_signed_name: string | null;
+  lease_oil_clause: boolean | null;
+  lease_kind: string | null;
+  lease_document_path: string | null;
   deposit_status: FundStatus;
   rent_status: FundStatus;
   deposit_payment_method: PaymentMethod | null;
   rent_payment_method: PaymentMethod | null;
   deposit_scheme: string | null;
   deposit_cert_number: string | null;
+  deposit_cert_path: string | null;
   deposit_protected_at: string | null;
   oil_handover_level: OilLevel | null;
   inventory_completed_at: string | null;
+  tenancy_start_date: string | null;
   listing: {
     id: string;
     landlord_id: string;
@@ -71,6 +84,7 @@ interface ShareRow {
     deposit: number | null;
     heating_type: string | null;
     enforce_empty_in_full_out: boolean | null;
+    ni_landlord_reg_number?: string | null;
   } | null;
 }
 
@@ -82,6 +96,8 @@ interface ReceiptRow {
   method: string;
   statutory_cash: boolean;
   issued_at: string;
+  due_date?: string | null;
+  period_label?: string | null;
 }
 
 interface InventoryRow {
@@ -142,7 +158,7 @@ function TenantTenancyPage() {
       const { data: share, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_sent_at, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_protected_at, oil_handover_level, inventory_completed_at, listing:property_listings!listing_id(id, landlord_id, title, address, location, monthly_rent, deposit, heating_type, enforce_empty_in_full_out)",
+          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_sent_at, lease_signed_name, lease_oil_clause, lease_kind, lease_document_path, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_cert_path, deposit_protected_at, oil_handover_level, inventory_completed_at, tenancy_start_date, listing:property_listings!listing_id(id, landlord_id, title, address, location, monthly_rent, deposit, heating_type, enforce_empty_in_full_out, ni_landlord_reg_number)",
         )
         .eq("id", shareId!)
         .maybeSingle();
