@@ -55,6 +55,8 @@ interface ShareRow {
   lease_signed_name: string | null;
   lease_sent_at: string | null;
   lease_oil_clause: boolean | null;
+  lease_kind: string | null;
+  lease_document_path: string | null;
   deposit_status: FundStatus;
   rent_status: FundStatus;
   deposit_payment_method: PaymentMethod | null;
@@ -73,6 +75,7 @@ interface ShareRow {
     monthly_rent: number | null;
     deposit: number | null;
     heating_type: string | null;
+    ni_landlord_reg_number: string | null;
     enforce_empty_in_full_out: boolean | null;
   } | null;
 }
@@ -132,7 +135,7 @@ function ManageTenancyPage() {
       const { data: share, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, lease_sent_at, lease_oil_clause, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_protected_at, oil_handover_level, inventory_completed_at, tenant:profiles!tenant_id(full_name), listing:property_listings!listing_id(id, title, address, location, monthly_rent, deposit, heating_type, enforce_empty_in_full_out)",
+          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, lease_sent_at, lease_oil_clause, lease_kind, lease_document_path, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_protected_at, oil_handover_level, inventory_completed_at, tenant:profiles!tenant_id(full_name), listing:property_listings!listing_id(id, title, address, location, monthly_rent, deposit, heating_type, ni_landlord_reg_number, enforce_empty_in_full_out)",
         )
         .eq("id", shareId!)
         .maybeSingle();
