@@ -38,7 +38,12 @@ export const emitNotificationSchema = z.object({
   entity_id: z.string().uuid(),
   title: z.string().min(1).max(140),
   body: z.string().max(500).nullable().optional(),
-  link_path: z.string().min(1).max(500),
+  // Only same-origin relative paths — never an absolute/external URL.
+  link_path: z
+    .string()
+    .min(1)
+    .max(500)
+    .regex(/^\/(?!\/)[A-Za-z0-9\-._~!$&'()*+,;=:@/?%#[\]]*$/, "link_path must be a relative app path"),
 });
 
 export type EmitNotificationInput = z.infer<typeof emitNotificationSchema>;
@@ -53,6 +58,18 @@ export const emitNotification = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import(
       "@/integrations/supabase/client.server"
     );
+
+    // Verify the caller and the recipient are the two counterparties of the
+    // entity referenced. Without this, any signed-in user could push
+    // official-looking notifications to any other user.
+    const parties = await resolveParties(supabaseAdmin, data.entity_type, data.entity_id);
+    if (
+      !parties ||
+      !parties.includes(context.userId) ||
+      !parties.includes(data.recipient_id)
+    ) {
+      throw new Error("Forbidden: no relationship with the recipient for this record");
+    }
 
     const { data: rpcData, error } = await supabaseAdmin.rpc("emit_notification", {
       p_recipient_id: data.recipient_id,
