@@ -16,6 +16,7 @@ import {
   BadgeCheck,
   IdCard,
   ExternalLink,
+  Pencil,
   Loader2,
   ArrowRight,
   FileSignature,
