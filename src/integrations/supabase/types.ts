@@ -618,6 +618,8 @@ export type Database = {
         | "maintenance_reported"
         | "maintenance_updated"
         | "maintenance_resolved"
+        | "rent_due_reminder"
+        | "rent_overdue"
       share_status: "pending" | "reviewed" | "accepted"
       verification_status:
         | "unverified"
@@ -772,6 +774,8 @@ export const Constants = {
         "maintenance_reported",
         "maintenance_updated",
         "maintenance_resolved",
+        "rent_due_reminder",
+        "rent_overdue",
       ],
       share_status: ["pending", "reviewed", "accepted"],
       verification_status: [
