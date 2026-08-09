@@ -342,7 +342,9 @@ function ListingCard({ listing }: { listing: Listing }) {
       params={{ id: listing.id }}
       className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_0_rgba(15,23,42,0.03),0_12px_28px_-24px_rgba(15,23,42,0.18)] transition hover:border-foreground/15 hover:shadow-[0_1px_0_rgba(15,23,42,0.04),0_20px_36px_-24px_rgba(15,23,42,0.25)]"
     >
-      <PhotoPlaceholder />
+      <div className="border-b border-border">
+        <ListingCover paths={listing.photo_urls} alt={listing.title} />
+      </div>
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-start justify-between gap-3">
           <h3 className="font-display text-base font-semibold tracking-tight text-foreground">
@@ -385,28 +387,5 @@ function ListingCard({ listing }: { listing: Listing }) {
         </div>
       </div>
     </Link>
-  );
-}
-
-function PhotoPlaceholder() {
-  return (
-    <div className="relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden border-b border-border bg-[linear-gradient(135deg,var(--color-surface-muted)_0%,var(--color-secondary)_100%)]">
-      <div
-        className="absolute inset-0 opacity-60"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 1px 1px, rgba(15,23,42,0.08) 1px, transparent 0)",
-          backgroundSize: "14px 14px",
-        }}
-      />
-      <div className="relative flex flex-col items-center gap-1.5 text-muted-foreground">
-        <span className="grid h-10 w-10 place-items-center rounded-full border border-border bg-surface/80 backdrop-blur">
-          <ImageIcon className="h-4 w-4" />
-        </span>
-        <span className="text-[10px] font-medium uppercase tracking-[0.18em]">
-          Photos coming soon
-        </span>
-      </div>
-    </div>
   );
 }
