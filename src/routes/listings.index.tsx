@@ -5,13 +5,14 @@ import {
   ChevronDown,
   Flame,
   Home,
-  ImageIcon,
   MapPin,
   PoundSterling,
   Search,
   ShieldCheck,
+  SlidersHorizontal,
 } from "lucide-react";
 import { ViewSwitcher } from "../components/view-switcher";
+import { ListingCover } from "@/components/listing-photos";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/listings/")({
@@ -43,18 +44,34 @@ interface Listing {
   heating_type: string;
   enforce_empty_in_full_out: boolean;
   status: string;
+  photo_urls: string[] | null;
 }
+
+const HEATING_FILTERS = ["Any", "Oil", "Gas", "Electric"] as const;
+type SortKey = "newest" | "rent_asc" | "rent_desc";
+const SORTS: { key: SortKey; label: string }[] = [
+  { key: "newest", label: "Newest first" },
+  { key: "rent_asc", label: "Rent: low to high" },
+  { key: "rent_desc", label: "Rent: high to low" },
+];
 
 function ListingsIndexPage() {
   const [query, setQuery] = useState("");
   const [rows, setRows] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [maxRent, setMaxRent] = useState("");
+  const [minRent, setMinRent] = useState("");
+  const [heating, setHeating] = useState<(typeof HEATING_FILTERS)[number]>("Any");
+  const [fairFuelOnly, setFairFuelOnly] = useState(false);
+  const [hideLetAgreed, setHideLetAgreed] = useState(false);
+  const [sort, setSort] = useState<SortKey>("newest");
 
   useEffect(() => {
     supabase
       .from("property_listings")
       .select(
-        "id, title, monthly_rent, address, location, heating_type, enforce_empty_in_full_out, status",
+        "id, title, monthly_rent, address, location, heating_type, enforce_empty_in_full_out, status, photo_urls",
       )
       .eq("is_published", true)
       .order("created_at", { ascending: false })
@@ -66,13 +83,47 @@ function ListingsIndexPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((l) =>
-      [l.title, l.address, l.location ?? "", l.heating_type].some((v) =>
-        v.toLowerCase().includes(q),
-      ),
-    );
-  }, [rows, query]);
+    const min = minRent ? Number(minRent) : null;
+    const max = maxRent ? Number(maxRent) : null;
+
+    const list = rows.filter((l) => {
+      if (
+        q &&
+        ![l.title, l.address, l.location ?? "", l.heating_type].some((v) =>
+          v.toLowerCase().includes(q),
+        )
+      )
+        return false;
+      const rent = Number(l.monthly_rent);
+      if (min !== null && rent < min) return false;
+      if (max !== null && rent > max) return false;
+      if (heating !== "Any" && l.heating_type !== heating) return false;
+      if (fairFuelOnly && !l.enforce_empty_in_full_out) return false;
+      if (hideLetAgreed && l.status !== "available") return false;
+      return true;
+    });
+
+    if (sort === "rent_asc")
+      return [...list].sort((a, b) => Number(a.monthly_rent) - Number(b.monthly_rent));
+    if (sort === "rent_desc")
+      return [...list].sort((a, b) => Number(b.monthly_rent) - Number(a.monthly_rent));
+    return list;
+  }, [rows, query, minRent, maxRent, heating, fairFuelOnly, hideLetAgreed, sort]);
+
+  const activeFilters =
+    (minRent ? 1 : 0) +
+    (maxRent ? 1 : 0) +
+    (heating !== "Any" ? 1 : 0) +
+    (fairFuelOnly ? 1 : 0) +
+    (hideLetAgreed ? 1 : 0);
+
+  const clearFilters = () => {
+    setMinRent("");
+    setMaxRent("");
+    setHeating("Any");
+    setFairFuelOnly(false);
+    setHideLetAgreed(false);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -93,21 +144,111 @@ function ListingsIndexPage() {
           </p>
         </div>
 
-        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-border bg-surface p-2 shadow-[0_1px_0_rgba(15,23,42,0.04),0_12px_28px_-24px_rgba(15,23,42,0.18)]">
-          <Search className="ml-2 h-4 w-4 text-muted-foreground" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by location, postcode or heating type…"
-            className="h-10 w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground/80 focus:outline-none"
-          />
-          <button
-            type="button"
-            className="hidden items-center gap-1.5 rounded-xl border border-border bg-surface-muted px-3 py-2 text-xs font-medium text-muted-foreground transition hover:text-foreground sm:inline-flex"
-          >
-            Filters
-            <ChevronDown className="h-3.5 w-3.5" />
-          </button>
+        <div className="mb-6 rounded-2xl border border-border bg-surface p-2 shadow-[0_1px_0_rgba(15,23,42,0.04),0_12px_28px_-24px_rgba(15,23,42,0.18)]">
+          <div className="flex items-center gap-2">
+            <Search className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by location, postcode or heating type…"
+              className="h-10 w-full min-w-0 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/80 focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => setFiltersOpen((o) => !o)}
+              aria-expanded={filtersOpen}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-border bg-surface-muted px-3 py-2 text-xs font-medium text-muted-foreground transition hover:text-foreground"
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Filters</span>
+              {activeFilters > 0 ? (
+                <span className="grid h-4 min-w-4 place-items-center rounded-full bg-verified px-1 text-[10px] font-semibold text-[var(--color-verified-foreground)]">
+                  {activeFilters}
+                </span>
+              ) : null}
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition ${filtersOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+          </div>
+
+          {filtersOpen ? (
+            <div className="mt-2 space-y-4 border-t border-border px-2 pb-3 pt-4">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <label className="block">
+                  <span className="text-xs font-medium text-muted-foreground">Min rent (£)</span>
+                  <input
+                    inputMode="numeric"
+                    value={minRent}
+                    onChange={(e) => setMinRent(e.target.value.replace(/[^0-9]/g, ""))}
+                    placeholder="400"
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-xs font-medium text-muted-foreground">Max rent (£)</span>
+                  <input
+                    inputMode="numeric"
+                    value={maxRent}
+                    onChange={(e) => setMaxRent(e.target.value.replace(/[^0-9]/g, ""))}
+                    placeholder="1200"
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-xs font-medium text-muted-foreground">Heating</span>
+                  <select
+                    value={heating}
+                    onChange={(e) =>
+                      setHeating(e.target.value as (typeof HEATING_FILTERS)[number])
+                    }
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                  >
+                    {HEATING_FILTERS.map((h) => (
+                      <option key={h} value={h}>
+                        {h}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-xs font-medium text-muted-foreground">Sort by</span>
+                  <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value as SortKey)}
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                  >
+                    {SORTS.map((s) => (
+                      <option key={s.key} value={s.key}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <FilterChip
+                  active={fairFuelOnly}
+                  onClick={() => setFairFuelOnly((v) => !v)}
+                  label="Fair Fuel only"
+                />
+                <FilterChip
+                  active={hideLetAgreed}
+                  onClick={() => setHideLetAgreed((v) => !v)}
+                  label="Hide Let Agreed"
+                />
+                {activeFilters > 0 ? (
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="ml-auto text-xs font-medium text-muted-foreground underline underline-offset-4 transition hover:text-foreground"
+                  >
+                    Clear all
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {!loading && rows.length === 0 ? (
@@ -129,11 +270,36 @@ function ListingsIndexPage() {
 
         {!loading && rows.length > 0 && filtered.length === 0 ? (
           <p className="mt-10 text-center text-sm text-muted-foreground">
-            No listings match your search yet.
+            No listings match your search or filters yet.
           </p>
         ) : null}
       </main>
     </div>
+  );
+}
+
+function FilterChip({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition ${
+        active
+          ? "border-verified bg-verified-soft text-verified"
+          : "border-border bg-surface-muted text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 
@@ -176,7 +342,9 @@ function ListingCard({ listing }: { listing: Listing }) {
       params={{ id: listing.id }}
       className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_0_rgba(15,23,42,0.03),0_12px_28px_-24px_rgba(15,23,42,0.18)] transition hover:border-foreground/15 hover:shadow-[0_1px_0_rgba(15,23,42,0.04),0_20px_36px_-24px_rgba(15,23,42,0.25)]"
     >
-      <PhotoPlaceholder />
+      <div className="border-b border-border">
+        <ListingCover paths={listing.photo_urls} alt={listing.title} />
+      </div>
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-start justify-between gap-3">
           <h3 className="font-display text-base font-semibold tracking-tight text-foreground">
@@ -219,28 +387,5 @@ function ListingCard({ listing }: { listing: Listing }) {
         </div>
       </div>
     </Link>
-  );
-}
-
-function PhotoPlaceholder() {
-  return (
-    <div className="relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden border-b border-border bg-[linear-gradient(135deg,var(--color-surface-muted)_0%,var(--color-secondary)_100%)]">
-      <div
-        className="absolute inset-0 opacity-60"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 1px 1px, rgba(15,23,42,0.08) 1px, transparent 0)",
-          backgroundSize: "14px 14px",
-        }}
-      />
-      <div className="relative flex flex-col items-center gap-1.5 text-muted-foreground">
-        <span className="grid h-10 w-10 place-items-center rounded-full border border-border bg-surface/80 backdrop-blur">
-          <ImageIcon className="h-4 w-4" />
-        </span>
-        <span className="text-[10px] font-medium uppercase tracking-[0.18em]">
-          Photos coming soon
-        </span>
-      </div>
-    </div>
   );
 }

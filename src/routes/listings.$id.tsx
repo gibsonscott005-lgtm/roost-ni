@@ -15,7 +15,6 @@ import {
   Check,
   Flame,
   Home,
-  ImageIcon,
   MapPin,
   PoundSterling,
   ShieldCheck,
@@ -23,6 +22,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { ListingGallery } from "@/components/listing-photos";
 
 interface ListingDetail {
   id: string;
@@ -36,6 +36,7 @@ interface ListingDetail {
   enforce_empty_in_full_out: boolean;
   tenant_preferences: string[];
   status: string;
+  photo_urls: string[] | null;
 }
 
 export const Route = createFileRoute("/listings/$id")({
@@ -43,7 +44,7 @@ export const Route = createFileRoute("/listings/$id")({
     const { data, error } = await supabase
       .from("property_listings")
       .select(
-        "id, title, address, location, monthly_rent, deposit, ni_landlord_reg_number, heating_type, enforce_empty_in_full_out, tenant_preferences, status",
+        "id, title, address, location, monthly_rent, deposit, ni_landlord_reg_number, heating_type, enforce_empty_in_full_out, tenant_preferences, status, photo_urls",
       )
       .eq("id", params.id)
       .eq("is_published", true)
@@ -140,7 +141,9 @@ function ListingDetailPage() {
           </div>
         </div>
 
-        <PhotoGalleryPlaceholder />
+        <section className="mt-6 overflow-hidden rounded-3xl border border-border bg-surface shadow-[0_1px_0_rgba(15,23,42,0.03)]">
+          <ListingGallery paths={listing.photo_urls} alt={listing.title} />
+        </section>
 
         <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Stat
@@ -398,34 +401,6 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
       </p>
       <p className="mt-1 font-display text-xl font-semibold tracking-tight">{value}</p>
     </div>
-  );
-}
-
-function PhotoGalleryPlaceholder() {
-  return (
-    <section className="mt-6 overflow-hidden rounded-3xl border border-border bg-surface shadow-[0_1px_0_rgba(15,23,42,0.03)]">
-      <div className="relative flex aspect-[16/9] w-full items-center justify-center bg-[linear-gradient(135deg,var(--color-surface-muted)_0%,var(--color-secondary)_100%)]">
-        <div
-          className="absolute inset-0 opacity-60"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 1px 1px, rgba(15,23,42,0.08) 1px, transparent 0)",
-            backgroundSize: "16px 16px",
-          }}
-        />
-        <div className="relative flex flex-col items-center gap-2 text-muted-foreground">
-          <span className="grid h-12 w-12 place-items-center rounded-full border border-border bg-surface/85 backdrop-blur">
-            <ImageIcon className="h-5 w-5" />
-          </span>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.18em]">
-            Photos coming soon
-          </span>
-          <span className="max-w-xs text-center text-xs text-muted-foreground/80">
-            The landlord hasn't uploaded photos for this property yet.
-          </span>
-        </div>
-      </div>
-    </section>
   );
 }
 

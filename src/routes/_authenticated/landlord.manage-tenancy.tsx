@@ -18,6 +18,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { leaseDocumentHtml, openPrintable, tenancyInfoNoticeHtml } from "@/lib/tenancy-docs";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification } from "@/lib/notifications.functions";
@@ -55,6 +56,8 @@ interface ShareRow {
   lease_signed_name: string | null;
   lease_sent_at: string | null;
   lease_oil_clause: boolean | null;
+  lease_kind: string | null;
+  lease_document_path: string | null;
   deposit_status: FundStatus;
   rent_status: FundStatus;
   deposit_payment_method: PaymentMethod | null;
@@ -73,6 +76,7 @@ interface ShareRow {
     monthly_rent: number | null;
     deposit: number | null;
     heating_type: string | null;
+    ni_landlord_reg_number: string | null;
     enforce_empty_in_full_out: boolean | null;
   } | null;
 }
@@ -132,7 +136,7 @@ function ManageTenancyPage() {
       const { data: share, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, lease_sent_at, lease_oil_clause, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_protected_at, oil_handover_level, inventory_completed_at, tenant:profiles!tenant_id(full_name), listing:property_listings!listing_id(id, title, address, location, monthly_rent, deposit, heating_type, enforce_empty_in_full_out)",
+          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, lease_sent_at, lease_oil_clause, lease_kind, lease_document_path, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_protected_at, oil_handover_level, inventory_completed_at, tenant:profiles!tenant_id(full_name), listing:property_listings!listing_id(id, title, address, location, monthly_rent, deposit, heating_type, ni_landlord_reg_number, enforce_empty_in_full_out)",
         )
         .eq("id", shareId!)
         .maybeSingle();
@@ -1097,7 +1101,7 @@ function DocumentsTab({
   deposit: number;
 }) {
   const printLease = () => {
-    const html = leaseHtml({
+    const html = leaseDocumentHtml({
       tenantName,
       landlordName,
       address,
@@ -1106,15 +1110,45 @@ function DocumentsTab({
       tenantSignature: share.lease_signed_name || tenantName,
       tenantSignedAt: share.lease_signed_at,
       oilClause: !!share.lease_oil_clause,
+      counterSigned: share.lease_status === "counter_signed",
     });
-    const w = window.open("", "_blank", "noopener,width=900,height=1100");
-    if (!w) {
+    if (!openPrintable(html)) {
       toast.error("Pop-up blocked — please allow pop-ups to download the lease.");
+    }
+  };
+
+  const isCustom = share.lease_kind === "custom" && !!share.lease_document_path;
+
+  const openCustomLease = async () => {
+    if (!share.lease_document_path) return;
+    const { data, error } = await supabase.storage
+      .from("tenancy-documents")
+      .createSignedUrl(share.lease_document_path, 120);
+    if (error || !data?.signedUrl) {
+      toast.error("Couldn't open the lease document", { description: error?.message });
       return;
     }
-    w.document.write(html);
-    w.document.close();
-    setTimeout(() => w.print(), 400);
+    window.open(data.signedUrl, "_blank", "noopener");
+  };
+
+  const printNotice = () => {
+    const html = tenancyInfoNoticeHtml({
+      tenantName,
+      landlordName,
+      address,
+      rent,
+      deposit,
+      depositScheme: share.deposit_scheme,
+      depositCertNumber: share.deposit_cert_number,
+      depositProtectedAt: share.deposit_protected_at,
+      tenancyStart: share.lease_signed_at,
+      heatingType: share.listing?.heating_type ?? null,
+      landlordRegNumber: share.listing?.ni_landlord_reg_number ?? null,
+      oilClause: !!share.lease_oil_clause,
+    });
+    if (!openPrintable(html)) {
+      toast.error("Pop-up blocked — please allow pop-ups to download the notice.");
+    }
   };
 
   return (
@@ -1126,7 +1160,7 @@ function DocumentsTab({
           </span>
           <div>
             <p className="font-display text-base font-semibold tracking-tight">
-              Roost Standard NI Tenancy Agreement
+              {isCustom ? "Custom tenancy agreement (uploaded)" : "Roost Standard NI Tenancy Agreement"}
             </p>
             <p className="text-xs text-muted-foreground">Fully executed · ready to download</p>
           </div>
@@ -1146,13 +1180,28 @@ function DocumentsTab({
             </span>
           </li>
         </ul>
-        <button
-          type="button"
-          onClick={printLease}
-          className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
-        >
-          <Download className="h-3.5 w-3.5" /> Download / print
-        </button>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {isCustom ? (
+            <button
+              type="button"
+              onClick={openCustomLease}
+              className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
+            >
+              <Download className="h-3.5 w-3.5" /> Open uploaded lease
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={printLease}
+            className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition ${
+              isCustom
+                ? "border border-border bg-surface text-foreground hover:bg-secondary"
+                : "bg-foreground text-background hover:brightness-110"
+            }`}
+          >
+            <Download className="h-3.5 w-3.5" /> {isCustom ? "Signature record" : "Download / print"}
+          </button>
+        </div>
       </div>
 
       <div className="rounded-3xl border border-border bg-surface p-5">
@@ -1173,49 +1222,12 @@ function DocumentsTab({
         </p>
         <button
           type="button"
-          disabled
-          className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-4 py-2 text-xs font-semibold text-muted-foreground"
+          onClick={printNotice}
+          className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
         >
-          Coming soon
+          <Download className="h-3.5 w-3.5" /> Generate notice
         </button>
       </div>
     </div>
   );
-}
-
-function leaseHtml(opts: {
-  tenantName: string;
-  landlordName: string;
-  address: string;
-  rent: number;
-  deposit: number;
-  tenantSignature: string;
-  tenantSignedAt: string | null;
-  oilClause: boolean;
-}) {
-  const { tenantName, landlordName, address, rent, deposit, tenantSignature, tenantSignedAt, oilClause } = opts;
-  const signedAt = tenantSignedAt ? new Date(tenantSignedAt).toLocaleString("en-GB") : new Date().toLocaleString("en-GB");
-  return `<!doctype html><html><head><meta charset="utf-8"><title>Roost NI Tenancy Agreement — ${address}</title>
-    <style>
-      body{font:14px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0f172a;max-width:760px;margin:32px auto;padding:0 24px}
-      h1{font-size:22px;margin:0 0 4px} h2{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#64748b;margin-top:24px}
-      .clause{margin:14px 0} .clause h3{font-size:15px;margin:0 0 4px}
-      .sig{display:flex;gap:24px;margin-top:36px;border-top:1px solid #e2e8f0;padding-top:18px}
-      .sig div{flex:1} .muted{color:#64748b;font-size:12px}
-    </style></head><body>
-    <h1>Private Residential Tenancy Agreement</h1>
-    <p class="muted">Made under the Private Tenancies Act (Northern Ireland) 2022</p>
-    <p>Between <strong>${landlordName}</strong> ("Landlord") and <strong>${tenantName}</strong> ("Tenant") in respect of the property at <strong>${address}</strong>.</p>
-    <h2>Clauses</h2>
-    <div class="clause"><h3>1. Rent</h3><p>£${rent.toLocaleString()} per calendar month, payable in advance on the 1st of each month.</p></div>
-    <div class="clause"><h3>2. Deposit &amp; Protection</h3><p>£${deposit.toLocaleString()} lodged with an approved NI scheme within 28 days of receipt.</p></div>
-    <div class="clause"><h3>3. Term</h3><p>12 months initial term, thereafter rolling monthly subject to statutory notice.</p></div>
-    <div class="clause"><h3>4. Property Condition</h3><p>Property provided in clean, safe condition with required certificates supplied on or before commencement.</p></div>
-    ${oilClause ? `<div class="clause"><h3>5. Domestic Oil Tank — Full In / Full Out</h3><p>The oil tank shall be supplied <em>full</em> at commencement and returned <em>full</em> at end of tenancy, or reimbursed at prevailing rates.</p></div>` : ""}
-    <div class="clause"><h3>${oilClause ? "6" : "5"}. Repairs &amp; Maintenance</h3><p>Landlord responsible for structural repairs and supply installations as required by statute.</p></div>
-    <div class="sig">
-      <div><strong>Tenant</strong><br>${tenantSignature}<br><span class="muted">Signed electronically ${signedAt}</span></div>
-      <div><strong>Landlord</strong><br>${landlordName}<br><span class="muted">Counter-signed via Roost</span></div>
-    </div>
-    </body></html>`;
 }
