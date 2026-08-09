@@ -23,6 +23,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { PhotoPicker, uploadListingPhotos } from "@/components/listing-photos";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
@@ -870,6 +871,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
   const [fuelPolicy, setFuelPolicy] = useState(true);
   const [prefs, setPrefs] = useState<string[]>(["No pets", "Non-smokers"]);
   const [submitting, setSubmitting] = useState<false | "draft" | "publish">(false);
+  const [photos, setPhotos] = useState<File[]>([]);
 
   const togglePref = (label: string) =>
     setPrefs((s) => (s.includes(label) ? s.filter((x) => x !== label) : [...s, label]));
@@ -878,6 +880,18 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
     if (!user || submitting) return;
     setSubmitting(mode);
     try {
+      let photoPaths: string[] = [];
+      if (photos.length > 0) {
+        try {
+          photoPaths = await uploadListingPhotos(user.id, photos);
+        } catch {
+          toast.error("Photos could not be uploaded", {
+            description: "The listing was not saved. Please try again.",
+          });
+          setSubmitting(false);
+          return;
+        }
+      }
       const { error } = await supabase.from("property_listings").insert({
         landlord_id: user.id,
         title,
@@ -890,6 +904,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         enforce_empty_in_full_out: heating === "Oil" ? fuelPolicy : false,
         tenant_preferences: prefs,
         is_published: mode === "publish",
+        photo_urls: photoPaths,
       });
       if (error) throw error;
       toast.success(mode === "publish" ? "Listing published" : "Draft saved", {
@@ -905,6 +920,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
       setRent("");
       setDeposit("");
       setRegNumber("");
+      setPhotos([]);
       await onCreated();
     } catch (err: unknown) {
       toast.error("Could not save listing", {
