@@ -1,8 +1,24 @@
 import { useEffect, useState } from "react";
-import { ImageIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { ImageIcon, ChevronLeft, ChevronRight, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const LISTING_PHOTOS_BUCKET = "listing-photos";
+
+/** Upload picked files to the landlord's folder; returns storage paths. */
+export async function uploadListingPhotos(landlordId: string, files: File[]) {
+  const paths: string[] = [];
+  for (const file of files) {
+    const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
+    const path = `${landlordId}/${crypto.randomUUID()}.${ext}`;
+    const bytes = await file.arrayBuffer();
+    const { error } = await supabase.storage
+      .from(LISTING_PHOTOS_BUCKET)
+      .upload(path, bytes, { contentType: file.type || "image/jpeg", upsert: false });
+    if (error) throw error;
+    paths.push(path);
+  }
+  return paths;
+}
 
 /** Turn stored storage paths into temporary viewable URLs. */
 export function useSignedPhotoUrls(paths: string[] | null | undefined) {
