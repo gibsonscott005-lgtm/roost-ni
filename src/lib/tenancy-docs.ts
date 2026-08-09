@@ -1,5 +1,15 @@
 /** Shared printable tenancy documents (lease copy + statutory NI notice). */
 
+/** Escape a value for safe interpolation into printable HTML. */
+function esc(v: unknown): string {
+  return String(v ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const BASE_STYLE = `
   body{font:14px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0f172a;max-width:760px;margin:32px auto;padding:0 24px}
   h1{font-size:22px;margin:0 0 4px} h2{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#64748b;margin-top:24px}
@@ -48,11 +58,11 @@ export function leaseDocumentHtml(opts: LeaseDocOptions) {
   const signedAt = tenantSignedAt
     ? new Date(tenantSignedAt).toLocaleString("en-GB")
     : new Date().toLocaleString("en-GB");
-  return `<!doctype html><html><head><meta charset="utf-8"><title>Roost NI Tenancy Agreement — ${address}</title>
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Roost NI Tenancy Agreement — ${esc(address)}</title>
     <style>${BASE_STYLE}</style></head><body>
     <h1>Private Residential Tenancy Agreement</h1>
     <p class="muted">Made under the Private Tenancies Act (Northern Ireland) 2022</p>
-    <p>Between <strong>${landlordName}</strong> ("Landlord") and <strong>${tenantName}</strong> ("Tenant") in respect of the property at <strong>${address}</strong>.</p>
+    <p>Between <strong>${esc(landlordName)}</strong> ("Landlord") and <strong>${esc(tenantName)}</strong> ("Tenant") in respect of the property at <strong>${esc(address)}</strong>.</p>
     <h2>Clauses</h2>
     <div class="clause"><h3>1. Rent</h3><p>£${rent.toLocaleString()} per calendar month, payable in advance on the 1st of each month.</p></div>
     <div class="clause"><h3>2. Deposit &amp; Protection</h3><p>£${deposit.toLocaleString()} lodged with an approved NI scheme within 28 days of receipt.</p></div>
@@ -61,8 +71,8 @@ export function leaseDocumentHtml(opts: LeaseDocOptions) {
     ${oilClause ? `<div class="clause"><h3>5. Domestic Oil Tank — Full In / Full Out</h3><p>The oil tank shall be supplied <em>full</em> at commencement and returned <em>full</em> at end of tenancy, or reimbursed at prevailing rates.</p></div>` : ""}
     <div class="clause"><h3>${oilClause ? "6" : "5"}. Repairs &amp; Maintenance</h3><p>Landlord responsible for structural repairs and supply installations as required by statute.</p></div>
     <div class="sig">
-      <div><strong>Tenant</strong><br>${tenantSignature}<br><span class="muted">Signed electronically ${signedAt}</span></div>
-      <div><strong>Landlord</strong><br>${landlordName}<br><span class="muted">${counterSigned ? "Counter-signed via Roost" : "Awaiting counter-signature"}</span></div>
+      <div><strong>Tenant</strong><br>${esc(tenantSignature)}<br><span class="muted">Signed electronically ${esc(signedAt)}</span></div>
+      <div><strong>Landlord</strong><br>${esc(landlordName)}<br><span class="muted">${counterSigned ? "Counter-signed via Roost" : "Awaiting counter-signature"}</span></div>
     </div>
     </body></html>`;
 }
@@ -91,24 +101,24 @@ export interface NoticeDocOptions {
 export function tenancyInfoNoticeHtml(opts: NoticeDocOptions) {
   const gb = (d?: string | null) => (d ? new Date(d).toLocaleDateString("en-GB") : "To be confirmed");
   const val = (v?: string | null) => (v && String(v).trim() ? v : "Not yet supplied");
-  return `<!doctype html><html><head><meta charset="utf-8"><title>Tenancy Information Notice — ${opts.address}</title>
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Tenancy Information Notice — ${esc(opts.address)}</title>
     <style>${BASE_STYLE}</style></head><body>
     <h1>Tenancy Information Notice</h1>
     <p class="muted">Issued under Section 1 of the Private Tenancies Act (Northern Ireland) 2022. The landlord must give this notice to the tenant within 28 days of the start of the tenancy.</p>
 
     <h2>1. The parties</h2>
     <table>
-      <tr><th>Tenant</th><td>${opts.tenantName}</td></tr>
-      <tr><th>Landlord</th><td>${opts.landlordName}</td></tr>
-      <tr><th>Landlord contact address / email</th><td>${val(opts.landlordEmail)}</td></tr>
-      <tr><th>Landlord contact telephone</th><td>${val(opts.landlordPhone)}</td></tr>
-      <tr><th>NI Landlord Registration Number</th><td>${val(opts.landlordRegNumber)}</td></tr>
+      <tr><th>Tenant</th><td>${esc(opts.tenantName)}</td></tr>
+      <tr><th>Landlord</th><td>${esc(opts.landlordName)}</td></tr>
+      <tr><th>Landlord contact address / email</th><td>${esc(val(opts.landlordEmail))}</td></tr>
+      <tr><th>Landlord contact telephone</th><td>${esc(val(opts.landlordPhone))}</td></tr>
+      <tr><th>NI Landlord Registration Number</th><td>${esc(val(opts.landlordRegNumber))}</td></tr>
     </table>
 
     <h2>2. The tenancy</h2>
     <table>
-      <tr><th>Property</th><td>${opts.address}</td></tr>
-      <tr><th>Date the tenancy began</th><td>${gb(opts.tenancyStart)}</td></tr>
+      <tr><th>Property</th><td>${esc(opts.address)}</td></tr>
+      <tr><th>Date the tenancy began</th><td>${esc(gb(opts.tenancyStart))}</td></tr>
       <tr><th>Rent payable</th><td>£${Number(opts.rent).toLocaleString()} per calendar month, in advance on the 1st of each month</td></tr>
       <tr><th>How rent is paid</th><td>Standing order or bank transfer to the landlord. Receipts are issued through Roost for every payment.</td></tr>
       <tr><th>Rates</th><td>Where the rent is inclusive of rates this is stated in the tenancy agreement; otherwise the tenant is responsible.</td></tr>
@@ -117,15 +127,15 @@ export function tenancyInfoNoticeHtml(opts: NoticeDocOptions) {
     <h2>3. Deposit</h2>
     <table>
       <tr><th>Deposit paid</th><td>£${Number(opts.deposit).toLocaleString()}</td></tr>
-      <tr><th>Approved scheme</th><td>${val(opts.depositScheme)}</td></tr>
-      <tr><th>Scheme certificate number</th><td>${val(opts.depositCertNumber)}</td></tr>
-      <tr><th>Date protected</th><td>${gb(opts.depositProtectedAt)}</td></tr>
+      <tr><th>Approved scheme</th><td>${esc(val(opts.depositScheme))}</td></tr>
+      <tr><th>Scheme certificate number</th><td>${esc(val(opts.depositCertNumber))}</td></tr>
+      <tr><th>Date protected</th><td>${esc(gb(opts.depositProtectedAt))}</td></tr>
     </table>
     <p class="muted">A tenancy deposit must be protected in an approved scheme within 28 days of being received, and the prescribed information given to the tenant within 35 days.</p>
 
     <h2>4. Repairs and safety</h2>
     <table>
-      <tr><th>Heating type</th><td>${val(opts.heatingType)}</td></tr>
+      <tr><th>Heating type</th><td>${esc(val(opts.heatingType))}</td></tr>
       <tr><th>Fuel policy</th><td>${opts.oilClause ? "Fair Fuel — oil tank supplied full at commencement and returned full at the end of the tenancy." : "Standard — no oil tank clause applies."}</td></tr>
       <tr><th>Reporting repairs</th><td>Report all repairs through the Roost maintenance workspace so both parties keep a timestamped record.</td></tr>
       <tr><th>Landlord repair duties</th><td>Structure and exterior, and the installations for the supply of water, gas, electricity, sanitation, space heating and heating water.</td></tr>
@@ -136,8 +146,8 @@ export function tenancyInfoNoticeHtml(opts: NoticeDocOptions) {
     <p>Notice to quit periods are set by the Private Tenancies Act (Northern Ireland) 2022 and depend on how long the tenancy has run. Neither party may end the tenancy with less notice than the statute requires.</p>
 
     <div class="sig">
-      <div><strong>Issued by</strong><br>${opts.landlordName}<br><span class="muted">via Roost · ${new Date().toLocaleDateString("en-GB")}</span></div>
-      <div><strong>Received by</strong><br>${opts.tenantName}<br><span class="muted">Acknowledged on signing the tenancy agreement</span></div>
+      <div><strong>Issued by</strong><br>${esc(opts.landlordName)}<br><span class="muted">via Roost · ${new Date().toLocaleDateString("en-GB")}</span></div>
+      <div><strong>Received by</strong><br>${esc(opts.tenantName)}<br><span class="muted">Acknowledged on signing the tenancy agreement</span></div>
     </div>
     <p class="muted">This notice is generated from the tenancy record held in Roost. It is provided for convenience and does not constitute legal advice.</p>
     </body></html>`;
