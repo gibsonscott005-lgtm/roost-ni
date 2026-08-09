@@ -6,13 +6,14 @@ import {
   LogOut,
   Plus,
   IdCard,
+  Settings,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/hooks/use-auth";
 import type { User } from "@supabase/supabase-js";
 import { NotificationsBell } from "@/components/notifications-bell";
 
-export type DashboardKey = "properties" | "add" | "applications" | "passport";
+export type DashboardKey = "properties" | "add" | "applications" | "passport" | "settings";
 
 interface Props {
   user: User | null;
@@ -154,6 +155,12 @@ export function DashboardShell({
                 label="Received passports"
                 badge={applicationsCount}
               />
+              <NavLink
+                to="/dashboard/settings"
+                active={activeKey === "settings"}
+                icon={Settings}
+                label="Notifications"
+              />
             </nav>
           ) : (
             <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-border bg-surface p-2 lg:flex-col lg:overflow-visible">
@@ -168,6 +175,12 @@ export function DashboardShell({
                 active={pathname.startsWith("/dashboard/passport")}
                 icon={IdCard}
                 label="My Passport"
+              />
+              <TenantNavLink
+                to="/dashboard/settings"
+                active={pathname.startsWith("/dashboard/settings")}
+                icon={Settings}
+                label="Notifications"
               />
             </nav>
           )}
