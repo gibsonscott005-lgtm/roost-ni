@@ -115,7 +115,7 @@ function ListingDetailPage() {
         <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Verified NI listing
+              NI listing
             </p>
             <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
               {listing.title}
@@ -181,7 +181,7 @@ function ListingDetailPage() {
             NI compliance
           </p>
           <h2 className="mt-1 font-display text-lg font-semibold tracking-tight sm:text-xl">
-            Verified utility & registration details
+            Utility & registration details
           </h2>
 
           <dl className="mt-5 divide-y divide-border rounded-2xl border border-border bg-surface-muted/50 text-sm">
@@ -277,7 +277,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
           entity_type: "passport_share",
           entity_id: res.shareId,
           title: "New passport received",
-          body: `A verified tenant applied to ${res.listing.title ?? "your listing"}.`,
+          body: `An applicant shared their self-certified passport with ${res.listing.title ?? "your listing"}.`,
           link_path: "/dashboard/applications",
         });
       }

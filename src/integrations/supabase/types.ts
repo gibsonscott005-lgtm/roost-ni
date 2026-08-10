@@ -140,6 +140,7 @@ export type Database = {
           deposit_status: string
           id: string
           inventory_completed_at: string | null
+          landlord_checks_confirmed_at: string | null
           lease_document_path: string | null
           lease_kind: string
           lease_oil_clause: boolean | null
@@ -165,6 +166,7 @@ export type Database = {
           deposit_status?: string
           id?: string
           inventory_completed_at?: string | null
+          landlord_checks_confirmed_at?: string | null
           lease_document_path?: string | null
           lease_kind?: string
           lease_oil_clause?: boolean | null
@@ -190,6 +192,7 @@ export type Database = {
           deposit_status?: string
           id?: string
           inventory_completed_at?: string | null
+          landlord_checks_confirmed_at?: string | null
           lease_document_path?: string | null
           lease_kind?: string
           lease_oil_clause?: boolean | null

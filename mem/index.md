@@ -1,7 +1,10 @@
 # Project Memory
 
 ## Core
-App name is **Roost** — Northern Ireland verified tenant passport & landlord listings platform. Wordmark renders as `Roost.ni` with the dot in `text-verified`.
+App name is **Roost** — letting agent replacement for small self-managing landlords in Northern Ireland. Wordmark renders as `Roost.ni` with the dot in `text-verified`.
+Roost assists, it never decides: never vet, score, rank or recommend a tenant. The letting decision is always the landlord's.
+"Verified" is retired from user-facing copy — use "Self-Certified", "Declared" or "Evidence attached". Missing name → "Applicant".
+Never invent social-proof numbers (applicant counts, demand stats, match counts).
 British English (UK) throughout user-facing copy (colour, organise, £).
 Design system: minimalist gray/white with emerald green accents. No purple/indigo gradients.
 Analytics: PostHog only. Zero-cost / organic-growth philosophy — no paid APIs unless requested.
@@ -12,3 +15,4 @@ Every milestone mutation must fanout via `emitNotification` to the counterparty;
 - [Notifications ledger](mem://features/notifications-ledger) — polymorphic notifications table, event-driven fanout via emitNotification server fn, single realtime channel in NotificationsBell
 - [Maintenance tickets](mem://features/maintenance-tickets) — maintenance_tickets table + panel components, storage RLS gated by ticket ownership, notification fanout on status changes
 - [Self-certified passport](mem://features/self-certified-passport) — tenant_passports schema, wizard, verification_audit_logs, landlord ID viewing via signIdDocumentUrl, tenant-documents bucket rules
+- [Positioning & vetting boundary](mem://positioning-boundary) — agent-replacement positioning, both-sides pricing, the never-do list, language rules, landlord acceptance confirmation, agent-task roadmap

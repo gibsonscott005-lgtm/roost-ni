@@ -3,7 +3,7 @@ import { z } from "zod";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BadgeCheck, Briefcase, Check, Clock, ExternalLink, Inbox, Loader2, RefreshCw, ShieldCheck, TrendingUp, X } from "lucide-react";
+import { BadgeCheck, Briefcase, Check, Clock, ExternalLink, Inbox, Loader2, RefreshCw, ShieldCheck, TrendingUp, X, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
@@ -24,7 +24,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/applications")({
       { title: "Received Passports — Roost NI" },
       {
         name: "description",
-        content: "Review verified Tenant Passports submitted to your NI listings.",
+        content:
+          "Review self-certified Tenant Passports submitted to your NI listings. Roost organises the information — the letting decision stays yours.",
       },
     ],
   }),
@@ -128,7 +129,7 @@ function ApplicationsPage() {
     mutationFn: async (share: Share) => {
       const { error } = await supabase
         .from("passport_shares")
-        .update({ status: "accepted" })
+        .update({ status: "accepted", landlord_checks_confirmed_at: new Date().toISOString() })
         .eq("id", share.id);
       if (error) throw error;
       // Mark the property as Under Offer so it shows on public listings
@@ -220,8 +221,9 @@ function ApplicationsPage() {
               Received passports
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Verified tenants who applied to your live listings.
+              Self-certified applicants who applied to your live listings.
             </p>
+            <HowRoostWorksPanel />
             {listingFilter ? (
               <div className="mt-3 flex flex-wrap items-center gap-2 rounded-full border border-border bg-surface-muted/60 px-3 py-1.5 text-xs text-muted-foreground w-fit">
                 <span>
@@ -284,7 +286,7 @@ function ApplicationsPage() {
             <ul className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)]">
               {shares.map((s, i) => {
                 const p = passports[s.tenant_id];
-                const verifiedCount = p
+                const declaredCount = p
                   ? [p.identity_verified, p.income_verified, p.reference_verified, p.right_to_rent_verified].filter(Boolean).length
                   : 0;
                 return (
@@ -296,7 +298,7 @@ function ApplicationsPage() {
                   >
                     <div className="min-w-0">
                       <p className="truncate font-display text-base font-semibold tracking-tight">
-                        {s.tenant?.full_name || "Verified tenant"}
+                        {s.tenant?.full_name || "Applicant"}
                       </p>
                       <p className="mt-0.5 truncate text-xs text-muted-foreground">
                         Applied to <span className="text-foreground/90">{s.listing?.title ?? "your listing"}</span> · {timeAgo(s.shared_at)}
@@ -311,7 +313,7 @@ function ApplicationsPage() {
                         <VerifyBadge label="References" ok={!!p?.reference_verified} />
                         <VerifyBadge label="Right to rent" ok={!!p?.right_to_rent_verified} />
                         <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {verifiedCount}/4
+                          {declaredCount}/4 declared
                         </span>
                         <AffordabilityBadge
                           passport={p ?? null}
@@ -410,6 +412,7 @@ function ApplicationsPage() {
 function VerifyBadge({ label, ok }: { label: string; ok: boolean }) {
   return (
     <span
+      title={ok ? `${label}: declared by the applicant with evidence attached. Not independently checked by Roost.` : `${label}: not yet declared by the applicant.`}
       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
         ok ? "bg-verified-soft text-verified" : "bg-surface-muted text-muted-foreground"
       }`}
@@ -417,6 +420,69 @@ function VerifyBadge({ label, ok }: { label: string; ok: boolean }) {
       {ok ? <Check className="h-3 w-3" strokeWidth={3} /> : <Clock className="h-3 w-3" />}
       {label}
     </span>
+  );
+}
+
+/** States plainly what Roost does and does not do, where the decision is made. */
+function HowRoostWorksPanel() {
+  return (
+    <div className="mt-4 rounded-2xl border border-border bg-surface-muted/50 p-4">
+      <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <Info className="h-3.5 w-3.5" />
+        How Roost works
+      </p>
+      <p className="mt-2 text-sm text-foreground">
+        Roost collects and organises what an applicant tells you, and keeps a timestamped record
+        of it. <strong>Roost does not vet, reference or recommend tenants</strong>, and it does not
+        rank or score them. Whether to let is your decision, and your own checks still apply.
+      </p>
+    </div>
+  );
+}
+
+/** Sits beside the claims so the boundary is impossible to miss. */
+function ChecksSplit() {
+  const checked = [
+    "A document was uploaded and is attached to this application",
+    "The income figures the applicant entered add up",
+    "The declaration is timestamped and cannot be edited after the fact",
+  ];
+  const yours = [
+    "Identity — compare the document against the person",
+    "Right to rent — confirm the applicant's status yourself",
+    "Employment — contact the employer directly",
+    "Previous landlord — take up the reference yourself",
+    "Credit history — Roost does not run credit checks",
+  ];
+  return (
+    <div className="grid gap-3 rounded-2xl border border-border bg-surface p-3.5 sm:grid-cols-2">
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-verified">
+          What Roost checked
+        </p>
+        <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
+          {checked.map((t) => (
+            <li key={t} className="flex gap-1.5">
+              <Check className="mt-0.5 h-3 w-3 shrink-0 text-verified" strokeWidth={3} />
+              <span>{t}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
+          What you must check yourself
+        </p>
+        <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
+          {yours.map((t) => (
+            <li key={t} className="flex gap-1.5">
+              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-500" />
+              <span>{t}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 }
 
@@ -500,7 +566,7 @@ function AffordabilityBadge({
   const result = computeAffordability(passport, monthlyRent);
   if (!result) return null;
   const rounded = Math.round(result.ratio * 10) / 10;
-  const tooltip = `Effective annual capacity £${Math.round(result.effectiveCapacity).toLocaleString()} vs £${result.annualRent.toLocaleString()} annual rent (benefits weighted 1.25×). Covered threshold: 2.5× annual rent (30× monthly).`;
+  const tooltip = `Calculation only, from figures the applicant entered: £${Math.round(result.effectiveCapacity).toLocaleString()} declared annual capacity ÷ £${result.annualRent.toLocaleString()} annual rent = ${rounded.toFixed(1)}× (benefits weighted 1.25×). A common landlord benchmark is 2.5×. Roost is not assessing this applicant — the judgement is yours.`;
   if (result.ratio >= 2.5) {
     return (
       <span
@@ -508,7 +574,7 @@ function AffordabilityBadge({
         className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700"
       >
         <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
-        Affordability: Covered ({rounded.toFixed(1)}x)
+        Income cover {rounded.toFixed(1)}× rent
       </span>
     );
   }
@@ -518,7 +584,7 @@ function AffordabilityBadge({
       className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800"
     >
       <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
-      Affordability: Guarantor Recommended ({rounded.toFixed(1)}x)
+      Income cover {rounded.toFixed(1)}× rent — below 2.5×
     </span>
   );
 }
@@ -754,6 +820,7 @@ function PassportModal({
   onClose: () => void;
 }) {
   const navigate = useNavigate();
+  const [ownChecksDone, setOwnChecksDone] = useState(false);
   return (
     <div className="fixed inset-0 z-50 grid place-items-end bg-foreground/30 px-4 py-6 backdrop-blur-sm sm:place-items-center">
       <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-surface shadow-[0_24px_64px_-24px_rgba(15,23,42,0.35)]">
@@ -763,7 +830,7 @@ function PassportModal({
               Tenant Passport
             </p>
             <h3 className="mt-1 truncate font-display text-lg font-semibold tracking-tight">
-              {share.tenant?.full_name || "Verified tenant"}
+              {share.tenant?.full_name || "Applicant"}
             </h3>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">
               For {share.listing?.title ?? "your listing"}
@@ -804,12 +871,14 @@ function PassportModal({
 
           <IncomeBreakdownBlock passport={passport} monthlyRent={share.listing?.monthly_rent ?? null} />
 
+          <ChecksSplit />
+
           {passport?.id_document_path ? (
             <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5">
               <div className="min-w-0 text-xs text-emerald-800">
                 <p className="font-semibold">Identity document on file</p>
                 <p className="text-emerald-700/80">
-                  Self-certified by tenant · shared with this application
+                  Supplied by the applicant · check it against the person yourself
                 </p>
               </div>
               <ViewIdDocButton shareId={share.id} />
@@ -817,10 +886,10 @@ function PassportModal({
           ) : null}
 
           <dl className="divide-y divide-border rounded-2xl border border-border bg-surface-muted/50 text-sm">
-            <Row k="Monthly net income" v={passport?.monthly_income_net ? `£${Number(passport.monthly_income_net).toLocaleString()}` : "—"} />
+            <Row k="Monthly net income (declared)" v={passport?.monthly_income_net ? `£${Number(passport.monthly_income_net).toLocaleString()}` : "—"} />
             {passport?.id_verified_at ? (
               <Row
-                k="ID verified"
+                k="Declared true on"
                 v={new Date(passport.id_verified_at).toLocaleString("en-GB", {
                   day: "numeric",
                   month: "short",
@@ -832,7 +901,22 @@ function PassportModal({
           </dl>
         </div>
 
-        <div className="flex items-center justify-end gap-2 border-t border-border bg-surface-muted/40 p-4">
+        <div className="border-t border-border bg-surface-muted/40 p-4">
+          {share.status !== "accepted" ? (
+            <label className="mb-3 flex cursor-pointer items-start gap-2.5 rounded-2xl border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900">
+              <input
+                type="checkbox"
+                checked={ownChecksDone}
+                onChange={(e) => setOwnChecksDone(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-amber-600"
+              />
+              <span>
+                I have carried out my own checks on this applicant and I understand Roost has not
+                vetted, referenced or recommended them. This letting decision is mine.
+              </span>
+            </label>
+          ) : null}
+          <div className="flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
@@ -856,12 +940,15 @@ function PassportModal({
             <button
               type="button"
               onClick={onAccept}
-              className="inline-flex items-center gap-1.5 rounded-full bg-verified px-4 py-2 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95"
+              disabled={!ownChecksDone}
+              title={ownChecksDone ? undefined : "Confirm your own checks first"}
+              className="inline-flex items-center gap-1.5 rounded-full bg-verified px-4 py-2 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Check className="h-3.5 w-3.5" strokeWidth={3} />
               Accept applicant
             </button>
           )}
+          </div>
         </div>
       </div>
     </div>
