@@ -1,70 +1,68 @@
-# LANI readiness pass
+# Sharpening what Roost is
 
-Goal: close the gaps a landlord trade body would find first, then approach LANI with a written briefing rather than a pitch.
+Settle the positioning, then make the product say it out loud. The immediate driver is your liability concern: if a landlord can come away believing Roost vetted the tenant, that is a product defect, not a small-print problem.
 
-## Governing principle — Roost assists, it never decides
+## The positioning, in one paragraph
 
-Every item below is built to this rule, and it becomes the line we lead with at LANI:
+Roost is the letting agent replacement for the small self-managing landlord in Northern Ireland. It handles the whole tenancy — advertise, apply, lease, deposit, inventory, rent, repairs, records — with NI law built in. It organises and evidences information so a landlord can decide faster and prove they did things properly. **It never makes the letting decision, never vets a tenant on the landlord's behalf, and never replaces the landlord's own checks.**
 
-- Roost verifies what it reasonably can (document present, figures internally consistent, dates and formats valid, an immutable timestamped declaration) and is explicit about what it has not verified.
-- Roost never scores, ranks, recommends or auto-shortlists a tenant, and never tells a landlord who to let to. No "best match", no traffic-light overall rating.
-- The letting decision, and the landlord's own checks, always remain the landlord's. Copy says "for your consideration", never "approved" or "recommended".
-- Where Roost surfaces a calculation (such as affordability cover), it shows the workings and labels it as an aid to the landlord's own assessment.
+Three supporting positions, from your answers:
 
-A short "How Roost works — and what it does not do" panel states this in the landlord dashboard and on the public site, in the same words used in the LANI briefing.
+- **Both sides pay.** A landlord fee for the tenancy workspace; a tenant fee for the reusable passport. Being paid by both is the honest version of being neutral — the tenant is Roost's customer too, not Roost's product.
+- **Agent replacement, not portal.** The comparison is a high-street agent's fee, not a listings site. That sets the pricing ceiling and decides which features matter: the ones an agent currently does.
+- **One-or-two-property landlord first.** Portfolios and agents fit later; nothing built now should block that, but nothing gets designed for them yet.
 
-## 1. Property compliance certificates (biggest gap)
+## Language rule — "Verified" is retired
 
-Certificates are named in the lease and statutory notice text, but nowhere in the app can a landlord actually hold one. Members get fined for this.
+The word "Verified" is the liability risk in a single word. It currently appears in the landlord inbox ("Verified tenants who applied to your live listings" and a "Verified tenant" name fallback), which is exactly the false impression to avoid.
 
-- New **Compliance** tab in the landlord tenancy workspace, plus a certificates section on each property.
-- Three record types: EICR, Gas Safety (where applicable), EPC. Each takes a PDF upload, issue date, expiry date, and an optional rating for the EPC.
-- Status pill per certificate: Valid, Expiring soon (within 60 days), Expired, Missing.
-- Dashboard warning on any property with an expired or missing certificate.
-- The tenant tenancy workspace gets a read-only Certificates card so they can open the documents the landlord is required to supply.
-- The Tenancy Information Notice pulls real certificate dates instead of the current generic sentence.
+- Replace every landlord-facing use of "Verified" with **"Self-Certified"**, "Declared", or "Evidence attached".
+- Never a name fallback of "Verified tenant" — use "Applicant" when a name is missing.
+- Roost states what it checked (a document is attached, figures add up, the declaration is timestamped) and what it did not (identity, employer, previous landlord, right to rent, credit).
+- No score, rank, star, match percentage or shortlist. No "recommended". Ever.
 
-## 2. Deposit protection — make the limits explicit
+## Make the boundary impossible to miss
 
-Roost records a scheme and certificate number; it does not lodge the deposit with TDS NI, MyDeposits NI or LPS NI.
+Not one disclaimer buried in terms — the message appears where the decision is actually made:
 
-- Clear notice on the Deposit Protection tab: Roost records your protection, it does not lodge the deposit. Direct links to the three approved NI schemes.
-- The 28-day countdown gains an explicit "you must lodge with the scheme separately" line so nobody reads a ticked box as compliance.
+- **Applicant card and candidate view:** a persistent "What Roost checked / What you must check yourself" split, sitting beside the claims rather than under them.
+- **Accept applicant step:** a short confirmation before acceptance — the landlord ticks that they have carried out their own checks and understand Roost has not vetted this tenant. Recorded with a timestamp against the application, so there is a record that the landlord decided.
+- **Affordability badge:** reframed as a visible calculation with its workings, explicitly labelled an aid, never a verdict.
+- **Onboarding and dashboard:** a short "How Roost works, and what it does not do" panel in the landlord's own words.
 
-## 3. Legal and data-protection layer
+## Where Roost goes — the agent-replacement roadmap
 
-- New public pages: Terms of Use, Privacy Policy, and a short Legal Disclaimer.
-- Privacy Policy covers what tenant ID and income evidence is held, where, who can see it, how long it is kept, and how to request deletion — a landlord using Roost is a data controller and needs this to exist.
-- Footer links from the home, listings and auth pages.
-- Every generated document (lease, statutory notice) carries a footer stating it is a template generated from the tenancy record, not legal advice, and has not been reviewed by a solicitor.
-- Passport sharing gains a plain-language consent line for the tenant on submission.
+What a high-street agent does, and where Roost stands. This becomes the public roadmap and the order of work.
 
-## 4. Self-certification honesty pass
+| Agent task | Roost today |
+| --- | --- |
+| Advertise the property | Built (listings, photos) |
+| Handle enquiries and applications | Built (passport shares, inbox) |
+| Reference the tenant | **Deliberately not done** — tenant declares, landlord verifies |
+| Draw up the tenancy agreement | Built (NI template plus custom PDF) |
+| Serve the statutory notice | Built (Tenancy Information Notice) |
+| Protect the deposit | Recorded only — not lodged with a scheme |
+| Inventory and check-in | Built |
+| Collect rent, chase arrears | Built (schedule, reminders, receipts) |
+| Hold safety certificates | **Missing** |
+| Handle repairs | Built (maintenance tickets) |
+| Rent increases and notice to quit | **Missing** |
+| Check-out, deposit return, disputes | **Missing** |
+| Year-end figures for tax | **Missing** |
 
-The single question LANI will ask is what stops a tenant typing anything.
+The four gaps are what stands between Roost and the claim it is making. Rough order: certificates vault, then check-out and deposit return, then notice to quit and rent increases, then the tax summary.
 
-- Consistent wording across tenant and landlord views: Self-Certified — declared by the tenant, evidence attached, not independently checked by Roost.
-- Landlord candidate view gains a short "what to verify yourself" checklist alongside each claim, framed as the landlord's own due diligence.
-- Split every claim into what Roost checked (document uploaded, figures add up, declaration timestamped) and what only the landlord can confirm (employer, previous landlord, right to rent).
-- Review the affordability badge wording so it reads as a calculation with visible workings, not a verdict on the tenant.
-- Timestamped declaration recorded on submission (the audit log already exists) and surfaced to the landlord as "declared true on <date>".
+## What gets written down
 
-## 5. LANI briefing document
+- `docs/positioning.md` — the paragraph above, the pricing stance, the target landlord, the language rule, and the never-do list. The reference for every future copy decision.
+- Project memory — the boundary becomes a hard constraint so no future work reintroduces scoring, ranking or "Verified".
 
-A markdown pack in the repo at `docs/lani-briefing.md`, printable from the app:
+## Suggested first build
 
-- What Roost is and who it is for.
-- The positioning statement above, up front: a landlord's tool, not a gatekeeper or a referencing agency.
-- NI regulatory mapping: PTA 2022 items covered, how each is handled.
-- Explicit limitations list: no credit or employment checks, no Right to Rent verification, no deposit lodgement, documents not solicitor-reviewed, no notice-to-quit or rent-increase tooling yet.
-- The specific questions to put to LANI: does the Tenancy Information Notice wording satisfy them, what would make the tenant passport credible to members, and which post-move-in task causes members the most pain.
-
-## Deliberately out of scope for now
-
-Notice to quit and rent-increase tooling. Both depend on statutory notice-period tables that should be confirmed with LANI first rather than guessed at.
+The language and boundary pass. It is small, it is copy and one confirmation step, and it removes the exact risk you raised before any more surface area gets added on top of the wrong wording.
 
 ## Technical notes
 
-- One migration: `property_certificates` table (listing_id, kind enum eicr/gas/epc, document_path, issued_on, expires_on, epc_rating, created_by) with GRANTs, RLS scoped to the owning landlord plus the tenant of an executed tenancy on that listing, and a `certificate_expiring` notification type.
-- Certificate PDFs go into the existing private `tenant-documents` bucket under a `certificates/<listing_id>/` prefix, with a storage policy matching the table RLS; viewing uses the same short-lived signed-URL pattern as the deposit certificate.
-- Files touched: new `src/routes/legal.terms.tsx`, `legal.privacy.tsx`, new `src/components/certificates-panel.tsx`, plus `landlord.manage-tenancy.tsx`, `tenant.tenancy.tsx`, `dashboard.index.tsx`, `dashboard.listing-edit.tsx`, `lib/tenancy-docs.ts`, `lib/notifications.functions.ts`, and `docs/lani-briefing.md`.
+- Copy and presentation changes across `dashboard.applications.tsx`, `dashboard.index.tsx`, `passport-bits.tsx`, `listings.$id.tsx`.
+- One small migration for the acceptance acknowledgement: `landlord_checks_confirmed_at` on `passport_shares`, set when the landlord accepts.
+- No scoring or ranking logic exists today, so this is about preventing it rather than removing it.
