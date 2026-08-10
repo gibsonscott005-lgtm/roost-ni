@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
       { title: "Dashboard — Roost NI" },
       {
         name: "description",
-        content: "Manage your Roost NI properties or your verified tenant passport.",
+        content: "Manage your Roost NI properties or your self-certified tenant passport.",
       },
     ],
   }),
@@ -1192,11 +1192,11 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
           })}
         </div>
 
-        <div className="mt-4 flex items-center gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
-          <Users className="h-3.5 w-3.5" />
+        <div className="mt-4 flex items-start gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
+          <Users className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>
-            <span className="font-medium text-foreground">38 verified tenants</span> match your
-            criteria in BT6 right now.
+            Preferences help applicants self-select. They do not filter or rank anyone — you will
+            see every application that comes in.
           </span>
         </div>
       </FormCard>
