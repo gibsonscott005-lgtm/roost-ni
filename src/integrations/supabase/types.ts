@@ -437,6 +437,7 @@ export type Database = {
           id_verified_at: string | null
           identity_verified: boolean
           income_breakdown: Json
+          income_doc_signal: string | null
           income_document_path: string | null
           income_verified: boolean
           is_first_time_renter: boolean
@@ -486,6 +487,7 @@ export type Database = {
           id_verified_at?: string | null
           identity_verified?: boolean
           income_breakdown?: Json
+          income_doc_signal?: string | null
           income_document_path?: string | null
           income_verified?: boolean
           is_first_time_renter?: boolean
@@ -535,6 +537,7 @@ export type Database = {
           id_verified_at?: string | null
           identity_verified?: boolean
           income_breakdown?: Json
+          income_doc_signal?: string | null
           income_document_path?: string | null
           income_verified?: boolean
           is_first_time_renter?: boolean
