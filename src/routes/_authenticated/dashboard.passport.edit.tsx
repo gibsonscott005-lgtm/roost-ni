@@ -664,6 +664,180 @@ function StepActions({
   );
 }
 
+/**
+ * The real identity check. Deliberately separate from the document upload
+ * below it: attaching a photo of an ID and proving the ID is yours are two
+ * different claims, and landlords are shown them as two different things.
+ */
+function VerifyIdentityPanel({
+  passport,
+  onSaved,
+}: {
+  passport: Passport;
+  onSaved: (p: Passport) => void;
+}) {
+  const [config, setConfig] = useState<VerificationConfig | null>(null);
+  const [busy, setBusy] = useState(false);
+  const tier = identityTier(passport);
+
+  useEffect(() => {
+    let active = true;
+    getVerificationConfig()
+      .then((c) => {
+        if (active) setConfig(c);
+      })
+      .catch(() => {
+        if (active) setConfig(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const begin = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const res = await startVerification({
+        data: { returnUrl: `${window.location.origin}/dashboard/passport/edit` },
+      });
+      if (res.redirectUrl) {
+        window.location.href = res.redirectUrl;
+        return;
+      }
+      toast.info("Simulated check started", {
+        description: "No payment was taken. Choose an outcome to continue testing.",
+      });
+      setConfig((c) => (c ? { ...c } : c));
+      onSaved({ ...passport, id_status: "pending", id_failure_reason: null });
+    } catch (err: unknown) {
+      toast.error("Could not start the check", { description: describeDbError(err) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const resolve = async (outcome: "verified" | "failed") => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const res = await resolveSimulatedVerification({ data: { outcome } });
+      if (res.outcome === "verified") {
+        toast.success("Identity verified", {
+          description: "Landlords will see a verified ID badge on your applications.",
+        });
+      } else {
+        toast.error("Check did not complete", {
+          description: "You can try again — this does not affect your passport.",
+        });
+      }
+      onSaved(res.passport as unknown as Passport);
+    } catch (err: unknown) {
+      toast.error("Could not finish the check", { description: describeDbError(err) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (tier === "verified") {
+    return (
+      <div className="rounded-2xl border border-verified/30 bg-verified-soft px-4 py-3.5">
+        <p className="flex items-center gap-2 text-sm font-semibold text-verified">
+          <ShieldCheck className="h-4 w-4" strokeWidth={2.5} />
+          Identity verified
+        </p>
+        <p className="mt-1.5 text-xs text-verified/90">
+          {passport.verified_full_name ? `Verified as ${passport.verified_full_name}. ` : ""}
+          Your document was checked for authenticity and matched to your face
+          {passport.id_verified_at
+            ? ` on ${format(new Date(passport.id_verified_at), "d MMM yyyy")}`
+            : ""}
+          . This carries across every application you make.
+        </p>
+      </div>
+    );
+  }
+
+  const simulated = config?.mode === "simulated";
+
+  return (
+    <div className="rounded-2xl border border-border bg-surface-muted/50 px-4 py-3.5">
+      <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+        <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+        Verify your identity
+        {config ? (
+          <span className="rounded-full bg-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {formatFee(config.feePence)} one-off
+          </span>
+        ) : null}
+      </p>
+      <p className="mt-1.5 text-xs text-muted-foreground">
+        A checked ID is the strongest thing on your passport. You pay once and it applies to
+        every landlord you apply to — no repeat referencing fees. Roost still does not
+        recommend you to landlords; the decision is always theirs.
+      </p>
+
+      {tier === "failed" ? (
+        <p className="mt-3 flex gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <span>
+            The last check did not complete
+            {passport.id_failure_reason ? `: ${passport.id_failure_reason}` : ""}. Checks fail for
+            ordinary reasons like lighting or an expired document — you can try again.
+          </span>
+        </p>
+      ) : null}
+
+      {simulated && tier === "pending" ? (
+        <div className="mt-3 rounded-xl border border-dashed border-border bg-surface p-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            Test mode — no payment, no provider
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Choose the outcome you want to try. Real checks replace this screen once a provider
+            is connected.
+          </p>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => resolve("verified")}
+              className="inline-flex items-center gap-1.5 rounded-full bg-verified px-4 py-2 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95 disabled:opacity-60"
+            >
+              {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+              Simulate a pass
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => resolve("failed")}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-4 py-2 text-xs font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
+            >
+              Simulate a failure
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          disabled={busy || !config}
+          onClick={begin}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:opacity-90 disabled:opacity-60"
+        >
+          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck className="h-3.5 w-3.5" />}
+          {tier === "failed" ? "Try the check again" : "Start identity check"}
+        </button>
+      )}
+
+      {simulated ? (
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          Test mode is on, so nothing is charged and no real check is performed.
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function IdentityStep({
   passport,
   onSaved,
