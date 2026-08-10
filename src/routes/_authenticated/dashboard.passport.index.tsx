@@ -184,8 +184,11 @@ function MyPassportPage() {
     return "Self-Certified";
   })();
   const badges: { label: string; icon: typeof IdCard; sub?: string }[] = [
-    { label: "Identity", icon: IdCard },
-    { label: "Right to Rent", icon: ShieldCheck },
+    {
+      label: "Identity",
+      icon: IdCard,
+      sub: passport?.id_status === "verified" ? "Verified" : "Self-Certified",
+    },
     { label: "Income", icon: Banknote },
     { label: "References", icon: UserRoundCheck, sub: referencesSubLabel },
   ];

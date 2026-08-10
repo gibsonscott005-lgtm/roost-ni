@@ -115,7 +115,7 @@ interface Passport {
 }
 
 const STEPS: { key: StepKey; label: string; sub: string }[] = [
-  { key: "identity", label: "Identity & Right to Rent", sub: "Step 1" },
+  { key: "identity", label: "Identity", sub: "Step 1" },
   { key: "income", label: "Income verification", sub: "Step 2" },
   { key: "references", label: "Character references", sub: "Step 3" },
 ];
