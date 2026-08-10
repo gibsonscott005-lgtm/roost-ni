@@ -426,9 +426,11 @@ export type Database = {
           guarantor_name: string | null
           guarantor_phone: string | null
           id: string
+          id_document_expiry: string | null
           id_document_number: string | null
           id_document_path: string | null
           id_document_type: string | null
+          id_failure_reason: string | null
           id_provider: string | null
           id_session_id: string | null
           id_status: Database["public"]["Enums"]["verification_status"]
@@ -449,7 +451,6 @@ export type Database = {
           previous_landlord_phone_2: string | null
           reference_document_path: string | null
           reference_verified: boolean
-          right_to_rent_verified: boolean
           tenancy_duration: string | null
           tenancy_end_date: string | null
           tenancy_end_date_2: string | null
@@ -457,6 +458,9 @@ export type Database = {
           tenancy_start_date_2: string | null
           updated_at: string
           user_id: string
+          verification_fee_paid_at: string | null
+          verified_date_of_birth: string | null
+          verified_full_name: string | null
           willing_direct_payment_apa: boolean
         }
         Insert: {
@@ -471,9 +475,11 @@ export type Database = {
           guarantor_name?: string | null
           guarantor_phone?: string | null
           id?: string
+          id_document_expiry?: string | null
           id_document_number?: string | null
           id_document_path?: string | null
           id_document_type?: string | null
+          id_failure_reason?: string | null
           id_provider?: string | null
           id_session_id?: string | null
           id_status?: Database["public"]["Enums"]["verification_status"]
@@ -494,7 +500,6 @@ export type Database = {
           previous_landlord_phone_2?: string | null
           reference_document_path?: string | null
           reference_verified?: boolean
-          right_to_rent_verified?: boolean
           tenancy_duration?: string | null
           tenancy_end_date?: string | null
           tenancy_end_date_2?: string | null
@@ -502,6 +507,9 @@ export type Database = {
           tenancy_start_date_2?: string | null
           updated_at?: string
           user_id: string
+          verification_fee_paid_at?: string | null
+          verified_date_of_birth?: string | null
+          verified_full_name?: string | null
           willing_direct_payment_apa?: boolean
         }
         Update: {
@@ -516,9 +524,11 @@ export type Database = {
           guarantor_name?: string | null
           guarantor_phone?: string | null
           id?: string
+          id_document_expiry?: string | null
           id_document_number?: string | null
           id_document_path?: string | null
           id_document_type?: string | null
+          id_failure_reason?: string | null
           id_provider?: string | null
           id_session_id?: string | null
           id_status?: Database["public"]["Enums"]["verification_status"]
@@ -539,7 +549,6 @@ export type Database = {
           previous_landlord_phone_2?: string | null
           reference_document_path?: string | null
           reference_verified?: boolean
-          right_to_rent_verified?: boolean
           tenancy_duration?: string | null
           tenancy_end_date?: string | null
           tenancy_end_date_2?: string | null
@@ -547,6 +556,9 @@ export type Database = {
           tenancy_start_date_2?: string | null
           updated_at?: string
           user_id?: string
+          verification_fee_paid_at?: string | null
+          verified_date_of_birth?: string | null
+          verified_full_name?: string | null
           willing_direct_payment_apa?: boolean
         }
         Relationships: []
@@ -623,6 +635,8 @@ export type Database = {
         | "maintenance_resolved"
         | "rent_due_reminder"
         | "rent_overdue"
+        | "identity_verified"
+        | "identity_verification_failed"
       share_status: "pending" | "reviewed" | "accepted"
       verification_status:
         | "unverified"
@@ -779,6 +793,8 @@ export const Constants = {
         "maintenance_resolved",
         "rent_due_reminder",
         "rent_overdue",
+        "identity_verified",
+        "identity_verification_failed",
       ],
       share_status: ["pending", "reviewed", "accepted"],
       verification_status: [
