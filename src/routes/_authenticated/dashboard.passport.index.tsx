@@ -9,7 +9,6 @@ import {
   Loader2,
   Pencil,
   Share2,
-  ShieldCheck,
   UserRoundCheck,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
