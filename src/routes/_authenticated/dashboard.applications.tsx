@@ -412,6 +412,83 @@ function ApplicationsPage() {
 function VerifyBadge({ label, ok }: { label: string; ok: boolean }) {
   return (
     <span
+      title={ok ? `${label}: declared by the applicant with evidence attached. Not independently checked by Roost.` : `${label}: not yet declared by the applicant.`}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+        ok ? "bg-verified-soft text-verified" : "bg-surface-muted text-muted-foreground"
+      }`}
+    >
+      {ok ? <Check className="h-3 w-3" strokeWidth={3} /> : <Clock className="h-3 w-3" />}
+      {label}
+    </span>
+  );
+}
+
+/** States plainly what Roost does and does not do, where the decision is made. */
+function HowRoostWorksPanel() {
+  return (
+    <div className="mt-4 rounded-2xl border border-border bg-surface-muted/50 p-4">
+      <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <Info className="h-3.5 w-3.5" />
+        How Roost works
+      </p>
+      <p className="mt-2 text-sm text-foreground">
+        Roost collects and organises what an applicant tells you, and keeps a timestamped record
+        of it. <strong>Roost does not vet, reference or recommend tenants</strong>, and it does not
+        rank or score them. Whether to let is your decision, and your own checks still apply.
+      </p>
+    </div>
+  );
+}
+
+/** Sits beside the claims so the boundary is impossible to miss. */
+function ChecksSplit() {
+  const checked = [
+    "A document was uploaded and is attached to this application",
+    "The income figures the applicant entered add up",
+    "The declaration is timestamped and cannot be edited after the fact",
+  ];
+  const yours = [
+    "Identity — compare the document against the person",
+    "Right to rent — confirm the applicant's status yourself",
+    "Employment — contact the employer directly",
+    "Previous landlord — take up the reference yourself",
+    "Credit history — Roost does not run credit checks",
+  ];
+  return (
+    <div className="grid gap-3 rounded-2xl border border-border bg-surface p-3.5 sm:grid-cols-2">
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-verified">
+          What Roost checked
+        </p>
+        <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
+          {checked.map((t) => (
+            <li key={t} className="flex gap-1.5">
+              <Check className="mt-0.5 h-3 w-3 shrink-0 text-verified" strokeWidth={3} />
+              <span>{t}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-700">
+          What you must check yourself
+        </p>
+        <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
+          {yours.map((t) => (
+            <li key={t} className="flex gap-1.5">
+              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-amber-500" />
+              <span>{t}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function UnusedVerifyBadge({ label, ok }: { label: string; ok: boolean }) {
+  return (
+    <span
       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
         ok ? "bg-verified-soft text-verified" : "bg-surface-muted text-muted-foreground"
       }`}
