@@ -45,17 +45,35 @@ included now, at no cost: automated tamper signals on uploaded payslips and stat
 reading document metadata to flag when a file was produced by an image or PDF editor rather
 than a payroll or banking system. Shown to the landlord as a signal, never as a verdict.
 
-## Cost and pricing
+## Cost and pricing — nothing is spent while testing
 
-The check costs roughly £1.20 each. The tenant pays a one-off fee at the point of
-verification — proposed at £5, set in one place so it is easy to change. It buys a verified
-passport reusable across every Roost application, which is the argument against paying a
-referencing fee per property.
+The build starts in **simulated mode**, with no payment provider connected and no account
+needed. The tenant sees the real screens — fee notice, hosted-check hand-off, pass or fail
+result — but the check is faked locally and settles instantly. Every screen, badge, webhook
+path, audit row and failure branch is exercised for free.
+
+Simulated mode is unmistakable in the interface: an amber **Simulated verification — no
+payment taken, no real check performed** banner on the tenant screen, and a matching label
+on the landlord's badge, so a simulated pass can never be mistaken for a real one. A
+simulated pass is written with `id_provider='simulated'`, so if the mode is ever flipped the
+test rows stay distinguishable in the database.
+
+Going live is a switch, not a rewrite: connect the provider, set the mode to live. In
+between there is a middle setting that runs the provider in its own test mode — real code
+path, real hosted screens, test cards, still nothing charged.
+
+For reference when you do go live: the check costs roughly £1.20, and the proposed tenant fee
+is £5, set in one place. It buys a verified passport reusable across every Roost application,
+which is the argument against paying a referencing fee per property.
 
 ## Technical detail
 
-**Provider.** Stripe Identity, with Stripe Checkout collecting the fee. One vendor, one
-integration, one dashboard. Requires a `STRIPE_SECRET_KEY` secret.
+**Provider.** The verification layer is written against a small internal interface — start a
+check, read a result — with two implementations behind it: `simulated` (default, no
+credentials, no network) and `stripe` (Stripe Identity for the check, Stripe Checkout for the
+fee). A single `VERIFICATION_MODE` setting selects between them, so no Stripe account or
+`STRIPE_SECRET_KEY` is needed to build, test or demo this. Nothing is installed or connected
+in this milestone.
 
 **Schema.** `id_provider` and `id_session_id` already exist on `tenant_passports` and the
 `verification_status` enum already carries `pending`/`verified`/`failed`, so the identity
@@ -67,23 +85,27 @@ returned by the provider; a `verification_fee_paid_at` timestamp; and drops
 
 ```text
 Tenant clicks Verify
-  -> createVerificationCheckout server fn: Stripe Checkout session, £5
-  -> tenant pays, returns to /dashboard/passport/edit#identity
-  -> webhook checkout.session.completed
-       -> record fee paid, create Stripe Identity VerificationSession
-  -> tenant redirected to the hosted document + selfie check
-  -> webhook identity.verification_session.verified
-       -> id_status='verified', id_provider='stripe', store verified fields
-       -> verification_audit_logs row, notification to the tenant
-  -> webhook identity.verification_session.requires_input
-       -> id_status='failed', tenant is told why and can retry without paying twice
+  -> startVerification server fn  ->  id_status='pending'
+
+  SIMULATED                          LIVE
+  in-app mock screen                 Stripe Checkout £5, then the hosted
+  pass / fail buttons                document + selfie check
+  resolves instantly                 provider webhook returns the result
+
+  -> both converge on the same result handler
+       verified  -> id_status='verified', store verified name / DOB /
+                    document expiry, audit row, notify the tenant
+       failed    -> id_status='failed', reason shown, retry without
+                    paying twice
 ```
 
-**Files.** New `src/lib/identity-verification.functions.ts` (checkout + session creation,
-both behind `requireSupabaseAuth`) and `src/routes/api/public/stripe-webhook.ts` (signature
-verified before anything is trusted; status is only ever written from the webhook, never from
-the browser). Rewrites the identity step in `dashboard.passport.edit.tsx`; updates badges and
-the checks split in `dashboard.applications.tsx`; updates the passport summary cards in
+**Files.** New `src/lib/identity-verification.functions.ts` (start and resolve, both behind
+`requireSupabaseAuth`) and `src/lib/identity-providers.server.ts` holding the simulated and
+Stripe implementations. The webhook route is added but inert until live mode. Status is only
+ever written server-side — the simulated pass/fail buttons call a server function that checks
+the mode first and refuses to write a simulated result when live. Rewrites the identity step
+in `dashboard.passport.edit.tsx`; updates badges and the checks split in
+`dashboard.applications.tsx`; updates the passport summary cards in
 `dashboard.passport.index.tsx` and `dashboard.index.tsx`; adds a metadata inspection helper
 for income documents.
 
@@ -93,5 +115,5 @@ not copied into Roost storage.
 
 ## Needed from you
 
-The Stripe secret key, once you approve. Live keys mean real charges, so test keys are
-sensible until you are ready to trial it.
+Nothing. No account, no keys, no spend. When you are ready to trial the real check, connecting
+a provider and flipping the mode is a small follow-up.
