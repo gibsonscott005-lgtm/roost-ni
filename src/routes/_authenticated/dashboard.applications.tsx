@@ -486,19 +486,6 @@ function ChecksSplit() {
   );
 }
 
-function UnusedVerifyBadge({ label, ok }: { label: string; ok: boolean }) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-        ok ? "bg-verified-soft text-verified" : "bg-surface-muted text-muted-foreground"
-      }`}
-    >
-      {ok ? <Check className="h-3 w-3" strokeWidth={3} /> : <Clock className="h-3 w-3" />}
-      {label}
-    </span>
-  );
-}
-
 function SelfCertifiedIdBadge({
   country,
   verifiedAt,
