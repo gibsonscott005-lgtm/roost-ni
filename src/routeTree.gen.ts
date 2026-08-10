@@ -23,6 +23,7 @@ import { Route as AuthenticatedLandlordIssueLeaseRouteImport } from './routes/_a
 import { Route as AuthenticatedLandlordManageTenancyRouteImport } from './routes/_authenticated/landlord.manage-tenancy'
 import { Route as AuthenticatedTenantReviewLeaseRouteImport } from './routes/_authenticated/tenant.review-lease'
 import { Route as AuthenticatedTenantTenancyRouteImport } from './routes/_authenticated/tenant.tenancy'
+import { Route as ApiPublicIdentityWebhookRouteImport } from './routes/api/public/identity-webhook'
 import { Route as AuthenticatedDashboardPassportIndexRouteImport } from './routes/_authenticated/dashboard.passport.index'
 import { Route as AuthenticatedDashboardPassportEditRouteImport } from './routes/_authenticated/dashboard.passport.edit'
 
@@ -103,6 +104,12 @@ const AuthenticatedTenantTenancyRoute =
     path: '/tenant/tenancy',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicIdentityWebhookRoute =
+  ApiPublicIdentityWebhookRouteImport.update({
+    id: '/api/public/identity-webhook',
+    path: '/api/public/identity-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedDashboardPassportIndexRoute =
   AuthenticatedDashboardPassportIndexRouteImport.update({
     id: '/passport/',
@@ -129,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/landlord/manage-tenancy': typeof AuthenticatedLandlordManageTenancyRoute
   '/tenant/review-lease': typeof AuthenticatedTenantReviewLeaseRoute
   '/tenant/tenancy': typeof AuthenticatedTenantTenancyRoute
+  '/api/public/identity-webhook': typeof ApiPublicIdentityWebhookRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
   '/dashboard/passport/': typeof AuthenticatedDashboardPassportIndexRoute
@@ -145,6 +153,7 @@ export interface FileRoutesByTo {
   '/landlord/manage-tenancy': typeof AuthenticatedLandlordManageTenancyRoute
   '/tenant/review-lease': typeof AuthenticatedTenantReviewLeaseRoute
   '/tenant/tenancy': typeof AuthenticatedTenantTenancyRoute
+  '/api/public/identity-webhook': typeof ApiPublicIdentityWebhookRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
   '/dashboard/passport': typeof AuthenticatedDashboardPassportIndexRoute
@@ -164,6 +173,7 @@ export interface FileRoutesById {
   '/_authenticated/landlord/manage-tenancy': typeof AuthenticatedLandlordManageTenancyRoute
   '/_authenticated/tenant/review-lease': typeof AuthenticatedTenantReviewLeaseRoute
   '/_authenticated/tenant/tenancy': typeof AuthenticatedTenantTenancyRoute
+  '/api/public/identity-webhook': typeof ApiPublicIdentityWebhookRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
   '/_authenticated/dashboard/passport/': typeof AuthenticatedDashboardPassportIndexRoute
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/landlord/manage-tenancy'
     | '/tenant/review-lease'
     | '/tenant/tenancy'
+    | '/api/public/identity-webhook'
     | '/dashboard/'
     | '/dashboard/passport/edit'
     | '/dashboard/passport/'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/landlord/manage-tenancy'
     | '/tenant/review-lease'
     | '/tenant/tenancy'
+    | '/api/public/identity-webhook'
     | '/dashboard'
     | '/dashboard/passport/edit'
     | '/dashboard/passport'
@@ -217,6 +229,7 @@ export interface FileRouteTypes {
     | '/_authenticated/landlord/manage-tenancy'
     | '/_authenticated/tenant/review-lease'
     | '/_authenticated/tenant/tenancy'
+    | '/api/public/identity-webhook'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/passport/edit'
     | '/_authenticated/dashboard/passport/'
@@ -228,6 +241,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ListingsIdRoute: typeof ListingsIdRoute
   ListingsIndexRoute: typeof ListingsIndexRoute
+  ApiPublicIdentityWebhookRoute: typeof ApiPublicIdentityWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -330,6 +344,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTenantTenancyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/identity-webhook': {
+      id: '/api/public/identity-webhook'
+      path: '/api/public/identity-webhook'
+      fullPath: '/api/public/identity-webhook'
+      preLoaderRoute: typeof ApiPublicIdentityWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/dashboard/passport/': {
       id: '/_authenticated/dashboard/passport/'
       path: '/passport'
@@ -401,17 +422,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ListingsIdRoute: ListingsIdRoute,
   ListingsIndexRoute: ListingsIndexRoute,
+  ApiPublicIdentityWebhookRoute: ApiPublicIdentityWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

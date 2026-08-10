@@ -10,6 +10,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification, type EmitNotificationInput } from "@/lib/notifications.functions";
 import { signIdDocumentUrl, signIncomeDocumentUrl } from "@/lib/identity-docs.functions";
 import { Skeleton } from "@/components/ui/skeleton";
+import { identityTier } from "@/lib/identity-verification";
 
 function notify(payload: EmitNotificationInput) {
   emitNotification({ data: payload }).catch((err) =>
@@ -52,7 +53,6 @@ interface Passport {
   identity_verified: boolean;
   income_verified: boolean;
   reference_verified: boolean;
-  right_to_rent_verified: boolean;
   monthly_income_net: number | null;
   annual_income: number | null;
   employment_status: string | null;
@@ -106,7 +106,7 @@ function ApplicationsPage() {
         const { data: p } = await supabase
           .from("tenant_passports")
           .select(
-            "user_id, identity_verified, income_verified, reference_verified, right_to_rent_verified, monthly_income_net, annual_income, employment_status, income_document_path, income_breakdown, willing_direct_payment_apa, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
+            "user_id, identity_verified, income_verified, reference_verified, monthly_income_net, annual_income, employment_status, income_document_path, income_breakdown, willing_direct_payment_apa, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
           )
           .in("user_id", tenantIds);
         ((p as Passport[] | null) ?? []).forEach((row) => {
@@ -287,7 +287,7 @@ function ApplicationsPage() {
               {shares.map((s, i) => {
                 const p = passports[s.tenant_id];
                 const declaredCount = p
-                  ? [p.identity_verified, p.income_verified, p.reference_verified, p.right_to_rent_verified].filter(Boolean).length
+                  ? [p.identity_verified, p.income_verified, p.reference_verified].filter(Boolean).length
                   : 0;
                 return (
                   <li
@@ -304,16 +304,11 @@ function ApplicationsPage() {
                         Applied to <span className="text-foreground/90">{s.listing?.title ?? "your listing"}</span> · {timeAgo(s.shared_at)}
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                        {p?.id_status === "self_certified" ? (
-                          <SelfCertifiedIdBadge country={p.issuing_country} verifiedAt={p.id_verified_at} />
-                        ) : (
-                          <VerifyBadge label="ID" ok={!!p?.identity_verified} />
-                        )}
+                        <IdBadge passport={p ?? null} />
                         <VerifyBadge label="Income" ok={!!p?.income_verified} />
                         <VerifyBadge label="References" ok={!!p?.reference_verified} />
-                        <VerifyBadge label="Right to rent" ok={!!p?.right_to_rent_verified} />
                         <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {declaredCount}/4 declared
+                          {declaredCount}/3 declared
                         </span>
                         <AffordabilityBadge
                           passport={p ?? null}
@@ -441,15 +436,21 @@ function HowRoostWorksPanel() {
 }
 
 /** Sits beside the claims so the boundary is impossible to miss. */
-function ChecksSplit() {
+function ChecksSplit({ idVerified = false }: { idVerified?: boolean }) {
   const checked = [
+    ...(idVerified
+      ? [
+          "Identity — the document was checked for authenticity and matched to a live selfie by our verification provider",
+        ]
+      : []),
     "A document was uploaded and is attached to this application",
     "The income figures the applicant entered add up",
     "The declaration is timestamped and cannot be edited after the fact",
   ];
   const yours = [
-    "Identity — compare the document against the person",
-    "Right to rent — confirm the applicant's status yourself",
+    ...(idVerified
+      ? ["Identity — satisfy yourself the person viewing is the person verified"]
+      : ["Identity — compare the document against the person"]),
     "Employment — contact the employer directly",
     "Previous landlord — take up the reference yourself",
     "Credit history — Roost does not run credit checks",
@@ -507,6 +508,70 @@ function SelfCertifiedIdBadge({
       Self-Certified ID{country ? ` (${country})` : ""}
     </span>
   );
+}
+
+/**
+ * One badge for the identity claim, honest about which tier it is:
+ * a provider-checked ID and a tenant-uploaded photo are not the same thing.
+ */
+function IdBadge({ passport }: { passport: Passport | null }) {
+  const tier = passport
+    ? identityTier({ id_status: passport.id_status, id_document_path: passport.id_document_path })
+    : "none";
+
+  if (tier === "verified") {
+    const when = passport?.id_verified_at
+      ? new Date(passport.id_verified_at).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })
+      : null;
+    return (
+      <span
+        title={`Document authenticity and face match confirmed by an identity provider${when ? ` on ${when}` : ""}. Roost still does not vouch for this applicant.`}
+        className="inline-flex items-center gap-1 rounded-full border border-verified/30 bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified"
+      >
+        <ShieldCheck className="h-3 w-3" strokeWidth={2.5} />
+        ID Verified{passport?.issuing_country ? ` (${passport.issuing_country})` : ""}
+      </span>
+    );
+  }
+
+  if (tier === "self_certified") {
+    return (
+      <SelfCertifiedIdBadge
+        country={passport?.issuing_country ?? null}
+        verifiedAt={passport?.id_verified_at ?? null}
+      />
+    );
+  }
+
+  if (tier === "pending") {
+    return (
+      <span
+        title="The applicant has started an identity check that has not finished yet."
+        className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+      >
+        <Clock className="h-3 w-3" />
+        ID check in progress
+      </span>
+    );
+  }
+
+  if (tier === "failed") {
+    return (
+      <span
+        title="An identity check was attempted and did not complete. This is not a judgement on the applicant — checks fail for ordinary reasons such as poor lighting or an expired document."
+        className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700"
+      >
+        <Clock className="h-3 w-3" />
+        ID check not completed
+      </span>
+    );
+  }
+
+  return <VerifyBadge label="ID" ok={false} />;
 }
 
 function formatEmployment(status: string | null): string {
@@ -848,14 +913,9 @@ function PassportModal({
 
         <div className="space-y-4 p-5">
           <div className="flex flex-wrap gap-2">
-            {passport?.id_status === "self_certified" ? (
-              <SelfCertifiedIdBadge country={passport.issuing_country} verifiedAt={passport.id_verified_at} />
-            ) : (
-              <VerifyBadge label="Identity" ok={!!passport?.identity_verified} />
-            )}
+            <IdBadge passport={passport} />
             <VerifyBadge label="Income" ok={!!passport?.income_verified} />
             <VerifyBadge label="References" ok={!!passport?.reference_verified} />
-            <VerifyBadge label="Right to rent" ok={!!passport?.right_to_rent_verified} />
             <AffordabilityBadge
               passport={passport}
               monthlyRent={share.listing?.monthly_rent ?? null}
@@ -871,7 +931,7 @@ function PassportModal({
 
           <IncomeBreakdownBlock passport={passport} monthlyRent={share.listing?.monthly_rent ?? null} />
 
-          <ChecksSplit />
+          <ChecksSplit idVerified={passport?.id_status === "verified"} />
 
           {passport?.id_document_path ? (
             <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5">

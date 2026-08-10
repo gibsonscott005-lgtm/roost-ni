@@ -9,7 +9,6 @@ import {
   Loader2,
   Pencil,
   Share2,
-  ShieldCheck,
   UserRoundCheck,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,7 +33,7 @@ type PassportRow = {
   identity_verified: boolean;
   income_verified: boolean;
   reference_verified: boolean;
-  right_to_rent_verified: boolean;
+  id_status: string | null;
   employment_status: string | null;
   monthly_income_net: number | null;
   annual_income: number | null;
@@ -66,7 +65,7 @@ function MyPassportPage() {
         const { data, error } = await supabase
           .from("tenant_passports")
           .select(
-            "identity_verified, income_verified, reference_verified, right_to_rent_verified, employment_status, monthly_income_net, annual_income, id_document_type, id_document_path, income_document_path, previous_landlord_name, previous_landlord_email, previous_landlord_phone, tenancy_duration, reference_document_path, is_first_time_renter, guarantor_name, previous_landlord_name_2",
+            "identity_verified, income_verified, reference_verified, id_status, employment_status, monthly_income_net, annual_income, id_document_type, id_document_path, income_document_path, previous_landlord_name, previous_landlord_email, previous_landlord_phone, tenancy_duration, reference_document_path, is_first_time_renter, guarantor_name, previous_landlord_name_2",
           )
           .eq("user_id", user.id)
           .maybeSingle();
@@ -185,8 +184,11 @@ function MyPassportPage() {
     return "Self-Certified";
   })();
   const badges: { label: string; icon: typeof IdCard; sub?: string }[] = [
-    { label: "Identity", icon: IdCard },
-    { label: "Right to Rent", icon: ShieldCheck },
+    {
+      label: "Identity",
+      icon: IdCard,
+      sub: passport?.id_status === "verified" ? "Verified" : "Self-Certified",
+    },
     { label: "Income", icon: Banknote },
     { label: "References", icon: UserRoundCheck, sub: referencesSubLabel },
   ];

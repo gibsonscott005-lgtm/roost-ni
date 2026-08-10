@@ -1,0 +1,137 @@
+import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { VerificationConfig } from "./identity-verification";
+import { VERIFICATION_FEE_PENCE } from "./identity-verification";
+
+/** Lets the tenant UI know whether it is looking at a real check or a simulation. */
+export const getVerificationConfig = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async (): Promise<VerificationConfig> => {
+    const { getVerificationMode } = await import("./identity-providers.server");
+    return { mode: getVerificationMode(), feePence: VERIFICATION_FEE_PENCE };
+  });
+
+/**
+ * Opens a verification attempt. Marks the passport pending and returns where to
+ * send the tenant — a provider-hosted page in live mode, or nowhere in
+ * simulated mode, where the check is resolved from the in-app mock screen.
+ */
+export const startVerification = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { returnUrl: string }) => {
+    // Only ever hand a provider a same-origin path we constructed ourselves.
+    if (typeof data?.returnUrl !== "string" || !/^https?:\/\//.test(data.returnUrl)) {
+      throw new Error("Invalid return URL");
+    }
+    return { returnUrl: data.returnUrl.slice(0, 500) };
+  })
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { getVerificationMode, startCheck } = await import("./identity-providers.server");
+    const mode = getVerificationMode();
+
+    const started = await startCheck({
+      mode,
+      userId,
+      email: (context.claims?.["email"] as string | undefined) ?? null,
+      returnUrl: data.returnUrl,
+    });
+
+    const { error } = await supabase
+      .from("tenant_passports")
+      .upsert(
+        {
+          user_id: userId,
+          id_status: "pending",
+          id_provider: mode === "simulated" ? "simulated" : "stripe",
+          id_session_id: started.sessionId,
+          id_failure_reason: null,
+        },
+        { onConflict: "user_id" },
+      );
+    if (error) throw new Error(error.message);
+
+    await supabase.from("verification_audit_logs").insert({
+      tenant_id: userId,
+      provider: mode === "simulated" ? "simulated" : "stripe",
+      session_id: started.sessionId,
+      event_type: "verification_started",
+      payload: { mode, at: new Date().toISOString() },
+    });
+
+    return { mode, sessionId: started.sessionId, redirectUrl: started.redirectUrl };
+  });
+
+/**
+ * Resolves a SIMULATED check. Hard-refuses outside simulated mode, so a
+ * browser can never mint a real "verified" status.
+ */
+export const resolveSimulatedVerification = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { outcome: "verified" | "failed" }) => {
+    if (data?.outcome !== "verified" && data?.outcome !== "failed") {
+      throw new Error("Invalid outcome");
+    }
+    return { outcome: data.outcome };
+  })
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { getVerificationMode, simulatedResult } = await import("./identity-providers.server");
+    const mode = getVerificationMode();
+    if (mode !== "simulated") {
+      throw new Error("Simulated results are not accepted while a real provider is connected.");
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", userId)
+      .maybeSingle();
+
+    const { data: existing } = await supabase
+      .from("tenant_passports")
+      .select("id_session_id")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    const sessionId = existing?.id_session_id ?? `sim_${crypto.randomUUID()}`;
+    const result = simulatedResult(data.outcome, profile?.full_name ?? null);
+    const now = new Date().toISOString();
+
+    const { data: saved, error } = await supabase
+      .from("tenant_passports")
+      .upsert(
+        {
+          user_id: userId,
+          id_status: result.outcome,
+          id_provider: "simulated",
+          id_session_id: sessionId,
+          id_verified_at: result.outcome === "verified" ? now : null,
+          identity_verified: result.outcome === "verified",
+          verified_full_name: result.verifiedFullName,
+          verified_date_of_birth: result.verifiedDateOfBirth,
+          id_document_expiry: result.documentExpiry,
+          id_failure_reason: result.failureReason,
+        },
+        { onConflict: "user_id" },
+      )
+      .select("*")
+      .single();
+    if (error) throw new Error(error.message);
+
+    await supabase.from("verification_audit_logs").insert({
+      tenant_id: userId,
+      provider: "simulated",
+      session_id: sessionId,
+      event_type:
+        result.outcome === "verified" ? "verification_passed" : "verification_failed",
+      payload: {
+        simulated: true,
+        outcome: result.outcome,
+        reason: result.failureReason,
+        at: now,
+      },
+    });
+
+    return { outcome: result.outcome, passport: saved };
+  });
