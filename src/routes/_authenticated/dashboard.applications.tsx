@@ -566,7 +566,7 @@ function AffordabilityBadge({
   const result = computeAffordability(passport, monthlyRent);
   if (!result) return null;
   const rounded = Math.round(result.ratio * 10) / 10;
-  const tooltip = `Effective annual capacity £${Math.round(result.effectiveCapacity).toLocaleString()} vs £${result.annualRent.toLocaleString()} annual rent (benefits weighted 1.25×). Covered threshold: 2.5× annual rent (30× monthly).`;
+  const tooltip = `Calculation only, from figures the applicant entered: £${Math.round(result.effectiveCapacity).toLocaleString()} declared annual capacity ÷ £${result.annualRent.toLocaleString()} annual rent = ${rounded.toFixed(1)}× (benefits weighted 1.25×). A common landlord benchmark is 2.5×. Roost is not assessing this applicant — the judgement is yours.`;
   if (result.ratio >= 2.5) {
     return (
       <span
@@ -574,7 +574,7 @@ function AffordabilityBadge({
         className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700"
       >
         <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
-        Affordability: Covered ({rounded.toFixed(1)}x)
+        Income cover {rounded.toFixed(1)}× rent
       </span>
     );
   }
@@ -584,7 +584,7 @@ function AffordabilityBadge({
       className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800"
     >
       <TrendingUp className="h-3 w-3" strokeWidth={2.5} />
-      Affordability: Guarantor Recommended ({rounded.toFixed(1)}x)
+      Income cover {rounded.toFixed(1)}× rent — below 2.5×
     </span>
   );
 }
