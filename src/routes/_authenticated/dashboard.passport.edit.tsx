@@ -719,8 +719,9 @@ function IdentityStep({
           },
         });
       if (auditErr) console.error("[verification_audit_logs]", auditErr);
-      toast.success("Identity saved", {
-        description: "Right to Rent step complete.",
+      toast.success("Identity document saved", {
+        description:
+          "Landlords can see the document you attached. Verify your ID to prove it is genuinely yours.",
       });
       onSaved(data as Passport);
     } catch (err: unknown) {
@@ -737,14 +738,16 @@ function IdentityStep({
       <StepCard
         icon={IdCard}
         eyebrow="Step 01"
-        title="Identity & Right to Rent"
-        desc="Upload your government photo ID. This self-certifies Identity and Right to Rent on your passport — landlords review the document when you apply."
+        title="Identity"
+        desc="Attach your government photo ID so landlords can see it, then verify it so they know it is genuinely yours."
       >
+        <VerifyIdentityPanel passport={passport} onSaved={onSaved} />
+
         {passport.id_status === "self_certified" && passport.id_verified_at ? (
           <div className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-700">
             <Check className="h-4 w-4 shrink-0" strokeWidth={3} />
             <span className="min-w-0">
-              <span className="font-semibold">Self-Certified ID</span>
+              <span className="font-semibold">Document attached (self-certified)</span>
               <span className="ml-1.5 text-xs text-emerald-700/80">
                 {passport.issuing_country ?? "GB"} · {format(new Date(passport.id_verified_at), "d MMM yyyy")}
               </span>
