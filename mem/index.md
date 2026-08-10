@@ -8,6 +8,8 @@ Never invent social-proof numbers (applicant counts, demand stats, match counts)
 British English (UK) throughout user-facing copy (colour, organise, £).
 Design system: minimalist gray/white with emerald green accents. No purple/indigo gradients.
 Analytics: PostHog only. Zero-cost / organic-growth philosophy — no paid APIs unless requested.
+Identity is the one thing Roost verifies for real (tenant-paid check). Everything else is self-certified — only identity may say "Verified".
+Right to Rent is England-only and must never appear in Roost. The column and all copy were removed deliberately.
 All tenant verification is self-certification — never say "Verified by Roost"; use "Self-Certified" and include the no-background-check disclaimer.
 Every milestone mutation must fanout via `emitNotification` to the counterparty; do NOT add per-page realtime channels (the single one lives in NotificationsBell).
 
