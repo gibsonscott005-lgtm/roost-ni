@@ -820,6 +820,7 @@ function PassportModal({
   onClose: () => void;
 }) {
   const navigate = useNavigate();
+  const [ownChecksDone, setOwnChecksDone] = useState(false);
   return (
     <div className="fixed inset-0 z-50 grid place-items-end bg-foreground/30 px-4 py-6 backdrop-blur-sm sm:place-items-center">
       <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-surface shadow-[0_24px_64px_-24px_rgba(15,23,42,0.35)]">
@@ -829,7 +830,7 @@ function PassportModal({
               Tenant Passport
             </p>
             <h3 className="mt-1 truncate font-display text-lg font-semibold tracking-tight">
-              {share.tenant?.full_name || "Verified tenant"}
+              {share.tenant?.full_name || "Applicant"}
             </h3>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">
               For {share.listing?.title ?? "your listing"}
@@ -870,12 +871,14 @@ function PassportModal({
 
           <IncomeBreakdownBlock passport={passport} monthlyRent={share.listing?.monthly_rent ?? null} />
 
+          <ChecksSplit />
+
           {passport?.id_document_path ? (
             <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5">
               <div className="min-w-0 text-xs text-emerald-800">
                 <p className="font-semibold">Identity document on file</p>
                 <p className="text-emerald-700/80">
-                  Self-certified by tenant · shared with this application
+                  Supplied by the applicant · check it against the person yourself
                 </p>
               </div>
               <ViewIdDocButton shareId={share.id} />
@@ -883,10 +886,10 @@ function PassportModal({
           ) : null}
 
           <dl className="divide-y divide-border rounded-2xl border border-border bg-surface-muted/50 text-sm">
-            <Row k="Monthly net income" v={passport?.monthly_income_net ? `£${Number(passport.monthly_income_net).toLocaleString()}` : "—"} />
+            <Row k="Monthly net income (declared)" v={passport?.monthly_income_net ? `£${Number(passport.monthly_income_net).toLocaleString()}` : "—"} />
             {passport?.id_verified_at ? (
               <Row
-                k="ID verified"
+                k="Declared true on"
                 v={new Date(passport.id_verified_at).toLocaleString("en-GB", {
                   day: "numeric",
                   month: "short",
@@ -898,7 +901,22 @@ function PassportModal({
           </dl>
         </div>
 
-        <div className="flex items-center justify-end gap-2 border-t border-border bg-surface-muted/40 p-4">
+        <div className="border-t border-border bg-surface-muted/40 p-4">
+          {share.status !== "accepted" ? (
+            <label className="mb-3 flex cursor-pointer items-start gap-2.5 rounded-2xl border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900">
+              <input
+                type="checkbox"
+                checked={ownChecksDone}
+                onChange={(e) => setOwnChecksDone(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-amber-600"
+              />
+              <span>
+                I have carried out my own checks on this applicant and I understand Roost has not
+                vetted, referenced or recommended them. This letting decision is mine.
+              </span>
+            </label>
+          ) : null}
+          <div className="flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
@@ -922,12 +940,15 @@ function PassportModal({
             <button
               type="button"
               onClick={onAccept}
-              className="inline-flex items-center gap-1.5 rounded-full bg-verified px-4 py-2 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95"
+              disabled={!ownChecksDone}
+              title={ownChecksDone ? undefined : "Confirm your own checks first"}
+              className="inline-flex items-center gap-1.5 rounded-full bg-verified px-4 py-2 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Check className="h-3.5 w-3.5" strokeWidth={3} />
               Accept applicant
             </button>
           )}
+          </div>
         </div>
       </div>
     </div>
