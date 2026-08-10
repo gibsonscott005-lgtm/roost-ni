@@ -52,7 +52,6 @@ interface Passport {
   identity_verified: boolean;
   income_verified: boolean;
   reference_verified: boolean;
-  right_to_rent_verified: boolean;
   monthly_income_net: number | null;
   annual_income: number | null;
   employment_status: string | null;
@@ -287,7 +286,7 @@ function ApplicationsPage() {
               {shares.map((s, i) => {
                 const p = passports[s.tenant_id];
                 const declaredCount = p
-                  ? [p.identity_verified, p.income_verified, p.reference_verified, p.right_to_rent_verified].filter(Boolean).length
+                  ? [p.identity_verified, p.income_verified, p.reference_verified].filter(Boolean).length
                   : 0;
                 return (
                   <li
@@ -304,16 +303,11 @@ function ApplicationsPage() {
                         Applied to <span className="text-foreground/90">{s.listing?.title ?? "your listing"}</span> · {timeAgo(s.shared_at)}
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                        {p?.id_status === "self_certified" ? (
-                          <SelfCertifiedIdBadge country={p.issuing_country} verifiedAt={p.id_verified_at} />
-                        ) : (
-                          <VerifyBadge label="ID" ok={!!p?.identity_verified} />
-                        )}
+                        <IdBadge passport={p ?? null} />
                         <VerifyBadge label="Income" ok={!!p?.income_verified} />
                         <VerifyBadge label="References" ok={!!p?.reference_verified} />
-                        <VerifyBadge label="Right to rent" ok={!!p?.right_to_rent_verified} />
                         <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {declaredCount}/4 declared
+                          {declaredCount}/3 declared
                         </span>
                         <AffordabilityBadge
                           passport={p ?? null}
@@ -848,14 +842,9 @@ function PassportModal({
 
         <div className="space-y-4 p-5">
           <div className="flex flex-wrap gap-2">
-            {passport?.id_status === "self_certified" ? (
-              <SelfCertifiedIdBadge country={passport.issuing_country} verifiedAt={passport.id_verified_at} />
-            ) : (
-              <VerifyBadge label="Identity" ok={!!passport?.identity_verified} />
-            )}
+            <IdBadge passport={passport} />
             <VerifyBadge label="Income" ok={!!passport?.income_verified} />
             <VerifyBadge label="References" ok={!!passport?.reference_verified} />
-            <VerifyBadge label="Right to rent" ok={!!passport?.right_to_rent_verified} />
             <AffordabilityBadge
               passport={passport}
               monthlyRent={share.listing?.monthly_rent ?? null}
