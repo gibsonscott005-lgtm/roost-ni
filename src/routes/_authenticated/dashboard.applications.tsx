@@ -931,7 +931,7 @@ function PassportModal({
 
           <IncomeBreakdownBlock passport={passport} monthlyRent={share.listing?.monthly_rent ?? null} />
 
-          <ChecksSplit />
+          <ChecksSplit idVerified={passport?.id_status === "verified"} />
 
           {passport?.id_document_path ? (
             <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5">
