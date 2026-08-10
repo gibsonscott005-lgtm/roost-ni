@@ -435,15 +435,21 @@ function HowRoostWorksPanel() {
 }
 
 /** Sits beside the claims so the boundary is impossible to miss. */
-function ChecksSplit() {
+function ChecksSplit({ idVerified = false }: { idVerified?: boolean }) {
   const checked = [
+    ...(idVerified
+      ? [
+          "Identity — the document was checked for authenticity and matched to a live selfie by our verification provider",
+        ]
+      : []),
     "A document was uploaded and is attached to this application",
     "The income figures the applicant entered add up",
     "The declaration is timestamped and cannot be edited after the fact",
   ];
   const yours = [
-    "Identity — compare the document against the person",
-    "Right to rent — confirm the applicant's status yourself",
+    ...(idVerified
+      ? ["Identity — satisfy yourself the person viewing is the person verified"]
+      : ["Identity — compare the document against the person"]),
     "Employment — contact the employer directly",
     "Previous landlord — take up the reference yourself",
     "Credit history — Roost does not run credit checks",
@@ -501,6 +507,70 @@ function SelfCertifiedIdBadge({
       Self-Certified ID{country ? ` (${country})` : ""}
     </span>
   );
+}
+
+/**
+ * One badge for the identity claim, honest about which tier it is:
+ * a provider-checked ID and a tenant-uploaded photo are not the same thing.
+ */
+function IdBadge({ passport }: { passport: Passport | null }) {
+  const tier = passport
+    ? identityTier({ id_status: passport.id_status, id_document_path: passport.id_document_path })
+    : "none";
+
+  if (tier === "verified") {
+    const when = passport?.id_verified_at
+      ? new Date(passport.id_verified_at).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })
+      : null;
+    return (
+      <span
+        title={`Document authenticity and face match confirmed by an identity provider${when ? ` on ${when}` : ""}. Roost still does not vouch for this applicant.`}
+        className="inline-flex items-center gap-1 rounded-full border border-verified/30 bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified"
+      >
+        <ShieldCheck className="h-3 w-3" strokeWidth={2.5} />
+        ID Verified{passport?.issuing_country ? ` (${passport.issuing_country})` : ""}
+      </span>
+    );
+  }
+
+  if (tier === "self_certified") {
+    return (
+      <SelfCertifiedIdBadge
+        country={passport?.issuing_country ?? null}
+        verifiedAt={passport?.id_verified_at ?? null}
+      />
+    );
+  }
+
+  if (tier === "pending") {
+    return (
+      <span
+        title="The applicant has started an identity check that has not finished yet."
+        className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+      >
+        <Clock className="h-3 w-3" />
+        ID check in progress
+      </span>
+    );
+  }
+
+  if (tier === "failed") {
+    return (
+      <span
+        title="An identity check was attempted and did not complete. This is not a judgement on the applicant — checks fail for ordinary reasons such as poor lighting or an expired document."
+        className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-700"
+      >
+        <Clock className="h-3 w-3" />
+        ID check not completed
+      </span>
+    );
+  }
+
+  return <VerifyBadge label="ID" ok={false} />;
 }
 
 function formatEmployment(status: string | null): string {
