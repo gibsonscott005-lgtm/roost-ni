@@ -2,6 +2,17 @@
 
 Goal: close the gaps a landlord trade body would find first, then approach LANI with a written briefing rather than a pitch.
 
+## Governing principle — Roost assists, it never decides
+
+Every item below is built to this rule, and it becomes the line we lead with at LANI:
+
+- Roost verifies what it reasonably can (document present, figures internally consistent, dates and formats valid, an immutable timestamped declaration) and is explicit about what it has not verified.
+- Roost never scores, ranks, recommends or auto-shortlists a tenant, and never tells a landlord who to let to. No "best match", no traffic-light overall rating.
+- The letting decision, and the landlord's own checks, always remain the landlord's. Copy says "for your consideration", never "approved" or "recommended".
+- Where Roost surfaces a calculation (such as affordability cover), it shows the workings and labels it as an aid to the landlord's own assessment.
+
+A short "How Roost works — and what it does not do" panel states this in the landlord dashboard and on the public site, in the same words used in the LANI briefing.
+
 ## 1. Property compliance certificates (biggest gap)
 
 Certificates are named in the lease and statutory notice text, but nowhere in the app can a landlord actually hold one. Members get fined for this.
@@ -33,7 +44,9 @@ Roost records a scheme and certificate number; it does not lodge the deposit wit
 The single question LANI will ask is what stops a tenant typing anything.
 
 - Consistent wording across tenant and landlord views: Self-Certified — declared by the tenant, evidence attached, not independently checked by Roost.
-- Landlord candidate view gains a short "what to verify yourself" checklist alongside each claim.
+- Landlord candidate view gains a short "what to verify yourself" checklist alongside each claim, framed as the landlord's own due diligence.
+- Split every claim into what Roost checked (document uploaded, figures add up, declaration timestamped) and what only the landlord can confirm (employer, previous landlord, right to rent).
+- Review the affordability badge wording so it reads as a calculation with visible workings, not a verdict on the tenant.
 - Timestamped declaration recorded on submission (the audit log already exists) and surfaced to the landlord as "declared true on <date>".
 
 ## 5. LANI briefing document
@@ -41,6 +54,7 @@ The single question LANI will ask is what stops a tenant typing anything.
 A markdown pack in the repo at `docs/lani-briefing.md`, printable from the app:
 
 - What Roost is and who it is for.
+- The positioning statement above, up front: a landlord's tool, not a gatekeeper or a referencing agency.
 - NI regulatory mapping: PTA 2022 items covered, how each is handled.
 - Explicit limitations list: no credit or employment checks, no Right to Rent verification, no deposit lodgement, documents not solicitor-reviewed, no notice-to-quit or rent-increase tooling yet.
 - The specific questions to put to LANI: does the Tenancy Information Notice wording satisfy them, what would make the tenant passport credible to members, and which post-move-in task causes members the most pain.
