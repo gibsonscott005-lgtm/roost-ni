@@ -3,7 +3,7 @@ import { z } from "zod";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BadgeCheck, Briefcase, Check, Clock, ExternalLink, Inbox, Loader2, RefreshCw, ShieldCheck, TrendingUp, X } from "lucide-react";
+import { BadgeCheck, Briefcase, Check, Clock, ExternalLink, Inbox, Loader2, RefreshCw, ShieldCheck, TrendingUp, X, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
@@ -24,7 +24,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/applications")({
       { title: "Received Passports — Roost NI" },
       {
         name: "description",
-        content: "Review verified Tenant Passports submitted to your NI listings.",
+        content:
+          "Review self-certified Tenant Passports submitted to your NI listings. Roost organises the information — the letting decision stays yours.",
       },
     ],
   }),
@@ -128,7 +129,7 @@ function ApplicationsPage() {
     mutationFn: async (share: Share) => {
       const { error } = await supabase
         .from("passport_shares")
-        .update({ status: "accepted" })
+        .update({ status: "accepted", landlord_checks_confirmed_at: new Date().toISOString() })
         .eq("id", share.id);
       if (error) throw error;
       // Mark the property as Under Offer so it shows on public listings
@@ -220,8 +221,9 @@ function ApplicationsPage() {
               Received passports
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Verified tenants who applied to your live listings.
+              Self-certified applicants who applied to your live listings.
             </p>
+            <HowRoostWorksPanel />
             {listingFilter ? (
               <div className="mt-3 flex flex-wrap items-center gap-2 rounded-full border border-border bg-surface-muted/60 px-3 py-1.5 text-xs text-muted-foreground w-fit">
                 <span>
@@ -284,7 +286,7 @@ function ApplicationsPage() {
             <ul className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)]">
               {shares.map((s, i) => {
                 const p = passports[s.tenant_id];
-                const verifiedCount = p
+                const declaredCount = p
                   ? [p.identity_verified, p.income_verified, p.reference_verified, p.right_to_rent_verified].filter(Boolean).length
                   : 0;
                 return (
@@ -296,7 +298,7 @@ function ApplicationsPage() {
                   >
                     <div className="min-w-0">
                       <p className="truncate font-display text-base font-semibold tracking-tight">
-                        {s.tenant?.full_name || "Verified tenant"}
+                        {s.tenant?.full_name || "Applicant"}
                       </p>
                       <p className="mt-0.5 truncate text-xs text-muted-foreground">
                         Applied to <span className="text-foreground/90">{s.listing?.title ?? "your listing"}</span> · {timeAgo(s.shared_at)}
@@ -311,7 +313,7 @@ function ApplicationsPage() {
                         <VerifyBadge label="References" ok={!!p?.reference_verified} />
                         <VerifyBadge label="Right to rent" ok={!!p?.right_to_rent_verified} />
                         <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {verifiedCount}/4
+                          {declaredCount}/4 declared
                         </span>
                         <AffordabilityBadge
                           passport={p ?? null}
