@@ -14,6 +14,8 @@ import {
   IdCard,
   Loader2,
   Lock,
+  ShieldCheck,
+  TriangleAlert,
   UserRoundCheck,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +23,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { formatFee, identityTier, type VerificationConfig } from "@/lib/identity-verification";
+import {
+  getVerificationConfig,
+  resolveSimulatedVerification,
+  startVerification,
+} from "@/lib/identity-verification.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/passport/edit")({
   head: () => ({
