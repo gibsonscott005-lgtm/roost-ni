@@ -36,8 +36,9 @@ of what the terms say. Therefore:
 
 - Roost states what it checked: a document is attached, the figures entered add
   up, the declaration is timestamped and immutable.
-- Roost states what it did not check: identity, right to rent, employment,
-  previous landlord, credit history.
+- Roost states what it did not check: employment, previous landlord, credit
+  history — and identity too, unless the tenant has paid for a real identity
+  check, which is the one claim Roost stands behind.
 - The boundary appears **where the decision is made** — beside the applicant's
   claims and at the point of acceptance — not only in the terms.
 - Accepting an applicant requires the landlord to confirm they carried out their
