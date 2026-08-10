@@ -69,7 +69,6 @@ interface Passport {
   identity_verified: boolean;
   income_verified: boolean;
   reference_verified: boolean;
-  right_to_rent_verified: boolean;
   monthly_income_net: number | null;
   id_document_type: string | null;
   id_document_number: string | null;
@@ -77,6 +76,10 @@ interface Passport {
   id_status: string | null;
   id_verified_at: string | null;
   id_provider: string | null;
+  id_failure_reason: string | null;
+  verified_full_name: string | null;
+  verified_date_of_birth: string | null;
+  id_document_expiry: string | null;
   issuing_country: string | null;
   employment_status: string | null;
   annual_income: number | null;
@@ -690,7 +693,6 @@ function IdentityStep({
             id_document_number: docNumber,
             id_document_path: path,
             identity_verified: true,
-            right_to_rent_verified: true,
             id_status: "self_certified",
             id_verified_at: verifiedAt,
             id_provider: "self_certified",

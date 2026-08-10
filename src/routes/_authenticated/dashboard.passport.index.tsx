@@ -34,7 +34,6 @@ type PassportRow = {
   identity_verified: boolean;
   income_verified: boolean;
   reference_verified: boolean;
-  right_to_rent_verified: boolean;
   employment_status: string | null;
   monthly_income_net: number | null;
   annual_income: number | null;
