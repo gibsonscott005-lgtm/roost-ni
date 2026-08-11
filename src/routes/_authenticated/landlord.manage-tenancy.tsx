@@ -1576,6 +1576,7 @@ function DocumentsTab({
       tenantSignature: share.lease_signed_name || tenantName,
       tenantSignedAt: share.lease_signed_at,
       oilClause: !!share.lease_oil_clause,
+      heatingType: share.listing?.heating_type ?? null,
       counterSigned: share.lease_status === "counter_signed",
     });
     if (!openPrintable(html)) {
