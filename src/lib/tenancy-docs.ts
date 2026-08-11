@@ -10,6 +10,13 @@ function esc(v: unknown): string {
     .replace(/'/g, "&#39;");
 }
 
+import {
+  NI_LEGAL_DISCLAIMER,
+  formatDate,
+  type DeductionLine,
+  type NoticeParty,
+} from "@/lib/tenancy-end";
+
 const BASE_STYLE = `
   body{font:14px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0f172a;max-width:760px;margin:32px auto;padding:0 24px}
   h1{font-size:22px;margin:0 0 4px} h2{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#64748b;margin-top:24px}
