@@ -31,6 +31,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TenancyEndPanel } from "@/components/tenancy-end-panel";
 import { TenantMaintenanceTab } from "@/components/maintenance-panel";
+import { fairFuelSentence, fuelTankLabel, usesFuelTank } from "@/lib/listing-details";
 
 export const Route = createFileRoute("/_authenticated/tenant/tenancy")({
   validateSearch: z.object({
@@ -630,10 +631,11 @@ function TenantTenancyPage() {
 
           {/* Inventory & utilities */}
           <TabsContent value="inventory" className="mt-5 space-y-5">
-            {listing?.heating_type?.toLowerCase() === "oil" ? (
+            {usesFuelTank(listing?.heating_type) ? (
               <div className="rounded-3xl border border-border bg-surface p-5">
                 <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                  <Droplet className="h-4 w-4 text-verified" /> "Fair Fuel" heating tracker (Oil)
+                  <Droplet className="h-4 w-4 text-verified" /> Fair Fuel tracker —{" "}
+                  {fuelTankLabel(listing?.heating_type)}
                 </p>
                 {share.oil_handover_level ? (
                   <div className="mt-4 flex flex-wrap items-center gap-6">
@@ -649,14 +651,14 @@ function TenantTenancyPage() {
                       <p className="mt-1 text-xs text-muted-foreground">
                         This baseline was logged by your landlord.{" "}
                         {listing.enforce_empty_in_full_out
-                          ? "Under the Fair Fuel policy on your lease, you should return the tank to the same level at checkout."
-                          : "You're not bound by a Fair Fuel clause, but keeping a similar level is good practice."}
+                          ? fairFuelSentence(listing.heating_type)
+                          : "You're not bound by a Fair Fuel clause, but returning the tank at the same level is good practice."}
                       </p>
                     </div>
                   </div>
                 ) : (
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Your landlord hasn't logged the handover oil level yet.
+                    Your landlord hasn't logged the handover tank level yet.
                   </p>
                 )}
               </div>
@@ -872,7 +874,9 @@ function TenantTenancyPage() {
               tenancyStart={share.tenancy_start_date}
               depositAmount={deposit}
               depositScheme={share.deposit_scheme}
-              oilClause={!!share.lease_oil_clause || listing?.heating_type === "oil"}
+              oilClause={!!share.lease_oil_clause || usesFuelTank(listing?.heating_type)}
+              heatingType={listing?.heating_type ?? null}
+              handoverFuelLevel={share.oil_handover_level}
               tenancyStatus={share.tenancy_status}
               finalMeterReadings={share.final_meter_readings}
               finalOilLevel={share.final_oil_level}
