@@ -253,6 +253,56 @@ export type Database = {
         }
         Relationships: []
       }
+      property_certificates: {
+        Row: {
+          created_at: string
+          document_path: string | null
+          expires_on: string | null
+          id: string
+          issued_on: string | null
+          kind: string
+          landlord_id: string
+          notes: string | null
+          property_id: string
+          reference: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_path?: string | null
+          expires_on?: string | null
+          id?: string
+          issued_on?: string | null
+          kind: string
+          landlord_id: string
+          notes?: string | null
+          property_id: string
+          reference?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_path?: string | null
+          expires_on?: string | null
+          id?: string
+          issued_on?: string | null
+          kind?: string
+          landlord_id?: string
+          notes?: string | null
+          property_id?: string
+          reference?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_certificates_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       property_listings: {
         Row: {
           address: string
@@ -673,6 +723,8 @@ export type Database = {
         | "rent_overdue"
         | "identity_verified"
         | "identity_verification_failed"
+        | "certificate_expiring"
+        | "certificate_expired"
       share_status: "pending" | "reviewed" | "accepted"
       verification_status:
         | "unverified"
@@ -831,6 +883,8 @@ export const Constants = {
         "rent_overdue",
         "identity_verified",
         "identity_verification_failed",
+        "certificate_expiring",
+        "certificate_expired",
       ],
       share_status: ["pending", "reviewed", "accepted"],
       verification_status: [
