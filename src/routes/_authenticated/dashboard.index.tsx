@@ -24,7 +24,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
-import { PhotoPicker, uploadListingPhotos } from "@/components/listing-photos";
+import { ListingCover, PhotoPicker, uploadListingPhotos } from "@/components/listing-photos";
 import {
   AvailabilityFields,
   DescriptionField,
@@ -802,15 +802,11 @@ function MyProperties({
                 <Link
                   to="/listings/$id"
                   params={{ id: l.id }}
-                  className="group shrink-0 overflow-hidden rounded-xl border border-border"
+                  className="group h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-border sm:h-20 sm:w-28"
                   aria-label={`View photos for ${l.title}`}
                   tabIndex={-1}
                 >
-                  <ListingCover
-                    paths={l.photo_urls}
-                    alt={l.title}
-                    className="h-16 w-16 sm:h-20 sm:w-28"
-                  />
+                  <ListingCover paths={l.photo_urls} alt={l.title} className="h-full w-full" />
                 </Link>
 
                 <div className="min-w-0 flex-1">
