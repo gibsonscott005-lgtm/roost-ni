@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification } from "@/lib/notifications.functions";
 import { leaseDocumentHtml, openPrintable } from "@/lib/tenancy-docs";
+import { fuelLabel, fuelTankLabel } from "@/lib/listing-details";
 
 export const Route = createFileRoute("/_authenticated/tenant/review-lease")({
   validateSearch: z.object({ share: z.string().optional() }),
@@ -36,7 +37,7 @@ function ReviewLeasePage() {
       const { data, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, lease_status, lease_oil_clause, lease_signed_name, lease_signed_at, lease_kind, lease_document_path, listing:property_listings!listing_id(title, address, location, monthly_rent, deposit)",
+          "id, lease_status, lease_oil_clause, lease_signed_name, lease_signed_at, lease_kind, lease_document_path, listing:property_listings!listing_id(title, address, location, monthly_rent, deposit, heating_type)",
         )
         .eq("id", shareId!)
         .maybeSingle();
@@ -49,7 +50,7 @@ function ReviewLeasePage() {
         lease_signed_at: string | null;
         lease_kind: string | null;
         lease_document_path: string | null;
-        listing: { title: string; address: string | null; location: string | null; monthly_rent: number | null; deposit: number | null } | null;
+        listing: { title: string; address: string | null; location: string | null; monthly_rent: number | null; deposit: number | null; heating_type: string | null } | null;
       } | null;
     },
   });
@@ -60,6 +61,7 @@ function ReviewLeasePage() {
   const monthlyRent = ctx?.listing?.monthly_rent ?? 0;
   const deposit = ctx?.listing?.deposit ?? (Number(monthlyRent) || 0);
   const oilClause = !!ctx?.lease_oil_clause;
+  const heatingType = ctx?.listing?.heating_type ?? null;
   const alreadySigned = ctx?.lease_status === "signed_pending_landlord" || ctx?.lease_status === "counter_signed";
   const isCustom = ctx?.lease_kind === "custom" && !!ctx?.lease_document_path;
 
@@ -85,6 +87,7 @@ function ReviewLeasePage() {
       tenantSignature: ctx?.lease_signed_name || tenantName,
       tenantSignedAt: ctx?.lease_signed_at ?? null,
       oilClause,
+      heatingType,
       counterSigned: ctx?.lease_status === "counter_signed",
     });
     if (!openPrintable(html)) {
@@ -266,11 +269,12 @@ function ReviewLeasePage() {
                   the commencement date.
                 </Clause>
                 {oilClause ? (
-                  <Clause n="5" title="Domestic Oil Tank — Full In / Full Out">
-                    The oil tank serving <strong>{propertyAddress}</strong> shall be supplied <em>full</em>
-                    {" "}at the commencement of the tenancy. The Tenant agrees to return the tank{" "}
-                    <em>full</em> at the end of the tenancy, or reimburse the Landlord for the cost of
-                    refilling at the prevailing market rate.
+                  <Clause n="5" title={`${fuelTankLabel(heatingType)} — Fair Fuel, same level out`}>
+                    The {fuelLabel(heatingType)} tank serving <strong>{propertyAddress}</strong>{" "}
+                    shall be returned at the end of the tenancy at the level recorded at handover.
+                    Full in, full out; where the tank was empty at handover, an empty tank is
+                    accepted at the end. Any shortfall against the recorded handover level may be
+                    reimbursed at the prevailing market rate.
                   </Clause>
                 ) : null}
                 <Clause n={oilClause ? "6" : "5"} title="Repairs & Maintenance">

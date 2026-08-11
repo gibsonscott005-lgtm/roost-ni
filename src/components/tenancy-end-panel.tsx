@@ -32,6 +32,13 @@ import {
   type DeductionLine,
   type NoticeParty,
 } from "@/lib/tenancy-end";
+import {
+  FUEL_LEVELS,
+  compareFuelLevels,
+  fairFuelSentence,
+  fuelLevelLabel,
+  fuelTankLabel,
+} from "@/lib/listing-details";
 
 interface NoticeRow {
   id: string;
@@ -87,6 +94,10 @@ export interface TenancyEndPanelProps {
   depositAmount: number;
   depositScheme?: string | null;
   oilClause?: boolean;
+  /** Property heating type, used to name the fuel in copy. */
+  heatingType?: string | null;
+  /** Tank level recorded at handover — the Fair Fuel baseline. */
+  handoverFuelLevel?: string | null;
   tenancyStatus?: string | null;
   finalMeterReadings?: string | null;
   finalOilLevel?: string | null;
@@ -123,6 +134,8 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
     depositAmount,
     depositScheme,
     oilClause,
+    heatingType,
+    handoverFuelLevel,
     finalMeterReadings,
     finalOilLevel,
     finalInspectionSubmittedAt,
@@ -219,6 +232,8 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
             isLandlord={isLandlord}
             inventory={inventory}
             oilClause={!!oilClause}
+            heatingType={heatingType ?? null}
+            handoverFuelLevel={handoverFuelLevel ?? null}
             finalMeterReadings={finalMeterReadings ?? null}
             finalOilLevel={finalOilLevel ?? null}
             submittedAt={finalInspectionSubmittedAt ?? null}
@@ -593,6 +608,8 @@ function FinalInspectionSection({
   isLandlord,
   inventory,
   oilClause,
+  heatingType,
+  handoverFuelLevel,
   finalMeterReadings,
   finalOilLevel,
   submittedAt,
@@ -604,6 +621,8 @@ function FinalInspectionSection({
   isLandlord: boolean;
   inventory: InventoryRow[];
   oilClause: boolean;
+  heatingType: string | null;
+  handoverFuelLevel: string | null;
   finalMeterReadings: string | null;
   finalOilLevel: string | null;
   submittedAt: string | null;
@@ -798,22 +817,40 @@ function FinalInspectionSection({
         </div>
         {oilClause ? (
           <div>
-            <span className={label}>Oil level at move-out</span>
+            <span className={label}>{fuelTankLabel(heatingType)} level at move-out</span>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Recorded at handover:{" "}
+              <strong>{fuelLevelLabel(handoverFuelLevel) ?? "not recorded"}</strong>
+            </p>
             {isLandlord ? (
               <select className={input} value={oil} onChange={(e) => setOil(e.target.value)}>
                 <option value="">Select level…</option>
-                {["full", "three_quarter", "half", "quarter", "empty"].map((v) => (
-                  <option key={v} value={v}>
-                    {v.replace("_", " ")}
+                {FUEL_LEVELS.map((l) => (
+                  <option key={l.value} value={l.value}>
+                    {l.label}
                   </option>
                 ))}
               </select>
             ) : (
-              <p className="mt-1 text-sm">{(finalOilLevel || "not recorded").replace("_", " ")}</p>
+              <p className="mt-1 text-sm">{fuelLevelLabel(finalOilLevel) ?? "Not recorded"}</p>
             )}
-            <p className="mt-1 text-xs text-muted-foreground">
-              Fair Fuel: the tank should be returned at the level agreed in the lease.
-            </p>
+            {(() => {
+              const cmp = compareFuelLevels(handoverFuelLevel, isLandlord ? oil : finalOilLevel);
+              return (
+                <p
+                  className={`mt-1 text-xs ${
+                    cmp.status === "below"
+                      ? "text-amber-700"
+                      : cmp.status === "met"
+                        ? "text-verified"
+                        : "text-muted-foreground"
+                  }`}
+                >
+                  {cmp.message}
+                </p>
+              );
+            })()}
+            <p className="mt-1 text-xs text-muted-foreground">{fairFuelSentence(heatingType)}</p>
           </div>
         ) : null}
       </div>

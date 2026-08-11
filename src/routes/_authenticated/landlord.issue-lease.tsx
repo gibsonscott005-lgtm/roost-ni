@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification } from "@/lib/notifications.functions";
+import { fuelLabel, fuelTankLabel } from "@/lib/listing-details";
 
 export const Route = createFileRoute("/_authenticated/landlord/issue-lease")({
   validateSearch: z.object({ share: z.string().optional() }),
@@ -40,7 +41,7 @@ function IssueLeasePage() {
       const { data, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, status, tenant:profiles!tenant_id(full_name), listing:property_listings!listing_id(title, address, location, monthly_rent, deposit)",
+          "id, status, tenant:profiles!tenant_id(full_name), listing:property_listings!listing_id(title, address, location, monthly_rent, deposit, heating_type)",
         )
         .eq("id", shareId!)
         .maybeSingle();
@@ -49,7 +50,7 @@ function IssueLeasePage() {
         id: string;
         status: string;
         tenant: { full_name: string } | null;
-        listing: { title: string; address: string | null; location: string | null; monthly_rent: number | null; deposit: number | null } | null;
+        listing: { title: string; address: string | null; location: string | null; monthly_rent: number | null; deposit: number | null; heating_type: string | null } | null;
       } | null;
     },
   });
@@ -60,6 +61,7 @@ function IssueLeasePage() {
   const propertyAddress = ctx?.listing?.address || ctx?.listing?.location || ctx?.listing?.title || "Property address";
   const monthlyRent = ctx?.listing?.monthly_rent ?? 0;
   const deposit = ctx?.listing?.deposit ?? (Number(monthlyRent) || 0);
+  const heatingType = ctx?.listing?.heating_type ?? null;
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
@@ -209,7 +211,7 @@ function IssueLeasePage() {
               </p>
             </div>
             <label className="flex cursor-pointer items-center gap-3 rounded-full border border-border bg-surface-muted/60 px-3 py-2 text-xs font-medium text-foreground">
-              <span>Include Domestic Oil Tank Clause (Full In / Full Out)</span>
+              <span>Include {fuelTankLabel(heatingType)} clause (Fair Fuel — same level out)</span>
               <span
                 className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${
                   oilClause ? "bg-verified" : "bg-border"
@@ -262,12 +264,13 @@ function IssueLeasePage() {
                 the commencement date.
               </Clause>
               {oilClause ? (
-                <Clause n="5" title="Domestic Oil Tank — Full In / Full Out">
-                  The oil tank serving <strong>{propertyAddress}</strong> shall be supplied <em>full</em>
-                  {" "}at the commencement of the tenancy. The Tenant agrees to return the tank{" "}
-                  <em>full</em> at the end of the tenancy, or reimburse the Landlord for the cost of
-                  refilling at the prevailing market rate. Both parties shall verify levels at check-in
-                  and check-out and record them on the inventory.
+                <Clause n="5" title={`${fuelTankLabel(heatingType)} — Fair Fuel, same level out`}>
+                  The {fuelLabel(heatingType)} tank serving <strong>{propertyAddress}</strong> shall
+                  be returned at the end of the tenancy at the level recorded at handover. Full in,
+                  full out; where the tank was empty at handover, an empty tank is accepted at the
+                  end. Any shortfall against the recorded handover level may be reimbursed at the
+                  prevailing market rate. Both parties shall verify levels at check-in and check-out
+                  and record them on the inventory.
                 </Clause>
               ) : null}
               <Clause n={oilClause ? "6" : "5"} title="Repairs & Maintenance">

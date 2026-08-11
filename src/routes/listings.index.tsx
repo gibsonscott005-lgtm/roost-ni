@@ -59,7 +59,7 @@ interface Listing {
   parking: string | null;
 }
 
-const HEATING_FILTERS = ["Any", "Oil", "Gas", "Electric"] as const;
+const HEATING_FILTERS = ["Any", "Oil", "LPG", "Gas", "Electric"] as const;
 const BEDROOM_FILTERS = ["Any", "Studio", "1+", "2+", "3+", "4+"] as const;
 type SortKey = "newest" | "rent_asc" | "rent_desc" | "beds_desc" | "available";
 const SORTS: { key: SortKey; label: string }[] = [

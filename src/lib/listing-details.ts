@@ -8,6 +8,96 @@ export const PROPERTY_TYPES = [
   "Room in shared house",
 ] as const;
 
+/* ------------------------------------------------------------------ */
+/* Heating & Fair Fuel                                                 */
+/* ------------------------------------------------------------------ */
+
+export const HEATING_OPTIONS = ["Oil", "LPG", "Gas", "Electric"] as const;
+export type HeatingOption = (typeof HEATING_OPTIONS)[number];
+
+/** Bulk-tank fuels where the Fair Fuel same-level policy applies. */
+export function usesFuelTank(heatingType: string | null | undefined) {
+  const v = (heatingType ?? "").trim().toLowerCase();
+  return v === "oil" || v === "lpg";
+}
+
+/** Plain-English name of the fuel, e.g. "heating oil" or "LPG". */
+export function fuelLabel(heatingType: string | null | undefined) {
+  const v = (heatingType ?? "").trim().toLowerCase();
+  if (v === "lpg") return "LPG";
+  if (v === "oil") return "heating oil";
+  return "fuel";
+}
+
+/** Tank heading, e.g. "Heating oil tank" or "LPG tank". */
+export function fuelTankLabel(heatingType: string | null | undefined) {
+  const v = (heatingType ?? "").trim().toLowerCase();
+  if (v === "lpg") return "LPG tank";
+  if (v === "oil") return "Heating oil tank";
+  return "Fuel tank";
+}
+
+export const FAIR_FUEL_TITLE = "Fair Fuel — same level out";
+
+export const FAIR_FUEL_POLICY =
+  "The tank is returned at the level recorded at handover. Full in, full out. If it was empty at handover, empty is acceptable at the end.";
+
+/** One-sentence policy statement naming the fuel. */
+export function fairFuelSentence(heatingType: string | null | undefined) {
+  return `Fair Fuel: the ${fuelLabel(heatingType)} tank is returned at the level recorded at handover — full in, full out; empty in, empty out.`;
+}
+
+export const FUEL_LEVELS = [
+  { value: "full", label: "Full", pct: 1 },
+  { value: "three_quarter", label: "3/4", pct: 0.75 },
+  { value: "half", label: "1/2", pct: 0.5 },
+  { value: "quarter", label: "1/4", pct: 0.25 },
+  { value: "empty", label: "Empty", pct: 0 },
+] as const;
+
+export type FuelLevel = (typeof FUEL_LEVELS)[number]["value"];
+
+export function fuelLevelPct(value: string | null | undefined) {
+  return FUEL_LEVELS.find((l) => l.value === value)?.pct ?? null;
+}
+
+export function fuelLevelLabel(value: string | null | undefined) {
+  return FUEL_LEVELS.find((l) => l.value === value)?.label ?? null;
+}
+
+export type FuelComparison = "unknown" | "met" | "below" | "above";
+
+/** Compares a move-out level against the handover baseline. States facts, never a verdict. */
+export function compareFuelLevels(
+  handover: string | null | undefined,
+  final: string | null | undefined,
+): { status: FuelComparison; message: string } {
+  const a = fuelLevelPct(handover);
+  const b = fuelLevelPct(final);
+  if (a === null || b === null)
+    return {
+      status: "unknown",
+      message: "Record both the handover level and the move-out level to compare them.",
+    };
+  if (b < a)
+    return {
+      status: "below",
+      message: `Returned below the handover level (${fuelLevelLabel(handover)} in, ${fuelLevelLabel(final)} out).`,
+    };
+  if (b > a)
+    return {
+      status: "above",
+      message: `Returned above the handover level (${fuelLevelLabel(handover)} in, ${fuelLevelLabel(final)} out).`,
+    };
+  return {
+    status: "met",
+    message:
+      a === 0
+        ? "Tank was empty at handover and empty at move-out — this meets the policy."
+        : `Returned at the handover level (${fuelLevelLabel(handover)}) — this meets the policy.`,
+  };
+}
+
 export const FURNISHED_OPTIONS = ["Furnished", "Part-furnished", "Unfurnished"] as const;
 
 export const MIN_TENANCY_OPTIONS: { label: string; months: number | null }[] = [

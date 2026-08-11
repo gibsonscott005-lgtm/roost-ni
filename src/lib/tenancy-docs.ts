@@ -16,6 +16,7 @@ import {
   type DeductionLine,
   type NoticeParty,
 } from "@/lib/tenancy-end";
+import { fuelLabel, fuelTankLabel } from "@/lib/listing-details";
 
 const BASE_STYLE = `
   body{font:14px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0f172a;max-width:760px;margin:32px auto;padding:0 24px}
@@ -48,6 +49,8 @@ export interface LeaseDocOptions {
   tenantSignedAt: string | null;
   oilClause: boolean;
   counterSigned?: boolean;
+  /** Property heating type ("Oil" / "LPG"), used to name the fuel in the clause. */
+  heatingType?: string | null;
 }
 
 export function leaseDocumentHtml(opts: LeaseDocOptions) {
@@ -61,6 +64,7 @@ export function leaseDocumentHtml(opts: LeaseDocOptions) {
     tenantSignedAt,
     oilClause,
     counterSigned = true,
+    heatingType,
   } = opts;
   const signedAt = tenantSignedAt
     ? new Date(tenantSignedAt).toLocaleString("en-GB")
@@ -75,7 +79,7 @@ export function leaseDocumentHtml(opts: LeaseDocOptions) {
     <div class="clause"><h3>2. Deposit &amp; Protection</h3><p>£${deposit.toLocaleString()} lodged with an approved NI scheme within 28 days of receipt.</p></div>
     <div class="clause"><h3>3. Term</h3><p>12 months initial term, thereafter rolling monthly subject to statutory notice.</p></div>
     <div class="clause"><h3>4. Property Condition</h3><p>Property provided in clean, safe condition with required certificates supplied on or before commencement.</p></div>
-    ${oilClause ? `<div class="clause"><h3>5. Domestic Oil Tank — Full In / Full Out</h3><p>The oil tank shall be supplied <em>full</em> at commencement and returned <em>full</em> at end of tenancy, or reimbursed at prevailing rates.</p></div>` : ""}
+    ${oilClause ? `<div class="clause"><h3>5. ${esc(fuelTankLabel(heatingType))} — Fair Fuel, same level out</h3><p>The ${esc(fuelLabel(heatingType))} tank shall be returned at the end of the tenancy at the level recorded at handover. Full in, full out; if the tank was empty at handover, an empty tank is accepted at the end. Any shortfall against the recorded handover level may be reimbursed at prevailing rates.</p></div>` : ""}
     <div class="clause"><h3>${oilClause ? "6" : "5"}. Repairs &amp; Maintenance</h3><p>Landlord responsible for structural repairs and supply installations as required by statute.</p></div>
     <div class="sig">
       <div><strong>Tenant</strong><br>${esc(tenantSignature)}<br><span class="muted">Signed electronically ${esc(signedAt)}</span></div>
@@ -144,7 +148,7 @@ export function tenancyInfoNoticeHtml(opts: NoticeDocOptions) {
     <h2>4. Repairs and safety</h2>
     <table>
       <tr><th>Heating type</th><td>${esc(val(opts.heatingType))}</td></tr>
-      <tr><th>Fuel policy</th><td>${opts.oilClause ? "Fair Fuel — oil tank supplied full at commencement and returned full at the end of the tenancy." : "Standard — no oil tank clause applies."}</td></tr>
+      <tr><th>Fuel policy</th><td>${opts.oilClause ? `Fair Fuel — the ${esc(fuelLabel(opts.heatingType))} tank is returned at the level recorded at handover (full in, full out; empty in, empty out).` : "Standard — no fuel tank clause applies."}</td></tr>
       <tr><th>Reporting repairs</th><td>Report all repairs through the Roost maintenance workspace so both parties keep a timestamped record.</td></tr>
       <tr><th>Landlord repair duties</th><td>Structure and exterior, and the installations for the supply of water, gas, electricity, sanitation, space heating and heating water.</td></tr>
       <tr><th>Certificates</th><td>Electrical (EICR), gas safety where applicable, and an Energy Performance Certificate are supplied to the tenant on or before commencement.</td></tr>
