@@ -25,6 +25,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { ListingCover, PhotoPicker, uploadListingPhotos } from "@/components/listing-photos";
+import { PricingBreakdown } from "@/components/pricing-breakdown";
+import { PRICING_ITEM_KEYS } from "@/lib/pricing";
 import {
   AvailabilityFields,
   DescriptionField,
@@ -1270,6 +1272,12 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
           </span>
         </div>
       </FormCard>
+
+      <PricingBreakdown
+        className="mt-5"
+        title="What this listing would cost"
+        itemKeys={[PRICING_ITEM_KEYS.tenancyAgreement]}
+      />
 
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
         <button

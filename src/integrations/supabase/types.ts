@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      billing_config: {
+        Row: {
+          created_at: string
+          currency: string
+          id: boolean
+          notice: string | null
+          payments_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          id?: boolean
+          notice?: string | null
+          payments_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: boolean
+          notice?: string | null
+          payments_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       maintenance_tickets: {
         Row: {
           created_at: string
@@ -246,6 +273,87 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pricing_items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          key: string
+          name: string
+          price_pence: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          key: string
+          name: string
+          price_pence?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          key?: string
+          name?: string
+          price_pence?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pricing_tiers: {
+        Row: {
+          completion_fee_pence: number
+          created_at: string
+          id: string
+          key: string
+          max_properties: number | null
+          min_properties: number
+          monthly_pence: number
+          name: string
+          per_extra_unit_pence: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          completion_fee_pence?: number
+          created_at?: string
+          id?: string
+          key: string
+          max_properties?: number | null
+          min_properties?: number
+          monthly_pence?: number
+          name: string
+          per_extra_unit_pence?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          completion_fee_pence?: number
+          created_at?: string
+          id?: string
+          key?: string
+          max_properties?: number | null
+          min_properties?: number
+          monthly_pence?: number
+          name?: string
+          per_extra_unit_pence?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {

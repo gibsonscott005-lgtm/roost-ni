@@ -2,10 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Bell, BellOff, Check, KeyRound, UserRound } from "lucide-react";
+import { Bell, BellOff, Check, KeyRound, ReceiptText, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import {
+  SimulatedBillingNotice,
+  TierTable,
+  useBillingSnapshot,
+} from "@/components/pricing-breakdown";
+import { completionFeePence, formatGBP, monthlyLabel, monthlyPence } from "@/lib/pricing";
 import { NOTIFICATION_TYPES, type NotificationType } from "@/lib/notifications.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/settings")({
@@ -195,6 +201,7 @@ function SettingsPage() {
 
       <AccountDetailsCard />
       <PasswordCard />
+      {profile?.account_type === "landlord" ? <BillingCard /> : null}
 
       <h3 className="mb-3 mt-8 font-display text-lg font-semibold tracking-tight">Notifications</h3>
 
@@ -282,6 +289,105 @@ function Field({
         className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
       />
     </label>
+  );
+}
+
+function BillingCard() {
+  const { snapshot, tier, active, isPending } = useBillingSnapshot();
+  const count = snapshot.propertyCount;
+  const monthly = monthlyPence(tier, count);
+
+  return (
+    <section className="mb-5 rounded-3xl border border-border bg-surface p-5">
+      <div className="flex items-start gap-3">
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface-muted">
+          <ReceiptText className="h-4 w-4 text-foreground" />
+        </span>
+        <div>
+          <h3 className="font-display text-base font-semibold tracking-tight">
+            Subscription & billing
+          </h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            A preview of the plan your portfolio sits on. Read-only — nothing is charged.
+          </p>
+        </div>
+      </div>
+
+      {isPending ? (
+        <p className="mt-4 text-sm text-muted-foreground">Working out your plan…</p>
+      ) : (
+        <>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl bg-surface-muted p-4">
+              <p className="text-xs text-muted-foreground">Current plan</p>
+              <p className="mt-1 font-display text-lg font-semibold tracking-tight">{tier.name}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {count} {count === 1 ? "property" : "properties"} on your account
+              </p>
+            </div>
+            <div className="rounded-2xl bg-surface-muted p-4">
+              <p className="text-xs text-muted-foreground">Monthly</p>
+              <p className="mt-1 font-display text-lg font-semibold tabular-nums tracking-tight">
+                {formatGBP(monthly)}
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{monthlyLabel(tier)}</p>
+            </div>
+            <div className="rounded-2xl bg-surface-muted p-4">
+              <p className="text-xs text-muted-foreground">Completion fee</p>
+              <p className="mt-1 font-display text-lg font-semibold tabular-nums tracking-tight">
+                {formatGBP(completionFeePence(tier))}
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">Once per completed tenancy</p>
+            </div>
+          </div>
+
+          <TierTable tiers={snapshot.tiers} currentKey={tier.key} propertyCount={count} />
+
+          <div className="mt-5 rounded-2xl border border-border bg-surface-muted p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Simulated invoice — this month
+            </p>
+            <div className="mt-2 divide-y divide-border/70">
+              <div className="flex items-center justify-between py-2 text-sm">
+                <span>{tier.name} subscription</span>
+                <span className="tabular-nums">{formatGBP(monthly)}</span>
+              </div>
+              <div className="flex items-center justify-between py-2 text-sm">
+                <span>Completion fees</span>
+                <span className="tabular-nums">{formatGBP(0)}</span>
+              </div>
+              <div className="flex items-center justify-between py-2 text-sm font-semibold">
+                <span>Total (not charged)</span>
+                <span className="tabular-nums">{formatGBP(monthly)}</span>
+              </div>
+            </div>
+          </div>
+
+          <h4 className="mt-6 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            One-off documents & extras
+          </h4>
+          <div className="mt-2 divide-y divide-border/70">
+            {snapshot.items.map((i) => (
+              <div key={i.key} className="flex items-start justify-between gap-4 py-2">
+                <span className="text-sm">
+                  {i.name}
+                  {i.description ? (
+                    <span className="mt-0.5 block text-xs text-muted-foreground">
+                      {i.description}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="shrink-0 text-sm font-semibold tabular-nums">
+                  {formatGBP(i.price_pence)}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {active ? null : <SimulatedBillingNotice className="mt-4" />}
+        </>
+      )}
+    </section>
   );
 }
 
