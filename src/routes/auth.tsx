@@ -19,7 +19,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 type Role = "tenant" | "landlord";
-type Mode = "signup" | "login";
+type Mode = "signup" | "login" | "reset";
 
 const COMMON_EMAIL_DOMAINS = [
   "gmail.com",
@@ -84,6 +84,7 @@ function AuthPage() {
   const [submitting, setSubmitting] = useState(false);
   const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
     const routeByAccountType = async (userId: string) => {
@@ -104,6 +105,12 @@ function AuthPage() {
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setTimeout(() => {
+          void navigate({ to: "/reset-password" });
+        }, 0);
+        return;
+      }
       if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
         // Defer to avoid deadlocking the auth callback
         setTimeout(() => {
@@ -129,7 +136,13 @@ function AuthPage() {
     }
     setSubmitting(true);
     try {
-      if (mode === "signup") {
+      if (mode === "reset") {
+        const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error && !/user|not found/i.test(error.message)) throw error;
+        setResetSent(true);
+      } else if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email: normalizedEmail,
           password,
@@ -154,9 +167,10 @@ function AuthPage() {
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong";
-      toast.error(mode === "signup" ? "Sign-up failed" : "Sign-in failed", {
-        description: message,
-      });
+      toast.error(
+        mode === "signup" ? "Sign-up failed" : mode === "reset" ? "Couldn't send reset link" : "Sign-in failed",
+        { description: message },
+      );
     } finally {
       setSubmitting(false);
     }
