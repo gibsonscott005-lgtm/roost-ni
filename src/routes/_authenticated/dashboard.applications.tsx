@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification, type EmitNotificationInput } from "@/lib/notifications.functions";
 import { signIdDocumentUrl, signIncomeDocumentUrl } from "@/lib/identity-docs.functions";
+import { getApplicantPassports } from "@/lib/passport-inbox.functions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { identityTier } from "@/lib/identity-verification";
 
@@ -103,13 +104,10 @@ function ApplicationsPage() {
       const tenantIds = Array.from(new Set(list.map((s) => s.tenant_id)));
       const passports: Record<string, Passport> = {};
       if (tenantIds.length) {
-        const { data: p } = await supabase
-          .from("tenant_passports")
-          .select(
-            "user_id, identity_verified, income_verified, reference_verified, monthly_income_net, annual_income, employment_status, income_document_path, income_breakdown, willing_direct_payment_apa, preferred_heating, accept_empty_in_full_out, id_status, id_verified_at, issuing_country, id_document_path",
-          )
-          .in("user_id", tenantIds);
-        ((p as Passport[] | null) ?? []).forEach((row) => {
+        // Served through a server function: landlords no longer read pending
+        // applicants' passport rows directly, and only screening fields come back.
+        const { passports: rows } = await getApplicantPassports();
+        ((rows as unknown as Passport[] | null) ?? []).forEach((row) => {
           passports[row.user_id] = row;
         });
       }
