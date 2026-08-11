@@ -650,8 +650,8 @@ function TenantTenancyPage() {
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         This baseline was logged by your landlord.{" "}
-                        {listing.enforce_empty_in_full_out
-                          ? fairFuelSentence(listing.heating_type)
+                        {listing?.enforce_empty_in_full_out
+                          ? fairFuelSentence(listing?.heating_type)
                           : "You're not bound by a Fair Fuel clause, but returning the tank at the same level is good practice."}
                       </p>
                     </div>
