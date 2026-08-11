@@ -197,8 +197,12 @@ function ListingDetailPage() {
             <DetailRow k="Landlord registration" v={listing.ni_landlord_reg_number} icon={Building2} />
             <DetailRow k="Heating & utility" v={listing.heating_type} icon={Flame} />
             <DetailRow
-              k="Empty-in / Full-out fuel agreement"
-              v={listing.enforce_empty_in_full_out ? "Enforced" : "Not enforced"}
+              k="Fair Fuel — same level out"
+              v={
+                listing.enforce_empty_in_full_out
+                  ? `Enforced — ${fairFuelSentence(listing.heating_type)}`
+                  : "Not enforced"
+              }
               icon={ShieldCheck}
               tone={listing.enforce_empty_in_full_out ? "good" : "neutral"}
             />
