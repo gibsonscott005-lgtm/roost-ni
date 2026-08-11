@@ -716,6 +716,11 @@ function ManageTenancyPage() {
               rent={rent}
               deposit={deposit}
             />
+            {share.listing_id && user?.id ? (
+              <section className="rounded-3xl border border-border bg-surface p-5">
+                <CertificatesPanel propertyId={share.listing_id} landlordId={user.id} />
+              </section>
+            ) : null}
           </TabsContent>
         </Tabs>
       )}
