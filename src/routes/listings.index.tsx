@@ -15,11 +15,9 @@ import { ViewSwitcher } from "../components/view-switcher";
 import { ListingCover } from "@/components/listing-photos";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  BILLS_OPTIONS,
   FURNISHED_OPTIONS,
   PROPERTY_TYPES,
   bedroomLabel,
-  formatAvailableFrom,
 } from "@/lib/listing-details";
 
 export const Route = createFileRoute("/listings/")({
