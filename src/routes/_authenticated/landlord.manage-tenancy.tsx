@@ -731,7 +731,9 @@ function ManageTenancyPage() {
               tenancyStart={share.tenancy_start_date}
               depositAmount={deposit}
               depositScheme={share.deposit_scheme}
-              oilClause={!!share.lease_oil_clause || listing?.heating_type === "oil"}
+              oilClause={!!share.lease_oil_clause || usesFuelTank(listing?.heating_type)}
+              heatingType={listing?.heating_type ?? null}
+              handoverFuelLevel={share.oil_handover_level}
               tenancyStatus={share.tenancy_status}
               finalMeterReadings={share.final_meter_readings}
               finalOilLevel={share.final_oil_level}
@@ -1339,11 +1341,11 @@ function OilGaugeCard({
             Utilities
           </p>
           <h3 className="mt-1 font-display text-lg font-semibold tracking-tight">
-            Domestic Heating Oil Handover Level
+            {fuelTankLabel(heatingType)} — handover level
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Record the oil tank level on the day of handover. This locks in the baseline for any
-            Fair Fuel reconciliation.
+            Record the tank level on the day of handover. This is the baseline the tank must be
+            returned at under Fair Fuel.
           </p>
         </div>
         <Flame className="h-5 w-5 text-muted-foreground" />
@@ -1421,13 +1423,12 @@ function OilGaugeCard({
           </div>
           {fairFuel ? (
             <div className="mt-4 rounded-2xl bg-verified-soft p-3 text-xs text-verified">
-              Fair Fuel is in force on this lease — tank handed over <strong>Empty</strong> at start
-              should be returned <strong>Full</strong> at end (or vice versa).
+              Fair Fuel is in force on this lease — {fairFuelSentence(heatingType)}
             </div>
-          ) : heatingType && heatingType.toLowerCase() === "oil" ? (
+          ) : usesFuelTank(heatingType) ? (
             <div className="mt-4 rounded-2xl bg-surface-muted/60 p-3 text-xs text-muted-foreground">
-              Property uses oil heating. Recording the handover level avoids end-of-tenancy
-              disputes.
+              Property has a {fuelLabel(heatingType)} tank. Recording the handover level avoids
+              end-of-tenancy disputes.
             </div>
           ) : null}
         </div>
