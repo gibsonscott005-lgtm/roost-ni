@@ -164,12 +164,19 @@ function SettingsPage() {
     <DashboardShell user={user} profile={profile} activeKey="settings">
       <div className="mb-5">
         <h2 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
-          Notification settings
+          Account settings
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Choose which Roost alerts appear in your notification bell.
+          Update your details, change your password and choose which Roost alerts reach you.
         </p>
       </div>
+
+      <AccountDetailsCard />
+      <PasswordCard />
+
+      <h3 className="mb-3 mt-8 font-display text-lg font-semibold tracking-tight">
+        Notifications
+      </h3>
 
       {authLoading || prefsQuery.isPending ? (
         <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
