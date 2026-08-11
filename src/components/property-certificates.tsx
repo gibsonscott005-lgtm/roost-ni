@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -12,7 +12,6 @@ import {
   Upload,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { emitNotification } from "@/lib/notifications.functions";
 
 export const CERTIFICATES_BUCKET = "property-certificates";
 
@@ -489,40 +488,28 @@ export function TenantCertificatesPanel({ propertyId }: { propertyId: string }) 
   );
 }
 
-/**
- * Notifies the landlord once a day when a certificate is expiring or expired.
- * Mounted on the landlord tenancy workspace.
- */
-export function useCertificateExpiryReminders(
-  propertyId: string | null | undefined,
-  landlordId: string | null | undefined,
-  address: string,
-) {
+/** Compact status summary used on property cards. */
+export function CertificateSummary({ propertyId }: { propertyId: string }) {
   const { data } = usePropertyCertificates(propertyId);
-
-  useEffect(() => {
-    if (!data || !propertyId || !landlordId || typeof window === "undefined") return;
-    for (const cert of data) {
-      const { state, days } = certificateState(cert.expires_on);
-      if (state !== "expiring" && state !== "expired") continue;
-      if (state === "expiring" && (days ?? 99) > 30) continue;
-      const key = `roost:cert-reminder:${cert.id}:${new Date().toDateString()}`;
-      if (window.localStorage.getItem(key)) continue;
-      window.localStorage.setItem(key, "1");
-      emitNotification({
-        data: {
-          recipient_id: landlordId,
-          type: state === "expired" ? "certificate_expired" : "certificate_expiring",
-          entity_type: "property_certificate",
-          entity_id: cert.id,
-          title:
-            state === "expired"
-              ? `${kindLabel(cert.kind)} has expired`
-              : `${kindLabel(cert.kind)} expires in ${days} day${days === 1 ? "" : "s"}`,
-          body: `${address} — arrange a renewal and upload the new certificate.`,
-          link_path: `/dashboard/listing-edit?id=${propertyId}`,
-        },
-      }).catch((err) => console.error("[notify]", err));
-    }
-  }, [data, propertyId, landlordId, address]);
+  const certs = data ?? [];
+  if (certs.length === 0) return null;
+  const expired = certs.filter((c) => certificateState(c.expires_on).state === "expired").length;
+  const expiring = certs.filter((c) => certificateState(c.expires_on).state === "expiring").length;
+  const cx = expired
+    ? "border-red-200 bg-red-50 text-red-700"
+    : expiring
+      ? "border-amber-300 bg-amber-50 text-amber-700"
+      : "border-verified/30 bg-verified-soft/60 text-verified";
+  const text = expired
+    ? `${expired} certificate${expired === 1 ? "" : "s"} expired`
+    : expiring
+      ? `${expiring} expiring soon`
+      : `${certs.length} certificate${certs.length === 1 ? "" : "s"} on file`;
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${cx}`}
+    >
+      <ShieldCheck className="h-3 w-3" /> {text}
+    </span>
+  );
 }
