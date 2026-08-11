@@ -82,13 +82,19 @@ function ListingsIndexPage() {
   const [heating, setHeating] = useState<(typeof HEATING_FILTERS)[number]>("Any");
   const [fairFuelOnly, setFairFuelOnly] = useState(false);
   const [hideLetAgreed, setHideLetAgreed] = useState(false);
+  const [beds, setBeds] = useState<(typeof BEDROOM_FILTERS)[number]>("Any");
+  const [propertyType, setPropertyType] = useState("Any");
+  const [furnished, setFurnished] = useState("Any");
+  const [availableNow, setAvailableNow] = useState(false);
+  const [billsOnly, setBillsOnly] = useState(false);
+  const [parkingOnly, setParkingOnly] = useState(false);
   const [sort, setSort] = useState<SortKey>("newest");
 
   useEffect(() => {
     supabase
       .from("property_listings")
       .select(
-        "id, title, monthly_rent, address, location, heating_type, enforce_empty_in_full_out, status, photo_urls, property_type, bedrooms, bathrooms, furnished",
+        "id, title, monthly_rent, address, location, heating_type, enforce_empty_in_full_out, status, photo_urls, property_type, bedrooms, bathrooms, furnished, available_from, bills_included, parking",
       )
       .eq("is_published", true)
       .order("created_at", { ascending: false })
@@ -117,6 +123,21 @@ function ListingsIndexPage() {
       if (heating !== "Any" && l.heating_type !== heating) return false;
       if (fairFuelOnly && !l.enforce_empty_in_full_out) return false;
       if (hideLetAgreed && l.status !== "available") return false;
+      if (beds !== "Any") {
+        if (l.bedrooms === null) return false;
+        if (beds === "Studio") {
+          if (l.bedrooms !== 0) return false;
+        } else if (l.bedrooms < Number(beds.replace("+", ""))) return false;
+      }
+      if (propertyType !== "Any" && l.property_type !== propertyType) return false;
+      if (furnished !== "Any" && l.furnished !== furnished) return false;
+      if (availableNow) {
+        if (!l.available_from) return false;
+        const d = new Date(`${l.available_from}T00:00:00`).getTime();
+        if (Number.isNaN(d) || d > new Date().setHours(0, 0, 0, 0)) return false;
+      }
+      if (billsOnly && !(l.bills_included?.length ?? 0)) return false;
+      if (parkingOnly && (!l.parking || l.parking === "None")) return false;
       return true;
     });
 
@@ -124,15 +145,44 @@ function ListingsIndexPage() {
       return [...list].sort((a, b) => Number(a.monthly_rent) - Number(b.monthly_rent));
     if (sort === "rent_desc")
       return [...list].sort((a, b) => Number(b.monthly_rent) - Number(a.monthly_rent));
+    if (sort === "beds_desc")
+      return [...list].sort((a, b) => (b.bedrooms ?? -1) - (a.bedrooms ?? -1));
+    if (sort === "available")
+      return [...list].sort(
+        (a, b) =>
+          new Date(a.available_from ?? "2999-12-31").getTime() -
+          new Date(b.available_from ?? "2999-12-31").getTime(),
+      );
     return list;
-  }, [rows, query, minRent, maxRent, heating, fairFuelOnly, hideLetAgreed, sort]);
+  }, [
+    rows,
+    query,
+    minRent,
+    maxRent,
+    heating,
+    fairFuelOnly,
+    hideLetAgreed,
+    beds,
+    propertyType,
+    furnished,
+    availableNow,
+    billsOnly,
+    parkingOnly,
+    sort,
+  ]);
 
   const activeFilters =
     (minRent ? 1 : 0) +
     (maxRent ? 1 : 0) +
     (heating !== "Any" ? 1 : 0) +
     (fairFuelOnly ? 1 : 0) +
-    (hideLetAgreed ? 1 : 0);
+    (hideLetAgreed ? 1 : 0) +
+    (beds !== "Any" ? 1 : 0) +
+    (propertyType !== "Any" ? 1 : 0) +
+    (furnished !== "Any" ? 1 : 0) +
+    (availableNow ? 1 : 0) +
+    (billsOnly ? 1 : 0) +
+    (parkingOnly ? 1 : 0);
 
   const clearFilters = () => {
     setMinRent("");
@@ -140,6 +190,12 @@ function ListingsIndexPage() {
     setHeating("Any");
     setFairFuelOnly(false);
     setHideLetAgreed(false);
+    setBeds("Any");
+    setPropertyType("Any");
+    setFurnished("Any");
+    setAvailableNow(false);
+    setBillsOnly(false);
+    setParkingOnly(false);
   };
 
   return (
