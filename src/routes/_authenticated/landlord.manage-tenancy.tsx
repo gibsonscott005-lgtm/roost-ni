@@ -1703,6 +1703,17 @@ function DocumentsTab({
           <Download className="h-3.5 w-3.5" /> Generate notice
         </button>
       </div>
+
+      <PricingBreakdown
+        className="md:col-span-2"
+        title="Documents & completion fee"
+        itemKeys={[
+          PRICING_ITEM_KEYS.tenancyAgreement,
+          PRICING_ITEM_KEYS.noticeToQuit,
+          PRICING_ITEM_KEYS.rentIncrease,
+          PRICING_ITEM_KEYS.checkOut,
+        ]}
+      />
     </div>
   );
 }
