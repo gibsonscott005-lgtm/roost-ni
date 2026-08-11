@@ -159,3 +159,99 @@ export function tenancyInfoNoticeHtml(opts: NoticeDocOptions) {
     <p class="muted">This notice is generated from the tenancy record held in Roost. It is provided for convenience and does not constitute legal advice.</p>
     </body></html>`;
 }
+export interface NoticeToQuitOptions {
+  servedBy: NoticeParty;
+  landlordName: string;
+  tenantName: string;
+  address: string;
+  landlordRegNumber?: string | null;
+  tenancyStart?: string | null;
+  servedOn: string;
+  noticeWeeks: number;
+  endDate: string;
+  reason?: string | null;
+}
+
+/**
+ * Notice to Quit under the Private Tenancies Act (Northern Ireland) 2022.
+ * Must be in writing, dated, identify the property and state the date the
+ * tenancy ends.
+ */
+export function noticeToQuitHtml(o: NoticeToQuitOptions) {
+  const fromParty = o.servedBy === "landlord" ? o.landlordName : o.tenantName;
+  const toParty = o.servedBy === "landlord" ? o.tenantName : o.landlordName;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Notice to Quit — ${esc(o.address)}</title>
+    <style>${BASE_STYLE}</style></head><body>
+    <h1>Notice to Quit</h1>
+    <p class="muted">Served under the Private Tenancies Act (Northern Ireland) 2022</p>
+    <table>
+      <tr><th>From (${esc(o.servedBy === "landlord" ? "Landlord" : "Tenant")})</th><td>${esc(fromParty)}</td></tr>
+      <tr><th>To (${esc(o.servedBy === "landlord" ? "Tenant" : "Landlord")})</th><td>${esc(toParty)}</td></tr>
+      <tr><th>Property</th><td>${esc(o.address)}</td></tr>
+      ${o.landlordRegNumber ? `<tr><th>Landlord registration</th><td>${esc(o.landlordRegNumber)}</td></tr>` : ""}
+      <tr><th>Tenancy began</th><td>${esc(formatDate(o.tenancyStart ?? null))}</td></tr>
+      <tr><th>Date of this notice</th><td>${esc(formatDate(o.servedOn))}</td></tr>
+      <tr><th>Notice period</th><td>${esc(o.noticeWeeks)} weeks</td></tr>
+      <tr><th>Tenancy ends on</th><td><strong>${esc(formatDate(o.endDate))}</strong></td></tr>
+    </table>
+    <div class="clause"><h3>Notice</h3><p>Take notice that the tenancy of the above property will end on <strong>${esc(formatDate(o.endDate))}</strong>. Vacant possession is required on or before that date.</p></div>
+    ${o.reason ? `<div class="clause"><h3>Reason given</h3><p>${esc(o.reason)}</p></div>` : ""}
+    <div class="clause"><h3>Deposit</h3><p>Any tenancy deposit must be returned, or proposed deductions agreed, within 28 days of the tenancy ending. Disputes may be referred to the approved scheme protecting the deposit.</p></div>
+    <div class="sig">
+      <div><strong>Served by</strong><br>${esc(fromParty)}<br><span class="muted">Issued via Roost on ${esc(formatDate(o.servedOn))}</span></div>
+      <div><strong>Received by</strong><br>${esc(toParty)}<br><span class="muted">Acknowledgement recorded in Roost</span></div>
+    </div>
+    <p class="muted" style="margin-top:24px">${esc(NI_LEGAL_DISCLAIMER)}</p>
+    </body></html>`;
+}
+
+export interface SettlementDocOptions {
+  landlordName: string;
+  tenantName: string;
+  address: string;
+  depositTotal: number;
+  deductions: DeductionLine[];
+  proposedReturn: number;
+  tenantResponse?: string | null;
+  tenantComment?: string | null;
+  schemeDisputeRef?: string | null;
+  depositScheme?: string | null;
+  endDate?: string | null;
+  returnedAt?: string | null;
+  returnMethod?: string | null;
+}
+
+/** Itemised deposit settlement statement issued at the end of a tenancy. */
+export function depositSettlementHtml(o: SettlementDocOptions) {
+  const rows = o.deductions.length
+    ? o.deductions
+        .map(
+          (d) =>
+            `<tr><th style="width:70%">${esc(d.reason)}</th><td>£${Number(d.amount || 0).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>`,
+        )
+        .join("")
+    : `<tr><th style="width:70%">No deductions proposed</th><td>£0.00</td></tr>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Deposit Settlement — ${esc(o.address)}</title>
+    <style>${BASE_STYLE}</style></head><body>
+    <h1>Deposit Settlement Statement</h1>
+    <p class="muted">End of tenancy at ${esc(o.address)}</p>
+    <table>
+      <tr><th>Landlord</th><td>${esc(o.landlordName)}</td></tr>
+      <tr><th>Tenant</th><td>${esc(o.tenantName)}</td></tr>
+      <tr><th>Tenancy ended</th><td>${esc(formatDate(o.endDate ?? null))}</td></tr>
+      <tr><th>Deposit held</th><td>£${Number(o.depositTotal || 0).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
+      ${o.depositScheme ? `<tr><th>Protection scheme</th><td>${esc(o.depositScheme)}</td></tr>` : ""}
+    </table>
+    <h2>Proposed deductions</h2>
+    <table>${rows}</table>
+    <h2>Amount to return</h2>
+    <table><tr><th style="width:70%">Returning to tenant</th><td><strong>£${Number(o.proposedReturn || 0).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td></tr>
+    ${o.returnedAt ? `<tr><th>Returned on</th><td>${esc(formatDate(o.returnedAt))}${o.returnMethod ? ` — ${esc(o.returnMethod)}` : ""}</td></tr>` : ""}</table>
+    ${
+      o.tenantResponse
+        ? `<div class="clause"><h3>Tenant response</h3><p>${esc(o.tenantResponse === "agreed" ? "Agreed" : "Disputed")}${o.tenantComment ? ` — ${esc(o.tenantComment)}` : ""}</p>${o.schemeDisputeRef ? `<p class="muted">Scheme dispute reference: ${esc(o.schemeDisputeRef)}</p>` : ""}</div>`
+        : ""
+    }
+    <p class="muted" style="margin-top:24px">Deposits must be returned, or deductions agreed, within 28 days of the tenancy ending. Where agreement cannot be reached, the approved scheme holding the deposit provides a free dispute resolution service. ${esc(NI_LEGAL_DISCLAIMER)}</p>
+    </body></html>`;
+}
