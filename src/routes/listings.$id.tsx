@@ -498,17 +498,6 @@ function PropertyDetailsSection({ listing }: { listing: ListingDetail }) {
   );
 }
 
-function StatUnused({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-border bg-surface p-4 shadow-[0_1px_0_rgba(15,23,42,0.03)]">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-1 font-display text-xl font-semibold tracking-tight">{value}</p>
-    </div>
-  );
-}
-
 function DetailRow({
   k,
   v,
