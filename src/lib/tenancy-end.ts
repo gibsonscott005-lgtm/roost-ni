@@ -16,8 +16,7 @@ export const DEPOSIT_RETURN_DAYS = 28;
 
 /** Whole months between two dates. */
 function monthsBetween(from: Date, to: Date) {
-  let months =
-    (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth());
+  let months = (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth());
   if (to.getDate() < from.getDate()) months -= 1;
   return Math.max(0, months);
 }
@@ -41,7 +40,9 @@ export function addWeeks(d: Date, weeks: number) {
 
 export function formatDate(value: string | Date | null | undefined) {
   const d = value instanceof Date ? value : parseDate(value as string | null);
-  return d ? d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "—";
+  return d
+    ? d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+    : "—";
 }
 
 export interface NoticeRule {
@@ -80,7 +81,8 @@ export function noticeRule(
   if (months > 12)
     return {
       weeks: 8,
-      basis: "Tenancy has run for more than 12 months but not more than 10 years — 8 weeks' notice.",
+      basis:
+        "Tenancy has run for more than 12 months but not more than 10 years — 8 weeks' notice.",
     };
   return { weeks: 4, basis: "Tenancy has run for 12 months or less — 4 weeks' notice." };
 }

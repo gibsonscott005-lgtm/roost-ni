@@ -174,7 +174,11 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
   const settlement = endQuery.data?.settlement ?? null;
   const inventory = endQuery.data?.inventory ?? [];
 
-  const notify = (type: Parameters<typeof emitNotification>[0] extends never ? never : string, title: string, body: string) =>
+  const notify = (
+    type: Parameters<typeof emitNotification>[0] extends never ? never : string,
+    title: string,
+    body: string,
+  ) =>
     emitNotification({
       data: {
         recipient_id: counterpartId,
@@ -183,7 +187,9 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
         entity_id: shareId,
         title,
         body,
-        link_path: isLandlord ? "/tenant/tenancy" : `/landlord/manage-tenancy?share=${shareId}&tab=ending`,
+        link_path: isLandlord
+          ? "/tenant/tenancy"
+          : `/landlord/manage-tenancy?share=${shareId}&tab=ending`,
       },
     }).catch((err) => console.error("[notify]", err));
 
@@ -263,10 +269,13 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
                   {n.served_by_role === "landlord" ? "Landlord" : "Tenant"} notice
                 </span>
                 <span className="text-muted-foreground">
-                  served {formatDate(n.served_on)} · {n.notice_weeks} weeks · ends {formatDate(n.end_date)}
+                  served {formatDate(n.served_on)} · {n.notice_weeks} weeks · ends{" "}
+                  {formatDate(n.end_date)}
                 </span>
                 {n.withdrawn_at ? (
-                  <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs">Withdrawn</span>
+                  <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs">
+                    Withdrawn
+                  </span>
                 ) : n.acknowledged_at ? (
                   <span className="rounded-full bg-verified-soft px-2 py-0.5 text-xs text-verified">
                     Acknowledged
@@ -317,8 +326,14 @@ function NoticeSection(
   const today = toISODate(new Date());
   const [servedOn, setServedOn] = useState(today);
   const [reason, setReason] = useState("");
-  const rule = useMemo(() => noticeRule(role, tenancyStart, servedOn), [role, tenancyStart, servedOn]);
-  const minEnd = useMemo(() => earliestEndDate(role, tenancyStart, servedOn), [role, tenancyStart, servedOn]);
+  const rule = useMemo(
+    () => noticeRule(role, tenancyStart, servedOn),
+    [role, tenancyStart, servedOn],
+  );
+  const minEnd = useMemo(
+    () => earliestEndDate(role, tenancyStart, servedOn),
+    [role, tenancyStart, servedOn],
+  );
   const [endDate, setEndDate] = useState(minEnd);
 
   useEffect(() => {
@@ -328,7 +343,8 @@ function NoticeSection(
   const serve = useMutation({
     mutationFn: async () => {
       if (!currentUserId) throw new Error("You need to be signed in.");
-      if (endDate < minEnd) throw new Error("End date is shorter than the statutory notice period.");
+      if (endDate < minEnd)
+        throw new Error("End date is shorter than the statutory notice period.");
       const { error } = await supabase.from("tenancy_notices").insert({
         share_id: shareId,
         served_by: currentUserId,
@@ -367,13 +383,20 @@ function NoticeSection(
       if (!activeNotice || !currentUserId) return;
       const { error } = await supabase
         .from("tenancy_notices")
-        .update({ acknowledged_at: new Date().toISOString(), acknowledged_by: currentUserId } as never)
+        .update({
+          acknowledged_at: new Date().toISOString(),
+          acknowledged_by: currentUserId,
+        } as never)
         .eq("id", activeNotice.id);
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Notice acknowledged");
-      void notify("notice_acknowledged", "Notice acknowledged", `${address} — receipt of the Notice to Quit was acknowledged.`);
+      void notify(
+        "notice_acknowledged",
+        "Notice acknowledged",
+        `${address} — receipt of the Notice to Quit was acknowledged.`,
+      );
       refresh();
     },
     onError: (e: unknown) =>
@@ -437,7 +460,9 @@ function NoticeSection(
             <p className="mt-1 text-sm text-muted-foreground">
               Served by the {activeNotice.served_by_role} on {formatDate(activeNotice.served_on)} ·{" "}
               {activeNotice.notice_weeks} weeks' notice
-              {remaining !== null ? ` · ${remaining >= 0 ? `${remaining} days remaining` : `ended ${Math.abs(remaining)} days ago`}` : ""}
+              {remaining !== null
+                ? ` · ${remaining >= 0 ? `${remaining} days remaining` : `ended ${Math.abs(remaining)} days ago`}`
+                : ""}
             </p>
             {activeNotice.reason ? (
               <p className="mt-2 text-sm">Reason given: {activeNotice.reason}</p>
@@ -460,7 +485,11 @@ function NoticeSection(
               disabled={acknowledge.isPending}
               onClick={() => acknowledge.mutate()}
             >
-              {acknowledge.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+              {acknowledge.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4" />
+              )}
               Acknowledge receipt
             </button>
           ) : null}
@@ -477,8 +506,9 @@ function NoticeSection(
         </div>
 
         <p className="mt-4 rounded-xl bg-surface-muted p-3 text-xs text-muted-foreground">
-          A Notice to Quit must be in writing. Print the notice above and deliver it to the other party — Roost keeps
-          the dated record. Deposits must be settled within {DEPOSIT_RETURN_DAYS} days of the end date (by{" "}
+          A Notice to Quit must be in writing. Print the notice above and deliver it to the other
+          party — Roost keeps the dated record. Deposits must be settled within{" "}
+          {DEPOSIT_RETURN_DAYS} days of the end date (by{" "}
           {formatDate(depositDeadline(activeNotice.end_date))}).
         </p>
       </div>
@@ -490,8 +520,8 @@ function NoticeSection(
       <p className={label}>Ending the tenancy</p>
       <h3 className="mt-1 text-lg font-semibold">Serve a Notice to Quit</h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        Roost works out the statutory minimum notice under the Private Tenancies Act (Northern Ireland) 2022 from the
-        tenancy start date.
+        Roost works out the statutory minimum notice under the Private Tenancies Act (Northern
+        Ireland) 2022 from the tenancy start date.
       </p>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -513,7 +543,9 @@ function NoticeSection(
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
           />
-          <p className="mt-1 text-xs text-muted-foreground">Earliest permitted: {formatDate(minEnd)}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Earliest permitted: {formatDate(minEnd)}
+          </p>
         </div>
       </div>
 
@@ -541,7 +573,11 @@ function NoticeSection(
         disabled={serve.isPending}
         onClick={() => serve.mutate()}
       >
-        {serve.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+        {serve.isPending ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <FileText className="h-4 w-4" />
+        )}
         Record &amp; generate Notice to Quit
       </button>
     </div>
@@ -582,7 +618,10 @@ function FinalInspectionSection({
   useEffect(() => {
     setRows(
       Object.fromEntries(
-        inventory.map((i) => [i.id, { condition: i.final_condition ?? "", notes: i.final_notes ?? "" }]),
+        inventory.map((i) => [
+          i.id,
+          { condition: i.final_condition ?? "", notes: i.final_notes ?? "" },
+        ]),
       ),
     );
   }, [inventory]);
@@ -643,7 +682,9 @@ function FinalInspectionSection({
       toast.success(value === "agreed" ? "Inspection agreed" : "Inspection disputed");
       void notify(
         value === "agreed" ? "final_inspection_agreed" : "final_inspection_disputed",
-        value === "agreed" ? "Tenant agreed the final inspection" : "Tenant disputed the final inspection",
+        value === "agreed"
+          ? "Tenant agreed the final inspection"
+          : "Tenant disputed the final inspection",
         "Move-out condition report response recorded in Roost.",
       );
       refresh();
@@ -682,8 +723,8 @@ function FinalInspectionSection({
 
       {inventory.length === 0 ? (
         <p className="mt-3 text-sm text-muted-foreground">
-          No move-in inventory was recorded, so there is nothing to compare against. Add inventory rooms in the
-          Inventory tab first.
+          No move-in inventory was recorded, so there is nothing to compare against. Add inventory
+          rooms in the Inventory tab first.
         </p>
       ) : (
         <div className="mt-4 space-y-3">
@@ -721,14 +762,18 @@ function FinalInspectionSection({
                     onChange={(e) =>
                       setRows((r) => ({
                         ...r,
-                        [item.id]: { condition: r[item.id]?.condition ?? "", notes: e.target.value },
+                        [item.id]: {
+                          condition: r[item.id]?.condition ?? "",
+                          notes: e.target.value,
+                        },
                       }))
                     }
                   />
                 </div>
               ) : (
                 <p className="mt-1 text-sm">
-                  Move-out: <span className="font-medium">{item.final_condition || "Not yet inspected"}</span>
+                  Move-out:{" "}
+                  <span className="font-medium">{item.final_condition || "Not yet inspected"}</span>
                   {item.final_notes ? ` — ${item.final_notes}` : ""}
                 </p>
               )}
@@ -781,7 +826,11 @@ function FinalInspectionSection({
             disabled={submit.isPending || inventory.length === 0}
             onClick={() => submit.mutate()}
           >
-            {submit.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ClipboardCheck className="h-4 w-4" />}
+            {submit.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ClipboardCheck className="h-4 w-4" />
+            )}
             {submittedAt ? "Resend inspection to tenant" : "Send inspection to tenant"}
           </button>
         ) : submittedAt && !response ? (
@@ -843,7 +892,9 @@ function SettlementSection({
   refresh: () => void;
 }) {
   const existing = parseDeductions(settlement?.deductions);
-  const [lines, setLines] = useState<DeductionLine[]>(existing.length ? existing : [{ reason: "", amount: 0 }]);
+  const [lines, setLines] = useState<DeductionLine[]>(
+    existing.length ? existing : [{ reason: "", amount: 0 }],
+  );
   const [comment, setComment] = useState("");
   const [disputeRef, setDisputeRef] = useState(settlement?.scheme_dispute_ref ?? "");
   const [returnMethod, setReturnMethod] = useState(settlement?.return_method ?? "Bank transfer");
@@ -876,7 +927,9 @@ function SettlementSection({
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Settlement proposed", { description: `Returning ${money(proposedReturn)} to the tenant.` });
+      toast.success("Settlement proposed", {
+        description: `Returning ${money(proposedReturn)} to the tenant.`,
+      });
       void notify(
         "deposit_settlement_proposed",
         "Deposit settlement proposed",
@@ -907,7 +960,9 @@ function SettlementSection({
       toast.success(value === "agreed" ? "Settlement agreed" : "Settlement disputed");
       void notify(
         value === "agreed" ? "deposit_returned" : "final_inspection_disputed",
-        value === "agreed" ? "Tenant agreed the deposit settlement" : "Tenant disputed the deposit settlement",
+        value === "agreed"
+          ? "Tenant agreed the deposit settlement"
+          : "Tenant disputed the deposit settlement",
         value === "agreed"
           ? "You can now return the deposit and complete the tenancy."
           : "Raise the dispute with the scheme holding the deposit.",
@@ -934,7 +989,11 @@ function SettlementSection({
     },
     onSuccess: () => {
       toast.success("Deposit marked as returned");
-      void notify("deposit_returned", "Deposit returned", `${address} — your landlord has recorded the deposit return.`);
+      void notify(
+        "deposit_returned",
+        "Deposit returned",
+        `${address} — your landlord has recorded the deposit return.`,
+      );
       refresh();
     },
     onError: (e: unknown) =>
@@ -972,12 +1031,16 @@ function SettlementSection({
           <h3 className="mt-1 text-lg font-semibold">{money(depositAmount)} held</h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Must be settled by {formatDate(deadline)}
-            {daysLeft !== null ? ` · ${daysLeft >= 0 ? `${daysLeft} days left` : `${Math.abs(daysLeft)} days overdue`}` : ""}
+            {daysLeft !== null
+              ? ` · ${daysLeft >= 0 ? `${daysLeft} days left` : `${Math.abs(daysLeft)} days overdue`}`
+              : ""}
             {depositScheme ? ` · Scheme: ${depositScheme}` : ""}
           </p>
         </div>
         {settlement?.returned_at ? (
-          <span className="rounded-full bg-verified-soft px-3 py-1 text-xs font-medium text-verified">Returned</span>
+          <span className="rounded-full bg-verified-soft px-3 py-1 text-xs font-medium text-verified">
+            Returned
+          </span>
         ) : settlement?.tenant_response ? (
           <span
             className={`rounded-full px-3 py-1 text-xs font-medium ${
@@ -1004,7 +1067,9 @@ function SettlementSection({
                 placeholder="Deduction reason (e.g. carpet cleaning)"
                 value={line.reason}
                 onChange={(e) =>
-                  setLines((ls) => ls.map((l, i) => (i === idx ? { ...l, reason: e.target.value } : l)))
+                  setLines((ls) =>
+                    ls.map((l, i) => (i === idx ? { ...l, reason: e.target.value } : l)),
+                  )
                 }
               />
               <input
@@ -1015,14 +1080,20 @@ function SettlementSection({
                 value={line.amount || ""}
                 onChange={(e) =>
                   setLines((ls) =>
-                    ls.map((l, i) => (i === idx ? { ...l, amount: Number(e.target.value) || 0 } : l)),
+                    ls.map((l, i) =>
+                      i === idx ? { ...l, amount: Number(e.target.value) || 0 } : l,
+                    ),
                   )
                 }
               />
               <button
                 type="button"
                 className="mt-1 rounded-xl border border-border px-3 text-sm text-muted-foreground"
-                onClick={() => setLines((ls) => (ls.length === 1 ? [{ reason: "", amount: 0 }] : ls.filter((_, i) => i !== idx)))}
+                onClick={() =>
+                  setLines((ls) =>
+                    ls.length === 1 ? [{ reason: "", amount: 0 }] : ls.filter((_, i) => i !== idx),
+                  )
+                }
               >
                 <X className="h-4 w-4" />
               </button>
@@ -1048,8 +1119,17 @@ function SettlementSection({
           </div>
 
           <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" className={primaryBtn} disabled={propose.isPending} onClick={() => propose.mutate()}>
-              {propose.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Scale className="h-4 w-4" />}
+            <button
+              type="button"
+              className={primaryBtn}
+              disabled={propose.isPending}
+              onClick={() => propose.mutate()}
+            >
+              {propose.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Scale className="h-4 w-4" />
+              )}
               {settlement?.proposed_at ? "Update proposal" : "Propose settlement"}
             </button>
             <button type="button" className={ghostBtn} onClick={printStatement}>
@@ -1062,9 +1142,12 @@ function SettlementSection({
               <p className="font-medium text-red-800">
                 <AlertTriangle className="mr-1 inline h-4 w-4" /> Tenant disputed this settlement
               </p>
-              {settlement.tenant_comment ? <p className="mt-1">{settlement.tenant_comment}</p> : null}
+              {settlement.tenant_comment ? (
+                <p className="mt-1">{settlement.tenant_comment}</p>
+              ) : null}
               <p className="mt-1 text-xs text-muted-foreground">
-                Refer the dispute to the scheme protecting the deposit — their resolution service is free to use.
+                Refer the dispute to the scheme protecting the deposit — their resolution service is
+                free to use.
               </p>
               <input
                 className={input}
@@ -1077,7 +1160,11 @@ function SettlementSection({
 
           {settlement?.proposed_at && !settlement?.returned_at ? (
             <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
-              <select className={input} value={returnMethod} onChange={(e) => setReturnMethod(e.target.value)}>
+              <select
+                className={input}
+                value={returnMethod}
+                onChange={(e) => setReturnMethod(e.target.value)}
+              >
                 {["Bank transfer", "Cash", "Cheque", "Via scheme"].map((m) => (
                   <option key={m} value={m}>
                     {m}
@@ -1099,7 +1186,8 @@ function SettlementSection({
         <div className="mt-4 space-y-3">
           {!settlement?.proposed_at ? (
             <p className="text-sm text-muted-foreground">
-              Your landlord has not proposed a deposit settlement yet. They have until {formatDate(deadline)}.
+              Your landlord has not proposed a deposit settlement yet. They have until{" "}
+              {formatDate(deadline)}.
             </p>
           ) : (
             <>
@@ -1122,8 +1210,8 @@ function SettlementSection({
 
               {settlement.tenant_response ? (
                 <p className="text-sm">
-                  You {settlement.tenant_response === "agreed" ? "agreed" : "disputed"} this settlement on{" "}
-                  {formatDate(settlement.tenant_responded_at)}.
+                  You {settlement.tenant_response === "agreed" ? "agreed" : "disputed"} this
+                  settlement on {formatDate(settlement.tenant_responded_at)}.
                   {settlement.returned_at
                     ? ` Deposit returned ${formatDate(settlement.returned_at)}${settlement.return_method ? ` by ${settlement.return_method}` : ""}.`
                     : ""}
@@ -1155,7 +1243,8 @@ function SettlementSection({
                     </button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    If you dispute, the scheme protecting your deposit provides free dispute resolution.
+                    If you dispute, the scheme protecting your deposit provides free dispute
+                    resolution.
                   </p>
                 </>
               )}
@@ -1217,7 +1306,11 @@ function CompleteSection({
       toast.success("Tenancy completed", {
         description: relist ? "The property is back on the market as available." : undefined,
       });
-      void notify("tenancy_completed", "Tenancy completed", "Your tenancy has been closed off in Roost.");
+      void notify(
+        "tenancy_completed",
+        "Tenancy completed",
+        "Your tenancy has been closed off in Roost.",
+      );
       refresh();
     },
     onError: (e: unknown) =>
@@ -1260,7 +1353,11 @@ function CompleteSection({
         disabled={complete.isPending || !ended}
         onClick={() => complete.mutate()}
       >
-        {complete.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+        {complete.isPending ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Check className="h-4 w-4" />
+        )}
         Complete tenancy
       </button>
       {!ended ? (

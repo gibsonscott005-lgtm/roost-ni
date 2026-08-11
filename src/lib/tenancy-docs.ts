@@ -106,7 +106,8 @@ export interface NoticeDocOptions {
  * section 1 — must be given to the tenant within 28 days of the tenancy starting.
  */
 export function tenancyInfoNoticeHtml(opts: NoticeDocOptions) {
-  const gb = (d?: string | null) => (d ? new Date(d).toLocaleDateString("en-GB") : "To be confirmed");
+  const gb = (d?: string | null) =>
+    d ? new Date(d).toLocaleDateString("en-GB") : "To be confirmed";
   const val = (v?: string | null) => (v && String(v).trim() ? v : "Not yet supplied");
   return `<!doctype html><html><head><meta charset="utf-8"><title>Tenancy Information Notice — ${esc(opts.address)}</title>
     <style>${BASE_STYLE}</style></head><body>

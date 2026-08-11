@@ -219,10 +219,7 @@ function ManageTenancyPage() {
     });
   };
 
-  const confirmFunds = async (
-    kind: "deposit" | "rent",
-    method: PaymentMethod,
-  ) => {
+  const confirmFunds = async (kind: "deposit" | "rent", method: PaymentMethod) => {
     const amount = kind === "deposit" ? deposit : rent;
     const isCash = method === "cash";
     const patch: Partial<ShareRow> =
@@ -243,9 +240,7 @@ function ManageTenancyPage() {
       amount,
       method,
       statutory_cash: isCash,
-      notes: isCash
-        ? "Statutory cash receipt issued under Private Tenancies Act NI 2022"
-        : null,
+      notes: isCash ? "Statutory cash receipt issued under Private Tenancies Act NI 2022" : null,
     } as never);
     if (insErr) {
       toast.error("Receipt failed", { description: insErr.message });
@@ -314,9 +309,7 @@ function ManageTenancyPage() {
         room,
         sort_order: i,
       }));
-      const { error } = await supabase
-        .from("tenancy_inventory_items")
-        .insert(rows as never);
+      const { error } = await supabase.from("tenancy_inventory_items").insert(rows as never);
       if (error) throw error;
     },
     onSuccess: invalidate,
@@ -357,10 +350,7 @@ function ManageTenancyPage() {
   };
 
   const removeInventoryItem = async (id: string) => {
-    const { error } = await supabase
-      .from("tenancy_inventory_items")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("tenancy_inventory_items").delete().eq("id", id);
     if (error) {
       toast.error("Could not remove", { description: error.message });
       return;
@@ -399,11 +389,7 @@ function ManageTenancyPage() {
     });
   };
 
-  const logRentPayment = async (
-    month: RentMonth,
-    method: PaymentMethod,
-    amount: number,
-  ) => {
+  const logRentPayment = async (month: RentMonth, method: PaymentMethod, amount: number) => {
     const isCash = method === "cash";
     const { error } = await supabase.from("tenancy_receipts").insert({
       share_id: shareId!,
@@ -413,9 +399,7 @@ function ManageTenancyPage() {
       statutory_cash: isCash,
       due_date: month.dueDate,
       period_label: month.periodLabel,
-      notes: isCash
-        ? "Statutory cash receipt issued under Private Tenancies Act NI 2022"
-        : null,
+      notes: isCash ? "Statutory cash receipt issued under Private Tenancies Act NI 2022" : null,
     } as never);
     if (error) {
       toast.error("Could not log payment", { description: error.message });
@@ -503,9 +487,7 @@ function ManageTenancyPage() {
     if (!share || !shareId || share.deposit_protected_at) return;
     const anchor = share.lease_signed_at || share.lease_sent_at;
     if (!anchor) return;
-    const daysLeft = Math.ceil(
-      (new Date(anchor).getTime() + 28 * 864e5 - Date.now()) / 864e5,
-    );
+    const daysLeft = Math.ceil((new Date(anchor).getTime() + 28 * 864e5 - Date.now()) / 864e5);
     if (daysLeft > 7) return;
     const key = `roost:deposit-reminder:${shareId}:${new Date().toDateString()}`;
     if (typeof window === "undefined" || window.localStorage.getItem(key)) return;
@@ -978,14 +960,7 @@ function DepositProtection({
     <div className="grid gap-4 md:grid-cols-[260px_1fr]">
       <div className="flex flex-col items-center justify-center rounded-3xl border border-border bg-surface p-6">
         <svg width={180} height={180} viewBox="0 0 180 180" className="-rotate-90">
-          <circle
-            cx="90"
-            cy="90"
-            r={r}
-            stroke="var(--color-border)"
-            strokeWidth="12"
-            fill="none"
-          />
+          <circle cx="90" cy="90" r={r} stroke="var(--color-border)" strokeWidth="12" fill="none" />
           <circle
             cx="90"
             cy="90"
@@ -1204,10 +1179,8 @@ function RentScheduleCard({
 
       {arrears.monthsBehind > 0 ? (
         <div className="border-b border-border bg-red-50 px-5 py-3 text-sm text-red-700">
-          <span className="font-semibold">
-            £{arrears.total.toLocaleString()} in arrears
-          </span>{" "}
-          · {arrears.monthsBehind} month{arrears.monthsBehind === 1 ? "" : "s"} behind.
+          <span className="font-semibold">£{arrears.total.toLocaleString()} in arrears</span> ·{" "}
+          {arrears.monthsBehind} month{arrears.monthsBehind === 1 ? "" : "s"} behind.
         </div>
       ) : (
         <div className="border-b border-border bg-verified-soft px-5 py-3 text-sm text-verified">
@@ -1236,7 +1209,9 @@ function RentScheduleCard({
                   <>
                     <button
                       type="button"
-                      onClick={() => setOpenMonth(openMonth === m.periodLabel ? null : m.periodLabel)}
+                      onClick={() =>
+                        setOpenMonth(openMonth === m.periodLabel ? null : m.periodLabel)
+                      }
                       className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3 py-1.5 text-xs font-semibold text-background transition hover:brightness-110"
                     >
                       <Receipt className="h-3.5 w-3.5" /> Log payment
@@ -1396,8 +1371,19 @@ function OilGaugeCard({
               style={{ transition: "stroke-dasharray 400ms ease" }}
             />
             {/* Tick labels */}
-            <text x="22" y="128" fontSize="9" textAnchor="middle" fill="currentColor" opacity="0.6">E</text>
-            <text x="198" y="128" fontSize="9" textAnchor="middle" fill="currentColor" opacity="0.6">F</text>
+            <text x="22" y="128" fontSize="9" textAnchor="middle" fill="currentColor" opacity="0.6">
+              E
+            </text>
+            <text
+              x="198"
+              y="128"
+              fontSize="9"
+              textAnchor="middle"
+              fill="currentColor"
+              opacity="0.6"
+            >
+              F
+            </text>
             {/* Needle */}
             <line
               x1={cx}
@@ -1435,8 +1421,8 @@ function OilGaugeCard({
           </div>
           {fairFuel ? (
             <div className="mt-4 rounded-2xl bg-verified-soft p-3 text-xs text-verified">
-              Fair Fuel is in force on this lease — tank handed over <strong>Empty</strong> at
-              start should be returned <strong>Full</strong> at end (or vice versa).
+              Fair Fuel is in force on this lease — tank handed over <strong>Empty</strong> at start
+              should be returned <strong>Full</strong> at end (or vice versa).
             </div>
           ) : heatingType && heatingType.toLowerCase() === "oil" ? (
             <div className="mt-4 rounded-2xl bg-surface-muted/60 p-3 text-xs text-muted-foreground">
@@ -1481,7 +1467,10 @@ function InventoryList({
       </div>
       <ul className="divide-y divide-border">
         {items.map((it) => (
-          <li key={it.id} className="grid gap-2 p-4 sm:grid-cols-[160px_180px_1fr_auto] sm:items-start">
+          <li
+            key={it.id}
+            className="grid gap-2 p-4 sm:grid-cols-[160px_180px_1fr_auto] sm:items-start"
+          >
             <div className="font-medium">{it.room}</div>
             <select
               value={it.condition ?? ""}
@@ -1630,17 +1619,24 @@ function DocumentsTab({
           </span>
           <div>
             <p className="font-display text-base font-semibold tracking-tight">
-              {isCustom ? "Custom tenancy agreement (uploaded)" : "Roost Standard NI Tenancy Agreement"}
+              {isCustom
+                ? "Custom tenancy agreement (uploaded)"
+                : "Roost Standard NI Tenancy Agreement"}
             </p>
             <p className="text-xs text-muted-foreground">Fully executed · ready to download</p>
           </div>
         </div>
         <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
-          <li>Tenant signature: <span className="text-foreground">{share.lease_signed_name || "—"}</span></li>
+          <li>
+            Tenant signature:{" "}
+            <span className="text-foreground">{share.lease_signed_name || "—"}</span>
+          </li>
           <li>
             Signed by tenant:{" "}
             <span className="text-foreground">
-              {share.lease_signed_at ? new Date(share.lease_signed_at).toLocaleString("en-GB") : "—"}
+              {share.lease_signed_at
+                ? new Date(share.lease_signed_at).toLocaleString("en-GB")
+                : "—"}
             </span>
           </li>
           <li>
@@ -1669,7 +1665,8 @@ function DocumentsTab({
                 : "bg-foreground text-background hover:brightness-110"
             }`}
           >
-            <Download className="h-3.5 w-3.5" /> {isCustom ? "Signature record" : "Download / print"}
+            <Download className="h-3.5 w-3.5" />{" "}
+            {isCustom ? "Signature record" : "Download / print"}
           </button>
         </div>
       </div>

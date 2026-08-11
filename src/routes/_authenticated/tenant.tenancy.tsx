@@ -42,8 +42,7 @@ export const Route = createFileRoute("/_authenticated/tenant/tenancy")({
       { title: "My Tenancy — Roost NI" },
       {
         name: "description",
-        content:
-          "Track your move-in funds, deposit protection, inventory and tenancy documents.",
+        content: "Track your move-in funds, deposit protection, inventory and tenancy documents.",
       },
     ],
   }),
@@ -360,7 +359,8 @@ function TenantTenancyPage() {
         </div>
       ) : !share ? (
         <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
-          You don't have an active tenancy yet. Once your landlord counter-signs your lease it will appear here.
+          You don't have an active tenancy yet. Once your landlord counter-signs your lease it will
+          appear here.
         </div>
       ) : (
         <Tabs defaultValue={searchTab || "overview"} className="w-full">
@@ -532,9 +532,13 @@ function TenantTenancyPage() {
             <div className="flex gap-3 rounded-2xl border border-verified/30 bg-verified-soft/50 p-4">
               <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-verified" />
               <div>
-                <p className="text-sm font-semibold text-foreground">NI statutory cash receipt rule</p>
+                <p className="text-sm font-semibold text-foreground">
+                  NI statutory cash receipt rule
+                </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Under the Private Tenancies Act (NI) 2022, your landlord must issue a written receipt for any cash payment within 28 days. Roost archives every receipt here automatically.
+                  Under the Private Tenancies Act (NI) 2022, your landlord must issue a written
+                  receipt for any cash payment within 28 days. Roost archives every receipt here
+                  automatically.
                 </p>
               </div>
             </div>
@@ -548,14 +552,22 @@ function TenantTenancyPage() {
                   <ShieldCheck className="h-7 w-7" />
                 </div>
                 <div>
-                  <p className="font-display text-lg font-semibold tracking-tight">Deposit Secured</p>
+                  <p className="font-display text-lg font-semibold tracking-tight">
+                    Deposit Secured
+                  </p>
                   <p className="mt-1 text-sm text-muted-foreground">{share.deposit_scheme}</p>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Certificate ref: <span className="font-mono text-foreground">{share.deposit_cert_number}</span>
+                    Certificate ref:{" "}
+                    <span className="font-mono text-foreground">{share.deposit_cert_number}</span>
                   </p>
                   {share.deposit_protected_at ? (
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Registered on {new Date(share.deposit_protected_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                      Registered on{" "}
+                      {new Date(share.deposit_protected_at).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
                     </p>
                   ) : null}
                   {share.deposit_cert_path ? (
@@ -573,7 +585,13 @@ function TenantTenancyPage() {
               <div className="flex flex-col items-center gap-6 rounded-3xl border border-border bg-surface p-8 text-center">
                 <div className="relative h-32 w-32">
                   <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-                    <circle cx="50" cy="50" r="40" strokeWidth="8" className="fill-none stroke-border" />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      strokeWidth="8"
+                      className="fill-none stroke-border"
+                    />
                     <circle
                       cx="50"
                       cy="50"
@@ -586,8 +604,12 @@ function TenantTenancyPage() {
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="font-display text-3xl font-semibold tracking-tight">{daysRemaining}</span>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">days left</span>
+                    <span className="font-display text-3xl font-semibold tracking-tight">
+                      {daysRemaining}
+                    </span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      days left
+                    </span>
                   </div>
                 </div>
                 <div className="max-w-md">
@@ -595,7 +617,8 @@ function TenantTenancyPage() {
                     <Clock className="h-4 w-4" /> Statutory registration window
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Your landlord is required by Northern Ireland law to protect your deposit in an approved scheme within 28 days of receipt.
+                    Your landlord is required by Northern Ireland law to protect your deposit in an
+                    approved scheme within 28 days of receipt.
                   </p>
                 </div>
                 <p className="rounded-full bg-surface-muted px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
@@ -614,10 +637,14 @@ function TenantTenancyPage() {
                 </p>
                 {share.oil_handover_level ? (
                   <div className="mt-4 flex flex-wrap items-center gap-6">
-                    <OilGauge pct={OIL_PCT[share.oil_handover_level]} label={OIL_LABEL[share.oil_handover_level]} />
+                    <OilGauge
+                      pct={OIL_PCT[share.oil_handover_level]}
+                      label={OIL_LABEL[share.oil_handover_level]}
+                    />
                     <div className="flex-1 min-w-[220px]">
                       <p className="text-sm font-semibold text-foreground">
-                        Handover fuel level: {OIL_LABEL[share.oil_handover_level]} ({OIL_PCT[share.oil_handover_level]}%)
+                        Handover fuel level: {OIL_LABEL[share.oil_handover_level]} (
+                        {OIL_PCT[share.oil_handover_level]}%)
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         This baseline was logged by your landlord.{" "}
@@ -638,7 +665,8 @@ function TenantTenancyPage() {
             <div className="overflow-hidden rounded-3xl border border-border bg-surface">
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
                 <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                  <ClipboardCheck className="h-4 w-4 text-muted-foreground" /> Handover inventory checklist
+                  <ClipboardCheck className="h-4 w-4 text-muted-foreground" /> Handover inventory
+                  checklist
                 </p>
               </div>
               {inventory.length === 0 ? (
@@ -677,16 +705,25 @@ function TenantTenancyPage() {
                 <p className="flex items-center gap-2 text-sm text-foreground">
                   <BadgeCheck className="h-5 w-5 text-verified" />
                   You approved this inventory and fuel gauge on{" "}
-                  {new Date(share.inventory_completed_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.
+                  {new Date(share.inventory_completed_at).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                  .
                 </p>
               ) : (
                 <div className="flex flex-col gap-3">
                   <div className="flex gap-3">
                     <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
                     <div>
-                      <p className="text-sm font-semibold text-foreground">Verify handover inventory &amp; fuel gauge</p>
+                      <p className="text-sm font-semibold text-foreground">
+                        Verify handover inventory &amp; fuel gauge
+                      </p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Review each room and the physical oil tank level. If everything is accurate, sign off below. If you spot any discrepancies, raise them with your landlord first before approving.
+                        Review each room and the physical oil tank level. If everything is accurate,
+                        sign off below. If you spot any discrepancies, raise them with your landlord
+                        first before approving.
                       </p>
                     </div>
                   </div>
@@ -697,7 +734,8 @@ function TenantTenancyPage() {
                       disabled={updateShareMutation.isPending}
                       className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background shadow-sm transition hover:brightness-110 disabled:opacity-60"
                     >
-                      <Check className="h-3.5 w-3.5" strokeWidth={3} /> Approve &amp; confirm handover
+                      <Check className="h-3.5 w-3.5" strokeWidth={3} /> Approve &amp; confirm
+                      handover
                     </button>
                   </div>
                 </div>
@@ -731,7 +769,9 @@ function TenantTenancyPage() {
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-surface-muted">
                     <FileText className="h-5 w-5 text-foreground" />
                   </div>
-                  <p className="font-display text-sm font-semibold tracking-tight">Executed Private Tenancy Agreement</p>
+                  <p className="font-display text-sm font-semibold tracking-tight">
+                    Executed Private Tenancy Agreement
+                  </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     The legally binding contract digitally signed by you and your landlord.
                   </p>
@@ -770,9 +810,12 @@ function TenantTenancyPage() {
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-verified-soft">
                     <ShieldCheck className="h-5 w-5 text-verified" />
                   </div>
-                  <p className="font-display text-sm font-semibold tracking-tight">Tenancy Information Notice (NI)</p>
+                  <p className="font-display text-sm font-semibold tracking-tight">
+                    Tenancy Information Notice (NI)
+                  </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    The mandatory statutory notice covering your tenant rights &amp; responsibilities in Northern Ireland.
+                    The mandatory statutory notice covering your tenant rights &amp;
+                    responsibilities in Northern Ireland.
                   </p>
                 </div>
                 <button
@@ -921,7 +964,9 @@ function OilGauge({ pct, label }: { pct: number; label: string }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="font-display text-lg font-semibold tracking-tight">{label}</span>
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{pct}%</span>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {pct}%
+        </span>
       </div>
     </div>
   );
