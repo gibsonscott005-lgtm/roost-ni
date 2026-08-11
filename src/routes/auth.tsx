@@ -333,22 +333,37 @@ function AuthPage() {
               ) : null}
             </label>
 
-            <label className="block">
-              <span className="text-sm font-medium text-foreground">Password</span>
-              <div className="relative mt-1.5">
-                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  required
-                  minLength={6}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  type="password"
-                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                  placeholder="At least 6 characters"
-                  className={`${inputCx} pl-9`}
-                />
-              </div>
-            </label>
+            {mode === "reset" ? null : (
+              <label className="block">
+                <span className="text-sm font-medium text-foreground">Password</span>
+                <div className="relative mt-1.5">
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    required
+                    minLength={6}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    type="password"
+                    autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                    placeholder="At least 6 characters"
+                    className={`${inputCx} pl-9`}
+                  />
+                </div>
+                {mode === "login" ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPassword("");
+                      setResetSent(false);
+                      setMode("reset");
+                    }}
+                    className="mt-2 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                  >
+                    Forgot your password?
+                  </button>
+                ) : null}
+              </label>
+            )}
 
             <button
               type="submit"
@@ -361,25 +376,40 @@ function AuthPage() {
                   ? role === "landlord"
                     ? "Create Landlord Account"
                     : "Create Tenant Account"
-                  : "Sign in"}
+                  : mode === "reset"
+                    ? "Send reset link"
+                    : "Sign in"}
             </button>
+
+            {mode === "reset" ? (
+              <button
+                type="button"
+                onClick={() => setMode("login")}
+                className="w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                Back to sign in
+              </button>
+            ) : null}
           </form>
+          )}
 
           <div className="mt-4 flex items-center gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5 text-verified" />
             Encrypted at rest · GDPR compliant · NI-only verifications
           </div>
 
-          <p className="mt-5 text-center text-sm text-muted-foreground">
-            {mode === "signup" ? "Already have an account?" : "Don't have an account?"}{" "}
-            <button
-              type="button"
-              onClick={() => setMode(mode === "signup" ? "login" : "signup")}
-              className="font-medium text-foreground underline-offset-4 hover:underline"
-            >
-              {mode === "signup" ? "Log in" : "Sign up"}
-            </button>
-          </p>
+          {mode === "reset" ? null : (
+            <p className="mt-5 text-center text-sm text-muted-foreground">
+              {mode === "signup" ? "Already have an account?" : "Don't have an account?"}{" "}
+              <button
+                type="button"
+                onClick={() => setMode(mode === "signup" ? "login" : "signup")}
+                className="font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                {mode === "signup" ? "Log in" : "Sign up"}
+              </button>
+            </p>
+          )}
         </section>
       </main>
     </div>
