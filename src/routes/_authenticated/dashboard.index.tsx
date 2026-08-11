@@ -35,6 +35,12 @@ import {
 import {
   listingDetailPayload,
   validateListingDetails,
+  HEATING_OPTIONS,
+  usesFuelTank,
+  fuelTankLabel,
+  FAIR_FUEL_TITLE,
+  FAIR_FUEL_POLICY,
+  type HeatingOption,
   type ListingDetailInput,
 } from "@/lib/listing-details";
 
@@ -64,9 +70,6 @@ interface Listing {
   created_at: string;
 }
 
-const HEATING_OPTIONS = ["Oil", "Gas", "Electric"] as const;
-
-type HeatingOption = (typeof HEATING_OPTIONS)[number];
 const TENANT_PREFS = [
   { label: "No pets", hint: "Pets not permitted on the property" },
   { label: "Non-smokers", hint: "Indoors and shared areas" },
