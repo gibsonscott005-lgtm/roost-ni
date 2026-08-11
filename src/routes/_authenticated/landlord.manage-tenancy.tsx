@@ -732,6 +732,32 @@ function ManageTenancyPage() {
               </section>
             ) : null}
           </TabsContent>
+
+          <TabsContent value="ending" className="mt-5 space-y-4">
+            <TenancyEndPanel
+              shareId={share.id}
+              role="landlord"
+              currentUserId={user?.id ?? null}
+              tenantId={share.tenant_id}
+              landlordId={user?.id ?? ""}
+              tenantName={tenantName}
+              landlordName={profile?.full_name || "Landlord"}
+              address={address}
+              listingId={share.listing_id}
+              landlordRegNumber={listing?.ni_landlord_reg_number ?? null}
+              tenancyStart={share.tenancy_start_date}
+              depositAmount={deposit}
+              depositScheme={share.deposit_scheme}
+              oilClause={!!share.lease_oil_clause || listing?.heating_type === "oil"}
+              tenancyStatus={share.tenancy_status}
+              finalMeterReadings={share.final_meter_readings}
+              finalOilLevel={share.final_oil_level}
+              finalInspectionSubmittedAt={share.final_inspection_submitted_at}
+              finalInspectionResponse={share.final_inspection_response}
+              tenancyCompletedAt={share.tenancy_completed_at}
+              onChanged={invalidate}
+            />
+          </TabsContent>
         </Tabs>
       )}
     </DashboardShell>
