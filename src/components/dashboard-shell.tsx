@@ -57,17 +57,17 @@ export function DashboardShell({
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
-        <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
+        <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-2 px-4 sm:px-6">
           <a
             href="/dashboard"
             onClick={goDashboard}
             style={{ cursor: "pointer", pointerEvents: "auto" }}
-            className="flex items-center gap-2"
+            className="flex min-w-0 items-center gap-2"
           >
-            <span className="grid h-8 w-8 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
               <Home className="h-4 w-4" strokeWidth={2.25} />
             </span>
-            <span className="font-display text-base font-semibold tracking-tight">
+            <span className="truncate font-display text-sm font-semibold tracking-tight sm:text-base">
               Roost<span className="text-verified">.</span>ni
             </span>
             {profile ? (
@@ -86,19 +86,20 @@ export function DashboardShell({
               </span>
             ) : null}
           </a>
-          <div className="flex items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-1.5">
             <a
               href="/dashboard"
               onClick={goDashboard}
               style={{ cursor: "pointer", pointerEvents: "auto" }}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-foreground px-3 py-1.5 text-xs font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/90"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-foreground px-2.5 py-1.5 text-xs font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/90 sm:px-3"
+              aria-label="Dashboard"
             >
-              <LayoutGrid className="h-3.5 w-3.5" />
-              Dashboard
+              <LayoutGrid className="h-3.5 w-3.5 shrink-0" />
+              <span className="hidden sm:inline">Dashboard</span>
             </a>
             <Link
               to="/listings"
-              className="hidden rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary sm:inline"
+              className="hidden shrink-0 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary sm:inline"
             >
               Browse properties
             </Link>
@@ -106,10 +107,11 @@ export function DashboardShell({
             <button
               type="button"
               onClick={handleSignOut}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+              aria-label="Sign out"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface px-2.5 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary sm:px-3"
             >
-              <LogOut className="h-3.5 w-3.5" />
-              Sign out
+              <LogOut className="h-3.5 w-3.5 shrink-0" />
+              <span className="hidden sm:inline">Sign out</span>
             </button>
           </div>
         </div>
@@ -274,7 +276,7 @@ function Badge({ value }: { value: number }) {
 }
 
 function itemCx(active: boolean) {
-  return `flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm transition ${
+  return `flex w-auto shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm transition lg:w-full ${
     active
       ? "bg-secondary font-medium text-foreground"
       : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"

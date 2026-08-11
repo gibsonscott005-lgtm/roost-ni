@@ -24,7 +24,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
-import { PhotoPicker, uploadListingPhotos } from "@/components/listing-photos";
+import { ListingCover, PhotoPicker, uploadListingPhotos } from "@/components/listing-photos";
 import {
   AvailabilityFields,
   DescriptionField,
@@ -68,6 +68,7 @@ interface Listing {
   heating_type: string;
   is_published: boolean;
   created_at: string;
+  photo_urls: string[] | null;
 }
 
 const TENANT_PREFS = [
@@ -93,7 +94,9 @@ function Dashboard() {
     if (!user) return;
     const { data } = await supabase
       .from("property_listings")
-      .select("id, title, address, location, monthly_rent, heating_type, is_published, created_at")
+      .select(
+        "id, title, address, location, monthly_rent, heating_type, is_published, created_at, photo_urls",
+      )
       .eq("landlord_id", user.id)
       .order("created_at", { ascending: false });
     const rows = (data as Listing[] | null) ?? [];
@@ -791,88 +794,115 @@ function MyProperties({
           {listings.map((l, i) => (
             <li
               key={l.id}
-              className={`flex items-start justify-between gap-3 p-4 transition hover:bg-surface-muted/60 sm:items-center sm:p-5 ${
+              className={`p-4 transition hover:bg-surface-muted/60 sm:p-5 ${
                 i > 0 ? "border-t border-border" : ""
               }`}
             >
-              <Link
-                to="/listings/$id"
-                params={{ id: l.id }}
-                className="min-w-0 flex-1 outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 rounded-lg"
-                aria-label={`View ${l.title}`}
-              >
-                <p className="truncate font-display text-base font-semibold tracking-tight">
-                  {l.title}
-                </p>
-                <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-muted-foreground">
-                  <MapPin className="h-3 w-3" />
-                  {l.address}
-                  {l.location ? ` · ${l.location}` : null}
-                </p>
-                <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-muted-foreground">
-                  <Flame className="h-3 w-3" />
-                  {l.heating_type}
-                </p>
-              </Link>
-              <div className="flex shrink-0 flex-col items-end gap-2 text-right">
-                <p className="font-display text-base font-semibold tracking-tight">
-                  £{Number(l.monthly_rent).toLocaleString()}
-                  <span className="ml-1 text-[11px] font-medium text-muted-foreground">pcm</span>
-                </p>
-                {executedByListing[l.id] ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#1d4ed8] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
-                    <BadgeCheck className="h-3 w-3" />
-                    Let Agreed
-                  </span>
-                ) : (
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                    l.is_published
-                      ? "bg-verified-soft text-verified"
-                      : "bg-surface-muted text-muted-foreground"
-                  }`}
+              <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+                <Link
+                  to="/listings/$id"
+                  params={{ id: l.id }}
+                  className="group h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-border sm:h-20 sm:w-28"
+                  aria-label={`View photos for ${l.title}`}
+                  tabIndex={-1}
                 >
-                  {l.is_published ? <ShieldCheck className="h-3 w-3" /> : null}
-                  {l.is_published ? "Live" : "Draft"}
-                </span>
-                )}
-                <div className="mt-1 flex flex-wrap items-center justify-end gap-1.5">
-                  {executedByListing[l.id] ? (
+                  <ListingCover
+                    paths={l.photo_urls}
+                    alt={l.title}
+                    className="h-full w-full"
+                    showCount={false}
+                  />
+                </Link>
+
+                <div className="min-w-0 flex-1">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
                     <Link
-                      to="/landlord/manage-tenancy"
-                      search={{ share: executedByListing[l.id] }}
-                      className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                      to="/listings/$id"
+                      params={{ id: l.id }}
+                      className="min-w-0 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-foreground/20"
+                      aria-label={`View ${l.title}`}
                     >
-                      <FileSignature className="h-3 w-3" />
-                      Manage Tenancy
+                      <p className="truncate font-display text-base font-semibold tracking-tight">
+                        {l.title}
+                      </p>
+                      <p className="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                        <MapPin className="h-3 w-3 shrink-0" />
+                        <span className="truncate">
+                          {l.address}
+                          {l.location ? ` · ${l.location}` : null}
+                        </span>
+                      </p>
+                      <p className="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                        <Flame className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{l.heating_type}</span>
+                      </p>
                     </Link>
-                  ) : (
+
+                    <div className="flex shrink-0 flex-col items-end gap-1.5 text-right">
+                      <p className="whitespace-nowrap font-display text-base font-semibold tracking-tight">
+                        £{Number(l.monthly_rent).toLocaleString()}
+                        <span className="ml-1 text-[11px] font-medium text-muted-foreground">
+                          pcm
+                        </span>
+                      </p>
+                      {executedByListing[l.id] ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#1d4ed8] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+                          <BadgeCheck className="h-3 w-3 shrink-0" />
+                          Let Agreed
+                        </span>
+                      ) : (
+                        <span
+                          className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                            l.is_published
+                              ? "bg-verified-soft text-verified"
+                              : "bg-surface-muted text-muted-foreground"
+                          }`}
+                        >
+                          {l.is_published ? <ShieldCheck className="h-3 w-3 shrink-0" /> : null}
+                          {l.is_published ? "Live" : "Draft"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-1.5 sm:justify-end">
+                {executedByListing[l.id] ? (
+                  <Link
+                    to="/landlord/manage-tenancy"
+                    search={{ share: executedByListing[l.id] }}
+                    className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                  >
+                    <FileSignature className="h-3 w-3 shrink-0" />
+                    Manage Tenancy
+                  </Link>
+                ) : (
                   <Link
                     to="/dashboard/applications"
                     search={{ listing: l.id }}
                     className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
                   >
-                    <Users className="h-3 w-3" />
+                    <Users className="h-3 w-3 shrink-0" />
                     View applicants
                   </Link>
-                  )}
-                  <Link
-                    to="/listings/$id"
-                    params={{ id: l.id }}
-                    className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary"
-                  >
-                    <ExternalLink className="h-3 w-3" />
-                    View listing
-                  </Link>
-                  <Link
-                    to="/dashboard/listing-edit"
-                    search={{ id: l.id }}
-                    className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary"
-                  >
-                    <Pencil className="h-3 w-3" />
-                    Edit
-                  </Link>
-                </div>
+                )}
+                <Link
+                  to="/listings/$id"
+                  params={{ id: l.id }}
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary"
+                >
+                  <ExternalLink className="h-3 w-3 shrink-0" />
+                  View listing
+                </Link>
+                <Link
+                  to="/dashboard/listing-edit"
+                  search={{ id: l.id }}
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary"
+                >
+                  <Pencil className="h-3 w-3 shrink-0" />
+                  Edit
+                </Link>
               </div>
             </li>
           ))}

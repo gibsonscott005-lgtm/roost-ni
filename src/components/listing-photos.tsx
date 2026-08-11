@@ -81,10 +81,12 @@ export function ListingCover({
   paths,
   alt,
   className,
+  showCount = true,
 }: {
   paths: string[] | null | undefined;
   alt: string;
   className?: string;
+  showCount?: boolean;
 }) {
   const urls = useSignedPhotoUrls(paths);
   const box = className ?? "aspect-[16/10]";
@@ -97,7 +99,7 @@ export function ListingCover({
         loading="lazy"
         className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
       />
-      {urls.length > 1 ? (
+      {showCount && urls.length > 1 ? (
         <span className="absolute bottom-2 right-2 rounded-full bg-foreground/70 px-2 py-0.5 text-[10px] font-semibold text-background backdrop-blur">
           {urls.length} photos
         </span>
