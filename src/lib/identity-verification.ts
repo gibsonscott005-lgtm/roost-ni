@@ -3,10 +3,12 @@
  * No secrets, no provider SDKs — safe to import from components.
  */
 
+import { BIOMETRIC_FEE_PENCE } from "./pricing";
+
 export type VerificationMode = "simulated" | "test" | "live";
 
-/** One-off tenant fee for a verified passport, in pence. Change here only. */
-export const VERIFICATION_FEE_PENCE = 500;
+/** One-off tenant fee for a verified passport. Priced in the Roost pricing catalogue. */
+export const VERIFICATION_FEE_PENCE = BIOMETRIC_FEE_PENCE;
 
 export function formatFee(pence: number = VERIFICATION_FEE_PENCE): string {
   return `£${(pence / 100).toFixed(2).replace(/\.00$/, "")}`;
