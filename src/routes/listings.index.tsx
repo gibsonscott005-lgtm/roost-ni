@@ -341,6 +341,33 @@ function Header() {
 }
 
 function ListingCard({ listing }: { listing: Listing }) {
+  return <ListingCardInner listing={listing} />;
+}
+
+function ListingSpecStats({ listing }: { listing: Listing }) {
+  const beds = bedroomLabel(listing.bedrooms);
+  const bits = [
+    listing.property_type,
+    beds,
+    listing.bathrooms ? `${listing.bathrooms} bath` : null,
+    listing.furnished,
+  ].filter(Boolean) as string[];
+  if (bits.length === 0) return null;
+  return (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {bits.map((b) => (
+        <span
+          key={b}
+          className="inline-flex items-center rounded-full bg-surface-muted px-2.5 py-1 text-[11px] font-medium text-foreground"
+        >
+          {b}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ListingCardInner({ listing }: { listing: Listing }) {
   return (
     <Link
       to="/listings/$id"
