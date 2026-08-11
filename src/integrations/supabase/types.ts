@@ -138,6 +138,11 @@ export type Database = {
           deposit_protected_at: string | null
           deposit_scheme: string | null
           deposit_status: string
+          final_inspection_responded_at: string | null
+          final_inspection_response: string | null
+          final_inspection_submitted_at: string | null
+          final_meter_readings: string | null
+          final_oil_level: string | null
           id: string
           inventory_completed_at: string | null
           landlord_checks_confirmed_at: string | null
@@ -154,7 +159,9 @@ export type Database = {
           rent_status: string
           shared_at: string
           status: Database["public"]["Enums"]["share_status"]
+          tenancy_completed_at: string | null
           tenancy_start_date: string | null
+          tenancy_status: string
           tenant_id: string
         }
         Insert: {
@@ -164,6 +171,11 @@ export type Database = {
           deposit_protected_at?: string | null
           deposit_scheme?: string | null
           deposit_status?: string
+          final_inspection_responded_at?: string | null
+          final_inspection_response?: string | null
+          final_inspection_submitted_at?: string | null
+          final_meter_readings?: string | null
+          final_oil_level?: string | null
           id?: string
           inventory_completed_at?: string | null
           landlord_checks_confirmed_at?: string | null
@@ -180,7 +192,9 @@ export type Database = {
           rent_status?: string
           shared_at?: string
           status?: Database["public"]["Enums"]["share_status"]
+          tenancy_completed_at?: string | null
           tenancy_start_date?: string | null
+          tenancy_status?: string
           tenant_id: string
         }
         Update: {
@@ -190,6 +204,11 @@ export type Database = {
           deposit_protected_at?: string | null
           deposit_scheme?: string | null
           deposit_status?: string
+          final_inspection_responded_at?: string | null
+          final_inspection_response?: string | null
+          final_inspection_submitted_at?: string | null
+          final_meter_readings?: string | null
+          final_oil_level?: string | null
           id?: string
           inventory_completed_at?: string | null
           landlord_checks_confirmed_at?: string | null
@@ -206,7 +225,9 @@ export type Database = {
           rent_status?: string
           shared_at?: string
           status?: Database["public"]["Enums"]["share_status"]
+          tenancy_completed_at?: string | null
           tenancy_start_date?: string | null
+          tenancy_status?: string
           tenant_id?: string
         }
         Relationships: [
@@ -393,10 +414,72 @@ export type Database = {
         }
         Relationships: []
       }
+      tenancy_deposit_settlements: {
+        Row: {
+          created_at: string
+          deductions: Json
+          deposit_total: number
+          id: string
+          proposed_at: string | null
+          proposed_return: number
+          return_method: string | null
+          returned_at: string | null
+          scheme_dispute_ref: string | null
+          share_id: string
+          tenant_comment: string | null
+          tenant_responded_at: string | null
+          tenant_response: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deductions?: Json
+          deposit_total?: number
+          id?: string
+          proposed_at?: string | null
+          proposed_return?: number
+          return_method?: string | null
+          returned_at?: string | null
+          scheme_dispute_ref?: string | null
+          share_id: string
+          tenant_comment?: string | null
+          tenant_responded_at?: string | null
+          tenant_response?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deductions?: Json
+          deposit_total?: number
+          id?: string
+          proposed_at?: string | null
+          proposed_return?: number
+          return_method?: string | null
+          returned_at?: string | null
+          scheme_dispute_ref?: string | null
+          share_id?: string
+          tenant_comment?: string | null
+          tenant_responded_at?: string | null
+          tenant_response?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenancy_deposit_settlements_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: true
+            referencedRelation: "passport_shares"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenancy_inventory_items: {
         Row: {
           condition: string | null
           created_at: string
+          final_condition: string | null
+          final_notes: string | null
+          final_photo_path: string | null
           id: string
           notes: string | null
           photo_path: string | null
@@ -410,6 +493,9 @@ export type Database = {
         Insert: {
           condition?: string | null
           created_at?: string
+          final_condition?: string | null
+          final_notes?: string | null
+          final_photo_path?: string | null
           id?: string
           notes?: string | null
           photo_path?: string | null
@@ -423,6 +509,9 @@ export type Database = {
         Update: {
           condition?: string | null
           created_at?: string
+          final_condition?: string | null
+          final_notes?: string | null
+          final_photo_path?: string | null
           id?: string
           notes?: string | null
           photo_path?: string | null
@@ -436,6 +525,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "tenancy_inventory_items_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: false
+            referencedRelation: "passport_shares"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenancy_notices: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          created_at: string
+          end_date: string
+          id: string
+          notice_weeks: number
+          reason: string | null
+          served_by: string
+          served_by_role: string
+          served_on: string
+          share_id: string
+          updated_at: string
+          withdrawn_at: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string
+          end_date: string
+          id?: string
+          notice_weeks: number
+          reason?: string | null
+          served_by: string
+          served_by_role: string
+          served_on: string
+          share_id: string
+          updated_at?: string
+          withdrawn_at?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string
+          end_date?: string
+          id?: string
+          notice_weeks?: number
+          reason?: string | null
+          served_by?: string
+          served_by_role?: string
+          served_on?: string
+          share_id?: string
+          updated_at?: string
+          withdrawn_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenancy_notices_share_id_fkey"
             columns: ["share_id"]
             isOneToOne: false
             referencedRelation: "passport_shares"
@@ -725,6 +870,14 @@ export type Database = {
         | "identity_verification_failed"
         | "certificate_expiring"
         | "certificate_expired"
+        | "notice_served"
+        | "notice_acknowledged"
+        | "final_inspection_submitted"
+        | "final_inspection_agreed"
+        | "final_inspection_disputed"
+        | "deposit_settlement_proposed"
+        | "deposit_returned"
+        | "tenancy_completed"
       share_status: "pending" | "reviewed" | "accepted"
       verification_status:
         | "unverified"
@@ -885,6 +1038,14 @@ export const Constants = {
         "identity_verification_failed",
         "certificate_expiring",
         "certificate_expired",
+        "notice_served",
+        "notice_acknowledged",
+        "final_inspection_submitted",
+        "final_inspection_agreed",
+        "final_inspection_disputed",
+        "deposit_settlement_proposed",
+        "deposit_returned",
+        "tenancy_completed",
       ],
       share_status: ["pending", "reviewed", "accepted"],
       verification_status: [

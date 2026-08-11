@@ -58,6 +58,20 @@ const GROUPS: { title: string; blurb: string; types: NotificationType[] }[] = [
     blurb: "Repair reports and progress",
     types: ["maintenance_reported", "maintenance_updated", "maintenance_resolved"],
   },
+  {
+    title: "Ending a tenancy",
+    blurb: "Notice to Quit, final inspection and deposit settlement",
+    types: [
+      "notice_served",
+      "notice_acknowledged",
+      "final_inspection_submitted",
+      "final_inspection_agreed",
+      "final_inspection_disputed",
+      "deposit_settlement_proposed",
+      "deposit_returned",
+      "tenancy_completed",
+    ],
+  },
 ];
 
 const LABELS: Record<NotificationType, string> = {
@@ -78,6 +92,14 @@ const LABELS: Record<NotificationType, string> = {
   inventory_approved: "Inventory approved",
   maintenance_reported: "Maintenance reported",
   maintenance_updated: "Maintenance updated",
+  notice_served: "Notice to Quit served",
+  notice_acknowledged: "Notice acknowledged",
+  final_inspection_submitted: "Final inspection submitted",
+  final_inspection_agreed: "Final inspection agreed",
+  final_inspection_disputed: "Final inspection disputed",
+  deposit_settlement_proposed: "Deposit settlement proposed",
+  deposit_returned: "Deposit returned",
+  tenancy_completed: "Tenancy completed",
   maintenance_resolved: "Maintenance resolved",
 };
 
@@ -122,23 +144,23 @@ function SettingsPage() {
   useEffect(() => {
     if (prefsQuery.data === undefined) return;
     setEnabled(prefsQuery.data?.in_app_enabled ?? true);
-    setMuted(((prefsQuery.data?.muted_types as NotificationType[] | null) ?? []) as NotificationType[]);
+    setMuted(
+      ((prefsQuery.data?.muted_types as NotificationType[] | null) ?? []) as NotificationType[],
+    );
   }, [prefsQuery.data]);
 
   const persist = async (nextEnabled: boolean, nextMuted: NotificationType[]) => {
     if (!user?.id) return;
     setSaving(true);
-    const { error } = await supabase
-      .from("notification_preferences")
-      .upsert(
-        {
-          user_id: user.id,
-          in_app_enabled: nextEnabled,
-          muted_types: nextMuted,
-          updated_at: new Date().toISOString(),
-        } as never,
-        { onConflict: "user_id" },
-      );
+    const { error } = await supabase.from("notification_preferences").upsert(
+      {
+        user_id: user.id,
+        in_app_enabled: nextEnabled,
+        muted_types: nextMuted,
+        updated_at: new Date().toISOString(),
+      } as never,
+      { onConflict: "user_id" },
+    );
     setSaving(false);
     if (error) {
       toast.error("Couldn't save your preferences", { description: error.message });
@@ -174,9 +196,7 @@ function SettingsPage() {
       <AccountDetailsCard />
       <PasswordCard />
 
-      <h3 className="mb-3 mt-8 font-display text-lg font-semibold tracking-tight">
-        Notifications
-      </h3>
+      <h3 className="mb-3 mt-8 font-display text-lg font-semibold tracking-tight">Notifications</h3>
 
       {authLoading || prefsQuery.isPending ? (
         <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
@@ -213,7 +233,10 @@ function SettingsPage() {
 
           <div className={enabled ? "" : "pointer-events-none opacity-50"}>
             {GROUPS.map((g) => (
-              <section key={g.title} className="mb-5 rounded-3xl border border-border bg-surface p-5">
+              <section
+                key={g.title}
+                className="mb-5 rounded-3xl border border-border bg-surface p-5"
+              >
                 <h3 className="font-display text-base font-semibold tracking-tight">{g.title}</h3>
                 <p className="mt-0.5 text-xs text-muted-foreground">{g.blurb}</p>
                 <div className="mt-4 divide-y divide-border/70">
@@ -324,7 +347,11 @@ function AccountDetailsCard() {
         <Field label="Email" value={user?.email ?? ""} readOnly disabled />
         <Field
           label="Account type"
-          value={profile?.account_type ? `${profile.account_type[0]?.toUpperCase()}${profile.account_type.slice(1)}` : ""}
+          value={
+            profile?.account_type
+              ? `${profile.account_type[0]?.toUpperCase()}${profile.account_type.slice(1)}`
+              : ""
+          }
           readOnly
           disabled
         />
