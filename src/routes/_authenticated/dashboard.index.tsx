@@ -68,6 +68,7 @@ interface Listing {
   heating_type: string;
   is_published: boolean;
   created_at: string;
+  photo_urls: string[] | null;
 }
 
 const TENANT_PREFS = [
@@ -93,7 +94,9 @@ function Dashboard() {
     if (!user) return;
     const { data } = await supabase
       .from("property_listings")
-      .select("id, title, address, location, monthly_rent, heating_type, is_published, created_at")
+      .select(
+        "id, title, address, location, monthly_rent, heating_type, is_published, created_at, photo_urls",
+      )
       .eq("landlord_id", user.id)
       .order("created_at", { ascending: false });
     const rows = (data as Listing[] | null) ?? [];
