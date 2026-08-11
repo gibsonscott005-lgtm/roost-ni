@@ -31,6 +31,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { CertificatesPanel } from "@/components/property-certificates";
 import { emitNotification } from "@/lib/notifications.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TenancyEndPanel } from "@/components/tenancy-end-panel";
 import { LandlordMaintenanceTab } from "@/components/maintenance-panel";
 
 export const Route = createFileRoute("/_authenticated/landlord/manage-tenancy")({

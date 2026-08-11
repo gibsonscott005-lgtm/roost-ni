@@ -29,6 +29,7 @@ import {
   rentStateClasses,
 } from "@/lib/rent-schedule";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TenancyEndPanel } from "@/components/tenancy-end-panel";
 import { TenantMaintenanceTab } from "@/components/maintenance-panel";
 
 export const Route = createFileRoute("/_authenticated/tenant/tenancy")({
