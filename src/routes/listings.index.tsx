@@ -14,7 +14,13 @@ import {
 import { ViewSwitcher } from "../components/view-switcher";
 import { ListingCover } from "@/components/listing-photos";
 import { supabase } from "@/integrations/supabase/client";
-import { bedroomLabel } from "@/lib/listing-details";
+import {
+  BILLS_OPTIONS,
+  FURNISHED_OPTIONS,
+  PROPERTY_TYPES,
+  bedroomLabel,
+  formatAvailableFrom,
+} from "@/lib/listing-details";
 
 export const Route = createFileRoute("/listings/")({
   head: () => ({
@@ -50,14 +56,20 @@ interface Listing {
   bedrooms: number | null;
   bathrooms: number | null;
   furnished: string | null;
+  available_from: string | null;
+  bills_included: string[] | null;
+  parking: string | null;
 }
 
 const HEATING_FILTERS = ["Any", "Oil", "Gas", "Electric"] as const;
-type SortKey = "newest" | "rent_asc" | "rent_desc";
+const BEDROOM_FILTERS = ["Any", "Studio", "1+", "2+", "3+", "4+"] as const;
+type SortKey = "newest" | "rent_asc" | "rent_desc" | "beds_desc" | "available";
 const SORTS: { key: SortKey; label: string }[] = [
   { key: "newest", label: "Newest first" },
   { key: "rent_asc", label: "Rent: low to high" },
   { key: "rent_desc", label: "Rent: high to low" },
+  { key: "beds_desc", label: "Most bedrooms" },
+  { key: "available", label: "Available soonest" },
 ];
 
 function ListingsIndexPage() {
