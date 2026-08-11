@@ -14,7 +14,11 @@ import {
 import { ViewSwitcher } from "../components/view-switcher";
 import { ListingCover } from "@/components/listing-photos";
 import { supabase } from "@/integrations/supabase/client";
-import { bedroomLabel } from "@/lib/listing-details";
+import {
+  FURNISHED_OPTIONS,
+  PROPERTY_TYPES,
+  bedroomLabel,
+} from "@/lib/listing-details";
 
 export const Route = createFileRoute("/listings/")({
   head: () => ({
@@ -50,14 +54,20 @@ interface Listing {
   bedrooms: number | null;
   bathrooms: number | null;
   furnished: string | null;
+  available_from: string | null;
+  bills_included: string[] | null;
+  parking: string | null;
 }
 
 const HEATING_FILTERS = ["Any", "Oil", "Gas", "Electric"] as const;
-type SortKey = "newest" | "rent_asc" | "rent_desc";
+const BEDROOM_FILTERS = ["Any", "Studio", "1+", "2+", "3+", "4+"] as const;
+type SortKey = "newest" | "rent_asc" | "rent_desc" | "beds_desc" | "available";
 const SORTS: { key: SortKey; label: string }[] = [
   { key: "newest", label: "Newest first" },
   { key: "rent_asc", label: "Rent: low to high" },
   { key: "rent_desc", label: "Rent: high to low" },
+  { key: "beds_desc", label: "Most bedrooms" },
+  { key: "available", label: "Available soonest" },
 ];
 
 function ListingsIndexPage() {
@@ -70,13 +80,19 @@ function ListingsIndexPage() {
   const [heating, setHeating] = useState<(typeof HEATING_FILTERS)[number]>("Any");
   const [fairFuelOnly, setFairFuelOnly] = useState(false);
   const [hideLetAgreed, setHideLetAgreed] = useState(false);
+  const [beds, setBeds] = useState<(typeof BEDROOM_FILTERS)[number]>("Any");
+  const [propertyType, setPropertyType] = useState("Any");
+  const [furnished, setFurnished] = useState("Any");
+  const [availableNow, setAvailableNow] = useState(false);
+  const [billsOnly, setBillsOnly] = useState(false);
+  const [parkingOnly, setParkingOnly] = useState(false);
   const [sort, setSort] = useState<SortKey>("newest");
 
   useEffect(() => {
     supabase
       .from("property_listings")
       .select(
-        "id, title, monthly_rent, address, location, heating_type, enforce_empty_in_full_out, status, photo_urls, property_type, bedrooms, bathrooms, furnished",
+        "id, title, monthly_rent, address, location, heating_type, enforce_empty_in_full_out, status, photo_urls, property_type, bedrooms, bathrooms, furnished, available_from, bills_included, parking",
       )
       .eq("is_published", true)
       .order("created_at", { ascending: false })
@@ -105,6 +121,21 @@ function ListingsIndexPage() {
       if (heating !== "Any" && l.heating_type !== heating) return false;
       if (fairFuelOnly && !l.enforce_empty_in_full_out) return false;
       if (hideLetAgreed && l.status !== "available") return false;
+      if (beds !== "Any") {
+        if (l.bedrooms === null) return false;
+        if (beds === "Studio") {
+          if (l.bedrooms !== 0) return false;
+        } else if (l.bedrooms < Number(beds.replace("+", ""))) return false;
+      }
+      if (propertyType !== "Any" && l.property_type !== propertyType) return false;
+      if (furnished !== "Any" && l.furnished !== furnished) return false;
+      if (availableNow) {
+        if (!l.available_from) return false;
+        const d = new Date(`${l.available_from}T00:00:00`).getTime();
+        if (Number.isNaN(d) || d > new Date().setHours(0, 0, 0, 0)) return false;
+      }
+      if (billsOnly && !(l.bills_included?.length ?? 0)) return false;
+      if (parkingOnly && (!l.parking || l.parking === "None")) return false;
       return true;
     });
 
@@ -112,15 +143,44 @@ function ListingsIndexPage() {
       return [...list].sort((a, b) => Number(a.monthly_rent) - Number(b.monthly_rent));
     if (sort === "rent_desc")
       return [...list].sort((a, b) => Number(b.monthly_rent) - Number(a.monthly_rent));
+    if (sort === "beds_desc")
+      return [...list].sort((a, b) => (b.bedrooms ?? -1) - (a.bedrooms ?? -1));
+    if (sort === "available")
+      return [...list].sort(
+        (a, b) =>
+          new Date(a.available_from ?? "2999-12-31").getTime() -
+          new Date(b.available_from ?? "2999-12-31").getTime(),
+      );
     return list;
-  }, [rows, query, minRent, maxRent, heating, fairFuelOnly, hideLetAgreed, sort]);
+  }, [
+    rows,
+    query,
+    minRent,
+    maxRent,
+    heating,
+    fairFuelOnly,
+    hideLetAgreed,
+    beds,
+    propertyType,
+    furnished,
+    availableNow,
+    billsOnly,
+    parkingOnly,
+    sort,
+  ]);
 
   const activeFilters =
     (minRent ? 1 : 0) +
     (maxRent ? 1 : 0) +
     (heating !== "Any" ? 1 : 0) +
     (fairFuelOnly ? 1 : 0) +
-    (hideLetAgreed ? 1 : 0);
+    (hideLetAgreed ? 1 : 0) +
+    (beds !== "Any" ? 1 : 0) +
+    (propertyType !== "Any" ? 1 : 0) +
+    (furnished !== "Any" ? 1 : 0) +
+    (availableNow ? 1 : 0) +
+    (billsOnly ? 1 : 0) +
+    (parkingOnly ? 1 : 0);
 
   const clearFilters = () => {
     setMinRent("");
@@ -128,6 +188,12 @@ function ListingsIndexPage() {
     setHeating("Any");
     setFairFuelOnly(false);
     setHideLetAgreed(false);
+    setBeds("Any");
+    setPropertyType("Any");
+    setFurnished("Any");
+    setAvailableNow(false);
+    setBillsOnly(false);
+    setParkingOnly(false);
   };
 
   return (
@@ -231,6 +297,52 @@ function ListingsIndexPage() {
                   </select>
                 </label>
               </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <label className="block">
+                  <span className="text-xs font-medium text-muted-foreground">Bedrooms</span>
+                  <select
+                    value={beds}
+                    onChange={(e) => setBeds(e.target.value as (typeof BEDROOM_FILTERS)[number])}
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                  >
+                    {BEDROOM_FILTERS.map((b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-xs font-medium text-muted-foreground">Property type</span>
+                  <select
+                    value={propertyType}
+                    onChange={(e) => setPropertyType(e.target.value)}
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                  >
+                    <option value="Any">Any</option>
+                    {PROPERTY_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-xs font-medium text-muted-foreground">Furnishing</span>
+                  <select
+                    value={furnished}
+                    onChange={(e) => setFurnished(e.target.value)}
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                  >
+                    <option value="Any">Any</option>
+                    {FURNISHED_OPTIONS.map((f) => (
+                      <option key={f} value={f}>
+                        {f}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
               <div className="flex flex-wrap items-center gap-2">
                 <FilterChip
                   active={fairFuelOnly}
@@ -241,6 +353,21 @@ function ListingsIndexPage() {
                   active={hideLetAgreed}
                   onClick={() => setHideLetAgreed((v) => !v)}
                   label="Hide Let Agreed"
+                />
+                <FilterChip
+                  active={availableNow}
+                  onClick={() => setAvailableNow((v) => !v)}
+                  label="Available now"
+                />
+                <FilterChip
+                  active={billsOnly}
+                  onClick={() => setBillsOnly((v) => !v)}
+                  label="Bills included"
+                />
+                <FilterChip
+                  active={parkingOnly}
+                  onClick={() => setParkingOnly((v) => !v)}
+                  label="Parking"
                 />
                 {activeFilters > 0 ? (
                   <button

@@ -19,6 +19,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { TenantCertificatesPanel } from "@/components/property-certificates";
 import { emitNotification } from "@/lib/notifications.functions";
 import { leaseDocumentHtml, openPrintable, tenancyInfoNoticeHtml } from "@/lib/tenancy-docs";
 import {
@@ -790,6 +791,17 @@ function TenantTenancyPage() {
                 </button>
               </div>
             </div>
+            {share.listing_id ? (
+              <section className="rounded-3xl border border-border bg-surface p-5">
+                <p className="flex items-center gap-2 text-sm font-semibold">
+                  <ShieldCheck className="h-4 w-4 text-verified" /> Safety certificates
+                </p>
+                <p className="mb-4 mt-1 text-xs text-muted-foreground">
+                  Records your landlord has uploaded for this property.
+                </p>
+                <TenantCertificatesPanel propertyId={share.listing_id} />
+              </section>
+            ) : null}
           </TabsContent>
         </Tabs>
       )}

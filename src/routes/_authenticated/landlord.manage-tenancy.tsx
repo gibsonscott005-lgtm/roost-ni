@@ -28,6 +28,7 @@ import {
 } from "@/lib/rent-schedule";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { CertificatesPanel } from "@/components/property-certificates";
 import { emitNotification } from "@/lib/notifications.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LandlordMaintenanceTab } from "@/components/maintenance-panel";
@@ -716,6 +717,11 @@ function ManageTenancyPage() {
               rent={rent}
               deposit={deposit}
             />
+            {share.listing_id && user?.id ? (
+              <section className="rounded-3xl border border-border bg-surface p-5">
+                <CertificatesPanel propertyId={share.listing_id} landlordId={user.id} />
+              </section>
+            ) : null}
           </TabsContent>
         </Tabs>
       )}

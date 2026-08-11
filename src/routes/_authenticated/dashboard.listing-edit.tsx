@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PhotoPicker, uploadListingPhotos } from "@/components/listing-photos";
+import { CertificatesPanel } from "@/components/property-certificates";
 import {
   AvailabilityFields,
   DescriptionField,
@@ -369,6 +370,10 @@ function EditListingPage() {
             <p className="mt-2 text-xs text-muted-foreground">
               Removed photos are cleared when you save your changes.
             </p>
+          </Card>
+
+          <Card title="Safety certificates">
+            <CertificatesPanel propertyId={id} landlordId={user!.id} />
           </Card>
 
           <Card title="Heating & Fair Fuel">
