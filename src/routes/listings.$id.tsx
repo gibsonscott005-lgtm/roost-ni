@@ -413,6 +413,102 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
+function ChipRow({ label, items }: { label: string; items: string[] }) {
+  if (!items.length) return null;
+  return (
+    <div className="mt-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {items.map((i) => (
+          <span
+            key={i}
+            className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2.5 py-1 text-[11px] font-medium text-foreground"
+          >
+            <Check className="h-3 w-3 text-verified" strokeWidth={3} />
+            {i}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PropertyDetailsSection({ listing }: { listing: ListingDetail }) {
+  const spec: { k: string; v: string }[] = [];
+  if (listing.property_type) spec.push({ k: "Property type", v: listing.property_type });
+  const beds = bedroomLabel(listing.bedrooms);
+  if (beds) spec.push({ k: "Bedrooms", v: beds });
+  if (listing.bathrooms) spec.push({ k: "Bathrooms", v: String(listing.bathrooms) });
+  if (listing.furnished) spec.push({ k: "Furnished", v: listing.furnished });
+  if (listing.parking) spec.push({ k: "Parking", v: listing.parking });
+  if (listing.garden) spec.push({ k: "Outside space", v: listing.garden });
+
+  const available = formatAvailableFrom(listing.available_from);
+  const outside = [listing.parking, listing.garden].filter(Boolean) as string[];
+  const hasAnything =
+    spec.length > 0 ||
+    available ||
+    listing.description ||
+    (listing.bills_included?.length ?? 0) > 0 ||
+    (listing.features?.length ?? 0) > 0;
+  if (!hasAnything) return null;
+
+  return (
+    <section className="mt-5 rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        The property
+      </p>
+      <h2 className="mt-1 font-display text-lg font-semibold tracking-tight sm:text-xl">
+        Property details
+      </h2>
+
+      {spec.length ? (
+        <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {spec.map((s) => (
+            <div key={s.k} className="rounded-2xl border border-border bg-surface-muted/50 p-3.5">
+              <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                {s.k}
+              </dt>
+              <dd className="mt-1 text-sm font-medium text-foreground">{s.v}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+
+      {available || listing.min_tenancy_months !== null ? (
+        <p className="mt-4 text-sm text-muted-foreground">
+          {available ? <span className="font-medium text-foreground">{available}</span> : null}
+          {available ? " · " : null}
+          Minimum tenancy: {minTenancyLabel(listing.min_tenancy_months)}
+        </p>
+      ) : null}
+
+      {listing.description ? (
+        <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-foreground">
+          {listing.description}
+        </p>
+      ) : null}
+
+      <ChipRow label="Bills included" items={listing.bills_included ?? []} />
+      <ChipRow label="Outside" items={outside} />
+      <ChipRow label="Extras" items={listing.features ?? []} />
+    </section>
+  );
+}
+
+function StatUnused({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-4 shadow-[0_1px_0_rgba(15,23,42,0.03)]">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </p>
+      <p className="mt-1 font-display text-xl font-semibold tracking-tight">{value}</p>
+    </div>
+  );
+}
+
 function DetailRow({
   k,
   v,
