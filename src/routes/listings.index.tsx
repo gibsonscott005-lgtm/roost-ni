@@ -340,10 +340,6 @@ function Header() {
   );
 }
 
-function ListingCard({ listing }: { listing: Listing }) {
-  return <ListingCardInner listing={listing} />;
-}
-
 function ListingSpecStats({ listing }: { listing: Listing }) {
   const beds = bedroomLabel(listing.bedrooms);
   const bits = [
@@ -367,7 +363,7 @@ function ListingSpecStats({ listing }: { listing: Listing }) {
   );
 }
 
-function ListingCardInner({ listing }: { listing: Listing }) {
+function ListingCard({ listing }: { listing: Listing }) {
   return (
     <Link
       to="/listings/$id"
