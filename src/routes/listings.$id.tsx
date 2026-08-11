@@ -26,6 +26,7 @@ import { ListingGallery } from "@/components/listing-photos";
 import {
   LISTING_DETAIL_COLUMNS,
   bedroomLabel,
+  fairFuelSentence,
   formatAvailableFrom,
   minTenancyLabel,
   type ListingDetailFields,
