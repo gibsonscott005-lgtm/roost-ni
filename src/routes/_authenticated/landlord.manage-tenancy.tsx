@@ -29,6 +29,8 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { CertificatesPanel } from "@/components/property-certificates";
+import { PricingBreakdown } from "@/components/pricing-breakdown";
+import { PRICING_ITEM_KEYS } from "@/lib/pricing";
 import { emitNotification } from "@/lib/notifications.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TenancyEndPanel } from "@/components/tenancy-end-panel";
