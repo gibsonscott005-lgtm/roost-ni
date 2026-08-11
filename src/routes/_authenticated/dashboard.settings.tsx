@@ -58,6 +58,20 @@ const GROUPS: { title: string; blurb: string; types: NotificationType[] }[] = [
     blurb: "Repair reports and progress",
     types: ["maintenance_reported", "maintenance_updated", "maintenance_resolved"],
   },
+  {
+    title: "Ending a tenancy",
+    blurb: "Notice to Quit, final inspection and deposit settlement",
+    types: [
+      "notice_served",
+      "notice_acknowledged",
+      "final_inspection_submitted",
+      "final_inspection_agreed",
+      "final_inspection_disputed",
+      "deposit_settlement_proposed",
+      "deposit_returned",
+      "tenancy_completed",
+    ],
+  },
 ];
 
 const LABELS: Record<NotificationType, string> = {
@@ -78,6 +92,14 @@ const LABELS: Record<NotificationType, string> = {
   inventory_approved: "Inventory approved",
   maintenance_reported: "Maintenance reported",
   maintenance_updated: "Maintenance updated",
+  notice_served: "Notice to Quit served",
+  notice_acknowledged: "Notice acknowledged",
+  final_inspection_submitted: "Final inspection submitted",
+  final_inspection_agreed: "Final inspection agreed",
+  final_inspection_disputed: "Final inspection disputed",
+  deposit_settlement_proposed: "Deposit settlement proposed",
+  deposit_returned: "Deposit returned",
+  tenancy_completed: "Tenancy completed",
   maintenance_resolved: "Maintenance resolved",
 };
 
