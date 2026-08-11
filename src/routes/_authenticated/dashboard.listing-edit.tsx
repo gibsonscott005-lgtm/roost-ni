@@ -29,6 +29,11 @@ import {
 import {
   listingDetailPayload,
   validateListingDetails,
+  HEATING_OPTIONS,
+  usesFuelTank,
+  fuelTankLabel,
+  FAIR_FUEL_TITLE,
+  FAIR_FUEL_POLICY,
   type ListingDetailInput,
 } from "@/lib/listing-details";
 
@@ -47,7 +52,6 @@ export const Route = createFileRoute("/_authenticated/dashboard/listing-edit")({
   component: EditListingPage,
 });
 
-const HEATING_OPTIONS = ["Oil", "Gas", "Electric"] as const;
 const TENANT_PREFS = [
   "No pets",
   "Non-smokers",
@@ -192,7 +196,7 @@ function EditListingPage() {
           deposit: Number(deposit),
           ni_landlord_reg_number: regNumber,
           heating_type: heating,
-          enforce_empty_in_full_out: heating === "Oil" ? fuelPolicy : false,
+          enforce_empty_in_full_out: usesFuelTank(heating) ? fuelPolicy : false,
           tenant_preferences: prefs,
           photo_urls: photoPaths,
           ...listingDetailPayload(details),
@@ -393,7 +397,7 @@ function EditListingPage() {
                 </button>
               ))}
             </div>
-            {heating === "Oil" ? (
+            {usesFuelTank(heating) ? (
               <button
                 type="button"
                 onClick={() => setFuelPolicy((v) => !v)}
@@ -402,10 +406,10 @@ function EditListingPage() {
               >
                 <span>
                   <span className="block text-sm font-semibold">
-                    Enforce Fair Fuel (Empty-In / Full-Out)
+                    Enforce {FAIR_FUEL_TITLE}
                   </span>
                   <span className="mt-0.5 block text-xs text-muted-foreground">
-                    Matches tenants who already accept these oil terms.
+                    {fuelTankLabel(heating)}: {FAIR_FUEL_POLICY}
                   </span>
                 </span>
                 <span
@@ -422,8 +426,8 @@ function EditListingPage() {
               </button>
             ) : (
               <p className="mt-4 flex items-start gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
-                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Fair Fuel applies to oil-heated
-                properties only.
+                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" /> Fair Fuel applies to properties
+                with a heating oil or LPG tank.
               </p>
             )}
           </Card>
