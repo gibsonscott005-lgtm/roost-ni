@@ -276,7 +276,7 @@ function Badge({ value }: { value: number }) {
 }
 
 function itemCx(active: boolean) {
-  return `flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-sm transition ${
+  return `flex w-auto shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm transition lg:w-full ${
     active
       ? "bg-secondary font-medium text-foreground"
       : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
