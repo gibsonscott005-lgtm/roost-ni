@@ -2,10 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Bell, BellOff, Check, KeyRound, UserRound } from "lucide-react";
+import { Bell, BellOff, Check, KeyRound, ReceiptText, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import {
+  SimulatedBillingNotice,
+  TierTable,
+  useBillingSnapshot,
+} from "@/components/pricing-breakdown";
+import { completionFeePence, formatGBP, monthlyLabel, monthlyPence } from "@/lib/pricing";
 import { NOTIFICATION_TYPES, type NotificationType } from "@/lib/notifications.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/settings")({
@@ -195,6 +201,7 @@ function SettingsPage() {
 
       <AccountDetailsCard />
       <PasswordCard />
+      {profile?.account_type === "landlord" ? <BillingCard /> : null}
 
       <h3 className="mb-3 mt-8 font-display text-lg font-semibold tracking-tight">Notifications</h3>
 
