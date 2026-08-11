@@ -881,12 +881,18 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
   const [prefs, setPrefs] = useState<string[]>(["No pets", "Non-smokers"]);
   const [submitting, setSubmitting] = useState<false | "draft" | "publish">(false);
   const [photos, setPhotos] = useState<File[]>([]);
+  const [details, setDetails] = useState<ListingDetailInput>(emptyListingDetails);
 
   const togglePref = (label: string) =>
     setPrefs((s) => (s.includes(label) ? s.filter((x) => x !== label) : [...s, label]));
 
   const save = async (mode: "draft" | "publish") => {
     if (!user || submitting) return;
+    const detailError = validateListingDetails(details);
+    if (detailError) {
+      toast.error("Check the property details", { description: detailError });
+      return;
+    }
     setSubmitting(mode);
     try {
       let photoPaths: string[] = [];
@@ -914,6 +920,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         tenant_preferences: prefs,
         is_published: mode === "publish",
         photo_urls: photoPaths,
+        ...listingDetailPayload(details),
       });
       if (error) throw error;
       toast.success(mode === "publish" ? "Listing published" : "Draft saved", {
@@ -930,6 +937,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
       setDeposit("");
       setRegNumber("");
       setPhotos([]);
+      setDetails(emptyListingDetails);
       await onCreated();
     } catch (err: unknown) {
       toast.error("Could not save listing", {
