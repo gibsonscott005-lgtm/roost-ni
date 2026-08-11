@@ -21,6 +21,14 @@ export const NOTIFICATION_TYPES = [
   "maintenance_reported",
   "maintenance_updated",
   "maintenance_resolved",
+  "notice_served",
+  "notice_acknowledged",
+  "final_inspection_submitted",
+  "final_inspection_agreed",
+  "final_inspection_disputed",
+  "deposit_settlement_proposed",
+  "deposit_returned",
+  "tenancy_completed",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
