@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Bell, BellOff, Check } from "lucide-react";
+import { Bell, BellOff, Check, KeyRound, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
@@ -11,11 +11,11 @@ import { NOTIFICATION_TYPES, type NotificationType } from "@/lib/notifications.f
 export const Route = createFileRoute("/_authenticated/dashboard/settings")({
   head: () => ({
     meta: [
-      { title: "Notification settings — Roost NI" },
+      { title: "Account & notification settings — Roost NI" },
       {
         name: "description",
         content:
-          "Choose which Roost tenancy alerts you receive — applications, leases, rent, deposits and maintenance.",
+          "Update your Roost account details and password, and choose which tenancy alerts you receive.",
       },
     ],
   }),
