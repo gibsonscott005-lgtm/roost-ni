@@ -932,7 +932,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         deposit: Number(deposit),
         ni_landlord_reg_number: regNumber,
         heating_type: heating,
-        enforce_empty_in_full_out: heating === "Oil" ? fuelPolicy : false,
+        enforce_empty_in_full_out: usesFuelTank(heating) ? fuelPolicy : false,
         tenant_preferences: prefs,
         is_published: mode === "publish",
         photo_urls: photoPaths,
@@ -1142,7 +1142,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
           </div>
         </Field>
 
-        {heating === "Oil" ? (
+        {usesFuelTank(heating) ? (
           <div className="mt-5 overflow-hidden rounded-2xl border border-verified/30 bg-verified-soft/40">
             <div className="flex items-start gap-3 p-5">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-verified text-[var(--color-verified-foreground)]">
@@ -1153,12 +1153,11 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
                   Fair Fuel policy
                 </p>
                 <p className="mt-1 font-display text-base font-semibold tracking-tight text-foreground">
-                  Empty-In / Full-Out oil agreement
+                  {FAIR_FUEL_TITLE}
                 </p>
                 <p className="mt-1.5 text-sm text-muted-foreground">
-                  Tenants accept the tank as empty on move-in and leave it refilled to the
-                  same level on move-out. Removes oil-meter disputes and keeps your deposit
-                  return clean and predictable.
+                  {fuelTankLabel(heating)}: {FAIR_FUEL_POLICY} The handover level you record at
+                  move-in is the baseline, which keeps the deposit return clean and predictable.
                 </p>
               </div>
             </div>
@@ -1192,8 +1191,9 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         ) : (
           <div className="mt-5 flex items-start gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            Select <span className="font-medium text-foreground">Oil</span> to enable Roost's
-            Fair Fuel "Empty-In / Full-Out" tenancy clause.
+            Select <span className="font-medium text-foreground">Oil</span> or{" "}
+            <span className="font-medium text-foreground">LPG</span> to enable Roost's Fair Fuel
+            same-level-out tenancy clause.
           </div>
         )}
       </FormCard>
