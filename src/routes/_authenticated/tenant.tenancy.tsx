@@ -75,6 +75,12 @@ interface ShareRow {
   oil_handover_level: OilLevel | null;
   inventory_completed_at: string | null;
   tenancy_start_date: string | null;
+  tenancy_status: string | null;
+  final_meter_readings: string | null;
+  final_oil_level: string | null;
+  final_inspection_submitted_at: string | null;
+  final_inspection_response: string | null;
+  tenancy_completed_at: string | null;
   listing: {
     id: string;
     landlord_id: string;
@@ -159,7 +165,7 @@ function TenantTenancyPage() {
       const { data: share, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_sent_at, lease_signed_name, lease_oil_clause, lease_kind, lease_document_path, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_cert_path, deposit_protected_at, oil_handover_level, inventory_completed_at, tenancy_start_date, listing:property_listings!listing_id(id, landlord_id, title, address, location, monthly_rent, deposit, heating_type, enforce_empty_in_full_out, ni_landlord_reg_number)",
+          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_sent_at, lease_signed_name, lease_oil_clause, lease_kind, lease_document_path, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_cert_path, deposit_protected_at, oil_handover_level, inventory_completed_at, tenancy_start_date, tenancy_status, final_meter_readings, final_oil_level, final_inspection_submitted_at, final_inspection_response, tenancy_completed_at, listing:property_listings!listing_id(id, landlord_id, title, address, location, monthly_rent, deposit, heating_type, enforce_empty_in_full_out, ni_landlord_reg_number)",
         )
         .eq("id", shareId!)
         .maybeSingle();
@@ -372,6 +378,9 @@ function TenantTenancyPage() {
             </TabsTrigger>
             <TabsTrigger value="documents" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
               Documents
+            </TabsTrigger>
+            <TabsTrigger value="ending" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
+              Ending Tenancy
             </TabsTrigger>
           </TabsList>
 
@@ -802,6 +811,32 @@ function TenantTenancyPage() {
                 <TenantCertificatesPanel propertyId={share.listing_id} />
               </section>
             ) : null}
+          </TabsContent>
+
+          <TabsContent value="ending" className="mt-5 space-y-4">
+            <TenancyEndPanel
+              shareId={share.id}
+              role="tenant"
+              currentUserId={user?.id ?? null}
+              tenantId={share.tenant_id}
+              landlordId={listing?.landlord_id ?? ""}
+              tenantName={profile?.full_name || share.lease_signed_name || "Tenant"}
+              landlordName="Your landlord"
+              address={address}
+              listingId={share.listing_id}
+              landlordRegNumber={listing?.ni_landlord_reg_number ?? null}
+              tenancyStart={share.tenancy_start_date}
+              depositAmount={deposit}
+              depositScheme={share.deposit_scheme}
+              oilClause={!!share.lease_oil_clause || listing?.heating_type === "oil"}
+              tenancyStatus={share.tenancy_status}
+              finalMeterReadings={share.final_meter_readings}
+              finalOilLevel={share.final_oil_level}
+              finalInspectionSubmittedAt={share.final_inspection_submitted_at}
+              finalInspectionResponse={share.final_inspection_response}
+              tenancyCompletedAt={share.tenancy_completed_at}
+              onChanged={invalidate}
+            />
           </TabsContent>
         </Tabs>
       )}
