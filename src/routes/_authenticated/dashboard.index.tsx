@@ -806,7 +806,12 @@ function MyProperties({
                   aria-label={`View photos for ${l.title}`}
                   tabIndex={-1}
                 >
-                  <ListingCover paths={l.photo_urls} alt={l.title} className="h-full w-full" />
+                  <ListingCover
+                    paths={l.photo_urls}
+                    alt={l.title}
+                    className="h-full w-full"
+                    showCount={false}
+                  />
                 </Link>
 
                 <div className="min-w-0 flex-1">
