@@ -372,6 +372,10 @@ function EditListingPage() {
             </p>
           </Card>
 
+          <Card title="Safety certificates">
+            <CertificatesPanel propertyId={id} landlordId={user!.id} />
+          </Card>
+
           <Card title="Heating & Fair Fuel">
             <div className="flex flex-wrap gap-2">
               {HEATING_OPTIONS.map((opt) => (
