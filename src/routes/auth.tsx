@@ -19,7 +19,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 type Role = "tenant" | "landlord";
-type Mode = "signup" | "login";
+type Mode = "signup" | "login" | "reset";
 
 const COMMON_EMAIL_DOMAINS = [
   "gmail.com",
@@ -84,6 +84,7 @@ function AuthPage() {
   const [submitting, setSubmitting] = useState(false);
   const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
     const routeByAccountType = async (userId: string) => {
@@ -104,6 +105,12 @@ function AuthPage() {
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setTimeout(() => {
+          void navigate({ to: "/reset-password" });
+        }, 0);
+        return;
+      }
       if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
         // Defer to avoid deadlocking the auth callback
         setTimeout(() => {
@@ -129,7 +136,13 @@ function AuthPage() {
     }
     setSubmitting(true);
     try {
-      if (mode === "signup") {
+      if (mode === "reset") {
+        const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error && !/user|not found/i.test(error.message)) throw error;
+        setResetSent(true);
+      } else if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email: normalizedEmail,
           password,
@@ -154,9 +167,10 @@ function AuthPage() {
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong";
-      toast.error(mode === "signup" ? "Sign-up failed" : "Sign-in failed", {
-        description: message,
-      });
+      toast.error(
+        mode === "signup" ? "Sign-up failed" : mode === "reset" ? "Couldn't send reset link" : "Sign-in failed",
+        { description: message },
+      );
     } finally {
       setSubmitting(false);
     }
@@ -183,19 +197,22 @@ function AuthPage() {
       <main className="mx-auto flex w-full max-w-md flex-col px-4 pb-16 pt-10 sm:px-6">
         <div className="mb-6 text-center">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            {mode === "signup" ? "Create your account" : "Welcome back"}
+            {mode === "signup" ? "Create your account" : mode === "reset" ? "Password reset" : "Welcome back"}
           </p>
           <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-            {mode === "signup" ? "Join Roost NI" : "Sign in to Roost"}
+            {mode === "signup" ? "Join Roost NI" : mode === "reset" ? "Forgot your password?" : "Sign in to Roost"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "signup"
               ? "Verified passports for renters. Compliant listings for landlords."
-              : "Continue to your passport or property dashboard."}
+              : mode === "reset"
+                ? "Enter your email and we'll send you a link to set a new one."
+                : "Continue to your passport or property dashboard."}
           </p>
         </div>
 
         <section className="rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
+          {mode === "reset" ? null : (
           <div
             role="tablist"
             aria-label="Account type"
@@ -227,7 +244,29 @@ function AuthPage() {
               );
             })}
           </div>
+          )}
 
+          {mode === "reset" && resetSent ? (
+            <div className="mt-5 space-y-4">
+              <div className="rounded-2xl border border-verified/30 bg-verified-soft/60 p-4 text-sm text-foreground">
+                <p className="font-medium">Check your inbox</p>
+                <p className="mt-1 text-muted-foreground">
+                  If an account exists for <span className="font-mono">{email}</span>, we've sent a link to reset your
+                  password. The link expires after a short while — request another if it does.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setResetSent(false);
+                  setMode("login");
+                }}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+              >
+                Back to sign in
+              </button>
+            </div>
+          ) : (
           <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
             {mode === "signup" ? (
               <label className="block">
@@ -294,22 +333,37 @@ function AuthPage() {
               ) : null}
             </label>
 
-            <label className="block">
-              <span className="text-sm font-medium text-foreground">Password</span>
-              <div className="relative mt-1.5">
-                <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  required
-                  minLength={6}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  type="password"
-                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                  placeholder="At least 6 characters"
-                  className={`${inputCx} pl-9`}
-                />
-              </div>
-            </label>
+            {mode === "reset" ? null : (
+              <label className="block">
+                <span className="text-sm font-medium text-foreground">Password</span>
+                <div className="relative mt-1.5">
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    required
+                    minLength={6}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    type="password"
+                    autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                    placeholder="At least 6 characters"
+                    className={`${inputCx} pl-9`}
+                  />
+                </div>
+                {mode === "login" ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPassword("");
+                      setResetSent(false);
+                      setMode("reset");
+                    }}
+                    className="mt-2 text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                  >
+                    Forgot your password?
+                  </button>
+                ) : null}
+              </label>
+            )}
 
             <button
               type="submit"
@@ -322,25 +376,40 @@ function AuthPage() {
                   ? role === "landlord"
                     ? "Create Landlord Account"
                     : "Create Tenant Account"
-                  : "Sign in"}
+                  : mode === "reset"
+                    ? "Send reset link"
+                    : "Sign in"}
             </button>
+
+            {mode === "reset" ? (
+              <button
+                type="button"
+                onClick={() => setMode("login")}
+                className="w-full text-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                Back to sign in
+              </button>
+            ) : null}
           </form>
+          )}
 
           <div className="mt-4 flex items-center gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5 text-verified" />
             Encrypted at rest · GDPR compliant · NI-only verifications
           </div>
 
-          <p className="mt-5 text-center text-sm text-muted-foreground">
-            {mode === "signup" ? "Already have an account?" : "Don't have an account?"}{" "}
-            <button
-              type="button"
-              onClick={() => setMode(mode === "signup" ? "login" : "signup")}
-              className="font-medium text-foreground underline-offset-4 hover:underline"
-            >
-              {mode === "signup" ? "Log in" : "Sign up"}
-            </button>
-          </p>
+          {mode === "reset" ? null : (
+            <p className="mt-5 text-center text-sm text-muted-foreground">
+              {mode === "signup" ? "Already have an account?" : "Don't have an account?"}{" "}
+              <button
+                type="button"
+                onClick={() => setMode(mode === "signup" ? "login" : "signup")}
+                className="font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                {mode === "signup" ? "Log in" : "Sign up"}
+              </button>
+            </p>
+          )}
         </section>
       </main>
     </div>
