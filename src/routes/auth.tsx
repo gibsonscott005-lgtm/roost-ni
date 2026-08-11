@@ -197,19 +197,22 @@ function AuthPage() {
       <main className="mx-auto flex w-full max-w-md flex-col px-4 pb-16 pt-10 sm:px-6">
         <div className="mb-6 text-center">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            {mode === "signup" ? "Create your account" : "Welcome back"}
+            {mode === "signup" ? "Create your account" : mode === "reset" ? "Password reset" : "Welcome back"}
           </p>
           <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-            {mode === "signup" ? "Join Roost NI" : "Sign in to Roost"}
+            {mode === "signup" ? "Join Roost NI" : mode === "reset" ? "Forgot your password?" : "Sign in to Roost"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "signup"
               ? "Verified passports for renters. Compliant listings for landlords."
-              : "Continue to your passport or property dashboard."}
+              : mode === "reset"
+                ? "Enter your email and we'll send you a link to set a new one."
+                : "Continue to your passport or property dashboard."}
           </p>
         </div>
 
         <section className="rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
+          {mode === "reset" ? null : (
           <div
             role="tablist"
             aria-label="Account type"
@@ -241,7 +244,29 @@ function AuthPage() {
               );
             })}
           </div>
+          )}
 
+          {mode === "reset" && resetSent ? (
+            <div className="mt-5 space-y-4">
+              <div className="rounded-2xl border border-verified/30 bg-verified-soft/60 p-4 text-sm text-foreground">
+                <p className="font-medium">Check your inbox</p>
+                <p className="mt-1 text-muted-foreground">
+                  If an account exists for <span className="font-mono">{email}</span>, we've sent a link to reset your
+                  password. The link expires after a short while — request another if it does.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setResetSent(false);
+                  setMode("login");
+                }}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+              >
+                Back to sign in
+              </button>
+            </div>
+          ) : (
           <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
             {mode === "signup" ? (
               <label className="block">
