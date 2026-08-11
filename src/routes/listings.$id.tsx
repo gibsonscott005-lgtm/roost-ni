@@ -23,8 +23,15 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { ListingGallery } from "@/components/listing-photos";
+import {
+  LISTING_DETAIL_COLUMNS,
+  bedroomLabel,
+  formatAvailableFrom,
+  minTenancyLabel,
+  type ListingDetailFields,
+} from "@/lib/listing-details";
 
-interface ListingDetail {
+interface ListingDetail extends ListingDetailFields {
   id: string;
   title: string;
   address: string;
@@ -44,14 +51,14 @@ export const Route = createFileRoute("/listings/$id")({
     const { data, error } = await supabase
       .from("property_listings")
       .select(
-        "id, title, address, location, monthly_rent, deposit, ni_landlord_reg_number, heating_type, enforce_empty_in_full_out, tenant_preferences, status, photo_urls",
+        `id, title, address, location, monthly_rent, deposit, ni_landlord_reg_number, heating_type, enforce_empty_in_full_out, tenant_preferences, status, photo_urls, ${LISTING_DETAIL_COLUMNS}`,
       )
       .eq("id", params.id)
       .eq("is_published", true)
       .maybeSingle();
     if (error) throw error;
     if (!data) throw notFound();
-    return data as ListingDetail;
+      return data as unknown as ListingDetail;
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Listing — Roost NI" }] };
