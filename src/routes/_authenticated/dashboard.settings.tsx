@@ -247,3 +247,163 @@ function SettingsPage() {
     </DashboardShell>
   );
 }
+function Field({
+  label,
+  ...props
+}: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <label className="block">
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <input
+        {...props}
+        className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+      />
+    </label>
+  );
+}
+
+function AccountDetailsCard() {
+  const { user, profile, loading } = useAuth();
+  const qc = useQueryClient();
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!profile) return;
+    setFullName(profile.full_name ?? "");
+    setPhone(profile.phone ?? "");
+  }, [profile?.id, profile?.full_name, profile?.phone]);
+
+  const save = async () => {
+    if (!user?.id) return;
+    if (!fullName.trim()) {
+      toast.error("Please enter your full name");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ full_name: fullName.trim(), phone: phone.trim() || null })
+      .eq("id", user.id);
+    setBusy(false);
+    if (error) {
+      toast.error("Couldn't save your details", { description: error.message });
+      return;
+    }
+    await qc.invalidateQueries();
+    toast.success("Account details updated");
+  };
+
+  return (
+    <section className="mb-5 rounded-3xl border border-border bg-surface p-5">
+      <div className="flex items-start gap-3">
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface-muted">
+          <UserRound className="h-4 w-4 text-foreground" />
+        </span>
+        <div>
+          <h3 className="font-display text-base font-semibold tracking-tight">Your details</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Shown to the landlords or tenants you deal with on Roost.
+          </p>
+        </div>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <Field
+          label="Full name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          placeholder="Jane Doe"
+        />
+        <Field
+          label="Phone (optional)"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="028 9000 0000"
+        />
+        <Field label="Email" value={user?.email ?? ""} readOnly disabled />
+        <Field
+          label="Account type"
+          value={profile?.account_type ? `${profile.account_type[0]?.toUpperCase()}${profile.account_type.slice(1)}` : ""}
+          readOnly
+          disabled
+        />
+      </div>
+      <button
+        type="button"
+        onClick={() => void save()}
+        disabled={busy || loading}
+        className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110 disabled:opacity-60"
+      >
+        <Check className="h-3.5 w-3.5" /> {busy ? "Saving…" : "Save details"}
+      </button>
+    </section>
+  );
+}
+
+function PasswordCard() {
+  const [pw, setPw] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const change = async () => {
+    if (pw.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    if (pw !== confirm) {
+      toast.error("Passwords don't match");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.updateUser({ password: pw });
+    setBusy(false);
+    if (error) {
+      toast.error("Couldn't update your password", { description: error.message });
+      return;
+    }
+    setPw("");
+    setConfirm("");
+    toast.success("Password updated");
+  };
+
+  return (
+    <section className="mb-5 rounded-3xl border border-border bg-surface p-5">
+      <div className="flex items-start gap-3">
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface-muted">
+          <KeyRound className="h-4 w-4 text-foreground" />
+        </span>
+        <div>
+          <h3 className="font-display text-base font-semibold tracking-tight">Password</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Use at least 8 characters. You'll stay signed in on this device.
+          </p>
+        </div>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <Field
+          label="New password"
+          type="password"
+          value={pw}
+          autoComplete="new-password"
+          onChange={(e) => setPw(e.target.value)}
+        />
+        <Field
+          label="Confirm new password"
+          type="password"
+          value={confirm}
+          autoComplete="new-password"
+          onChange={(e) => setConfirm(e.target.value)}
+        />
+      </div>
+      <button
+        type="button"
+        onClick={() => void change()}
+        disabled={busy}
+        className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-muted px-4 py-2 text-xs font-semibold transition hover:bg-secondary/60 disabled:opacity-60"
+      >
+        <KeyRound className="h-3.5 w-3.5" /> {busy ? "Updating…" : "Update password"}
+      </button>
+    </section>
+  );
+}
