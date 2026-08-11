@@ -25,6 +25,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PhotoPicker, uploadListingPhotos } from "@/components/listing-photos";
+import {
+  AvailabilityFields,
+  DescriptionField,
+  FeaturesFields,
+  PropertyBasicsFields,
+  emptyListingDetails,
+} from "@/components/listing-detail-fields";
+import {
+  listingDetailPayload,
+  validateListingDetails,
+  type ListingDetailInput,
+} from "@/lib/listing-details";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
@@ -53,6 +65,7 @@ interface Listing {
 }
 
 const HEATING_OPTIONS = ["Oil", "Gas", "Electric"] as const;
+
 type HeatingOption = (typeof HEATING_OPTIONS)[number];
 const TENANT_PREFS = [
   { label: "No pets", hint: "Pets not permitted on the property" },
@@ -881,12 +894,18 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
   const [prefs, setPrefs] = useState<string[]>(["No pets", "Non-smokers"]);
   const [submitting, setSubmitting] = useState<false | "draft" | "publish">(false);
   const [photos, setPhotos] = useState<File[]>([]);
+  const [details, setDetails] = useState<ListingDetailInput>(emptyListingDetails);
 
   const togglePref = (label: string) =>
     setPrefs((s) => (s.includes(label) ? s.filter((x) => x !== label) : [...s, label]));
 
   const save = async (mode: "draft" | "publish") => {
     if (!user || submitting) return;
+    const detailError = validateListingDetails(details);
+    if (detailError) {
+      toast.error("Check the property details", { description: detailError });
+      return;
+    }
     setSubmitting(mode);
     try {
       let photoPaths: string[] = [];
@@ -914,6 +933,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         tenant_preferences: prefs,
         is_published: mode === "publish",
         photo_urls: photoPaths,
+        ...listingDetailPayload(details),
       });
       if (error) throw error;
       toast.success(mode === "publish" ? "Listing published" : "Draft saved", {
@@ -930,6 +950,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
       setDeposit("");
       setRegNumber("");
       setPhotos([]);
+      setDetails(emptyListingDetails);
       await onCreated();
     } catch (err: unknown) {
       toast.error("Could not save listing", {
@@ -1028,11 +1049,27 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         </div>
       </FormCard>
 
-      <FormCard eyebrow="Step 02" title="Property photos">
+      <FormCard eyebrow="Step 02" title="Property basics">
+        <PropertyBasicsFields value={details} onChange={setDetails} />
+      </FormCard>
+
+      <FormCard eyebrow="Step 03" title="Availability">
+        <AvailabilityFields value={details} onChange={setDetails} />
+      </FormCard>
+
+      <FormCard eyebrow="Step 04" title="Description">
+        <DescriptionField value={details} onChange={setDetails} />
+      </FormCard>
+
+      <FormCard eyebrow="Step 05" title="Features & running costs">
+        <FeaturesFields value={details} onChange={setDetails} />
+      </FormCard>
+
+      <FormCard eyebrow="Step 06" title="Property photos">
         <PhotoPicker files={photos} onChange={setPhotos} />
       </FormCard>
 
-      <FormCard eyebrow="Step 03" title="NI compliance verification">
+      <FormCard eyebrow="Step 07" title="NI compliance verification">
         <Field
           label="Northern Ireland Landlord Registration Number"
           hint="Legally required for all private tenancies in Northern Ireland. Format: LRN-NI-XXXXXX."
@@ -1050,7 +1087,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         </Field>
       </FormCard>
 
-      <FormCard eyebrow="Step 04" title="Smart infrastructure">
+      <FormCard eyebrow="Step 08" title="Smart infrastructure">
         <Field label="Heating & utility type">
           <div className="relative mt-1.5">
             <button
@@ -1158,7 +1195,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         )}
       </FormCard>
 
-      <FormCard eyebrow="Step 05" title="Tenant requirements">
+      <FormCard eyebrow="Step 09" title="Tenant requirements">
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {TENANT_PREFS.map(({ label, hint }) => {
             const active = prefs.includes(label);

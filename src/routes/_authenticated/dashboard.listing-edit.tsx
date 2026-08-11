@@ -17,6 +17,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PhotoPicker, uploadListingPhotos } from "@/components/listing-photos";
+import {
+  AvailabilityFields,
+  DescriptionField,
+  FeaturesFields,
+  PropertyBasicsFields,
+  emptyListingDetails,
+  listingDetailsFromRow,
+} from "@/components/listing-detail-fields";
+import {
+  listingDetailPayload,
+  validateListingDetails,
+  type ListingDetailInput,
+} from "@/lib/listing-details";
 
 export const Route = createFileRoute("/_authenticated/dashboard/listing-edit")({
   validateSearch: z.object({ id: z.string().optional() }),
@@ -128,6 +141,7 @@ function EditListingPage() {
   const [newPhotos, setNewPhotos] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [details, setDetails] = useState<ListingDetailInput>(emptyListingDetails);
 
   useEffect(() => {
     if (!listing) return;
@@ -141,6 +155,7 @@ function EditListingPage() {
     setFuelPolicy(!!listing.enforce_empty_in_full_out);
     setPrefs(listing.tenant_preferences ?? []);
     setExistingPhotos(listing.photo_urls ?? []);
+    setDetails(listingDetailsFromRow(listing as never));
   }, [listing]);
 
   const togglePref = (label: string) =>
@@ -154,6 +169,11 @@ function EditListingPage() {
 
   const save = async (publish?: boolean) => {
     if (!user || !id || saving) return;
+    const detailError = validateListingDetails(details);
+    if (detailError) {
+      toast.error("Check the property details", { description: detailError });
+      return;
+    }
     setSaving(true);
     try {
       let photoPaths = existingPhotos;
@@ -174,6 +194,7 @@ function EditListingPage() {
           enforce_empty_in_full_out: heating === "Oil" ? fuelPolicy : false,
           tenant_preferences: prefs,
           photo_urls: photoPaths,
+          ...listingDetailPayload(details),
           ...(publish === undefined ? {} : { is_published: publish }),
         } as never)
         .eq("id", id);
@@ -318,6 +339,22 @@ function EditListingPage() {
                 </div>
               </Field>
             </div>
+          </Card>
+
+          <Card title="Property basics">
+            <PropertyBasicsFields value={details} onChange={setDetails} />
+          </Card>
+
+          <Card title="Availability">
+            <AvailabilityFields value={details} onChange={setDetails} />
+          </Card>
+
+          <Card title="Description">
+            <DescriptionField value={details} onChange={setDetails} />
+          </Card>
+
+          <Card title="Features & running costs">
+            <FeaturesFields value={details} onChange={setDetails} />
           </Card>
 
           <Card title="Photos">

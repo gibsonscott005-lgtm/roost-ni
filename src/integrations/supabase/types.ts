@@ -256,17 +256,28 @@ export type Database = {
       property_listings: {
         Row: {
           address: string
+          available_from: string | null
+          bathrooms: number | null
+          bedrooms: number | null
+          bills_included: string[]
           created_at: string
           deposit: number
+          description: string | null
           enforce_empty_in_full_out: boolean
+          features: string[]
+          furnished: string | null
+          garden: string | null
           heating_type: string
           id: string
           is_published: boolean
           landlord_id: string
           location: string | null
+          min_tenancy_months: number | null
           monthly_rent: number
           ni_landlord_reg_number: string
+          parking: string | null
           photo_urls: string[]
+          property_type: string | null
           status: string
           tenant_preferences: string[]
           title: string
@@ -274,17 +285,28 @@ export type Database = {
         }
         Insert: {
           address: string
+          available_from?: string | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          bills_included?: string[]
           created_at?: string
           deposit: number
+          description?: string | null
           enforce_empty_in_full_out?: boolean
+          features?: string[]
+          furnished?: string | null
+          garden?: string | null
           heating_type: string
           id?: string
           is_published?: boolean
           landlord_id: string
           location?: string | null
+          min_tenancy_months?: number | null
           monthly_rent: number
           ni_landlord_reg_number: string
+          parking?: string | null
           photo_urls?: string[]
+          property_type?: string | null
           status?: string
           tenant_preferences?: string[]
           title: string
@@ -292,17 +314,28 @@ export type Database = {
         }
         Update: {
           address?: string
+          available_from?: string | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          bills_included?: string[]
           created_at?: string
           deposit?: number
+          description?: string | null
           enforce_empty_in_full_out?: boolean
+          features?: string[]
+          furnished?: string | null
+          garden?: string | null
           heating_type?: string
           id?: string
           is_published?: boolean
           landlord_id?: string
           location?: string | null
+          min_tenancy_months?: number | null
           monthly_rent?: number
           ni_landlord_reg_number?: string
+          parking?: string | null
           photo_urls?: string[]
+          property_type?: string | null
           status?: string
           tenant_preferences?: string[]
           title?: string
