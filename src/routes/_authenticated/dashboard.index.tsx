@@ -25,6 +25,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PhotoPicker, uploadListingPhotos } from "@/components/listing-photos";
+import {
+  AvailabilityFields,
+  DescriptionField,
+  FeaturesFields,
+  PropertyBasicsFields,
+  emptyListingDetails,
+} from "@/components/listing-detail-fields";
+import {
+  listingDetailPayload,
+  validateListingDetails,
+  type ListingDetailInput,
+} from "@/lib/listing-details";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
