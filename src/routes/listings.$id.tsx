@@ -183,6 +183,8 @@ function ListingDetailPage() {
           />
         </section>
 
+        <PropertyDetailsSection listing={listing} />
+
         <section className="mt-5 rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             NI compliance
