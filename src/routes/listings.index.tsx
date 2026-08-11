@@ -14,6 +14,7 @@ import {
 import { ViewSwitcher } from "../components/view-switcher";
 import { ListingCover } from "@/components/listing-photos";
 import { supabase } from "@/integrations/supabase/client";
+import { bedroomLabel } from "@/lib/listing-details";
 
 export const Route = createFileRoute("/listings/")({
   head: () => ({
@@ -45,6 +46,10 @@ interface Listing {
   enforce_empty_in_full_out: boolean;
   status: string;
   photo_urls: string[] | null;
+  property_type: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  furnished: string | null;
 }
 
 const HEATING_FILTERS = ["Any", "Oil", "Gas", "Electric"] as const;
@@ -71,7 +76,7 @@ function ListingsIndexPage() {
     supabase
       .from("property_listings")
       .select(
-        "id, title, monthly_rent, address, location, heating_type, enforce_empty_in_full_out, status, photo_urls",
+        "id, title, monthly_rent, address, location, heating_type, enforce_empty_in_full_out, status, photo_urls, property_type, bedrooms, bathrooms, furnished",
       )
       .eq("is_published", true)
       .order("created_at", { ascending: false })
@@ -370,6 +375,7 @@ function ListingCard({ listing }: { listing: Listing }) {
           <Flame className="h-3.5 w-3.5" />
           {listing.heating_type}
         </p>
+        <ListingSpecStats listing={listing} />
         <div className="mt-4 flex items-end justify-between gap-3">
           <div>
             <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
