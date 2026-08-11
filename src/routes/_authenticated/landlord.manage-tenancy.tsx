@@ -77,6 +77,12 @@ interface ShareRow {
   inventory_completed_at: string | null;
   tenancy_start_date: string | null;
   deposit_cert_path: string | null;
+  tenancy_status: string | null;
+  final_meter_readings: string | null;
+  final_oil_level: string | null;
+  final_inspection_submitted_at: string | null;
+  final_inspection_response: string | null;
+  tenancy_completed_at: string | null;
   tenant: { full_name: string | null } | null;
   listing: {
     id: string;
@@ -148,7 +154,7 @@ function ManageTenancyPage() {
       const { data: share, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, lease_sent_at, lease_oil_clause, lease_kind, lease_document_path, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_cert_path, deposit_protected_at, oil_handover_level, inventory_completed_at, tenancy_start_date, tenant:profiles!tenant_id(full_name), listing:property_listings!listing_id(id, title, address, location, monthly_rent, deposit, heating_type, ni_landlord_reg_number, enforce_empty_in_full_out)",
+          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, lease_sent_at, lease_oil_clause, lease_kind, lease_document_path, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_cert_path, deposit_protected_at, oil_handover_level, inventory_completed_at, tenancy_start_date, tenancy_status, final_meter_readings, final_oil_level, final_inspection_submitted_at, final_inspection_response, tenancy_completed_at, tenant:profiles!tenant_id(full_name), listing:property_listings!listing_id(id, title, address, location, monthly_rent, deposit, heating_type, ni_landlord_reg_number, enforce_empty_in_full_out)",
         )
         .eq("id", shareId!)
         .maybeSingle();
@@ -574,6 +580,9 @@ function ManageTenancyPage() {
             </TabsTrigger>
             <TabsTrigger value="documents" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
               Documents
+            </TabsTrigger>
+            <TabsTrigger value="ending" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
+              Ending Tenancy
             </TabsTrigger>
           </TabsList>
 
