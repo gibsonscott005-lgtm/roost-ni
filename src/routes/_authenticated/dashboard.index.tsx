@@ -53,6 +53,7 @@ interface Listing {
 }
 
 const HEATING_OPTIONS = ["Oil", "Gas", "Electric"] as const;
+
 type HeatingOption = (typeof HEATING_OPTIONS)[number];
 const TENANT_PREFS = [
   { label: "No pets", hint: "Pets not permitted on the property" },
