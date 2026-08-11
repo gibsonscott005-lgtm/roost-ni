@@ -33,6 +33,12 @@ import { emitNotification } from "@/lib/notifications.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TenancyEndPanel } from "@/components/tenancy-end-panel";
 import { LandlordMaintenanceTab } from "@/components/maintenance-panel";
+import {
+  fairFuelSentence,
+  fuelLabel,
+  fuelTankLabel,
+  usesFuelTank,
+} from "@/lib/listing-details";
 
 export const Route = createFileRoute("/_authenticated/landlord/manage-tenancy")({
   validateSearch: z.object({
