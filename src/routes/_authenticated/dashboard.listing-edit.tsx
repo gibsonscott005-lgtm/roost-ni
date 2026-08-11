@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { PhotoPicker, uploadListingPhotos } from "@/components/listing-photos";
+import { CertificatesPanel } from "@/components/property-certificates";
 import {
   AvailabilityFields,
   DescriptionField,
