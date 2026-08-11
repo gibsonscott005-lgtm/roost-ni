@@ -299,6 +299,52 @@ function ListingsIndexPage() {
                   </select>
                 </label>
               </div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <label className="block">
+                  <span className="text-xs font-medium text-muted-foreground">Bedrooms</span>
+                  <select
+                    value={beds}
+                    onChange={(e) => setBeds(e.target.value as (typeof BEDROOM_FILTERS)[number])}
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                  >
+                    {BEDROOM_FILTERS.map((b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-xs font-medium text-muted-foreground">Property type</span>
+                  <select
+                    value={propertyType}
+                    onChange={(e) => setPropertyType(e.target.value)}
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                  >
+                    <option value="Any">Any</option>
+                    {PROPERTY_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-xs font-medium text-muted-foreground">Furnishing</span>
+                  <select
+                    value={furnished}
+                    onChange={(e) => setFurnished(e.target.value)}
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                  >
+                    <option value="Any">Any</option>
+                    {FURNISHED_OPTIONS.map((f) => (
+                      <option key={f} value={f}>
+                        {f}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
               <div className="flex flex-wrap items-center gap-2">
                 <FilterChip
                   active={fairFuelOnly}
@@ -309,6 +355,21 @@ function ListingsIndexPage() {
                   active={hideLetAgreed}
                   onClick={() => setHideLetAgreed((v) => !v)}
                   label="Hide Let Agreed"
+                />
+                <FilterChip
+                  active={availableNow}
+                  onClick={() => setAvailableNow((v) => !v)}
+                  label="Available now"
+                />
+                <FilterChip
+                  active={billsOnly}
+                  onClick={() => setBillsOnly((v) => !v)}
+                  label="Bills included"
+                />
+                <FilterChip
+                  active={parkingOnly}
+                  onClick={() => setParkingOnly((v) => !v)}
+                  label="Parking"
                 />
                 {activeFilters > 0 ? (
                   <button
