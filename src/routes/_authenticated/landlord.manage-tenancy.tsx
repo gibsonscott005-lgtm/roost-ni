@@ -28,6 +28,7 @@ import {
 } from "@/lib/rent-schedule";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
+import { CertificatesPanel } from "@/components/property-certificates";
 import { emitNotification } from "@/lib/notifications.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LandlordMaintenanceTab } from "@/components/maintenance-panel";
