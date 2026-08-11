@@ -795,6 +795,7 @@ function TenantTenancyPage() {
                         tenantSignature: share.lease_signed_name || profile?.full_name || "",
                         tenantSignedAt: share.lease_signed_at,
                         oilClause: !!share.lease_oil_clause,
+                        heatingType: listing?.heating_type ?? null,
                         counterSigned: share.lease_status === "counter_signed",
                       }),
                     );
