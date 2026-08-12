@@ -839,6 +839,9 @@ function FinalInspectionSection({
   const [rows, setRows] = useState<Record<string, { condition: string; notes: string }>>({});
   const [meters, setMeters] = useState(finalMeterReadings ?? "");
   const [oil, setOil] = useState(finalOilLevel ?? "");
+  const [tenantRows, setTenantRows] = useState<
+    Record<string, { disputed: boolean; comment: string }>
+  >({});
 
   useEffect(() => {
     setRows(
@@ -846,6 +849,14 @@ function FinalInspectionSection({
         inventory.map((i) => [
           i.id,
           { condition: i.final_condition ?? "", notes: i.final_notes ?? "" },
+        ]),
+      ),
+    );
+    setTenantRows(
+      Object.fromEntries(
+        inventory.map((i) => [
+          i.id,
+          { disputed: !!i.tenant_disputed, comment: i.tenant_comment ?? "" },
         ]),
       ),
     );
@@ -893,6 +904,17 @@ function FinalInspectionSection({
 
   const respond = useMutation({
     mutationFn: async (value: "agreed" | "disputed") => {
+      await Promise.all(
+        inventory.map((i) =>
+          supabase
+            .from("tenancy_inventory_items")
+            .update({
+              tenant_disputed: !!tenantRows[i.id]?.disputed,
+              tenant_comment: tenantRows[i.id]?.comment?.trim() || null,
+            } as never)
+            .eq("id", i.id),
+        ),
+      );
       const { error } = await supabase
         .from("passport_shares")
         .update({
