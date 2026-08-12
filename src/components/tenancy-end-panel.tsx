@@ -19,9 +19,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { noticeToQuitHtml, depositSettlementHtml, openPrintable } from "@/lib/tenancy-docs";
 import {
   DEPOSIT_RETURN_DAYS,
+  END_STAGES,
   FINAL_CONDITIONS,
   NI_LEGAL_DISCLAIMER,
   daysUntil,
+  deriveEndStage,
   deductionsTotal,
   depositDeadline,
   earliestEndDate,
@@ -30,6 +32,7 @@ import {
   parseDeductions,
   toISODate,
   type DeductionLine,
+  type EndStageState,
   type NoticeParty,
 } from "@/lib/tenancy-end";
 import {
@@ -77,6 +80,8 @@ interface InventoryRow {
   final_condition: string | null;
   final_notes: string | null;
   sort_order: number;
+  tenant_disputed?: boolean | null;
+  tenant_comment?: string | null;
 }
 
 export interface TenancyEndPanelProps {
