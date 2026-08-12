@@ -548,6 +548,10 @@ function NoticeSection(
   const serve = useMutation({
     mutationFn: async () => {
       if (!currentUserId) throw new Error("You need to be signed in.");
+      if (!tenancyStart)
+        throw new Error(
+          "Add the tenancy start date in the Overview tab first — the statutory notice period is worked out from it.",
+        );
       if (endDate < minEnd)
         throw new Error("End date is shorter than the statutory notice period.");
       const { error } = await supabase.from("tenancy_notices").insert({
@@ -699,14 +703,19 @@ function NoticeSection(
             </button>
           ) : null}
           {servedByMe ? (
-            <button
-              type="button"
+            <ConfirmButton
               className={ghostBtn}
+              confirmLabel="Yes, withdraw the notice"
               disabled={withdraw.isPending}
-              onClick={() => withdraw.mutate()}
+              onConfirm={() => withdraw.mutate()}
+              hint={
+                activeNotice.acknowledged_at
+                  ? "The other party has already acknowledged this notice."
+                  : "The tenancy will continue as normal."
+              }
             >
               <Undo2 className="h-4 w-4" /> Withdraw notice
-            </button>
+            </ConfirmButton>
           ) : null}
         </div>
 
@@ -775,7 +784,7 @@ function NoticeSection(
       <button
         type="button"
         className={`${primaryBtn} mt-4`}
-        disabled={serve.isPending}
+        disabled={serve.isPending || !tenancyStart}
         onClick={() => serve.mutate()}
       >
         {serve.isPending ? (
@@ -785,6 +794,13 @@ function NoticeSection(
         )}
         Record &amp; generate Notice to Quit
       </button>
+      {!tenancyStart ? (
+        <p className="mt-2 text-xs text-amber-700">
+          <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
+          Set the tenancy start date in the Overview tab before serving notice — Roost needs it to
+          work out the statutory period.
+        </p>
+      ) : null}
     </div>
   );
 }
