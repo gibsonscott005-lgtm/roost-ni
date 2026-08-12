@@ -1419,14 +1419,15 @@ function SettlementSection({
                   </option>
                 ))}
               </select>
-              <button
-                type="button"
+              <ConfirmButton
                 className={primaryBtn}
+                confirmLabel="Yes, deposit returned"
                 disabled={markReturned.isPending}
-                onClick={() => markReturned.mutate()}
+                onConfirm={() => markReturned.mutate()}
+                hint="This is recorded on the statutory record and cannot be undone."
               >
                 <Check className="h-4 w-4" /> Mark deposit returned
-              </button>
+              </ConfirmButton>
             </div>
           ) : null}
         </div>
