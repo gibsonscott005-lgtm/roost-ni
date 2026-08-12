@@ -358,6 +358,153 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
 
 type Notifier = (type: string, title: string, body: string) => void | Promise<unknown>;
 
+/* ------------------------------------------------------------------ */
+/* Stage tracker + shared bits                                         */
+/* ------------------------------------------------------------------ */
+
+function StageTracker({
+  stage,
+  role,
+  endDate,
+}: {
+  stage: EndStageState;
+  role: NoticeParty;
+  endDate: string | null;
+}) {
+  const yourMove = stage.actor === role;
+  const days = daysUntil(endDate);
+  return (
+    <div className={card}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className={label}>Where you are</p>
+          <h3 className="mt-1 text-lg font-semibold">{stage.label}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{stage.nextAction}</p>
+        </div>
+        <span
+          className={`rounded-full px-3 py-1 text-xs font-medium ${
+            stage.disputed
+              ? "bg-red-100 text-red-800"
+              : yourMove
+                ? "bg-amber-100 text-amber-800"
+                : "bg-surface-muted text-muted-foreground"
+          }`}
+        >
+          {stage.disputed
+            ? "Dispute open"
+            : stage.actor === "none"
+              ? "Nothing to do"
+              : yourMove
+                ? "Your move"
+                : `Waiting on the ${stage.actor}`}
+        </span>
+      </div>
+
+      {stage.key !== "active" ? (
+        <>
+          <ol className="mt-4 grid gap-2 sm:grid-cols-2">
+            {END_STAGES.map((s) => {
+              const done = stage.done.includes(s.key);
+              const current = !done && stage.key === s.key;
+              return (
+                <li
+                  key={s.key}
+                  className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
+                    done
+                      ? "border-verified/30 bg-verified-soft text-verified"
+                      : current
+                        ? "border-amber-300 bg-amber-50 text-amber-900"
+                        : "border-border text-muted-foreground"
+                  }`}
+                >
+                  {done ? (
+                    <Check className="h-4 w-4 shrink-0" />
+                  ) : (
+                    <span
+                      className={`h-2 w-2 shrink-0 rounded-full ${current ? "bg-amber-500" : "bg-border"}`}
+                    />
+                  )}
+                  {s.label}
+                </li>
+              );
+            })}
+          </ol>
+
+          {stage.depositDeadline && stage.key !== "completed" ? (
+            <p
+              className={`mt-3 rounded-xl p-3 text-xs ${
+                (stage.depositDaysLeft ?? 99) < 0
+                  ? "bg-red-50 text-red-800"
+                  : (stage.depositDaysLeft ?? 99) <= 7
+                    ? "bg-amber-50 text-amber-900"
+                    : "bg-surface-muted text-muted-foreground"
+              }`}
+            >
+              <CalendarClock className="mr-1 inline h-3.5 w-3.5" />
+              Deposit must be settled by {formatDate(stage.depositDeadline)}
+              {stage.depositDaysLeft !== null
+                ? stage.depositDaysLeft >= 0
+                  ? ` — ${stage.depositDaysLeft} days left`
+                  : ` — ${Math.abs(stage.depositDaysLeft)} days overdue`
+                : ""}
+              {days !== null && days > 0 ? ` · tenancy ends in ${days} days` : ""}
+            </p>
+          ) : null}
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+/** Two-step button for irreversible actions. */
+function ConfirmButton({
+  className,
+  confirmLabel,
+  children,
+  onConfirm,
+  disabled,
+  hint,
+}: {
+  className: string;
+  confirmLabel: string;
+  children: React.ReactNode;
+  onConfirm: () => void;
+  disabled?: boolean;
+  hint?: string;
+}) {
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (!armed) return;
+    const t = setTimeout(() => setArmed(false), 6000);
+    return () => clearTimeout(t);
+  }, [armed]);
+  if (!armed)
+    return (
+      <button type="button" className={className} disabled={disabled} onClick={() => setArmed(true)}>
+        {children}
+      </button>
+    );
+  return (
+    <span className="inline-flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        className={primaryBtn}
+        disabled={disabled}
+        onClick={() => {
+          setArmed(false);
+          onConfirm();
+        }}
+      >
+        <AlertTriangle className="h-4 w-4" /> {confirmLabel}
+      </button>
+      <button type="button" className={ghostBtn} onClick={() => setArmed(false)}>
+        Cancel
+      </button>
+      {hint ? <span className="text-xs text-muted-foreground">{hint}</span> : null}
+    </span>
+  );
+}
+
 function NoticeSection(
   props: TenancyEndPanelProps & {
     activeNotice: NoticeRow | null;
