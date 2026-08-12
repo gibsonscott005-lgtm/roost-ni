@@ -139,6 +139,8 @@ function Toggle({ on }: { on: boolean }) {
 
 function SettingsPage() {
   const { user, profile, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const deleteAccountFn = useServerFn(deleteAccount);
   const qc = useQueryClient();
 
   const prefsQuery = useQuery({
