@@ -1065,6 +1065,12 @@ function FinalInspectionSection({
                   ) : null}
                 </>
               )}
+              {isLandlord && item.tenant_disputed ? (
+                <p className="mt-2 text-xs text-red-700">
+                  <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
+                  Tenant disagreed{item.tenant_comment ? `: ${item.tenant_comment}` : ""}
+                </p>
+              ) : null}
             </div>
           ))}
         </div>
