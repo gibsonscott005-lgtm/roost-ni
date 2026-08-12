@@ -34,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/applications")({
   component: ApplicationsPage,
 });
 
-type Status = "pending" | "reviewed" | "accepted";
+type Status = "pending" | "reviewed" | "accepted" | "withdrawn";
 
 interface Share {
   id: string;
@@ -90,7 +90,7 @@ function ApplicationsPage() {
       const { data: rows, error: rowsErr } = await supabase
         .from("passport_shares")
         .select(
-          "id, status, shared_at, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title, monthly_rent)",
+          "id, status, shared_at, withdrawn_at, withdrawn_reason, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title, monthly_rent)",
         )
         .order("shared_at", { ascending: false });
       if (rowsErr) throw rowsErr;
