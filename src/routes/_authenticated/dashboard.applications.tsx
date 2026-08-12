@@ -40,6 +40,8 @@ interface Share {
   id: string;
   status: Status;
   shared_at: string;
+  withdrawn_at: string | null;
+  withdrawn_reason: string | null;
   tenant_id: string;
   listing_id: string;
   lease_status: string | null;
