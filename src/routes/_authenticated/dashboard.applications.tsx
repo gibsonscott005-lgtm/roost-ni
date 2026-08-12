@@ -268,7 +268,7 @@ function ApplicationsPage() {
                 </li>
               ))}
             </ul>
-          ) : shares.length === 0 ? (
+          ) : shares.length === 0 && withdrawnShares.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-border bg-surface p-10 text-center">
               <Inbox className="mx-auto h-8 w-8 text-muted-foreground" />
               <p className="mt-3 font-display text-base font-semibold tracking-tight">
@@ -391,6 +391,41 @@ function ApplicationsPage() {
               })}
             </ul>
           )}
+
+          {!loading && withdrawnShares.length > 0 ? (
+            <div className="mt-6">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Withdrawn ({withdrawnShares.length})
+              </p>
+              <ul className="mt-2 overflow-hidden rounded-2xl border border-dashed border-border bg-surface-muted/40">
+                {withdrawnShares.map((s, i) => (
+                  <li
+                    key={s.id}
+                    className={`flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between ${
+                      i > 0 ? "border-t border-border" : ""
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-display text-sm font-semibold tracking-tight text-muted-foreground">
+                        {s.tenant?.full_name || "Applicant"}
+                      </p>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {s.listing?.title ?? "Your listing"} ·{" "}
+                        {s.withdrawn_at
+                          ? `withdrawn ${timeAgo(s.withdrawn_at)}`
+                          : "withdrawn"}
+                        {s.withdrawn_reason ? ` · "${s.withdrawn_reason}"` : ""}
+                      </p>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        Passport access revoked by the applicant.
+                      </p>
+                    </div>
+                    <StatusPill status={s.status} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </div>
       )}
 
