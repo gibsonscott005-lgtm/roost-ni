@@ -169,7 +169,9 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
           .maybeSingle(),
         supabase
           .from("tenancy_inventory_items")
-          .select("id, room, condition, notes, final_condition, final_notes, sort_order")
+          .select(
+            "id, room, condition, notes, final_condition, final_notes, sort_order, tenant_disputed, tenant_comment",
+          )
           .eq("share_id", shareId)
           .order("sort_order", { ascending: true }),
       ]);
@@ -191,6 +193,40 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
   const activeNotice = notices.find((n) => !n.withdrawn_at) ?? null;
   const settlement = endQuery.data?.settlement ?? null;
   const inventory = endQuery.data?.inventory ?? [];
+
+  const stage = useMemo(
+    () =>
+      deriveEndStage({
+        hasActiveNotice: !!activeNotice,
+        noticeAcknowledged: !!activeNotice?.acknowledged_at,
+        noticeEndDate: activeNotice?.end_date ?? null,
+        inspectionSubmitted: !!finalInspectionSubmittedAt,
+        inspectionResponse: finalInspectionResponse ?? null,
+        settlementProposed: !!settlement?.proposed_at,
+        settlementResponse: settlement?.tenant_response ?? null,
+        depositReturned: !!settlement?.returned_at,
+        completedAt: tenancyCompletedAt ?? null,
+      }),
+    [
+      activeNotice,
+      finalInspectionSubmittedAt,
+      finalInspectionResponse,
+      settlement,
+      tenancyCompletedAt,
+    ],
+  );
+
+  // Keep the shared tenancy status honest once the end date has passed.
+  useEffect(() => {
+    if (!activeNotice || !isLandlord) return;
+    if (!stage.tenancyEnded || tenancyCompletedAt) return;
+    if (props.tenancyStatus === "ended" || props.tenancyStatus === "completed") return;
+    void supabase
+      .from("passport_shares")
+      .update({ tenancy_status: "ended" } as never)
+      .eq("id", shareId)
+      .then(() => onChanged?.());
+  }, [activeNotice, stage.tenancyEnded, tenancyCompletedAt, props.tenancyStatus, shareId, isLandlord]);
 
   const notify = (
     type: Parameters<typeof emitNotification>[0] extends never ? never : string,
@@ -222,6 +258,8 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
 
   return (
     <div className="space-y-5">
+      <StageTracker stage={stage} role={role} endDate={activeNotice?.end_date ?? null} />
+
       <NoticeSection
         {...props}
         activeNotice={activeNotice}
