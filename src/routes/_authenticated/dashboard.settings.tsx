@@ -622,7 +622,7 @@ function DeleteAccountCard({ onDeleted }: { onDeleted: () => Promise<void> }) {
     if (!user?.id || !canDelete) return;
     setBusy(true);
     try {
-      await deleteAccountFn({ data: {} });
+      await deleteAccountFn();
       toast.success("Account deleted");
       await onDeleted();
     } catch (err: unknown) {
