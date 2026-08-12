@@ -288,6 +288,13 @@ function SettingsPage() {
           </p>
         </>
       )}
+
+      <DeleteAccountCard
+        onDeleted={async () => {
+          await supabase.auth.signOut();
+          navigate({ to: "/auth" });
+        }}
+      />
     </DashboardShell>
   );
 }
