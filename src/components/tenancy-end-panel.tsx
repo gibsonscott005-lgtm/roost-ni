@@ -1155,6 +1155,11 @@ function SettlementSection({
   const propose = useMutation({
     mutationFn: async () => {
       const clean = lines.filter((l) => l.reason.trim() || l.amount);
+      if (clean.some((l) => !l.reason.trim()))
+        throw new Error("Give a reason for every deduction.");
+      if (clean.some((l) => l.amount < 0)) throw new Error("Deductions cannot be negative.");
+      if (total > Number(depositAmount || 0))
+        throw new Error("Deductions cannot be more than the deposit held.");
       const payload = {
         share_id: shareId,
         deposit_total: Number(depositAmount || 0),
