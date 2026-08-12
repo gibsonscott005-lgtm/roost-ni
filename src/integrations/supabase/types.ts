@@ -190,6 +190,9 @@ export type Database = {
           tenancy_start_date: string | null
           tenancy_status: string
           tenant_id: string
+          withdraw_count: number
+          withdrawn_at: string | null
+          withdrawn_reason: string | null
         }
         Insert: {
           deposit_cert_number?: string | null
@@ -223,6 +226,9 @@ export type Database = {
           tenancy_start_date?: string | null
           tenancy_status?: string
           tenant_id: string
+          withdraw_count?: number
+          withdrawn_at?: string | null
+          withdrawn_reason?: string | null
         }
         Update: {
           deposit_cert_number?: string | null
@@ -256,6 +262,9 @@ export type Database = {
           tenancy_start_date?: string | null
           tenancy_status?: string
           tenant_id?: string
+          withdraw_count?: number
+          withdrawn_at?: string | null
+          withdrawn_reason?: string | null
         }
         Relationships: [
           {
@@ -986,7 +995,7 @@ export type Database = {
         | "deposit_settlement_proposed"
         | "deposit_returned"
         | "tenancy_completed"
-      share_status: "pending" | "reviewed" | "accepted"
+      share_status: "pending" | "reviewed" | "accepted" | "withdrawn"
       verification_status:
         | "unverified"
         | "pending"
@@ -1155,7 +1164,7 @@ export const Constants = {
         "deposit_returned",
         "tenancy_completed",
       ],
-      share_status: ["pending", "reviewed", "accepted"],
+      share_status: ["pending", "reviewed", "accepted", "withdrawn"],
       verification_status: [
         "unverified",
         "pending",
