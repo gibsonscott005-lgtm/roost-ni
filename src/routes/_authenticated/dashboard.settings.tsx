@@ -1,10 +1,22 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Bell, BellOff, Check, KeyRound, ReceiptText, UserRound } from "lucide-react";
+import {
+  AlertTriangle,
+  Bell,
+  BellOff,
+  Check,
+  KeyRound,
+  Loader2,
+  Mail,
+  ReceiptText,
+  Trash2,
+  UserRound,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useServerFn } from "@tanstack/react-start";
 import { DashboardShell } from "@/components/dashboard-shell";
 import {
   SimulatedBillingNotice,
@@ -13,6 +25,7 @@ import {
 } from "@/components/pricing-breakdown";
 import { completionFeePence, formatGBP, monthlyLabel, monthlyPence } from "@/lib/pricing";
 import { NOTIFICATION_TYPES, type NotificationType } from "@/lib/notifications.functions";
+import { deleteAccount } from "@/lib/account.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/settings")({
   head: () => ({
@@ -127,6 +140,8 @@ function Toggle({ on }: { on: boolean }) {
 
 function SettingsPage() {
   const { user, profile, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const deleteAccountFn = useServerFn(deleteAccount);
   const qc = useQueryClient();
 
   const prefsQuery = useQuery({
@@ -274,6 +289,13 @@ function SettingsPage() {
           </p>
         </>
       )}
+
+      <DeleteAccountCard
+        onDeleted={async () => {
+          await supabase.auth.signOut();
+          navigate({ to: "/auth" });
+        }}
+      />
     </DashboardShell>
   );
 }
@@ -396,13 +418,21 @@ function AccountDetailsCard() {
   const qc = useQueryClient();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [emailSaved, setEmailSaved] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [emailBusy, setEmailBusy] = useState(false);
 
   useEffect(() => {
     if (!profile) return;
     setFullName(profile.full_name ?? "");
     setPhone(profile.phone ?? "");
   }, [profile?.id, profile?.full_name, profile?.phone]);
+
+  useEffect(() => {
+    setEmail(user?.email ?? "");
+    setEmailSaved(false);
+  }, [user?.email]);
 
   const save = async () => {
     if (!user?.id) return;
@@ -422,6 +452,26 @@ function AccountDetailsCard() {
     }
     await qc.invalidateQueries();
     toast.success("Account details updated");
+  };
+
+  const updateEmail = async () => {
+    if (!user?.id) return;
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed || trimmed === user.email?.toLowerCase()) {
+      toast.error("Enter a new email address");
+      return;
+    }
+    setEmailBusy(true);
+    const { error } = await supabase.auth.updateUser({ email: trimmed });
+    setEmailBusy(false);
+    if (error) {
+      toast.error("Couldn't update email", { description: error.message });
+      return;
+    }
+    setEmailSaved(true);
+    toast.success("Confirmation email sent", {
+      description: "Check your new inbox and confirm the change before it takes effect.",
+    });
   };
 
   return (
@@ -450,7 +500,16 @@ function AccountDetailsCard() {
           onChange={(e) => setPhone(e.target.value)}
           placeholder="028 9000 0000"
         />
-        <Field label="Email" value={user?.email ?? ""} readOnly disabled />
+        <Field
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setEmailSaved(false);
+          }}
+          placeholder="you@example.com"
+        />
         <Field
           label="Account type"
           value={
@@ -462,14 +521,24 @@ function AccountDetailsCard() {
           disabled
         />
       </div>
-      <button
-        type="button"
-        onClick={() => void save()}
-        disabled={busy || loading}
-        className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110 disabled:opacity-60"
-      >
-        <Check className="h-3.5 w-3.5" /> {busy ? "Saving…" : "Save details"}
-      </button>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => void save()}
+          disabled={busy || loading}
+          className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110 disabled:opacity-60"
+        >
+          <Check className="h-3.5 w-3.5" /> {busy ? "Saving…" : "Save details"}
+        </button>
+        <button
+          type="button"
+          onClick={() => void updateEmail()}
+          disabled={emailBusy || loading || email.trim().toLowerCase() === (user?.email ?? "").toLowerCase()}
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-muted px-4 py-2 text-xs font-semibold transition hover:bg-secondary/60 disabled:opacity-60"
+        >
+          <Mail className="h-3.5 w-3.5" /> {emailBusy ? "Sending…" : emailSaved ? "Confirmation sent" : "Update email"}
+        </button>
+      </div>
     </section>
   );
 }
@@ -537,6 +606,75 @@ function PasswordCard() {
       >
         <KeyRound className="h-3.5 w-3.5" /> {busy ? "Updating…" : "Update password"}
       </button>
+    </section>
+  );
+}
+
+function DeleteAccountCard({ onDeleted }: { onDeleted: () => Promise<void> }) {
+  const { user } = useAuth();
+  const deleteAccountFn = useServerFn(deleteAccount);
+  const [confirmText, setConfirmText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const expected = "delete my account";
+  const canDelete = confirmText.toLowerCase() === expected;
+
+  const destroy = async () => {
+    if (!user?.id || !canDelete) return;
+    setBusy(true);
+    try {
+      await deleteAccountFn();
+      toast.success("Account deleted");
+      await onDeleted();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Please try again.";
+      toast.error("Could not delete account", { description: message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="mb-5 rounded-3xl border border-red-100 bg-red-50/50 p-5">
+      <div className="flex items-start gap-3">
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-red-100">
+          <Trash2 className="h-4 w-4 text-red-700" />
+        </span>
+        <div>
+          <h3 className="font-display text-base font-semibold tracking-tight text-red-800">
+            Delete account
+          </h3>
+          <p className="mt-0.5 text-xs text-red-700/80">
+            This permanently removes your Roost account, passport data, listings and tenancy records.
+            It cannot be undone.
+          </p>
+        </div>
+      </div>
+      <div className="mt-4">
+        <label className="block">
+          <span className="text-xs font-medium text-red-800">
+            Type "<strong>{expected}</strong>" to confirm
+          </span>
+          <input
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="delete my account"
+            className="mt-1 h-10 w-full rounded-xl border border-red-200 bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground/80 focus:outline-none focus:ring-2 focus:ring-red-300"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => void destroy()}
+          disabled={busy || !canDelete}
+          className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-red-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
+        >
+          {busy ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <AlertTriangle className="h-3.5 w-3.5" />
+          )}
+          {busy ? "Deleting…" : "Delete my account"}
+        </button>
+      </div>
     </section>
   );
 }
