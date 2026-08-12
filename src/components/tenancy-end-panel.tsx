@@ -1532,6 +1532,14 @@ function CompleteSection({
   const [relist, setRelist] = useState(true);
   const ended = (daysUntil(endDate) ?? 1) <= 0;
   const depositSettled = !!settlement?.returned_at;
+  const disputeOpen = settlement?.tenant_response === "disputed" && !settlement?.returned_at;
+  const blockedReason = !ended
+    ? "Available once the tenancy end date has passed."
+    : disputeOpen
+      ? "Resolve the deposit dispute with the scheme and record the outcome before closing."
+      : !depositSettled
+        ? "Record the deposit return before closing the tenancy."
+        : null;
 
   const complete = useMutation({
     mutationFn: async () => {
