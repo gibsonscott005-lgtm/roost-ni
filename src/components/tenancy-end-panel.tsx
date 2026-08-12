@@ -1018,11 +1018,52 @@ function FinalInspectionSection({
                   />
                 </div>
               ) : (
-                <p className="mt-1 text-sm">
-                  Move-out:{" "}
-                  <span className="font-medium">{item.final_condition || "Not yet inspected"}</span>
-                  {item.final_notes ? ` — ${item.final_notes}` : ""}
-                </p>
+                <>
+                  <p className="mt-1 text-sm">
+                    Move-out:{" "}
+                    <span className="font-medium">
+                      {item.final_condition || "Not yet inspected"}
+                    </span>
+                    {item.final_notes ? ` — ${item.final_notes}` : ""}
+                  </p>
+                  {submittedAt && !response ? (
+                    <div className="mt-2 space-y-2">
+                      <label className="flex items-center gap-2 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={!!tenantRows[item.id]?.disputed}
+                          onChange={(e) =>
+                            setTenantRows((r) => ({
+                              ...r,
+                              [item.id]: {
+                                disputed: e.target.checked,
+                                comment: r[item.id]?.comment ?? "",
+                              },
+                            }))
+                          }
+                        />
+                        I disagree with this room
+                      </label>
+                      {tenantRows[item.id]?.disputed ? (
+                        <input
+                          className={input}
+                          placeholder="Why do you disagree?"
+                          value={tenantRows[item.id]?.comment ?? ""}
+                          onChange={(e) =>
+                            setTenantRows((r) => ({
+                              ...r,
+                              [item.id]: { disputed: true, comment: e.target.value },
+                            }))
+                          }
+                        />
+                      ) : null}
+                    </div>
+                  ) : item.tenant_disputed ? (
+                    <p className="mt-1 text-xs text-red-700">
+                      Tenant disagreed{item.tenant_comment ? `: ${item.tenant_comment}` : ""}
+                    </p>
+                  ) : null}
+                </>
               )}
             </div>
           ))}
