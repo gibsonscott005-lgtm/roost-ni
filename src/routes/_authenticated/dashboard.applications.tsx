@@ -891,6 +891,13 @@ function StatusPill({ status }: { status: Status }) {
       </span>
     );
   }
+  if (status === "withdrawn") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-rose-700">
+        Withdrawn
+      </span>
+    );
+  }
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
       <Clock className="h-3 w-3" />
