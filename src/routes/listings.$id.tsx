@@ -239,6 +239,8 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
   const { user, profile, loading } = useAuth();
   const queryClient = useQueryClient();
   const isTenant = !!user && profile?.account_type === "tenant";
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [withdrawReason, setWithdrawReason] = useState("");
 
   const shareQuery = useQuery({
     enabled: isTenant,
@@ -246,7 +248,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
     queryFn: async () => {
       const { data, error } = await supabase
         .from("passport_shares")
-        .select("id, status")
+        .select("id, status, lease_status, withdrawn_at")
         .eq("listing_id", listingId)
         .eq("tenant_id", user!.id)
         .maybeSingle();
@@ -255,8 +257,54 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
     },
   });
 
-  const sent = !!shareQuery.data;
+  const share = shareQuery.data as
+    | { id: string; status: string; lease_status: string | null; withdrawn_at: string | null }
+    | null
+    | undefined;
+  const isWithdrawn = share?.status === "withdrawn";
+  const sent = !!share && !isWithdrawn;
+  const leaseIssued = !!share?.lease_status;
   const underOffer = listingStatus === "under_offer";
+
+  const invalidateShare = () => {
+    queryClient.invalidateQueries({ queryKey: ["passport-share", listingId, user?.id ?? null] });
+    queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
+  };
+
+  const withdrawMutation = useMutation({
+    mutationFn: async () =>
+      withdrawApplication({
+        data: { shareId: share!.id, reason: withdrawReason.trim() || undefined },
+      }),
+    onSuccess: (res) => {
+      setWithdrawing(false);
+      setWithdrawReason("");
+      toast.success("Application withdrawn", {
+        description: res?.relisted
+          ? "The landlord has been told and the property is available again."
+          : "The landlord can no longer see your passport for this property.",
+      });
+      invalidateShare();
+    },
+    onError: (err: unknown) =>
+      toast.error("Couldn't withdraw", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      }),
+  });
+
+  const reapplyMutation = useMutation({
+    mutationFn: async () => reapplyApplication({ data: { shareId: share!.id } }),
+    onSuccess: () => {
+      toast.success("Application re-sent", {
+        description: "The landlord has your passport again.",
+      });
+      invalidateShare();
+    },
+    onError: (err: unknown) =>
+      toast.error("Couldn't re-apply", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      }),
+  });
 
   const applyMutation = useMutation({
     mutationFn: async () => {
