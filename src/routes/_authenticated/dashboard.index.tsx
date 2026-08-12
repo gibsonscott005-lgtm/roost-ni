@@ -253,7 +253,9 @@ function TenantDashboard() {
         setApplicationCounts({
           sent: shareRows.length,
           accepted: shareRows.filter((r) => r.status === "accepted").length,
-          pending: shareRows.filter((r) => r.status !== "accepted" && r.status !== "rejected").length,
+          pending: shareRows.filter(
+            (r) => r.status !== "accepted" && r.status !== "rejected" && r.status !== "withdrawn",
+          ).length,
         });
 
         // Step B: hydrate listing details separately. Missing rows are tolerated.
