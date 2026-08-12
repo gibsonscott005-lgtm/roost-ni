@@ -1,10 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Bell, BellOff, Check, KeyRound, ReceiptText, UserRound } from "lucide-react";
+import {
+  AlertTriangle,
+  Bell,
+  BellOff,
+  Check,
+  KeyRound,
+  Mail,
+  ReceiptText,
+  Trash2,
+  UserRound,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useServerFn } from "@tanstack/react-start";
 import { DashboardShell } from "@/components/dashboard-shell";
 import {
   SimulatedBillingNotice,
@@ -13,6 +24,7 @@ import {
 } from "@/components/pricing-breakdown";
 import { completionFeePence, formatGBP, monthlyLabel, monthlyPence } from "@/lib/pricing";
 import { NOTIFICATION_TYPES, type NotificationType } from "@/lib/notifications.functions";
+import { deleteAccount } from "@/lib/account.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/settings")({
   head: () => ({
