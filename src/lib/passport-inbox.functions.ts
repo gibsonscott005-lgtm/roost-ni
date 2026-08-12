@@ -48,7 +48,9 @@ export const getApplicantPassports = createServerFn({ method: "POST" })
     const { data: shares, error: shareErr } = await supabase
       .from("passport_shares")
       .select("tenant_id")
-      .in("listing_id", listingIds);
+      .in("listing_id", listingIds)
+      // Withdrawn applicants revoke passport access.
+      .neq("status", "withdrawn");
     if (shareErr) throw new Error(shareErr.message);
 
     const tenantIds = Array.from(new Set((shares ?? []).map((s) => s.tenant_id)));
