@@ -45,7 +45,13 @@ const GROUPS: { title: string; blurb: string; types: NotificationType[] }[] = [
   {
     title: "Applications",
     blurb: "Passport shares and landlord decisions",
-    types: ["application_received", "application_accepted", "application_declined"],
+    types: [
+      "application_received",
+      "application_accepted",
+      "application_declined",
+      "application_withdrawn",
+      "application_reapplied",
+    ],
   },
   {
     title: "Leases",
@@ -97,6 +103,8 @@ const LABELS: Record<NotificationType, string> = {
   application_received: "New application received",
   application_accepted: "Application accepted",
   application_declined: "Application declined",
+  application_withdrawn: "Applicant withdrew",
+  application_reapplied: "Applicant re-applied",
   lease_issued: "Lease issued for signature",
   lease_signed_by_tenant: "Tenant signed the lease",
   lease_counter_signed: "Lease counter-signed",

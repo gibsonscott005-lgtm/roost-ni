@@ -1,6 +1,11 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { emitNotification, type EmitNotificationInput } from "@/lib/notifications.functions";
+import {
+  reapplyApplication,
+  withdrawApplication,
+} from "@/lib/application-withdraw.functions";
 
 function notify(payload: EmitNotificationInput) {
   emitNotification({ data: payload }).catch((err) =>
@@ -239,6 +244,8 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
   const { user, profile, loading } = useAuth();
   const queryClient = useQueryClient();
   const isTenant = !!user && profile?.account_type === "tenant";
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [withdrawReason, setWithdrawReason] = useState("");
 
   const shareQuery = useQuery({
     enabled: isTenant,
@@ -246,7 +253,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
     queryFn: async () => {
       const { data, error } = await supabase
         .from("passport_shares")
-        .select("id, status")
+        .select("id, status, lease_status, withdrawn_at")
         .eq("listing_id", listingId)
         .eq("tenant_id", user!.id)
         .maybeSingle();
@@ -255,8 +262,54 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
     },
   });
 
-  const sent = !!shareQuery.data;
+  const share = shareQuery.data as
+    | { id: string; status: string; lease_status: string | null; withdrawn_at: string | null }
+    | null
+    | undefined;
+  const isWithdrawn = share?.status === "withdrawn";
+  const sent = !!share && !isWithdrawn;
+  const leaseIssued = !!share?.lease_status;
   const underOffer = listingStatus === "under_offer";
+
+  const invalidateShare = () => {
+    queryClient.invalidateQueries({ queryKey: ["passport-share", listingId, user?.id ?? null] });
+    queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
+  };
+
+  const withdrawMutation = useMutation({
+    mutationFn: async () =>
+      withdrawApplication({
+        data: { shareId: share!.id, reason: withdrawReason.trim() || undefined },
+      }),
+    onSuccess: (res) => {
+      setWithdrawing(false);
+      setWithdrawReason("");
+      toast.success("Application withdrawn", {
+        description: res?.relisted
+          ? "The landlord has been told and the property is available again."
+          : "The landlord can no longer see your passport for this property.",
+      });
+      invalidateShare();
+    },
+    onError: (err: unknown) =>
+      toast.error("Couldn't withdraw", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      }),
+  });
+
+  const reapplyMutation = useMutation({
+    mutationFn: async () => reapplyApplication({ data: { shareId: share!.id } }),
+    onSuccess: () => {
+      toast.success("Application re-sent", {
+        description: "The landlord has your passport again.",
+      });
+      invalidateShare();
+    },
+    onError: (err: unknown) =>
+      toast.error("Couldn't re-apply", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      }),
+  });
 
   const applyMutation = useMutation({
     mutationFn: async () => {
@@ -369,6 +422,36 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
     );
   }
 
+  if (isWithdrawn) {
+    return (
+      <div className="mt-6 rounded-3xl border border-border bg-surface p-5 sm:p-6">
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-display text-base font-semibold tracking-tight">
+              Application withdrawn
+            </p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              You withdrew this application
+              {share?.withdrawn_at
+                ? ` on ${new Date(share.withdrawn_at).toLocaleDateString("en-GB")}`
+                : ""}
+              . You can apply again while the property is available.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => reapplyMutation.mutate()}
+            disabled={reapplyMutation.isPending}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-verified px-5 py-3 font-display text-sm font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95 disabled:opacity-60 sm:w-auto"
+          >
+            <Sparkles className="h-4 w-4" />
+            {reapplyMutation.isPending ? "Sending…" : "Apply again"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-6 flex flex-col items-start gap-3 rounded-3xl border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
       <div>
@@ -380,6 +463,55 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
             ? "The landlord has your verified compliance data. You'll be notified when they respond."
             : "Share your verified ID, income, references and right-to-rent in one tap."}
         </p>
+        {sent ? (
+          leaseIssued ? (
+            <p className="mt-2 text-xs text-muted-foreground">
+              A lease has been issued — manage it from your{" "}
+              <Link to="/dashboard" className="underline">
+                dashboard
+              </Link>{" "}
+              rather than withdrawing.
+            </p>
+          ) : withdrawing ? (
+            <div className="mt-3 w-full max-w-sm space-y-2">
+              <p className="text-xs text-muted-foreground">
+                The landlord will no longer see your passport for this property.
+              </p>
+              <input
+                value={withdrawReason}
+                onChange={(e) => setWithdrawReason(e.target.value)}
+                maxLength={300}
+                placeholder="Reason (optional)"
+                className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm"
+              />
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => withdrawMutation.mutate()}
+                  disabled={withdrawMutation.isPending}
+                  className="rounded-full bg-rose-600 px-3.5 py-1.5 text-xs font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+                >
+                  {withdrawMutation.isPending ? "Withdrawing…" : "Yes, withdraw"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWithdrawing(false)}
+                  className="rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium transition hover:bg-secondary"
+                >
+                  Keep application
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setWithdrawing(true)}
+              className="mt-2 text-xs font-medium text-muted-foreground underline underline-offset-2 transition hover:text-foreground"
+            >
+              Withdraw application
+            </button>
+          )
+        ) : null}
       </div>
       <button
         type="button"

@@ -34,12 +34,14 @@ export const Route = createFileRoute("/_authenticated/dashboard/applications")({
   component: ApplicationsPage,
 });
 
-type Status = "pending" | "reviewed" | "accepted";
+type Status = "pending" | "reviewed" | "accepted" | "withdrawn";
 
 interface Share {
   id: string;
   status: Status;
   shared_at: string;
+  withdrawn_at: string | null;
+  withdrawn_reason: string | null;
   tenant_id: string;
   listing_id: string;
   lease_status: string | null;
@@ -90,7 +92,7 @@ function ApplicationsPage() {
       const { data: rows, error: rowsErr } = await supabase
         .from("passport_shares")
         .select(
-          "id, status, shared_at, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title, monthly_rent)",
+          "id, status, shared_at, withdrawn_at, withdrawn_reason, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title, monthly_rent)",
         )
         .order("shared_at", { ascending: false });
       if (rowsErr) throw rowsErr;
@@ -116,9 +118,11 @@ function ApplicationsPage() {
   });
 
   const allShares = inboxQuery.data?.shares ?? [];
-  const shares = listingFilter
+  const filtered = listingFilter
     ? allShares.filter((s) => s.listing_id === listingFilter)
     : allShares;
+  const shares = filtered.filter((s) => s.status !== "withdrawn");
+  const withdrawnShares = filtered.filter((s) => s.status === "withdrawn");
   const passports = inboxQuery.data?.passports ?? {};
   const listingCount = inboxQuery.data?.listingCount ?? 0;
   const loading = inboxQuery.isPending && isLandlord;
@@ -264,7 +268,7 @@ function ApplicationsPage() {
                 </li>
               ))}
             </ul>
-          ) : shares.length === 0 ? (
+          ) : shares.length === 0 && withdrawnShares.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-border bg-surface p-10 text-center">
               <Inbox className="mx-auto h-8 w-8 text-muted-foreground" />
               <p className="mt-3 font-display text-base font-semibold tracking-tight">
@@ -387,6 +391,41 @@ function ApplicationsPage() {
               })}
             </ul>
           )}
+
+          {!loading && withdrawnShares.length > 0 ? (
+            <div className="mt-6">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Withdrawn ({withdrawnShares.length})
+              </p>
+              <ul className="mt-2 overflow-hidden rounded-2xl border border-dashed border-border bg-surface-muted/40">
+                {withdrawnShares.map((s, i) => (
+                  <li
+                    key={s.id}
+                    className={`flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between ${
+                      i > 0 ? "border-t border-border" : ""
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-display text-sm font-semibold tracking-tight text-muted-foreground">
+                        {s.tenant?.full_name || "Applicant"}
+                      </p>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {s.listing?.title ?? "Your listing"} ·{" "}
+                        {s.withdrawn_at
+                          ? `withdrawn ${timeAgo(s.withdrawn_at)}`
+                          : "withdrawn"}
+                        {s.withdrawn_reason ? ` · "${s.withdrawn_reason}"` : ""}
+                      </p>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        Passport access revoked by the applicant.
+                      </p>
+                    </div>
+                    <StatusPill status={s.status} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </div>
       )}
 
@@ -849,6 +888,13 @@ function StatusPill({ status }: { status: Status }) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-foreground">
         Reviewed
+      </span>
+    );
+  }
+  if (status === "withdrawn") {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-rose-700">
+        Withdrawn
       </span>
     );
   }

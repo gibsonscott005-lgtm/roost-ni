@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.prevent_tenant_self_accept() FROM PUBLIC, anon, authenticated;
