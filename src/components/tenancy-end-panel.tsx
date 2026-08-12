@@ -19,9 +19,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { noticeToQuitHtml, depositSettlementHtml, openPrintable } from "@/lib/tenancy-docs";
 import {
   DEPOSIT_RETURN_DAYS,
+  END_STAGES,
   FINAL_CONDITIONS,
   NI_LEGAL_DISCLAIMER,
   daysUntil,
+  deriveEndStage,
   deductionsTotal,
   depositDeadline,
   earliestEndDate,
@@ -30,6 +32,7 @@ import {
   parseDeductions,
   toISODate,
   type DeductionLine,
+  type EndStageState,
   type NoticeParty,
 } from "@/lib/tenancy-end";
 import {
@@ -77,6 +80,8 @@ interface InventoryRow {
   final_condition: string | null;
   final_notes: string | null;
   sort_order: number;
+  tenant_disputed?: boolean | null;
+  tenant_comment?: string | null;
 }
 
 export interface TenancyEndPanelProps {
@@ -164,7 +169,9 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
           .maybeSingle(),
         supabase
           .from("tenancy_inventory_items")
-          .select("id, room, condition, notes, final_condition, final_notes, sort_order")
+          .select(
+            "id, room, condition, notes, final_condition, final_notes, sort_order, tenant_disputed, tenant_comment",
+          )
           .eq("share_id", shareId)
           .order("sort_order", { ascending: true }),
       ]);
@@ -186,6 +193,40 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
   const activeNotice = notices.find((n) => !n.withdrawn_at) ?? null;
   const settlement = endQuery.data?.settlement ?? null;
   const inventory = endQuery.data?.inventory ?? [];
+
+  const stage = useMemo(
+    () =>
+      deriveEndStage({
+        hasActiveNotice: !!activeNotice,
+        noticeAcknowledged: !!activeNotice?.acknowledged_at,
+        noticeEndDate: activeNotice?.end_date ?? null,
+        inspectionSubmitted: !!finalInspectionSubmittedAt,
+        inspectionResponse: finalInspectionResponse ?? null,
+        settlementProposed: !!settlement?.proposed_at,
+        settlementResponse: settlement?.tenant_response ?? null,
+        depositReturned: !!settlement?.returned_at,
+        completedAt: tenancyCompletedAt ?? null,
+      }),
+    [
+      activeNotice,
+      finalInspectionSubmittedAt,
+      finalInspectionResponse,
+      settlement,
+      tenancyCompletedAt,
+    ],
+  );
+
+  // Keep the shared tenancy status honest once the end date has passed.
+  useEffect(() => {
+    if (!activeNotice || !isLandlord) return;
+    if (!stage.tenancyEnded || tenancyCompletedAt) return;
+    if (props.tenancyStatus === "ended" || props.tenancyStatus === "completed") return;
+    void supabase
+      .from("passport_shares")
+      .update({ tenancy_status: "ended" } as never)
+      .eq("id", shareId)
+      .then(() => onChanged?.());
+  }, [activeNotice, stage.tenancyEnded, tenancyCompletedAt, props.tenancyStatus, shareId, isLandlord]);
 
   const notify = (
     type: Parameters<typeof emitNotification>[0] extends never ? never : string,
@@ -217,6 +258,8 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
 
   return (
     <div className="space-y-5">
+      <StageTracker stage={stage} role={role} endDate={activeNotice?.end_date ?? null} />
+
       <NoticeSection
         {...props}
         activeNotice={activeNotice}
@@ -315,6 +358,153 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
 
 type Notifier = (type: string, title: string, body: string) => void | Promise<unknown>;
 
+/* ------------------------------------------------------------------ */
+/* Stage tracker + shared bits                                         */
+/* ------------------------------------------------------------------ */
+
+function StageTracker({
+  stage,
+  role,
+  endDate,
+}: {
+  stage: EndStageState;
+  role: NoticeParty;
+  endDate: string | null;
+}) {
+  const yourMove = stage.actor === role;
+  const days = daysUntil(endDate);
+  return (
+    <div className={card}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className={label}>Where you are</p>
+          <h3 className="mt-1 text-lg font-semibold">{stage.label}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{stage.nextAction}</p>
+        </div>
+        <span
+          className={`rounded-full px-3 py-1 text-xs font-medium ${
+            stage.disputed
+              ? "bg-red-100 text-red-800"
+              : yourMove
+                ? "bg-amber-100 text-amber-800"
+                : "bg-surface-muted text-muted-foreground"
+          }`}
+        >
+          {stage.disputed
+            ? "Dispute open"
+            : stage.actor === "none"
+              ? "Nothing to do"
+              : yourMove
+                ? "Your move"
+                : `Waiting on the ${stage.actor}`}
+        </span>
+      </div>
+
+      {stage.key !== "active" ? (
+        <>
+          <ol className="mt-4 grid gap-2 sm:grid-cols-2">
+            {END_STAGES.map((s) => {
+              const done = stage.done.includes(s.key);
+              const current = !done && stage.key === s.key;
+              return (
+                <li
+                  key={s.key}
+                  className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
+                    done
+                      ? "border-verified/30 bg-verified-soft text-verified"
+                      : current
+                        ? "border-amber-300 bg-amber-50 text-amber-900"
+                        : "border-border text-muted-foreground"
+                  }`}
+                >
+                  {done ? (
+                    <Check className="h-4 w-4 shrink-0" />
+                  ) : (
+                    <span
+                      className={`h-2 w-2 shrink-0 rounded-full ${current ? "bg-amber-500" : "bg-border"}`}
+                    />
+                  )}
+                  {s.label}
+                </li>
+              );
+            })}
+          </ol>
+
+          {stage.depositDeadline && stage.key !== "completed" ? (
+            <p
+              className={`mt-3 rounded-xl p-3 text-xs ${
+                (stage.depositDaysLeft ?? 99) < 0
+                  ? "bg-red-50 text-red-800"
+                  : (stage.depositDaysLeft ?? 99) <= 7
+                    ? "bg-amber-50 text-amber-900"
+                    : "bg-surface-muted text-muted-foreground"
+              }`}
+            >
+              <CalendarClock className="mr-1 inline h-3.5 w-3.5" />
+              Deposit must be settled by {formatDate(stage.depositDeadline)}
+              {stage.depositDaysLeft !== null
+                ? stage.depositDaysLeft >= 0
+                  ? ` — ${stage.depositDaysLeft} days left`
+                  : ` — ${Math.abs(stage.depositDaysLeft)} days overdue`
+                : ""}
+              {days !== null && days > 0 ? ` · tenancy ends in ${days} days` : ""}
+            </p>
+          ) : null}
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+/** Two-step button for irreversible actions. */
+function ConfirmButton({
+  className,
+  confirmLabel,
+  children,
+  onConfirm,
+  disabled,
+  hint,
+}: {
+  className: string;
+  confirmLabel: string;
+  children: React.ReactNode;
+  onConfirm: () => void;
+  disabled?: boolean;
+  hint?: string;
+}) {
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (!armed) return;
+    const t = setTimeout(() => setArmed(false), 6000);
+    return () => clearTimeout(t);
+  }, [armed]);
+  if (!armed)
+    return (
+      <button type="button" className={className} disabled={disabled} onClick={() => setArmed(true)}>
+        {children}
+      </button>
+    );
+  return (
+    <span className="inline-flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        className={primaryBtn}
+        disabled={disabled}
+        onClick={() => {
+          setArmed(false);
+          onConfirm();
+        }}
+      >
+        <AlertTriangle className="h-4 w-4" /> {confirmLabel}
+      </button>
+      <button type="button" className={ghostBtn} onClick={() => setArmed(false)}>
+        Cancel
+      </button>
+      {hint ? <span className="text-xs text-muted-foreground">{hint}</span> : null}
+    </span>
+  );
+}
+
 function NoticeSection(
   props: TenancyEndPanelProps & {
     activeNotice: NoticeRow | null;
@@ -358,6 +548,10 @@ function NoticeSection(
   const serve = useMutation({
     mutationFn: async () => {
       if (!currentUserId) throw new Error("You need to be signed in.");
+      if (!tenancyStart)
+        throw new Error(
+          "Add the tenancy start date in the Overview tab first — the statutory notice period is worked out from it.",
+        );
       if (endDate < minEnd)
         throw new Error("End date is shorter than the statutory notice period.");
       const { error } = await supabase.from("tenancy_notices").insert({
@@ -509,14 +703,19 @@ function NoticeSection(
             </button>
           ) : null}
           {servedByMe ? (
-            <button
-              type="button"
+            <ConfirmButton
               className={ghostBtn}
+              confirmLabel="Yes, withdraw the notice"
               disabled={withdraw.isPending}
-              onClick={() => withdraw.mutate()}
+              onConfirm={() => withdraw.mutate()}
+              hint={
+                activeNotice.acknowledged_at
+                  ? "The other party has already acknowledged this notice."
+                  : "The tenancy will continue as normal."
+              }
             >
               <Undo2 className="h-4 w-4" /> Withdraw notice
-            </button>
+            </ConfirmButton>
           ) : null}
         </div>
 
@@ -585,7 +784,7 @@ function NoticeSection(
       <button
         type="button"
         className={`${primaryBtn} mt-4`}
-        disabled={serve.isPending}
+        disabled={serve.isPending || !tenancyStart}
         onClick={() => serve.mutate()}
       >
         {serve.isPending ? (
@@ -595,6 +794,13 @@ function NoticeSection(
         )}
         Record &amp; generate Notice to Quit
       </button>
+      {!tenancyStart ? (
+        <p className="mt-2 text-xs text-amber-700">
+          <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
+          Set the tenancy start date in the Overview tab before serving notice — Roost needs it to
+          work out the statutory period.
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -633,6 +839,9 @@ function FinalInspectionSection({
   const [rows, setRows] = useState<Record<string, { condition: string; notes: string }>>({});
   const [meters, setMeters] = useState(finalMeterReadings ?? "");
   const [oil, setOil] = useState(finalOilLevel ?? "");
+  const [tenantRows, setTenantRows] = useState<
+    Record<string, { disputed: boolean; comment: string }>
+  >({});
 
   useEffect(() => {
     setRows(
@@ -640,6 +849,14 @@ function FinalInspectionSection({
         inventory.map((i) => [
           i.id,
           { condition: i.final_condition ?? "", notes: i.final_notes ?? "" },
+        ]),
+      ),
+    );
+    setTenantRows(
+      Object.fromEntries(
+        inventory.map((i) => [
+          i.id,
+          { disputed: !!i.tenant_disputed, comment: i.tenant_comment ?? "" },
         ]),
       ),
     );
@@ -687,6 +904,17 @@ function FinalInspectionSection({
 
   const respond = useMutation({
     mutationFn: async (value: "agreed" | "disputed") => {
+      await Promise.all(
+        inventory.map((i) =>
+          supabase
+            .from("tenancy_inventory_items")
+            .update({
+              tenant_disputed: !!tenantRows[i.id]?.disputed,
+              tenant_comment: tenantRows[i.id]?.comment?.trim() || null,
+            } as never)
+            .eq("id", i.id),
+        ),
+      );
       const { error } = await supabase
         .from("passport_shares")
         .update({
@@ -790,12 +1018,59 @@ function FinalInspectionSection({
                   />
                 </div>
               ) : (
-                <p className="mt-1 text-sm">
-                  Move-out:{" "}
-                  <span className="font-medium">{item.final_condition || "Not yet inspected"}</span>
-                  {item.final_notes ? ` — ${item.final_notes}` : ""}
-                </p>
+                <>
+                  <p className="mt-1 text-sm">
+                    Move-out:{" "}
+                    <span className="font-medium">
+                      {item.final_condition || "Not yet inspected"}
+                    </span>
+                    {item.final_notes ? ` — ${item.final_notes}` : ""}
+                  </p>
+                  {submittedAt && !response ? (
+                    <div className="mt-2 space-y-2">
+                      <label className="flex items-center gap-2 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={!!tenantRows[item.id]?.disputed}
+                          onChange={(e) =>
+                            setTenantRows((r) => ({
+                              ...r,
+                              [item.id]: {
+                                disputed: e.target.checked,
+                                comment: r[item.id]?.comment ?? "",
+                              },
+                            }))
+                          }
+                        />
+                        I disagree with this room
+                      </label>
+                      {tenantRows[item.id]?.disputed ? (
+                        <input
+                          className={input}
+                          placeholder="Why do you disagree?"
+                          value={tenantRows[item.id]?.comment ?? ""}
+                          onChange={(e) =>
+                            setTenantRows((r) => ({
+                              ...r,
+                              [item.id]: { disputed: true, comment: e.target.value },
+                            }))
+                          }
+                        />
+                      ) : null}
+                    </div>
+                  ) : item.tenant_disputed ? (
+                    <p className="mt-1 text-xs text-red-700">
+                      Tenant disagreed{item.tenant_comment ? `: ${item.tenant_comment}` : ""}
+                    </p>
+                  ) : null}
+                </>
               )}
+              {isLandlord && item.tenant_disputed ? (
+                <p className="mt-2 text-xs text-red-700">
+                  <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
+                  Tenant disagreed{item.tenant_comment ? `: ${item.tenant_comment}` : ""}
+                </p>
+              ) : null}
             </div>
           ))}
         </div>
@@ -949,6 +1224,11 @@ function SettlementSection({
   const propose = useMutation({
     mutationFn: async () => {
       const clean = lines.filter((l) => l.reason.trim() || l.amount);
+      if (clean.some((l) => !l.reason.trim()))
+        throw new Error("Give a reason for every deduction.");
+      if (clean.some((l) => l.amount < 0)) throw new Error("Deductions cannot be negative.");
+      if (total > Number(depositAmount || 0))
+        throw new Error("Deductions cannot be more than the deposit held.");
       const payload = {
         share_id: shareId,
         deposit_total: Number(depositAmount || 0),
@@ -1208,14 +1488,15 @@ function SettlementSection({
                   </option>
                 ))}
               </select>
-              <button
-                type="button"
+              <ConfirmButton
                 className={primaryBtn}
+                confirmLabel="Yes, deposit returned"
                 disabled={markReturned.isPending}
-                onClick={() => markReturned.mutate()}
+                onConfirm={() => markReturned.mutate()}
+                hint="This is recorded on the statutory record and cannot be undone."
               >
                 <Check className="h-4 w-4" /> Mark deposit returned
-              </button>
+              </ConfirmButton>
             </div>
           ) : null}
         </div>
@@ -1320,6 +1601,14 @@ function CompleteSection({
   const [relist, setRelist] = useState(true);
   const ended = (daysUntil(endDate) ?? 1) <= 0;
   const depositSettled = !!settlement?.returned_at;
+  const disputeOpen = settlement?.tenant_response === "disputed" && !settlement?.returned_at;
+  const blockedReason = !ended
+    ? "Available once the tenancy end date has passed."
+    : disputeOpen
+      ? "Resolve the deposit dispute with the scheme and record the outcome before closing."
+      : !depositSettled
+        ? "Record the deposit return before closing the tenancy."
+        : null;
 
   const complete = useMutation({
     mutationFn: async () => {
@@ -1379,27 +1668,34 @@ function CompleteSection({
         <li className={depositSettled ? "text-verified" : "text-muted-foreground"}>
           {depositSettled ? "✓" : "•"} Deposit returned or deductions agreed
         </li>
+        <li className={!disputeOpen ? "text-verified" : "text-muted-foreground"}>
+          {!disputeOpen ? "✓" : "•"} No open deposit dispute
+        </li>
       </ul>
       <label className="mt-3 flex items-center gap-2 text-sm">
         <input type="checkbox" checked={relist} onChange={(e) => setRelist(e.target.checked)} />
         Return the property to available for new applications
       </label>
-      <button
-        type="button"
-        className={`${primaryBtn} mt-4`}
-        disabled={complete.isPending || !ended}
-        onClick={() => complete.mutate()}
-      >
-        {complete.isPending ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Check className="h-4 w-4" />
-        )}
-        Complete tenancy
-      </button>
-      {!ended ? (
-        <p className="mt-2 text-xs text-muted-foreground">
-          Available once the tenancy end date has passed.
+      <div className="mt-4">
+        <ConfirmButton
+          className={primaryBtn}
+          confirmLabel="Yes, close this tenancy"
+          disabled={complete.isPending || !!blockedReason}
+          onConfirm={() => complete.mutate()}
+          hint={relist ? "The property returns to available." : undefined}
+        >
+          {complete.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Check className="h-4 w-4" />
+          )}
+          Complete tenancy
+        </ConfirmButton>
+      </div>
+      {blockedReason ? (
+        <p className="mt-2 text-xs text-amber-700">
+          <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
+          {blockedReason}
         </p>
       ) : null}
     </div>

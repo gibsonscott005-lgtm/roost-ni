@@ -149,3 +149,192 @@ export function parseDeductions(value: unknown): DeductionLine[] {
 export function deductionsTotal(lines: DeductionLine[]) {
   return lines.reduce((sum, l) => sum + (Number.isFinite(l.amount) ? l.amount : 0), 0);
 }
+
+/* ------------------------------------------------------------------ */
+/* Shared stage model                                                  */
+/* ------------------------------------------------------------------ */
+
+export type EndStageKey =
+  | "active"
+  | "notice_served"
+  | "notice_acknowledged"
+  | "inspection"
+  | "inspection_reviewed"
+  | "settlement_proposed"
+  | "settlement_resolved"
+  | "deposit_returned"
+  | "completed";
+
+/** Ordered steps shown in the end-of-tenancy tracker. */
+export const END_STAGES: { key: EndStageKey; label: string }[] = [
+  { key: "notice_served", label: "Notice served" },
+  { key: "notice_acknowledged", label: "Notice acknowledged" },
+  { key: "inspection", label: "Move-out inspection" },
+  { key: "inspection_reviewed", label: "Inspection reviewed" },
+  { key: "settlement_proposed", label: "Deposit settlement" },
+  { key: "settlement_resolved", label: "Settlement response" },
+  { key: "deposit_returned", label: "Deposit returned" },
+  { key: "completed", label: "Tenancy closed" },
+];
+
+export interface EndStageInput {
+  hasActiveNotice: boolean;
+  noticeAcknowledged: boolean;
+  noticeEndDate: string | null | undefined;
+  inspectionSubmitted: boolean;
+  inspectionResponse: string | null | undefined;
+  settlementProposed: boolean;
+  settlementResponse: string | null | undefined;
+  depositReturned: boolean;
+  completedAt: string | null | undefined;
+}
+
+export interface EndStageState {
+  key: EndStageKey;
+  label: string;
+  /** Who has to act next. */
+  actor: NoticeParty | "none";
+  /** Plain-English next action for whoever is on the clock. */
+  nextAction: string;
+  /** Steps already done, in tracker order. */
+  done: EndStageKey[];
+  /** Deposit deadline once an end date exists. */
+  depositDeadline: string | null;
+  depositDaysLeft: number | null;
+  /** True once the notice end date has passed. */
+  tenancyEnded: boolean;
+  disputed: boolean;
+}
+
+export function deriveEndStage(i: EndStageInput): EndStageState {
+  const done: EndStageKey[] = [];
+  const deadline = depositDeadline(i.noticeEndDate);
+  const ended = (daysUntil(i.noticeEndDate) ?? 1) <= 0;
+  const disputed = i.inspectionResponse === "disputed" || i.settlementResponse === "disputed";
+
+  const base = {
+    done,
+    depositDeadline: deadline,
+    depositDaysLeft: daysUntil(deadline),
+    tenancyEnded: ended,
+    disputed,
+  };
+
+  if (!i.hasActiveNotice) {
+    return {
+      ...base,
+      key: "active",
+      label: "Active tenancy",
+      actor: "none",
+      nextAction: "Either party can serve a Notice to Quit when they want the tenancy to end.",
+    };
+  }
+  done.push("notice_served");
+
+  if (i.completedAt) {
+    done.push(
+      "notice_acknowledged",
+      "inspection",
+      "inspection_reviewed",
+      "settlement_proposed",
+      "settlement_resolved",
+      "deposit_returned",
+      "completed",
+    );
+    return {
+      ...base,
+      key: "completed",
+      label: "Tenancy closed",
+      actor: "none",
+      nextAction: "This tenancy is closed. All records stay in the Documents tab.",
+    };
+  }
+
+  if (!i.noticeAcknowledged) {
+    return {
+      ...base,
+      key: "notice_served",
+      label: "Notice served",
+      actor: "tenant",
+      nextAction: "Acknowledge receipt of the Notice to Quit.",
+    };
+  }
+  done.push("notice_acknowledged");
+
+  if (!i.inspectionSubmitted) {
+    return {
+      ...base,
+      key: "inspection",
+      label: "Move-out inspection",
+      actor: "landlord",
+      nextAction: ended
+        ? "Complete the move-out condition report and send it to the tenant."
+        : "Complete the move-out condition report once the tenancy end date is reached.",
+    };
+  }
+  done.push("inspection");
+
+  if (!i.inspectionResponse) {
+    return {
+      ...base,
+      key: "inspection_reviewed",
+      label: "Inspection review",
+      actor: "tenant",
+      nextAction: "Review the move-out report and agree or dispute it.",
+    };
+  }
+  done.push("inspection_reviewed");
+
+  if (!i.settlementProposed) {
+    return {
+      ...base,
+      key: "settlement_proposed",
+      label: "Deposit settlement",
+      actor: "landlord",
+      nextAction: `Propose the deposit settlement${deadline ? ` by ${formatDate(deadline)}` : ""}.`,
+    };
+  }
+  done.push("settlement_proposed");
+
+  if (!i.settlementResponse) {
+    return {
+      ...base,
+      key: "settlement_resolved",
+      label: "Settlement response",
+      actor: "tenant",
+      nextAction: "Agree or dispute the proposed deposit settlement.",
+    };
+  }
+  done.push("settlement_resolved");
+
+  if (!i.depositReturned) {
+    return {
+      ...base,
+      key: "deposit_returned",
+      label: "Deposit return",
+      actor: "landlord",
+      nextAction:
+        i.settlementResponse === "disputed"
+          ? "Refer the dispute to the deposit scheme, then record the outcome."
+          : `Return the deposit${deadline ? ` by ${formatDate(deadline)}` : ""} and record it.`,
+    };
+  }
+  done.push("deposit_returned");
+
+  return {
+    ...base,
+    key: "deposit_returned",
+    label: "Ready to close",
+    actor: "landlord",
+    nextAction: "Close the tenancy and decide whether to relist the property.",
+  };
+}
+
+/** Short badge text for dashboards and property cards. */
+export function endStageBadge(stage: EndStageState, endDate?: string | null) {
+  if (stage.key === "completed") return "Tenancy completed";
+  if (stage.key === "active") return "Let agreed";
+  const days = daysUntil(endDate);
+  if (days !== null && days > 0) return `Notice served — ends ${formatDate(endDate)}`;
+  return stage.disputed ? "Ending — dispute open" : `Ending — ${stage.label.toLowerCase()}`;
+}

@@ -194,6 +194,7 @@ function TenantDashboard() {
       shared_at: string;
       lease_status: string | null;
       lease_signed_name: string | null;
+      tenancy_status: string | null;
       listing: { id: string; title: string; address: string; location: string | null; monthly_rent: number | null } | null;
     }[]
   >([]);
@@ -237,7 +238,7 @@ function TenantDashboard() {
         // by a join/RLS issue on property_listings.
         const { data: sharesRaw, error: sharesErr } = await supabase
           .from("passport_shares")
-          .select("id, status, shared_at, listing_id, lease_status, lease_signed_name")
+          .select("id, status, shared_at, listing_id, lease_status, lease_signed_name, tenancy_status")
           .eq("tenant_id", user.id)
           .order("shared_at", { ascending: false });
         if (cancelled) return;
@@ -247,7 +248,7 @@ function TenantDashboard() {
           });
           return;
         }
-        const shareRows = (sharesRaw as { id: string; status: string; shared_at: string; listing_id: string; lease_status: string | null; lease_signed_name: string | null }[] | null) ?? [];
+        const shareRows = (sharesRaw as { id: string; status: string; shared_at: string; listing_id: string; lease_status: string | null; lease_signed_name: string | null; tenancy_status: string | null }[] | null) ?? [];
         // Counts depend ONLY on Step A — never on the listing join.
         setApplicationCounts({
           sent: shareRows.length,
@@ -282,6 +283,7 @@ function TenantDashboard() {
           shared_at: s.shared_at,
           lease_status: s.lease_status,
           lease_signed_name: s.lease_signed_name,
+          tenancy_status: s.tenancy_status,
           listing: listingMap.get(s.listing_id) ?? null,
         }));
         setAllShares(merged);
@@ -635,6 +637,14 @@ function TenantDashboard() {
                   : s.lease_status === "sent_to_tenant"
                   ? "Lease ready to sign"
                   : null;
+              const endLabel =
+                s.tenancy_status === "completed"
+                  ? "Tenancy closed"
+                  : s.tenancy_status === "ended"
+                  ? "Tenancy ended · action needed"
+                  : s.tenancy_status === "ending"
+                  ? "Notice served · ending"
+                  : null;
               return (
                 <li
                   key={s.id}
@@ -660,6 +670,20 @@ function TenantDashboard() {
                       <span className="inline-flex items-center rounded-full bg-verified-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
                         {leaseLabel}
                       </span>
+                    ) : null}
+                    {endLabel ? (
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800">
+                        {endLabel}
+                      </span>
+                    ) : null}
+                    {s.tenancy_status === "ending" || s.tenancy_status === "ended" ? (
+                      <Link
+                        to="/tenant/tenancy"
+                        search={{ share: s.id }}
+                        className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-background transition hover:brightness-110"
+                      >
+                        Open tenancy
+                      </Link>
                     ) : null}
                     {s.lease_status === "sent_to_tenant" ? (
                       <Link
