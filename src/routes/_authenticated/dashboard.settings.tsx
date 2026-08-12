@@ -417,13 +417,21 @@ function AccountDetailsCard() {
   const qc = useQueryClient();
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [emailSaved, setEmailSaved] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [emailBusy, setEmailBusy] = useState(false);
 
   useEffect(() => {
     if (!profile) return;
     setFullName(profile.full_name ?? "");
     setPhone(profile.phone ?? "");
   }, [profile?.id, profile?.full_name, profile?.phone]);
+
+  useEffect(() => {
+    setEmail(user?.email ?? "");
+    setEmailSaved(false);
+  }, [user?.email]);
 
   const save = async () => {
     if (!user?.id) return;
@@ -443,6 +451,26 @@ function AccountDetailsCard() {
     }
     await qc.invalidateQueries();
     toast.success("Account details updated");
+  };
+
+  const updateEmail = async () => {
+    if (!user?.id) return;
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed || trimmed === user.email?.toLowerCase()) {
+      toast.error("Enter a new email address");
+      return;
+    }
+    setEmailBusy(true);
+    const { error } = await supabase.auth.updateUser({ email: trimmed });
+    setEmailBusy(false);
+    if (error) {
+      toast.error("Couldn't update email", { description: error.message });
+      return;
+    }
+    setEmailSaved(true);
+    toast.success("Confirmation email sent", {
+      description: "Check your new inbox and confirm the change before it takes effect.",
+    });
   };
 
   return (
@@ -471,7 +499,16 @@ function AccountDetailsCard() {
           onChange={(e) => setPhone(e.target.value)}
           placeholder="028 9000 0000"
         />
-        <Field label="Email" value={user?.email ?? ""} readOnly disabled />
+        <Field
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setEmailSaved(false);
+          }}
+          placeholder="you@example.com"
+        />
         <Field
           label="Account type"
           value={
@@ -483,14 +520,24 @@ function AccountDetailsCard() {
           disabled
         />
       </div>
-      <button
-        type="button"
-        onClick={() => void save()}
-        disabled={busy || loading}
-        className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110 disabled:opacity-60"
-      >
-        <Check className="h-3.5 w-3.5" /> {busy ? "Saving…" : "Save details"}
-      </button>
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => void save()}
+          disabled={busy || loading}
+          className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110 disabled:opacity-60"
+        >
+          <Check className="h-3.5 w-3.5" /> {busy ? "Saving…" : "Save details"}
+        </button>
+        <button
+          type="button"
+          onClick={() => void updateEmail()}
+          disabled={emailBusy || loading || email.trim().toLowerCase() === (user?.email ?? "").toLowerCase()}
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-muted px-4 py-2 text-xs font-semibold transition hover:bg-secondary/60 disabled:opacity-60"
+        >
+          <Mail className="h-3.5 w-3.5" /> {emailBusy ? "Sending…" : emailSaved ? "Confirmation sent" : "Update email"}
+        </button>
+      </div>
     </section>
   );
 }
