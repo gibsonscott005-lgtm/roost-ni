@@ -995,6 +995,8 @@ export type Database = {
         | "deposit_settlement_proposed"
         | "deposit_returned"
         | "tenancy_completed"
+        | "application_withdrawn"
+        | "application_reapplied"
       share_status: "pending" | "reviewed" | "accepted" | "withdrawn"
       verification_status:
         | "unverified"
@@ -1163,6 +1165,8 @@ export const Constants = {
         "deposit_settlement_proposed",
         "deposit_returned",
         "tenancy_completed",
+        "application_withdrawn",
+        "application_reapplied",
       ],
       share_status: ["pending", "reviewed", "accepted", "withdrawn"],
       verification_status: [
