@@ -678,12 +678,16 @@ function TenantDashboard() {
                   ? "bg-verified text-[var(--color-verified-foreground)]"
                   : s.status === "rejected"
                   ? "bg-rose-100 text-rose-700"
+                  : s.status === "withdrawn"
+                  ? "bg-surface-muted text-muted-foreground"
                   : "bg-secondary text-foreground";
               const label =
                 s.status === "accepted"
                   ? "Accepted"
                   : s.status === "rejected"
                   ? "Not selected"
+                  : s.status === "withdrawn"
+                  ? "Withdrawn"
                   : "Awaiting reply";
               const leaseLabel =
                 s.lease_status === "counter_signed"
@@ -760,6 +764,44 @@ function TenantDashboard() {
                         View
                         <ExternalLink className="h-3 w-3" />
                       </Link>
+                    ) : null}
+                    {s.status === "withdrawn" ? (
+                      <button
+                        type="button"
+                        onClick={() => handleReapply(s.id)}
+                        disabled={busyShareId === s.id}
+                        className="inline-flex items-center gap-1 rounded-full bg-verified px-2.5 py-1 text-[11px] font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95 disabled:opacity-60"
+                      >
+                        {busyShareId === s.id ? "Sending…" : "Apply again"}
+                      </button>
+                    ) : !s.lease_status && !s.tenancy_status && s.status !== "rejected" ? (
+                      confirmWithdrawId === s.id ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => handleWithdraw(s.id)}
+                            disabled={busyShareId === s.id}
+                            className="inline-flex items-center gap-1 rounded-full bg-rose-600 px-2.5 py-1 text-[11px] font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+                          >
+                            {busyShareId === s.id ? "Withdrawing…" : "Confirm withdraw"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmWithdrawId(null)}
+                            className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-medium transition hover:bg-secondary"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmWithdrawId(s.id)}
+                          className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+                        >
+                          Withdraw
+                        </button>
+                      )
                     ) : null}
                   </div>
                 </li>
