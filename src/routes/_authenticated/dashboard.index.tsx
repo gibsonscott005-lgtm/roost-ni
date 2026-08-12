@@ -220,12 +220,18 @@ function TenantDashboard() {
   const [confirmWithdrawId, setConfirmWithdrawId] = useState<string | null>(null);
 
   const applyShareStatus = (id: string, status: string) => {
-    setAllShares((rows) => rows.map((r) => (r.id === id ? { ...r, status } : r)));
+    setAllShares((rows) => {
+      const next = rows.map((r) => (r.id === id ? { ...r, status } : r));
+      setApplicationCounts({
+        sent: next.length,
+        accepted: next.filter((r) => r.status === "accepted").length,
+        pending: next.filter(
+          (r) => r.status !== "accepted" && r.status !== "rejected" && r.status !== "withdrawn",
+        ).length,
+      });
+      return next;
+    });
     setAcceptedShares((rows) => (status === "accepted" ? rows : rows.filter((r) => r.id !== id)));
-    setApplicationCounts((c) => ({
-      ...c,
-      accepted: status === "accepted" ? c.accepted : Math.max(0, c.accepted - 0),
-    }));
   };
 
   const handleWithdraw = async (id: string) => {
