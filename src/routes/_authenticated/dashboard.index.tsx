@@ -216,6 +216,50 @@ function TenantDashboard() {
     accepted: 0,
     pending: 0,
   });
+  const [busyShareId, setBusyShareId] = useState<string | null>(null);
+  const [confirmWithdrawId, setConfirmWithdrawId] = useState<string | null>(null);
+
+  const applyShareStatus = (id: string, status: string) => {
+    setAllShares((rows) => rows.map((r) => (r.id === id ? { ...r, status } : r)));
+    setAcceptedShares((rows) => (status === "accepted" ? rows : rows.filter((r) => r.id !== id)));
+    setApplicationCounts((c) => ({
+      ...c,
+      accepted: status === "accepted" ? c.accepted : Math.max(0, c.accepted - 0),
+    }));
+  };
+
+  const handleWithdraw = async (id: string) => {
+    setBusyShareId(id);
+    try {
+      await withdrawApplication({ data: { shareId: id } });
+      applyShareStatus(id, "withdrawn");
+      setConfirmWithdrawId(null);
+      toast.success("Application withdrawn", {
+        description: "The landlord has been notified and can no longer see your passport.",
+      });
+    } catch (err) {
+      toast.error("Couldn't withdraw", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    } finally {
+      setBusyShareId(null);
+    }
+  };
+
+  const handleReapply = async (id: string) => {
+    setBusyShareId(id);
+    try {
+      await reapplyApplication({ data: { shareId: id } });
+      applyShareStatus(id, "pending");
+      toast.success("Application re-sent");
+    } catch (err) {
+      toast.error("Couldn't re-apply", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
+    } finally {
+      setBusyShareId(null);
+    }
+  };
 
   useEffect(() => {
     if (authLoading) return;
