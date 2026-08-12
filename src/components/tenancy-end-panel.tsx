@@ -1591,27 +1591,34 @@ function CompleteSection({
         <li className={depositSettled ? "text-verified" : "text-muted-foreground"}>
           {depositSettled ? "✓" : "•"} Deposit returned or deductions agreed
         </li>
+        <li className={!disputeOpen ? "text-verified" : "text-muted-foreground"}>
+          {!disputeOpen ? "✓" : "•"} No open deposit dispute
+        </li>
       </ul>
       <label className="mt-3 flex items-center gap-2 text-sm">
         <input type="checkbox" checked={relist} onChange={(e) => setRelist(e.target.checked)} />
         Return the property to available for new applications
       </label>
-      <button
-        type="button"
-        className={`${primaryBtn} mt-4`}
-        disabled={complete.isPending || !ended}
-        onClick={() => complete.mutate()}
-      >
-        {complete.isPending ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Check className="h-4 w-4" />
-        )}
-        Complete tenancy
-      </button>
-      {!ended ? (
-        <p className="mt-2 text-xs text-muted-foreground">
-          Available once the tenancy end date has passed.
+      <div className="mt-4">
+        <ConfirmButton
+          className={primaryBtn}
+          confirmLabel="Yes, close this tenancy"
+          disabled={complete.isPending || !!blockedReason}
+          onConfirm={() => complete.mutate()}
+          hint={relist ? "The property returns to available." : undefined}
+        >
+          {complete.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Check className="h-4 w-4" />
+          )}
+          Complete tenancy
+        </ConfirmButton>
+      </div>
+      {blockedReason ? (
+        <p className="mt-2 text-xs text-amber-700">
+          <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
+          {blockedReason}
         </p>
       ) : null}
     </div>
