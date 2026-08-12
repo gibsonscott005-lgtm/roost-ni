@@ -608,3 +608,72 @@ function PasswordCard() {
     </section>
   );
 }
+
+function DeleteAccountCard({ onDeleted }: { onDeleted: () => Promise<void> }) {
+  const { user } = useAuth();
+  const deleteAccountFn = useServerFn(deleteAccount);
+  const [confirmText, setConfirmText] = useState("");
+  const [busy, setBusy] = useState(false);
+  const expected = "delete my account";
+  const canDelete = confirmText.toLowerCase() === expected;
+
+  const destroy = async () => {
+    if (!user?.id || !canDelete) return;
+    setBusy(true);
+    try {
+      await deleteAccountFn({ data: {} });
+      toast.success("Account deleted");
+      await onDeleted();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Please try again.";
+      toast.error("Could not delete account", { description: message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="mb-5 rounded-3xl border border-red-100 bg-red-50/50 p-5">
+      <div className="flex items-start gap-3">
+        <span className="grid h-9 w-9 place-items-center rounded-xl bg-red-100">
+          <Trash2 className="h-4 w-4 text-red-700" />
+        </span>
+        <div>
+          <h3 className="font-display text-base font-semibold tracking-tight text-red-800">
+            Delete account
+          </h3>
+          <p className="mt-0.5 text-xs text-red-700/80">
+            This permanently removes your Roost account, passport data, listings and tenancy records.
+            It cannot be undone.
+          </p>
+        </div>
+      </div>
+      <div className="mt-4">
+        <label className="block">
+          <span className="text-xs font-medium text-red-800">
+            Type "<strong>{expected}</strong>" to confirm
+          </span>
+          <input
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="delete my account"
+            className="mt-1 h-10 w-full rounded-xl border border-red-200 bg-surface px-3 text-sm text-foreground placeholder:text-muted-foreground/80 focus:outline-none focus:ring-2 focus:ring-red-300"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => void destroy()}
+          disabled={busy || !canDelete}
+          className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-red-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
+        >
+          {busy ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <AlertTriangle className="h-3.5 w-3.5" />
+          )}
+          {busy ? "Deleting…" : "Delete my account"}
+        </button>
+      </div>
+    </section>
+  );
+}
