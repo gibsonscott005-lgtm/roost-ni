@@ -118,9 +118,11 @@ function ApplicationsPage() {
   });
 
   const allShares = inboxQuery.data?.shares ?? [];
-  const shares = listingFilter
+  const filtered = listingFilter
     ? allShares.filter((s) => s.listing_id === listingFilter)
     : allShares;
+  const shares = filtered.filter((s) => s.status !== "withdrawn");
+  const withdrawnShares = filtered.filter((s) => s.status === "withdrawn");
   const passports = inboxQuery.data?.passports ?? {};
   const listingCount = inboxQuery.data?.listingCount ?? 0;
   const loading = inboxQuery.isPending && isLandlord;
