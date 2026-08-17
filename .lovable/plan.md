@@ -1,31 +1,52 @@
-# What's still outstanding in Roost
+# Beta tester readiness check
 
-Checked against the current code. Most of the earlier list is now done: safety certificate vault, browse filters, account settings (name/phone/email/password/delete), full end-of-tenancy workflow, tenant application withdrawal and re-apply, and custom-PDF lease viewing on both sides.
+## Current state
 
-Four genuine gaps remain.
+- The security scan is stale (last run 11 Aug 2026). No findings then, but the platform will not publish until a fresh scan is run and clear.
+- The app is not yet published. A preview link is available, but it is Lovable-login-only unless converted into a 7-day public share link.
+- The four gaps from the previous outstanding list are still unbuilt: scheduled reminders, email delivery, listing photo ordering/cover picker, and publishing itself.
+- Payments and identity verification remain in simulated mode (intentional for the prototype).
 
-## 1. Reminders only fire when a human clicks
-Rent-due, rent-overdue and 28-day deposit-deadline notifications exist as types, but they are only sent from buttons inside the landlord tenancy workspace. Nothing runs on a schedule, so a landlord who never opens the workspace sends no reminder and the tenant gets no warning. Certificate expiry has the same shape — expiry dates are stored but nothing announces them.
+## What this means for testers
 
-Fix: a scheduled endpoint under `/api/public/` protected by a shared secret, called daily, scanning for rent due/overdue, deposits approaching the 28-day deadline, and certificates expiring within 30 days, emitting notifications idempotently (one per item per day).
+You can approach testers now, but only with a **temporary public preview link** (Share → Share preview, 7 days, no Lovable account required). That keeps the preview login-only while the public link is active.
 
-## 2. Notifications are in-app only
-Everything lives in the bell. If neither party is signed in, a served notice, an issued lease or an emergency maintenance report goes unseen. Email delivery for a small set of high-priority types would close this.
+If you want a permanent, shareable URL, you must first:
 
-## 3. Listing photos cannot be ordered
-Upload and delete work, but there is no drag-to-reorder and no cover-image picker — the first uploaded photo is always the card image.
+1. Run a fresh security scan.
+2. Resolve any critical findings it reports.
+3. Publish the site.
 
-## 4. Not yet published
-The app is still preview-only. Testers need either a 7-day preview link or a published URL.
+Publishing with the four gaps still open is allowed, but testers will notice the missing pieces: rent reminders only arrive when a landlord manually clicks, notifications never reach email, and listing photos are always in upload order.
 
-## Smaller notes
-- Payments stay in simulated mode behind the feature flag — intentional for now.
-- Identity verification uses the simulated provider path — also intentional for the prototype.
+## Recommended paths
 
-## Suggested order
-1. Scheduled reminders (biggest behavioural gap)
-2. Email delivery for high-priority notifications
-3. Photo ordering and cover image
-4. Publish for testers
+```text
+Option A: Quick tester invite now
+  - Share → Share preview → generate a 7-day public link.
+  - Send it to a small trusted group with a note that the items above are still being built.
 
-Approve to work through in that order, or name the single item to start with.
+Option B: Clean beta launch
+  - Approve the plan to close the remaining four gaps.
+  - Run a fresh security scan.
+  - Publish the app to a permanent public URL.
+  - Then invite testers.
+```
+
+## If you choose Option B, the order is
+
+1. Scheduled reminders endpoint (`/api/public/`) — daily scan for rent due, rent overdue, deposit 28-day deadline, and safety certificates expiring within 30 days.
+2. Email delivery for high-priority notifications (lease issued, notice served, maintenance reported, deposit deadline, etc.) using the existing notification ledger.
+3. Listing photo ordering and cover-image picker.
+4. Run a fresh security scan and publish.
+
+## Technical section
+
+- **Security scan:** `security--run_security_scan` will refresh the report. The app cannot publish while it is stale or while critical findings exist.
+- **Publishing:** `preview_ui--publish` creates the permanent `.lovable.app` URL. The effective visibility is currently set to `public`, so the first publish will be publicly visible.
+- **Preview link:** Generated in the editor from Share → Share preview. No build or scan required.
+- **Remaining features:** No schema changes are needed for scheduled reminders or email notifications (they reuse the existing `notifications` table and notification types). Photo ordering needs a lightweight `display_order` column and a drag UI on the listing-photos component.
+
+## Decision needed
+
+Pick one of the two paths above, or name a single gap to start with.
