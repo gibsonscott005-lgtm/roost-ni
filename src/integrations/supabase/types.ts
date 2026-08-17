@@ -531,6 +531,36 @@ export type Database = {
         }
         Relationships: []
       }
+      reminder_log: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          kind: string
+          recipient_id: string
+          run_date: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          kind: string
+          recipient_id: string
+          run_date?: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          kind?: string
+          recipient_id?: string
+          run_date?: string
+        }
+        Relationships: []
+      }
       tenancy_deposit_settlements: {
         Row: {
           created_at: string
