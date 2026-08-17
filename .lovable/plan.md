@@ -1,52 +1,47 @@
-# Beta tester readiness check
+# Option B — clean beta launch
 
-## Current state
+Four pieces of work, then publish. Each is independent, so we can stop after any of them.
 
-- The security scan is stale (last run 11 Aug 2026). No findings then, but the platform will not publish until a fresh scan is run and clear.
-- The app is not yet published. A preview link is available, but it is Lovable-login-only unless converted into a 7-day public share link.
-- The four gaps from the previous outstanding list are still unbuilt: scheduled reminders, email delivery, listing photo ordering/cover picker, and publishing itself.
-- Payments and identity verification remain in simulated mode (intentional for the prototype).
+## 1. Scheduled reminders
 
-## What this means for testers
+Today rent-due, rent-overdue and deposit-deadline notifications only fire when a landlord clicks a button in the tenancy workspace, and certificate expiry dates are stored but never announced. A landlord who never opens the workspace sends nothing.
 
-You can approach testers now, but only with a **temporary public preview link** (Share → Share preview, 7 days, no Lovable account required). That keeps the preview login-only while the public link is active.
+Add a daily job that scans every active tenancy and emits notifications automatically:
 
-If you want a permanent, shareable URL, you must first:
+- Rent due in 3 days, and rent overdue.
+- Deposit protection approaching the 28-day statutory deadline (14, 7, 3 and 1 day out) and past it.
+- Safety certificates (EPC, Gas, EICR, alarms) expiring within 30 days, and expired.
 
-1. Run a fresh security scan.
-2. Resolve any critical findings it reports.
-3. Publish the site.
+Each item produces at most one notification per day, so a re-run never spams. Both tenant and landlord get the ones relevant to them.
 
-Publishing with the four gaps still open is allowed, but testers will notice the missing pieces: rent reminders only arrive when a landlord manually clicks, notifications never reach email, and listing photos are always in upload order.
+## 2. Email delivery for high-priority notifications
 
-## Recommended paths
+Everything currently lives in the bell, which means a served notice or an emergency repair goes unseen if nobody is signed in. Add email for a short list of types only:
 
-```text
-Option A: Quick tester invite now
-  - Share → Share preview → generate a 7-day public link.
-  - Send it to a small trusted group with a note that the items above are still being built.
+Lease issued, lease signed, lease counter-signed, notice to quit served, emergency maintenance reported, deposit deadline approaching, rent overdue, application accepted.
 
-Option B: Clean beta launch
-  - Approve the plan to close the remaining four gaps.
-  - Run a fresh security scan.
-  - Publish the app to a permanent public URL.
-  - Then invite testers.
-```
+Emails are plain, branded Roost, British English, and link straight to the relevant screen. Everything else stays in-app. The existing notification preferences screen gains a per-type email toggle so testers can turn it off.
 
-## If you choose Option B, the order is
+This needs a sending domain set up for Roost. Until a custom domain is verified, emails send from the Lovable-provided sender address.
 
-1. Scheduled reminders endpoint (`/api/public/`) — daily scan for rent due, rent overdue, deposit 28-day deadline, and safety certificates expiring within 30 days.
-2. Email delivery for high-priority notifications (lease issued, notice served, maintenance reported, deposit deadline, etc.) using the existing notification ledger.
-3. Listing photo ordering and cover-image picker.
-4. Run a fresh security scan and publish.
+## 3. Listing photo ordering and cover image
+
+Photos upload and delete, but the first one uploaded is always the card image. Add drag-to-reorder in the listing form and edit screen, plus a "Set as cover" action on each photo. The card, the detail gallery and dashboard thumbnails all follow the new order.
+
+## 4. Security scan and publish
+
+Run a fresh security scan, resolve anything critical, then publish to a permanent public URL. The project's publish visibility is already set to public, so the first publish is immediately shareable.
 
 ## Technical section
 
-- **Security scan:** `security--run_security_scan` will refresh the report. The app cannot publish while it is stale or while critical findings exist.
-- **Publishing:** `preview_ui--publish` creates the permanent `.lovable.app` URL. The effective visibility is currently set to `public`, so the first publish will be publicly visible.
-- **Preview link:** Generated in the editor from Share → Share preview. No build or scan required.
-- **Remaining features:** No schema changes are needed for scheduled reminders or email notifications (they reuse the existing `notifications` table and notification types). Photo ordering needs a lightweight `display_order` column and a drag UI on the listing-photos component.
+- **Reminders:** new route `src/routes/api/public/daily-reminders.ts` guarded by a shared secret header, plus `src/lib/reminders.server.ts` holding the scan logic. Scheduling via `pg_cron` + `pg_net` calling the stable `project--<id>.lovable.app` URL daily. Idempotency through a small `reminder_log` table keyed on (entity, type, date) with a unique constraint — insert-on-conflict-do-nothing decides whether to send.
+- **Email:** Lovable email infrastructure for the sending domain; a `sendNotificationEmail` helper in `src/lib/notification-email.server.ts` called from the existing `emit_notification` path so both scheduled and interactive notifications route through one place. New boolean columns on `notification_preferences` for email opt-out per type.
+- **Photos:** no schema change — `photo_paths` is already an ordered text array on `property_listings`; reordering rewrites the array and index 0 is the cover. Drag handling with pointer events in `src/components/listing-photos.tsx`, wired into `dashboard.listing-edit.tsx` and the create-listing form.
+- **Certificates:** expiry dates already exist on `property_certificates`; the job reads them directly.
 
-## Decision needed
+## Order
 
-Pick one of the two paths above, or name a single gap to start with.
+1. Scheduled reminders
+2. Email delivery
+3. Photo ordering and cover
+4. Scan and publish
