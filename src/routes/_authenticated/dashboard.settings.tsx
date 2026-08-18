@@ -99,6 +99,13 @@ const GROUPS: { title: string; blurb: string; types: NotificationType[] }[] = [
   },
 ];
 
+const CERTIFICATE_GROUP: { title: string; blurb: string; types: NotificationType[] } = {
+  title: "Safety certificates",
+  blurb: "Expiry warnings for gas, electrical and energy certificates",
+  types: ["certificate_expiring", "certificate_expired"],
+};
+GROUPS.push(CERTIFICATE_GROUP);
+
 /**
  * A short list of urgent alerts that can also arrive by email, so nothing
  * time-critical waits for the next sign-in.
