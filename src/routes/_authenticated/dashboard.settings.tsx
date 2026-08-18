@@ -346,6 +346,67 @@ function SettingsPage() {
             <Check className="h-3.5 w-3.5 text-verified" /> Changes save automatically.
             {NOTIFICATION_TYPES.length ? null : null}
           </p>
+
+          <h3 className="mb-1 mt-8 font-display text-lg font-semibold tracking-tight">
+            Email alerts
+          </h3>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Everything appears in your bell. Only these time-critical alerts are also sent to your
+            email address, so a deadline never waits for your next sign-in.
+          </p>
+
+          <button
+            type="button"
+            onClick={toggleEmailAll}
+            disabled={saving}
+            aria-pressed={emailEnabled}
+            className="mb-5 flex w-full items-center justify-between gap-4 rounded-3xl border border-border bg-surface p-5 text-left transition hover:bg-secondary/40 disabled:opacity-60"
+          >
+            <span className="flex items-start gap-3">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface-muted">
+                <Mail
+                  className={`h-4 w-4 ${emailEnabled ? "text-verified" : "text-muted-foreground"}`}
+                />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold">Email me urgent alerts</span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  {emailEnabled
+                    ? "Sent to the email address on your account."
+                    : "Turned off — urgent alerts will only appear in the app."}
+                </span>
+              </span>
+            </span>
+            <Toggle on={emailEnabled} />
+          </button>
+
+          <section
+            className={`mb-5 rounded-3xl border border-border bg-surface p-5 ${
+              emailEnabled ? "" : "pointer-events-none opacity-50"
+            }`}
+          >
+            <h3 className="font-display text-base font-semibold tracking-tight">
+              Which alerts reach your inbox
+            </h3>
+            <div className="mt-4 divide-y divide-border/70">
+              {EMAIL_TYPES.map((t) => {
+                const on = !emailMuted.includes(t);
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => toggleEmailType(t)}
+                    disabled={saving}
+                    aria-pressed={on}
+                    className="flex w-full items-center justify-between gap-4 py-3 text-left"
+                  >
+                    <span className="text-sm">{LABELS[t]}</span>
+                    <Toggle on={on} />
+                  </button>
+                );
+              })}
+            </div>
+          </section>
         </>
       )}
 
