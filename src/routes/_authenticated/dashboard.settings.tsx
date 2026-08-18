@@ -97,14 +97,12 @@ const GROUPS: { title: string; blurb: string; types: NotificationType[] }[] = [
       "tenancy_completed",
     ],
   },
+  {
+    title: "Safety certificates",
+    blurb: "Expiry warnings for gas, electrical and energy certificates",
+    types: ["certificate_expiring", "certificate_expired"],
+  },
 ];
-
-const CERTIFICATE_GROUP: { title: string; blurb: string; types: NotificationType[] } = {
-  title: "Safety certificates",
-  blurb: "Expiry warnings for gas, electrical and energy certificates",
-  types: ["certificate_expiring", "certificate_expired"],
-};
-GROUPS.push(CERTIFICATE_GROUP);
 
 /**
  * A short list of urgent alerts that can also arrive by email, so nothing
