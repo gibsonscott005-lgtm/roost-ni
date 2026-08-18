@@ -110,7 +110,7 @@ async function sendOnce(admin: Admin, runDate: string, args: SendArgs, out: Remi
 
   const { error } = await admin.rpc("emit_notification", {
     p_recipient_id: args.recipientId,
-    p_actor_id: null,
+    p_actor_id: null as unknown as string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     p_type: args.type as any,
     p_entity_type: args.entityType,

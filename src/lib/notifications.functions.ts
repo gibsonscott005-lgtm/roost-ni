@@ -25,6 +25,8 @@ export const NOTIFICATION_TYPES = [
   "maintenance_resolved",
   "notice_served",
   "notice_acknowledged",
+  "certificate_expiring",
+  "certificate_expired",
   "final_inspection_submitted",
   "final_inspection_agreed",
   "final_inspection_disputed",
@@ -97,5 +99,19 @@ export const emitNotification = createServerFn({ method: "POST" })
       console.error("[emitNotification] rpc failed", error);
       throw new Error(error.message);
     }
+
+    // High-priority types also go out by email, best-effort: a failure here
+    // must never undo the in-app notification that already landed.
+    if (rpcData) {
+      const { sendNotificationEmail } = await import("@/lib/notification-email.server");
+      await sendNotificationEmail(supabaseAdmin, {
+        recipientId: data.recipient_id,
+        type: data.type,
+        title: data.title,
+        body: data.body ?? "",
+        linkPath: data.link_path,
+      });
+    }
+
     return { id: rpcData };
   });

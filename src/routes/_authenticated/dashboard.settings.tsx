@@ -97,6 +97,27 @@ const GROUPS: { title: string; blurb: string; types: NotificationType[] }[] = [
       "tenancy_completed",
     ],
   },
+  {
+    title: "Safety certificates",
+    blurb: "Expiry warnings for gas, electrical and energy certificates",
+    types: ["certificate_expiring", "certificate_expired"],
+  },
+];
+
+/**
+ * A short list of urgent alerts that can also arrive by email, so nothing
+ * time-critical waits for the next sign-in.
+ */
+const EMAIL_TYPES: NotificationType[] = [
+  "lease_issued",
+  "lease_signed_by_tenant",
+  "lease_counter_signed",
+  "application_accepted",
+  "notice_served",
+  "maintenance_reported",
+  "rent_overdue",
+  "deposit_deadline_approaching",
+  "certificate_expired",
 ];
 
 const LABELS: Record<NotificationType, string> = {
@@ -128,6 +149,8 @@ const LABELS: Record<NotificationType, string> = {
   deposit_returned: "Deposit returned",
   tenancy_completed: "Tenancy completed",
   maintenance_resolved: "Maintenance resolved",
+  certificate_expiring: "Safety certificate expiring",
+  certificate_expired: "Safety certificate expired",
 };
 
 function Toggle({ on }: { on: boolean }) {
@@ -158,7 +181,7 @@ function SettingsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("notification_preferences")
-        .select("in_app_enabled, muted_types")
+        .select("in_app_enabled, muted_types, email_enabled, email_muted_types")
         .eq("user_id", user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -168,6 +191,8 @@ function SettingsPage() {
 
   const [enabled, setEnabled] = useState(true);
   const [muted, setMuted] = useState<NotificationType[]>([]);
+  const [emailEnabled, setEmailEnabled] = useState(true);
+  const [emailMuted, setEmailMuted] = useState<NotificationType[]>([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -176,9 +201,19 @@ function SettingsPage() {
     setMuted(
       ((prefsQuery.data?.muted_types as NotificationType[] | null) ?? []) as NotificationType[],
     );
+    setEmailEnabled(prefsQuery.data?.email_enabled ?? true);
+    setEmailMuted(
+      ((prefsQuery.data?.email_muted_types as NotificationType[] | null) ??
+        []) as NotificationType[],
+    );
   }, [prefsQuery.data]);
 
-  const persist = async (nextEnabled: boolean, nextMuted: NotificationType[]) => {
+  const persist = async (
+    nextEnabled: boolean,
+    nextMuted: NotificationType[],
+    nextEmailEnabled: boolean = emailEnabled,
+    nextEmailMuted: NotificationType[] = emailMuted,
+  ) => {
     if (!user?.id) return;
     setSaving(true);
     const { error } = await supabase.from("notification_preferences").upsert(
@@ -186,6 +221,8 @@ function SettingsPage() {
         user_id: user.id,
         in_app_enabled: nextEnabled,
         muted_types: nextMuted,
+        email_enabled: nextEmailEnabled,
+        email_muted_types: nextEmailMuted,
         updated_at: new Date().toISOString(),
       } as never,
       { onConflict: "user_id" },
@@ -209,6 +246,20 @@ function SettingsPage() {
     const next = !enabled;
     setEnabled(next);
     void persist(next, muted);
+  };
+
+  const toggleEmailAll = () => {
+    const next = !emailEnabled;
+    setEmailEnabled(next);
+    void persist(enabled, muted, next, emailMuted);
+  };
+
+  const toggleEmailType = (t: NotificationType) => {
+    const next = emailMuted.includes(t)
+      ? emailMuted.filter((x) => x !== t)
+      : [...emailMuted, t];
+    setEmailMuted(next);
+    void persist(enabled, muted, emailEnabled, next);
   };
 
   return (
@@ -295,6 +346,67 @@ function SettingsPage() {
             <Check className="h-3.5 w-3.5 text-verified" /> Changes save automatically.
             {NOTIFICATION_TYPES.length ? null : null}
           </p>
+
+          <h3 className="mb-1 mt-8 font-display text-lg font-semibold tracking-tight">
+            Email alerts
+          </h3>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Everything appears in your bell. Only these time-critical alerts are also sent to your
+            email address, so a deadline never waits for your next sign-in.
+          </p>
+
+          <button
+            type="button"
+            onClick={toggleEmailAll}
+            disabled={saving}
+            aria-pressed={emailEnabled}
+            className="mb-5 flex w-full items-center justify-between gap-4 rounded-3xl border border-border bg-surface p-5 text-left transition hover:bg-secondary/40 disabled:opacity-60"
+          >
+            <span className="flex items-start gap-3">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface-muted">
+                <Mail
+                  className={`h-4 w-4 ${emailEnabled ? "text-verified" : "text-muted-foreground"}`}
+                />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold">Email me urgent alerts</span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  {emailEnabled
+                    ? "Sent to the email address on your account."
+                    : "Turned off — urgent alerts will only appear in the app."}
+                </span>
+              </span>
+            </span>
+            <Toggle on={emailEnabled} />
+          </button>
+
+          <section
+            className={`mb-5 rounded-3xl border border-border bg-surface p-5 ${
+              emailEnabled ? "" : "pointer-events-none opacity-50"
+            }`}
+          >
+            <h3 className="font-display text-base font-semibold tracking-tight">
+              Which alerts reach your inbox
+            </h3>
+            <div className="mt-4 divide-y divide-border/70">
+              {EMAIL_TYPES.map((t) => {
+                const on = !emailMuted.includes(t);
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => toggleEmailType(t)}
+                    disabled={saving}
+                    aria-pressed={on}
+                    className="flex w-full items-center justify-between gap-4 py-3 text-left"
+                  >
+                    <span className="text-sm">{LABELS[t]}</span>
+                    <Toggle on={on} />
+                  </button>
+                );
+              })}
+            </div>
+          </section>
         </>
       )}
 

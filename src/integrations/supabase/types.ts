@@ -96,18 +96,24 @@ export type Database = {
       }
       notification_preferences: {
         Row: {
+          email_enabled: boolean
+          email_muted_types: Database["public"]["Enums"]["notification_type"][]
           in_app_enabled: boolean
           muted_types: Database["public"]["Enums"]["notification_type"][]
           updated_at: string
           user_id: string
         }
         Insert: {
+          email_enabled?: boolean
+          email_muted_types?: Database["public"]["Enums"]["notification_type"][]
           in_app_enabled?: boolean
           muted_types?: Database["public"]["Enums"]["notification_type"][]
           updated_at?: string
           user_id: string
         }
         Update: {
+          email_enabled?: boolean
+          email_muted_types?: Database["public"]["Enums"]["notification_type"][]
           in_app_enabled?: boolean
           muted_types?: Database["public"]["Enums"]["notification_type"][]
           updated_at?: string
