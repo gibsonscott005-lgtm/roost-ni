@@ -99,6 +99,22 @@ const GROUPS: { title: string; blurb: string; types: NotificationType[] }[] = [
   },
 ];
 
+/**
+ * A short list of urgent alerts that can also arrive by email, so nothing
+ * time-critical waits for the next sign-in.
+ */
+const EMAIL_TYPES: NotificationType[] = [
+  "lease_issued",
+  "lease_signed_by_tenant",
+  "lease_counter_signed",
+  "application_accepted",
+  "notice_served",
+  "maintenance_reported",
+  "rent_overdue",
+  "deposit_deadline_approaching",
+  "certificate_expired",
+];
+
 const LABELS: Record<NotificationType, string> = {
   application_received: "New application received",
   application_accepted: "Application accepted",
