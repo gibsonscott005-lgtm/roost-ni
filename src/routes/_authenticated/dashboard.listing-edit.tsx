@@ -370,6 +370,7 @@ function EditListingPage() {
               onRemoveExisting={(path) =>
                 setExistingPhotos((s) => s.filter((p) => p !== path))
               }
+              onReorderExisting={(paths) => setExistingPhotos(paths)}
             />
             <p className="mt-2 text-xs text-muted-foreground">
               Removed photos are cleared when you save your changes.

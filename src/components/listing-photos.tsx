@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ImageIcon, ChevronLeft, ChevronRight, Upload, X } from "lucide-react";
+import { ImageIcon, ChevronLeft, ChevronRight, Star, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const LISTING_PHOTOS_BUCKET = "listing-photos";
@@ -108,17 +108,99 @@ export function ListingCover({
   );
 }
 
-/** Swipeable gallery for the property detail page. */
+/** Move an item within an array, returning a new array. */
+function move<T>(list: T[], from: number, to: number): T[] {
+  if (to < 0 || to >= list.length) return list;
+  const next = [...list];
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item!);
+  return next;
+}
+
+/**
+ * Small overlay of ordering controls shown on each thumbnail: nudge left or
+ * right, or promote straight to cover. Buttons rather than drag-and-drop so it
+ * works the same on a phone as on a desktop.
+ */
+function OrderControls({
+  index,
+  count,
+  isCover,
+  onMove,
+  onMakeCover,
+  onRemove,
+}: {
+  index: number;
+  count: number;
+  isCover: boolean;
+  onMove: (to: number) => void;
+  onMakeCover: () => void;
+  onRemove?: () => void;
+}) {
+  return (
+    <>
+      {isCover ? (
+        <span className="absolute left-1 top-1 rounded-full bg-verified px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-background">
+          Cover
+        </span>
+      ) : (
+        <button
+          type="button"
+          aria-label="Use as cover photo"
+          title="Use as cover photo"
+          onClick={onMakeCover}
+          className="absolute left-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-foreground/75 text-background transition hover:bg-foreground"
+        >
+          <Star className="h-3 w-3" />
+        </button>
+      )}
+      {onRemove ? (
+        <button
+          type="button"
+          aria-label="Remove photo"
+          onClick={onRemove}
+          className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-foreground/75 text-background"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      ) : null}
+      <div className="absolute inset-x-1 bottom-1 flex justify-between gap-1">
+        <button
+          type="button"
+          aria-label="Move photo earlier"
+          disabled={index === 0}
+          onClick={() => onMove(index - 1)}
+          className="grid h-6 w-6 place-items-center rounded-full bg-foreground/75 text-background transition disabled:opacity-0"
+        >
+          <ChevronLeft className="h-3 w-3" />
+        </button>
+        <button
+          type="button"
+          aria-label="Move photo later"
+          disabled={index === count - 1}
+          onClick={() => onMove(index + 1)}
+          className="grid h-6 w-6 place-items-center rounded-full bg-foreground/75 text-background transition disabled:opacity-0"
+        >
+          <ChevronRight className="h-3 w-3" />
+        </button>
+      </div>
+    </>
+  );
+}
+
+/** Grid of photos with add, remove and ordering controls. */
 export function PhotoPicker({
   files,
   onChange,
   existing,
   onRemoveExisting,
+  onReorderExisting,
 }: {
   files: File[];
   onChange: (files: File[]) => void;
   existing?: string[];
   onRemoveExisting?: (path: string) => void;
+  onReorderExisting?: (paths: string[]) => void;
 }) {
   const [previews, setPreviews] = useState<string[]>([]);
   const existingUrls = useSignedPhotoUrls(existing);
@@ -135,10 +217,15 @@ export function PhotoPicker({
     onChange([...files, ...picked].slice(0, 10));
   };
 
+  const existingList = existing ?? [];
+  // The cover is simply the first photo overall — an existing one when there
+  // are any, otherwise the first newly picked file.
+  const coverIsExisting = existingList.length > 0;
+
   return (
     <div>
       <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
-        {(existing ?? []).map((path, i) => (
+        {existingList.map((path, i) => (
           <div
             key={path}
             className="relative aspect-square overflow-hidden rounded-xl border border-border bg-surface-muted"
@@ -146,7 +233,16 @@ export function PhotoPicker({
             {existingUrls[i] ? (
               <img src={existingUrls[i]} alt="" className="h-full w-full object-cover" />
             ) : null}
-            {onRemoveExisting ? (
+            {onReorderExisting ? (
+              <OrderControls
+                index={i}
+                count={existingList.length}
+                isCover={coverIsExisting && i === 0}
+                onMove={(to) => onReorderExisting(move(existingList, i, to))}
+                onMakeCover={() => onReorderExisting(move(existingList, i, 0))}
+                {...(onRemoveExisting ? { onRemove: () => onRemoveExisting(path) } : {})}
+              />
+            ) : onRemoveExisting ? (
               <button
                 type="button"
                 aria-label="Remove photo"
@@ -164,14 +260,14 @@ export function PhotoPicker({
             className="relative aspect-square overflow-hidden rounded-xl border border-border bg-surface-muted"
           >
             <img src={src} alt="" className="h-full w-full object-cover" />
-            <button
-              type="button"
-              aria-label="Remove photo"
-              onClick={() => onChange(files.filter((_, idx) => idx !== i))}
-              className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-foreground/75 text-background"
-            >
-              <X className="h-3 w-3" />
-            </button>
+            <OrderControls
+              index={i}
+              count={previews.length}
+              isCover={!coverIsExisting && i === 0}
+              onMove={(to) => onChange(move(files, i, to))}
+              onMakeCover={() => onChange(move(files, i, 0))}
+              onRemove={() => onChange(files.filter((_, idx) => idx !== i))}
+            />
           </div>
         ))}
         <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-surface-muted text-muted-foreground transition hover:bg-secondary">
@@ -190,7 +286,8 @@ export function PhotoPicker({
         </label>
       </div>
       <p className="mt-2.5 text-xs text-muted-foreground">
-        Up to 10 photos. The first image is used as the cover on search results.
+        Up to 10 photos. Use the arrows to reorder, or the star to make a photo the cover shown
+        on search results.
       </p>
     </div>
   );
