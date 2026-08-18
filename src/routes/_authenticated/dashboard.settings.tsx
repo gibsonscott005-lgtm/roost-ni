@@ -128,6 +128,8 @@ const LABELS: Record<NotificationType, string> = {
   deposit_returned: "Deposit returned",
   tenancy_completed: "Tenancy completed",
   maintenance_resolved: "Maintenance resolved",
+  certificate_expiring: "Safety certificate expiring",
+  certificate_expired: "Safety certificate expired",
 };
 
 function Toggle({ on }: { on: boolean }) {
