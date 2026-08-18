@@ -24,6 +24,7 @@ import { Route as AuthenticatedLandlordIssueLeaseRouteImport } from './routes/_a
 import { Route as AuthenticatedLandlordManageTenancyRouteImport } from './routes/_authenticated/landlord.manage-tenancy'
 import { Route as AuthenticatedTenantReviewLeaseRouteImport } from './routes/_authenticated/tenant.review-lease'
 import { Route as AuthenticatedTenantTenancyRouteImport } from './routes/_authenticated/tenant.tenancy'
+import { Route as ApiPublicDailyRemindersRouteImport } from './routes/api/public/daily-reminders'
 import { Route as ApiPublicIdentityWebhookRouteImport } from './routes/api/public/identity-webhook'
 import { Route as AuthenticatedDashboardPassportIndexRouteImport } from './routes/_authenticated/dashboard.passport.index'
 import { Route as AuthenticatedDashboardPassportEditRouteImport } from './routes/_authenticated/dashboard.passport.edit'
@@ -110,6 +111,11 @@ const AuthenticatedTenantTenancyRoute =
     path: '/tenant/tenancy',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicDailyRemindersRoute = ApiPublicDailyRemindersRouteImport.update({
+  id: '/api/public/daily-reminders',
+  path: '/api/public/daily-reminders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicIdentityWebhookRoute =
   ApiPublicIdentityWebhookRouteImport.update({
     id: '/api/public/identity-webhook',
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/landlord/manage-tenancy': typeof AuthenticatedLandlordManageTenancyRoute
   '/tenant/review-lease': typeof AuthenticatedTenantReviewLeaseRoute
   '/tenant/tenancy': typeof AuthenticatedTenantTenancyRoute
+  '/api/public/daily-reminders': typeof ApiPublicDailyRemindersRoute
   '/api/public/identity-webhook': typeof ApiPublicIdentityWebhookRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/landlord/manage-tenancy': typeof AuthenticatedLandlordManageTenancyRoute
   '/tenant/review-lease': typeof AuthenticatedTenantReviewLeaseRoute
   '/tenant/tenancy': typeof AuthenticatedTenantTenancyRoute
+  '/api/public/daily-reminders': typeof ApiPublicDailyRemindersRoute
   '/api/public/identity-webhook': typeof ApiPublicIdentityWebhookRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/_authenticated/landlord/manage-tenancy': typeof AuthenticatedLandlordManageTenancyRoute
   '/_authenticated/tenant/review-lease': typeof AuthenticatedTenantReviewLeaseRoute
   '/_authenticated/tenant/tenancy': typeof AuthenticatedTenantTenancyRoute
+  '/api/public/daily-reminders': typeof ApiPublicDailyRemindersRoute
   '/api/public/identity-webhook': typeof ApiPublicIdentityWebhookRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
     | '/landlord/manage-tenancy'
     | '/tenant/review-lease'
     | '/tenant/tenancy'
+    | '/api/public/daily-reminders'
     | '/api/public/identity-webhook'
     | '/dashboard/'
     | '/dashboard/passport/edit'
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
     | '/landlord/manage-tenancy'
     | '/tenant/review-lease'
     | '/tenant/tenancy'
+    | '/api/public/daily-reminders'
     | '/api/public/identity-webhook'
     | '/dashboard'
     | '/dashboard/passport/edit'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/_authenticated/landlord/manage-tenancy'
     | '/_authenticated/tenant/review-lease'
     | '/_authenticated/tenant/tenancy'
+    | '/api/public/daily-reminders'
     | '/api/public/identity-webhook'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/passport/edit'
@@ -254,6 +266,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ListingsIdRoute: typeof ListingsIdRoute
   ListingsIndexRoute: typeof ListingsIndexRoute
+  ApiPublicDailyRemindersRoute: typeof ApiPublicDailyRemindersRoute
   ApiPublicIdentityWebhookRoute: typeof ApiPublicIdentityWebhookRoute
 }
 
@@ -364,6 +377,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTenantTenancyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/daily-reminders': {
+      id: '/api/public/daily-reminders'
+      path: '/api/public/daily-reminders'
+      fullPath: '/api/public/daily-reminders'
+      preLoaderRoute: typeof ApiPublicDailyRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/identity-webhook': {
       id: '/api/public/identity-webhook'
       path: '/api/public/identity-webhook'
@@ -443,6 +463,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ListingsIdRoute: ListingsIdRoute,
   ListingsIndexRoute: ListingsIndexRoute,
+  ApiPublicDailyRemindersRoute: ApiPublicDailyRemindersRoute,
   ApiPublicIdentityWebhookRoute: ApiPublicIdentityWebhookRoute,
 }
 export const routeTree = rootRouteImport

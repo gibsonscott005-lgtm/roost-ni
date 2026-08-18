@@ -25,6 +25,8 @@ export const NOTIFICATION_TYPES = [
   "maintenance_resolved",
   "notice_served",
   "notice_acknowledged",
+  "certificate_expiring",
+  "certificate_expired",
   "final_inspection_submitted",
   "final_inspection_agreed",
   "final_inspection_disputed",
