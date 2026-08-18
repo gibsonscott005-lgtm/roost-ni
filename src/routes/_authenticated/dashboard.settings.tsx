@@ -181,7 +181,7 @@ function SettingsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("notification_preferences")
-        .select("in_app_enabled, muted_types")
+        .select("in_app_enabled, muted_types, email_enabled, email_muted_types")
         .eq("user_id", user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -191,6 +191,8 @@ function SettingsPage() {
 
   const [enabled, setEnabled] = useState(true);
   const [muted, setMuted] = useState<NotificationType[]>([]);
+  const [emailEnabled, setEmailEnabled] = useState(true);
+  const [emailMuted, setEmailMuted] = useState<NotificationType[]>([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -199,9 +201,19 @@ function SettingsPage() {
     setMuted(
       ((prefsQuery.data?.muted_types as NotificationType[] | null) ?? []) as NotificationType[],
     );
+    setEmailEnabled(prefsQuery.data?.email_enabled ?? true);
+    setEmailMuted(
+      ((prefsQuery.data?.email_muted_types as NotificationType[] | null) ??
+        []) as NotificationType[],
+    );
   }, [prefsQuery.data]);
 
-  const persist = async (nextEnabled: boolean, nextMuted: NotificationType[]) => {
+  const persist = async (
+    nextEnabled: boolean,
+    nextMuted: NotificationType[],
+    nextEmailEnabled: boolean = emailEnabled,
+    nextEmailMuted: NotificationType[] = emailMuted,
+  ) => {
     if (!user?.id) return;
     setSaving(true);
     const { error } = await supabase.from("notification_preferences").upsert(
@@ -209,6 +221,8 @@ function SettingsPage() {
         user_id: user.id,
         in_app_enabled: nextEnabled,
         muted_types: nextMuted,
+        email_enabled: nextEmailEnabled,
+        email_muted_types: nextEmailMuted,
         updated_at: new Date().toISOString(),
       } as never,
       { onConflict: "user_id" },
@@ -232,6 +246,20 @@ function SettingsPage() {
     const next = !enabled;
     setEnabled(next);
     void persist(next, muted);
+  };
+
+  const toggleEmailAll = () => {
+    const next = !emailEnabled;
+    setEmailEnabled(next);
+    void persist(enabled, muted, next, emailMuted);
+  };
+
+  const toggleEmailType = (t: NotificationType) => {
+    const next = emailMuted.includes(t)
+      ? emailMuted.filter((x) => x !== t)
+      : [...emailMuted, t];
+    setEmailMuted(next);
+    void persist(enabled, muted, emailEnabled, next);
   };
 
   return (
