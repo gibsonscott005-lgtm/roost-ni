@@ -1124,7 +1124,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
   };
 
   const inputCx =
-    "mt-1.5 block h-11 w-full rounded-xl border border-border bg-surface-muted px-3.5 text-sm text-foreground placeholder:text-muted-foreground/80 transition focus:border-verified/40 focus:bg-surface focus:outline-none focus:ring-2 focus:ring-verified/20";
+    "mt-1.5 block h-11 w-full rounded-xl border border-border bg-surface shadow-resting px-3.5 text-sm text-foreground placeholder:text-muted-foreground/80 transition focus:border-verified/40 focus:bg-surface focus:outline-none focus:ring-2 focus:ring-verified/20";
 
   return (
     <form onSubmit={onSubmit}>
@@ -1250,7 +1250,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
             <button
               type="button"
               onClick={() => setHeatingOpen((o) => !o)}
-              className="flex h-11 w-full items-center justify-between rounded-xl border border-border bg-surface-muted px-3.5 text-left text-sm text-foreground transition focus:border-verified/40 focus:bg-surface focus:outline-none focus:ring-2 focus:ring-verified/20"
+              className="flex h-11 w-full items-center justify-between rounded-xl border border-border bg-surface shadow-resting px-3.5 text-left text-sm text-foreground transition focus:border-verified/40 focus:bg-surface focus:outline-none focus:ring-2 focus:ring-verified/20"
               aria-haspopup="listbox"
               aria-expanded={heatingOpen}
             >
