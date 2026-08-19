@@ -428,7 +428,7 @@ function Field({
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
       <input
         {...props}
-        className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+        className="mt-1 h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
       />
     </label>
   );
