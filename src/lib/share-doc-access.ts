@@ -15,7 +15,7 @@ type ShareGuardResult = { tenant_id: string };
  *  - the share is in a status that still grants document access
  *    (a withdrawn application immediately revokes it).
  */
-async function authoriseShareDocAccess(
+export async function authoriseShareDocAccess(
   supabase: { from: (t: string) => any },
   userId: string,
   shareId: string,
