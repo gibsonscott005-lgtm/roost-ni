@@ -66,35 +66,39 @@
   --color-verified-soft: var(--verified-soft);
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
+  --shadow-resting: var(--elevation-resting);
+  --shadow-raised: var(--elevation-raised);
+  --shadow-floating: var(--elevation-floating);
+  --shadow-verified: var(--elevation-verified);
 }
 
 :root {
   --radius: 1rem;
-  /* Cool Slate palette: bg #eef2f7, surface #ffffff, ink #0f172a, emerald #10b981 */
-  --background: oklch(0.968 0.008 247);
+  /* Warm Porcelain palette: warm off-white ground, white surfaces, ink, deep emerald */
+  --background: oklch(0.958 0.004 95);
   --foreground: oklch(0.21 0.04 265);
   --surface: oklch(1 0 0);
-  --surface-muted: oklch(0.978 0.006 247);
+  --surface-muted: oklch(0.974 0.004 95);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.21 0.04 265);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.21 0.04 265);
   --primary: oklch(0.21 0.04 265);
   --primary-foreground: oklch(0.99 0.003 247);
-  --secondary: oklch(0.955 0.012 247);
+  --secondary: oklch(0.952 0.005 95);
   --secondary-foreground: oklch(0.21 0.04 265);
-  --muted: oklch(0.955 0.012 247);
-  --muted-foreground: oklch(0.52 0.03 257);
-  --accent: oklch(0.955 0.012 247);
+  --muted: oklch(0.952 0.005 95);
+  --muted-foreground: oklch(0.52 0.015 90);
+  --accent: oklch(0.952 0.005 95);
   --accent-foreground: oklch(0.21 0.04 265);
   --destructive: oklch(0.6 0.22 27);
   --destructive-foreground: oklch(0.99 0.003 247);
-  --border: oklch(0.915 0.014 250);
-  --input: oklch(0.915 0.014 250);
-  --ring: oklch(0.72 0.13 165);
-  --verified: oklch(0.7 0.16 165);
+  --border: oklch(0.905 0.005 95);
+  --input: oklch(0.905 0.005 95);
+  --ring: oklch(0.62 0.145 163);
+  --verified: oklch(0.62 0.145 163);
   --verified-foreground: oklch(0.99 0.003 247);
-  --verified-soft: oklch(0.955 0.05 165);
+  --verified-soft: oklch(0.945 0.045 165);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
