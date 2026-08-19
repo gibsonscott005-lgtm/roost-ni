@@ -18,3 +18,4 @@ Every milestone mutation must fanout via `emitNotification` to the counterparty;
 - [Maintenance tickets](mem://features/maintenance-tickets) — maintenance_tickets table + panel components, storage RLS gated by ticket ownership, notification fanout on status changes
 - [Self-certified passport](mem://features/self-certified-passport) — tenant_passports schema, wizard, verification_audit_logs, landlord ID viewing via signIdDocumentUrl, tenant-documents bucket rules
 - [Positioning & vetting boundary](mem://positioning-boundary) — agent-replacement positioning, both-sides pricing, the never-do list, language rules, landlord acceptance confirmation, agent-task roadmap
+- [Palette & elevation](mem://design/palette-and-elevation) — Warm Porcelain tokens, emerald-reserved rule, elevation scale, form field styling
