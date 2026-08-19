@@ -6,7 +6,9 @@ Roost assists, it never decides: never vet, score, rank or recommend a tenant. T
 "Verified" is retired from user-facing copy — use "Self-Certified", "Declared" or "Evidence attached". Missing name → "Applicant".
 Never invent social-proof numbers (applicant counts, demand stats, match counts).
 British English (UK) throughout user-facing copy (colour, organise, £).
-Design system: minimalist gray/white with emerald green accents. No purple/indigo gradients.
+Design system: Warm Porcelain neutrals (warm off-white ground, white surfaces) + emerald. No purple/indigo gradients, no cool slate greys.
+Emerald is RESERVED for verified/success/active states only — never the primary button colour. Primary actions stay near-black.
+Use shadow-resting / shadow-raised / shadow-floating / shadow-verified tokens; never hand-written shadow-[...] rgba values.
 Analytics: PostHog only. Zero-cost / organic-growth philosophy — no paid APIs unless requested.
 Identity is the one thing Roost verifies for real (tenant-paid check). Everything else is self-certified — only identity may say "Verified".
 Right to Rent is England-only and must never appear in Roost. The column and all copy were removed deliberately.
