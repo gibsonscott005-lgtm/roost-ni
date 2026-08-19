@@ -253,7 +253,7 @@ function ListingsIndexPage() {
                     value={minRent}
                     onChange={(e) => setMinRent(e.target.value.replace(/[^0-9]/g, ""))}
                     placeholder="400"
-                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface shadow-resting px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
                   />
                 </label>
                 <label className="block">
@@ -263,7 +263,7 @@ function ListingsIndexPage() {
                     value={maxRent}
                     onChange={(e) => setMaxRent(e.target.value.replace(/[^0-9]/g, ""))}
                     placeholder="1200"
-                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface shadow-resting px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
                   />
                 </label>
                 <label className="block">
@@ -273,7 +273,7 @@ function ListingsIndexPage() {
                     onChange={(e) =>
                       setHeating(e.target.value as (typeof HEATING_FILTERS)[number])
                     }
-                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface shadow-resting px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
                   >
                     {HEATING_FILTERS.map((h) => (
                       <option key={h} value={h}>
@@ -287,7 +287,7 @@ function ListingsIndexPage() {
                   <select
                     value={sort}
                     onChange={(e) => setSort(e.target.value as SortKey)}
-                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface shadow-resting px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
                   >
                     {SORTS.map((s) => (
                       <option key={s.key} value={s.key}>
@@ -303,7 +303,7 @@ function ListingsIndexPage() {
                   <select
                     value={beds}
                     onChange={(e) => setBeds(e.target.value as (typeof BEDROOM_FILTERS)[number])}
-                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface shadow-resting px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
                   >
                     {BEDROOM_FILTERS.map((b) => (
                       <option key={b} value={b}>
@@ -317,7 +317,7 @@ function ListingsIndexPage() {
                   <select
                     value={propertyType}
                     onChange={(e) => setPropertyType(e.target.value)}
-                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface shadow-resting px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
                   >
                     <option value="Any">Any</option>
                     {PROPERTY_TYPES.map((t) => (
@@ -332,7 +332,7 @@ function ListingsIndexPage() {
                   <select
                     value={furnished}
                     onChange={(e) => setFurnished(e.target.value)}
-                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface-muted px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
+                    className="mt-1 h-10 w-full rounded-xl border border-border bg-surface shadow-resting px-3 text-sm focus:outline-none focus:ring-2 focus:ring-verified/20"
                   >
                     <option value="Any">Any</option>
                     {FURNISHED_OPTIONS.map((f) => (
