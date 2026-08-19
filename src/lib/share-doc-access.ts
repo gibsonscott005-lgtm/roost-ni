@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Statuses that still entitle a landlord to view an applicant's documents.
  * Explicit allow-list (not a `!== "withdrawn"` deny-list) so any future
