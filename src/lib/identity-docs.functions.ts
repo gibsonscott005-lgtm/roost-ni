@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { authoriseShareDocAccess } from "./share-doc-access";
 
 const inputSchema = z.object({ share_id: z.string().uuid() });
 
@@ -12,20 +13,7 @@ export const signIdDocumentUrl = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    // Verify: this share references a listing owned by the caller.
-    const { data: share, error: shareErr } = await supabase
-      .from("passport_shares")
-      .select("id, tenant_id, listing:property_listings!listing_id(id, landlord_id)")
-      .eq("id", data.share_id)
-      .neq("status", "withdrawn")
-      .maybeSingle();
-
-    if (shareErr) throw new Error(shareErr.message);
-    if (!share) throw new Error("Application not found or access revoked");
-    const listing = Array.isArray(share.listing) ? share.listing[0] : share.listing;
-    if (!listing || listing.landlord_id !== userId) {
-      throw new Error("Forbidden");
-    }
+    const share = await authoriseShareDocAccess(supabase as never, userId, data.share_id);
 
     // Load the tenant's current id_document_path via authenticated client (RLS applies).
     // Landlords cannot read tenant_passports directly, so use admin after auth check.
@@ -56,19 +44,7 @@ export const signIncomeDocumentUrl = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    const { data: share, error: shareErr } = await supabase
-      .from("passport_shares")
-      .select("id, tenant_id, listing:property_listings!listing_id(id, landlord_id)")
-      .eq("id", data.share_id)
-      .neq("status", "withdrawn")
-      .maybeSingle();
-
-    if (shareErr) throw new Error(shareErr.message);
-    if (!share) throw new Error("Application not found or access revoked");
-    const listing = Array.isArray(share.listing) ? share.listing[0] : share.listing;
-    if (!listing || listing.landlord_id !== userId) {
-      throw new Error("Forbidden");
-    }
+    const share = await authoriseShareDocAccess(supabase as never, userId, data.share_id);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: passport, error: passErr } = await supabaseAdmin
