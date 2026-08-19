@@ -17,10 +17,11 @@ export const signIdDocumentUrl = createServerFn({ method: "POST" })
       .from("passport_shares")
       .select("id, tenant_id, listing:property_listings!listing_id(id, landlord_id)")
       .eq("id", data.share_id)
+      .neq("status", "withdrawn")
       .maybeSingle();
 
     if (shareErr) throw new Error(shareErr.message);
-    if (!share) throw new Error("Application not found");
+    if (!share) throw new Error("Application not found or access revoked");
     const listing = Array.isArray(share.listing) ? share.listing[0] : share.listing;
     if (!listing || listing.landlord_id !== userId) {
       throw new Error("Forbidden");
@@ -59,10 +60,11 @@ export const signIncomeDocumentUrl = createServerFn({ method: "POST" })
       .from("passport_shares")
       .select("id, tenant_id, listing:property_listings!listing_id(id, landlord_id)")
       .eq("id", data.share_id)
+      .neq("status", "withdrawn")
       .maybeSingle();
 
     if (shareErr) throw new Error(shareErr.message);
-    if (!share) throw new Error("Application not found");
+    if (!share) throw new Error("Application not found or access revoked");
     const listing = Array.isArray(share.listing) ? share.listing[0] : share.listing;
     if (!listing || listing.landlord_id !== userId) {
       throw new Error("Forbidden");
