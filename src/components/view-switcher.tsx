@@ -28,7 +28,7 @@ export function ViewSwitcher() {
               aria-selected={active}
               className={`flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition sm:flex-none sm:text-sm ${
                 active
-                  ? "bg-surface text-foreground shadow-[0_1px_0_rgba(15,23,42,0.04),0_8px_20px_-12px_rgba(15,23,42,0.25)]"
+                  ? "bg-surface text-foreground shadow-raised"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >

@@ -154,7 +154,7 @@ function ListingDetailPage() {
           </div>
         </div>
 
-        <section className="mt-6 overflow-hidden rounded-3xl border border-border bg-surface shadow-[0_1px_0_rgba(15,23,42,0.03)]">
+        <section className="mt-6 overflow-hidden rounded-3xl border border-border bg-surface shadow-resting">
           <ListingGallery paths={listing.photo_urls} alt={listing.title} />
         </section>
 
@@ -191,7 +191,7 @@ function ListingDetailPage() {
 
         <PropertyDetailsSection listing={listing} />
 
-        <section className="mt-5 rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
+        <section className="mt-5 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             NI compliance
           </p>
@@ -405,7 +405,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
         </div>
         <Link
           to="/auth"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-verified px-5 py-3 font-display text-sm font-semibold text-[var(--color-verified-foreground)] shadow-[0_12px_28px_-12px_rgba(16,121,75,0.45)] transition hover:brightness-95 sm:w-auto"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-verified px-5 py-3 font-display text-sm font-semibold text-[var(--color-verified-foreground)] shadow-verified transition hover:brightness-95 sm:w-auto"
         >
           <Sparkles className="h-4 w-4" />
           Sign in to apply
@@ -517,7 +517,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
         type="button"
         onClick={() => applyMutation.mutate()}
         disabled={sent || submitting}
-        className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 font-display text-sm font-semibold shadow-[0_12px_28px_-12px_rgba(16,121,75,0.45)] transition sm:w-auto ${
+        className={`inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 font-display text-sm font-semibold shadow-verified transition sm:w-auto ${
           sent
             ? "cursor-not-allowed bg-verified-soft text-verified"
             : "bg-verified text-[var(--color-verified-foreground)] hover:brightness-95 disabled:opacity-60"
@@ -541,7 +541,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
 
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4 shadow-[0_1px_0_rgba(15,23,42,0.03)]">
+    <div className="rounded-2xl border border-border bg-surface p-4 shadow-resting">
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         {label}
       </p>
@@ -593,7 +593,7 @@ function PropertyDetailsSection({ listing }: { listing: ListingDetail }) {
   if (!hasAnything) return null;
 
   return (
-    <section className="mt-5 rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
+    <section className="mt-5 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         The property
       </p>

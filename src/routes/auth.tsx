@@ -211,7 +211,7 @@ function AuthPage() {
           </p>
         </div>
 
-        <section className="rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
+        <section className="rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
           {mode === "reset" ? null : (
           <div
             role="tablist"
@@ -234,7 +234,7 @@ function AuthPage() {
                   onClick={() => setRole(v)}
                   className={`flex items-center justify-center gap-2 rounded-full px-3 py-2 text-xs font-medium transition sm:text-sm ${
                     active
-                      ? "bg-surface text-foreground shadow-[0_1px_0_rgba(15,23,42,0.04),0_8px_20px_-12px_rgba(15,23,42,0.25)]"
+                      ? "bg-surface text-foreground shadow-raised"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
@@ -368,7 +368,7 @@ function AuthPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-[0_12px_28px_-12px_rgba(15,23,42,0.45)] transition hover:translate-y-[-1px] hover:bg-foreground/92 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:translate-y-[-1px] hover:bg-foreground/92 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting
                 ? "Please wait…"

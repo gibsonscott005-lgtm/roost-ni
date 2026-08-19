@@ -215,7 +215,7 @@ function ListingsIndexPage() {
           </p>
         </div>
 
-        <div className="mb-6 rounded-2xl border border-border bg-surface p-2 shadow-[0_1px_0_rgba(15,23,42,0.04),0_12px_28px_-24px_rgba(15,23,42,0.18)]">
+        <div className="mb-6 rounded-2xl border border-border bg-surface p-2 shadow-raised">
           <div className="flex items-center gap-2">
             <Search className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
             <input
@@ -495,7 +495,7 @@ function ListingCard({ listing }: { listing: Listing }) {
     <Link
       to="/listings/$id"
       params={{ id: listing.id }}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_0_rgba(15,23,42,0.03),0_12px_28px_-24px_rgba(15,23,42,0.18)] transition hover:border-foreground/15 hover:shadow-[0_1px_0_rgba(15,23,42,0.04),0_20px_36px_-24px_rgba(15,23,42,0.25)]"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-raised transition hover:border-foreground/15 hover:shadow-floating"
     >
       <div className="border-b border-border">
         <ListingCover paths={listing.photo_urls} alt={listing.title} />
