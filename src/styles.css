@@ -112,11 +112,23 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
+
+  /* Elevation scale — themable, derived from --foreground rather than literal rgba */
+  --elevation-resting: 0 1px 2px
+    color-mix(in oklab, var(--foreground) 7%, transparent);
+  --elevation-raised: 0 1px 0 color-mix(in oklab, var(--foreground) 4%, transparent),
+    0 12px 28px -18px color-mix(in oklab, var(--foreground) 22%, transparent);
+  --elevation-floating: 0 1px 0 color-mix(in oklab, var(--foreground) 4%, transparent),
+    0 24px 48px -30px color-mix(in oklab, var(--foreground) 32%, transparent);
+  --elevation-verified: 0 12px 28px -12px
+    color-mix(in oklab, var(--verified) 42%, transparent);
 }
 
 .dark {
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
+  --surface: oklch(0.208 0.042 265.755);
+  --surface-muted: oklch(0.245 0.041 263);
   --card: oklch(0.208 0.042 265.755);
   --card-foreground: oklch(0.984 0.003 247.858);
   --popover: oklch(0.208 0.042 265.755);
@@ -133,7 +145,10 @@
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
+  --ring: oklch(0.7 0.15 163);
+  --verified: oklch(0.72 0.15 163);
+  --verified-foreground: oklch(0.16 0.03 265);
+  --verified-soft: oklch(0.3 0.06 165);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -147,6 +162,13 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+
+  --elevation-resting: 0 1px 2px oklch(0 0 0 / 0.4);
+  --elevation-raised: 0 1px 0 oklch(0 0 0 / 0.3), 0 12px 28px -18px oklch(0 0 0 / 0.7);
+  --elevation-floating: 0 1px 0 oklch(0 0 0 / 0.3),
+    0 24px 48px -30px oklch(0 0 0 / 0.85);
+  --elevation-verified: 0 12px 28px -12px
+    color-mix(in oklab, var(--verified) 45%, transparent);
 }
 
 @layer base {
@@ -163,5 +185,20 @@
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
+  }
+
+  /* Form controls: lift them off the page instead of flat outlined boxes. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  select,
+  textarea {
+    background-color: var(--color-surface);
+    box-shadow: var(--elevation-resting);
+  }
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    box-shadow: var(--elevation-resting),
+      0 0 0 3px color-mix(in oklab, var(--ring) 22%, transparent);
+    border-color: var(--color-ring);
   }
 }
