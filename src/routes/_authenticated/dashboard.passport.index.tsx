@@ -141,7 +141,7 @@ function MyPassportPage() {
     const pct = Math.round((doneCount / 3) * 100);
     return (
       <DashboardShell user={user} profile={profile} activeKey="passport">
-        <div className="rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
+        <div className="rounded-3xl border border-border bg-surface p-6 shadow-floating sm:p-8">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             My passport
           </p>
@@ -195,7 +195,7 @@ function MyPassportPage() {
 
   return (
     <DashboardShell user={user} profile={profile} activeKey="passport">
-      <div className="rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
+      <div className="rounded-3xl border border-border bg-surface p-6 shadow-floating sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">

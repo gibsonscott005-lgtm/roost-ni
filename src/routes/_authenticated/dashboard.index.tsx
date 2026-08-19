@@ -403,7 +403,7 @@ function TenantDashboard() {
 
   if (loading) {
     return (
-      <div className="rounded-3xl border border-border bg-surface p-10 text-center text-sm text-muted-foreground shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)]">
+      <div className="rounded-3xl border border-border bg-surface p-10 text-center text-sm text-muted-foreground shadow-floating">
         <Loader2 className="mx-auto h-5 w-5 animate-spin" />
         <p className="mt-2">Loading your dashboard…</p>
       </div>
@@ -411,7 +411,7 @@ function TenantDashboard() {
   }
 
   const acceptedBanner = acceptedShares.length > 0 ? (
-    <div className="mb-5 overflow-hidden rounded-3xl border border-verified/40 bg-verified-soft/70 p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
+    <div className="mb-5 overflow-hidden rounded-3xl border border-verified/40 bg-verified-soft/70 p-6 shadow-floating sm:p-8">
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-verified text-[var(--color-verified-foreground)]">
           <BadgeCheck className="h-5 w-5" />
@@ -502,7 +502,7 @@ function TenantDashboard() {
     <>
       {acceptedBanner}
 
-      <div className="rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
+      <div className="rounded-3xl border border-border bg-surface p-6 shadow-floating sm:p-8">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Dashboard overview
         </p>
@@ -623,7 +623,7 @@ function TenantDashboard() {
         </div>
       ) : null}
 
-      <div id="applications" className="mt-5 rounded-3xl border border-border bg-surface p-6 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-8">
+      <div id="applications" className="mt-5 rounded-3xl border border-border bg-surface p-6 shadow-floating sm:p-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -914,7 +914,7 @@ function MyProperties({
           </button>
         </div>
       ) : (
-        <ul className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)]">
+        <ul className="overflow-hidden rounded-2xl border border-border bg-surface shadow-floating">
           {listings.map((l, i) => (
             <li
               key={l.id}
@@ -1265,7 +1265,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
             {heatingOpen ? (
               <ul
                 role="listbox"
-                className="absolute z-10 mt-2 w-full overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-[0_24px_48px_-24px_rgba(15,23,42,0.25)]"
+                className="absolute z-10 mt-2 w-full overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-floating"
               >
                 {HEATING_OPTIONS.map((opt) => {
                   const active = opt === heating;
@@ -1364,7 +1364,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
                 aria-pressed={active}
                 className={`group flex items-start gap-3 rounded-2xl border p-3.5 text-left transition ${
                   active
-                    ? "border-foreground/20 bg-surface shadow-[0_1px_0_rgba(15,23,42,0.04),0_12px_28px_-24px_rgba(15,23,42,0.2)]"
+                    ? "border-foreground/20 bg-surface shadow-raised"
                     : "border-border bg-surface-muted hover:bg-secondary"
                 }`}
               >
@@ -1413,7 +1413,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         <button
           type="submit"
           disabled={submitting !== false}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-base font-semibold text-[var(--color-primary-foreground)] shadow-[0_12px_28px_-12px_rgba(15,23,42,0.45)] transition hover:translate-y-[-1px] hover:bg-foreground/92 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-base font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:translate-y-[-1px] hover:bg-foreground/92 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           <Sparkles className="h-4 w-4" />
           {submitting === "publish" ? "Publishing…" : "Publish listing"}
@@ -1433,7 +1433,7 @@ function FormCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-5 rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
+    <section className="mt-5 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         {eyebrow}
       </p>

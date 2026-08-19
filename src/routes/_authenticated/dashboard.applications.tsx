@@ -285,7 +285,7 @@ function ApplicationsPage() {
               </Link>
             </div>
           ) : (
-            <ul className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)]">
+            <ul className="overflow-hidden rounded-2xl border border-border bg-surface shadow-floating">
               {shares.map((s, i) => {
                 const p = passports[s.tenant_id];
                 const declaredCount = p
@@ -932,7 +932,7 @@ function PassportModal({
   const [ownChecksDone, setOwnChecksDone] = useState(false);
   return (
     <div className="fixed inset-0 z-50 grid place-items-end bg-foreground/30 px-4 py-6 backdrop-blur-sm sm:place-items-center">
-      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-surface shadow-[0_24px_64px_-24px_rgba(15,23,42,0.35)]">
+      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-surface shadow-floating">
         <div className="flex items-start justify-between gap-3 border-b border-border p-5">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">

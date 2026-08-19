@@ -338,7 +338,7 @@ function StepCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
+    <section className="rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-foreground">
           <Icon className="h-5 w-5" />
@@ -650,7 +650,7 @@ function StepActions({
       <button
         type="submit"
         disabled={saving}
-        className="inline-flex items-center gap-1.5 rounded-full bg-verified px-5 py-2.5 text-sm font-semibold text-[var(--color-verified-foreground)] shadow-[0_12px_28px_-12px_rgba(16,185,129,0.55)] transition hover:brightness-95 disabled:opacity-70"
+        className="inline-flex items-center gap-1.5 rounded-full bg-verified px-5 py-2.5 text-sm font-semibold text-[var(--color-verified-foreground)] shadow-verified transition hover:brightness-95 disabled:opacity-70"
       >
         {saving ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />

@@ -97,7 +97,7 @@ function ResetPasswordPage() {
           <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">Set a new password</h1>
         </div>
 
-        <section className="rounded-3xl border border-border bg-surface p-5 shadow-[0_1px_0_rgba(15,23,42,0.04),0_24px_48px_-32px_rgba(15,23,42,0.18)] sm:p-7">
+        <section className="rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
           {status === "checking" ? (
             <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -160,7 +160,7 @@ function ResetPasswordPage() {
               <button
                 type="submit"
                 disabled={submitting || mismatch}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-[0_12px_28px_-12px_rgba(15,23,42,0.45)] transition hover:bg-foreground/92 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {submitting ? "Please wait…" : "Update password"}
               </button>
