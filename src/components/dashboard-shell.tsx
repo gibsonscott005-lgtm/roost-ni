@@ -258,7 +258,7 @@ function TenantNavLink({
   icon: Icon,
   label,
 }: {
-  to: "/dashboard" | "/dashboard/passport" | "/dashboard/settings";
+  to: "/dashboard" | "/dashboard/passport" | "/dashboard/settings" | "/help";
   active: boolean;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
