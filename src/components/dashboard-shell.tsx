@@ -187,6 +187,7 @@ export function DashboardShell({
                 icon={Settings}
                 label="Notifications"
               />
+              <TenantNavLink to="/help" active={false} icon={LifeBuoy} label="Help & FAQ" />
             </nav>
           )}
         </aside>
