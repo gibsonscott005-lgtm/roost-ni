@@ -8,6 +8,10 @@ const DOC_ACCESS_STATUSES = ["pending", "reviewed", "accepted"] as const;
 
 type ShareGuardResult = { tenant_id: string };
 
+function isAllowedStatus(status: unknown): boolean {
+  return DOC_ACCESS_STATUSES.includes(status as (typeof DOC_ACCESS_STATUSES)[number]);
+}
+
 /**
  * Authorises a landlord to read documents belonging to the applicant on
  * `shareId`. Requires BOTH:
@@ -32,7 +36,7 @@ export async function authoriseShareDocAccess(
 
   // Defence in depth: re-check the status on the returned row in case the
   // filter above is ever relaxed or the column is renamed.
-  if (!DOC_ACCESS_STATUSES.includes(share.status)) {
+  if (!isAllowedStatus(share.status)) {
     throw new Error("Application not found or access revoked");
   }
 
@@ -41,5 +45,26 @@ export async function authoriseShareDocAccess(
     throw new Error("Forbidden");
   }
 
-  return { tenant_id: share.tenant_id };
+  // Final authority: re-read the share with the service-role client so the
+  // decision never depends on RLS visibility or a stale/cached row. Both the
+  // status allow-list and the listing ownership are enforced again here.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: authoritative, error: adminErr } = await supabaseAdmin
+    .from("passport_shares")
+    .select("status, tenant_id, listing:property_listings!listing_id(landlord_id)")
+    .eq("id", shareId)
+    .maybeSingle();
+
+  if (adminErr) throw new Error(adminErr.message);
+  if (!authoritative || !isAllowedStatus(authoritative.status)) {
+    throw new Error("Application not found or access revoked");
+  }
+  const adminListing = Array.isArray(authoritative.listing)
+    ? authoritative.listing[0]
+    : authoritative.listing;
+  if (!adminListing || (adminListing as any).landlord_id !== userId) {
+    throw new Error("Forbidden");
+  }
+
+  return { tenant_id: authoritative.tenant_id as string };
 }
