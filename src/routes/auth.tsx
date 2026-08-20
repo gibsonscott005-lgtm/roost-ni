@@ -5,6 +5,10 @@ import { Home, Mail, Lock, UserRound, ShieldCheck, Building2, IdCard } from "luc
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>): { role?: "tenant" | "landlord" } => {
+    const role = search['role'];
+    return role === "tenant" || role === "landlord" ? { role } : {};
+  },
   head: () => ({
     meta: [
       { title: "Sign in or sign up — Roost NI" },
@@ -76,7 +80,8 @@ function suggestEmailFix(email: string): string | null {
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [role, setRole] = useState<Role>("tenant");
+  const { role: roleFromSearch } = Route.useSearch();
+  const [role, setRole] = useState<Role>(roleFromSearch ?? "tenant");
   const [mode, setMode] = useState<Mode>("signup");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
