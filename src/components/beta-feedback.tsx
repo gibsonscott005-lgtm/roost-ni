@@ -217,6 +217,12 @@ export function BetaBanner() {
         >
           How to test
         </Link>
+        <Link
+          to="/help"
+          className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+        >
+          Help
+        </Link>
         <button
           type="button"
           onClick={openBetaFeedback}

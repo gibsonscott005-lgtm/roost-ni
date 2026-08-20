@@ -3,6 +3,7 @@ import {
   Home,
   Inbox,
   LayoutGrid,
+  LifeBuoy,
   LogOut,
   Plus,
   IdCard,
@@ -164,6 +165,7 @@ export function DashboardShell({
                 icon={Settings}
                 label="Notifications"
               />
+              <NavLink to="/help" active={false} icon={LifeBuoy} label="Help & FAQ" />
             </nav>
           ) : (
             <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-border bg-surface p-2 lg:flex-col lg:overflow-visible">
@@ -185,6 +187,7 @@ export function DashboardShell({
                 icon={Settings}
                 label="Notifications"
               />
+              <TenantNavLink to="/help" active={false} icon={LifeBuoy} label="Help & FAQ" />
             </nav>
           )}
         </aside>
@@ -233,7 +236,7 @@ function NavLink({
   label,
   badge,
 }: {
-  to: "/dashboard/applications" | "/dashboard/settings";
+  to: "/dashboard/applications" | "/dashboard/settings" | "/help";
   active: boolean;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
@@ -256,7 +259,7 @@ function TenantNavLink({
   icon: Icon,
   label,
 }: {
-  to: "/dashboard" | "/dashboard/passport" | "/dashboard/settings";
+  to: "/dashboard" | "/dashboard/passport" | "/dashboard/settings" | "/help";
   active: boolean;
   icon: React.ComponentType<{ className?: string }>;
   label: string;

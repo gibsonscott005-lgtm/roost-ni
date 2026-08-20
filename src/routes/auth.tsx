@@ -187,7 +187,7 @@ function AuthPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border/70 bg-surface/85 backdrop-blur">
-        <div className="mx-auto flex h-14 w-full max-w-3xl items-center px-4 sm:px-6">
+        <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
             <span className="grid h-8 w-8 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
               <Home className="h-4 w-4" strokeWidth={2.25} />
@@ -196,6 +196,20 @@ function AuthPage() {
               Roost<span className="text-verified">.</span>ni
             </span>
           </Link>
+          <div className="flex items-center gap-1">
+            <Link
+              to="/beta"
+              className="rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground"
+            >
+              About the beta
+            </Link>
+            <Link
+              to="/help"
+              className="rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground"
+            >
+              Help
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -416,6 +430,18 @@ function AuthPage() {
             </p>
           )}
         </section>
+
+        <p className="mt-8 text-center text-xs text-muted-foreground">
+          New to the beta?{" "}
+          <Link to="/beta" className="font-medium text-foreground underline-offset-4 hover:underline">
+            Read what we'd like you to test
+          </Link>{" "}
+          or visit the{" "}
+          <Link to="/help" className="font-medium text-foreground underline-offset-4 hover:underline">
+            help centre
+          </Link>
+          .
+        </p>
       </main>
     </div>
   );
