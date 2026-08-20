@@ -430,6 +430,18 @@ function AuthPage() {
             </p>
           )}
         </section>
+
+        <p className="mt-8 text-center text-xs text-muted-foreground">
+          New to the beta?{" "}
+          <Link to="/beta" className="font-medium text-foreground underline-offset-4 hover:underline">
+            Read what we'd like you to test
+          </Link>{" "}
+          or visit the{" "}
+          <Link to="/help" className="font-medium text-foreground underline-offset-4 hover:underline">
+            help centre
+          </Link>
+          .
+        </p>
       </main>
     </div>
   );
