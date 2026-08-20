@@ -165,6 +165,7 @@ export function DashboardShell({
                 icon={Settings}
                 label="Notifications"
               />
+              <NavLink to="/help" active={false} icon={LifeBuoy} label="Help & FAQ" />
             </nav>
           ) : (
             <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-border bg-surface p-2 lg:flex-col lg:overflow-visible">
