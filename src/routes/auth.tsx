@@ -142,7 +142,7 @@ function AuthPage() {
     });
 
     return () => sub.subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, nextFromSearch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -169,7 +169,10 @@ function AuthPage() {
           email: normalizedEmail,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth`,
+            emailRedirectTo: `${window.location.origin}/auth${
+              nextFromSearch ? `?next=${encodeURIComponent(nextFromSearch)}` : ""
+            }`,
+
             data: { full_name: fullName, account_type: role },
           },
         });
