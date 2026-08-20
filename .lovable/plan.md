@@ -10,16 +10,16 @@
 
 ## Why I still wouldn't hit "invite" yet
 
-1. The **lovable.app URL** exposes the builder platform and gives the project away to anyone who looks at the address bar.
+1. The **lovable.app URL** exposes the builder platform. `roostni.co.uk` fixes that.
 2. There is **no beta landing surface** — testers will be dropped straight into the auth/sign-up flow with no context, instructions, or way to give feedback.
 3. The **Lovable badge** is visible on the public deployment, which undermines the Roost brand for a closed beta.
 
 ## What this plan will do
 
-1. **Connect a custom domain** (you provide the domain name below).
-   - Update Lovable publish settings with the new domain.
-   - Provide the DNS records you need to add with your registrar.
-   - Republish the app so testers see `https://your-domain.com` instead of the Lovable URL.
+1. **Connect `roostni.co.uk` as the custom domain.**
+   - You add it in Project settings > Domains (Connect Domain). Add both `roostni.co.uk` and `www.roostni.co.uk`, and set one as Primary.
+   - At your registrar: A record `@` -> `185.158.133.1`, A record `www` -> `185.158.133.1`, plus the TXT verification record Lovable shows you. If you use Cloudflare, tick the proxy option under Advanced.
+   - I'll check the connection status and republish once DNS verifies, so testers only ever see `https://roostni.co.uk`.
 
 2. **Hide the "Edit with Lovable" badge** (requires a paid Lovable plan; if unavailable, we'll note it and skip).
 
@@ -46,7 +46,7 @@
 
 ## What I need from you
 
-**Please reply with the custom domain you want to use** (e.g. `beta.roostpassport.co.uk`, `app.roost.ni`, `tryroost.com`). If you don't have one yet, register it first, then tell me the exact domain.
+Domain confirmed as **roostni.co.uk**. The only step I can't do for you is adding the domain in Project settings > Domains and creating the DNS records at your registrar — that has to happen from your account. Everything else in this plan I'll build and verify. DNS can take up to 72 hours to propagate, though it's usually much quicker.
 
 ## What I'm not touching
 
