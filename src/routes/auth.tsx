@@ -5,10 +5,21 @@ import { Home, Mail, Lock, UserRound, ShieldCheck, Building2, IdCard } from "luc
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { role?: "tenant" | "landlord" } => {
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { role?: "tenant" | "landlord"; next?: string } => {
     const role = search['role'];
-    return role === "tenant" || role === "landlord" ? { role } : {};
+    const rawNext = search['next'];
+    const next =
+      typeof rawNext === "string" && rawNext.startsWith("/") && !rawNext.startsWith("//")
+        ? rawNext
+        : undefined;
+    return {
+      ...(role === "tenant" || role === "landlord" ? { role } : {}),
+      ...(next ? { next } : {}),
+    };
   },
+
   head: () => ({
     meta: [
       { title: "Sign in or sign up — Roost NI" },
@@ -80,7 +91,7 @@ function suggestEmailFix(email: string): string | null {
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { role: roleFromSearch } = Route.useSearch();
+  const { role: roleFromSearch, next: nextFromSearch } = Route.useSearch();
   const [role, setRole] = useState<Role>(roleFromSearch ?? "tenant");
   const [mode, setMode] = useState<Mode>("signup");
   const [fullName, setFullName] = useState("");
@@ -98,9 +109,15 @@ function AuthPage() {
         .select("account_type")
         .eq("id", userId)
         .maybeSingle();
+      // Honour a preserved same-origin return path (e.g. the OAuth consent screen).
+      if (nextFromSearch) {
+        window.location.href = nextFromSearch;
+        return;
+      }
       const target = "/dashboard";
       navigate({ to: target });
     };
+
 
     // Initial session check (handles email-confirmation redirects landing here)
     supabase.auth.getSession().then(({ data }) => {
@@ -125,7 +142,7 @@ function AuthPage() {
     });
 
     return () => sub.subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, nextFromSearch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,7 +169,10 @@ function AuthPage() {
           email: normalizedEmail,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth`,
+            emailRedirectTo: `${window.location.origin}/auth${
+              nextFromSearch ? `?next=${encodeURIComponent(nextFromSearch)}` : ""
+            }`,
+
             data: { full_name: fullName, account_type: role },
           },
         });

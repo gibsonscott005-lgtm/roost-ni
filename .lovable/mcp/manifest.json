@@ -1,0 +1,212 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.2",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://vstujbraaeagtreohyvq.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "northern-ireland-rental-hub",
+      "version": "0.1.0",
+      "title": "Northern Ireland Rental Hub"
+    },
+    "tools": [
+      {
+        "name": "search_listings",
+        "title": "Search rental listings",
+        "description": "Search published Northern Ireland rental listings on Roost by text, town, rent range, bedrooms and heating type.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "query": {
+              "description": "Free text matched against title, address and town.",
+              "type": "string"
+            },
+            "maxRent": {
+              "description": "Maximum monthly rent in GBP.",
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "minBedrooms": {
+              "description": "Minimum number of bedrooms.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "heatingType": {
+              "description": "Heating type filter.",
+              "type": "string",
+              "enum": [
+                "oil",
+                "gas",
+                "electric",
+                "lpg"
+              ]
+            },
+            "limit": {
+              "default": 20,
+              "description": "Maximum results to return.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_listing",
+        "title": "Get listing details",
+        "description": "Fetch the full detail of one Roost rental listing, including NI-specific fields such as heating type and Fair Fuel policy.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "listingId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+              "description": "The listing id."
+            }
+          },
+          "required": [
+            "listingId"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "my_listings",
+        "title": "My properties",
+        "description": "List the properties owned by the signed-in landlord, including publication status and rent.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "includeUnpublished": {
+              "default": true,
+              "description": "Include drafts and unpublished listings.",
+              "type": "boolean"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "my_applications",
+        "title": "My applications and tenancies",
+        "description": "List passport applications and tenancies visible to the signed-in user — those they sent as a tenant, or received as a landlord.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "status": {
+              "description": "Filter by application status.",
+              "type": "string",
+              "enum": [
+                "pending",
+                "reviewed",
+                "accepted",
+                "declined",
+                "withdrawn"
+              ]
+            },
+            "limit": {
+              "default": 25,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "maintenance_tickets",
+        "title": "Maintenance tickets",
+        "description": "List maintenance tickets visible to the signed-in user — reported by them as a tenant, or raised on their properties as a landlord.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "status": {
+              "description": "Filter by ticket status.",
+              "type": "string",
+              "enum": [
+                "open",
+                "in_progress",
+                "resolved"
+              ]
+            },
+            "limit": {
+              "default": 25,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "my_notifications",
+        "title": "My notifications",
+        "description": "List recent Roost notifications for the signed-in user, newest first.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "unreadOnly": {
+              "default": false,
+              "description": "Only return notifications that are still unread.",
+              "type": "boolean"
+            },
+            "limit": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
