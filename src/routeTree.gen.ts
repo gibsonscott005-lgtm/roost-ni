@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BetaRouteImport } from './routes/beta'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
@@ -47,6 +48,11 @@ const AuthRoute = AuthRouteImport.update({
 const BetaRoute = BetaRouteImport.update({
   id: '/beta',
   path: '/beta',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/beta': typeof BetaRoute
+  '/help': typeof HelpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/listings/$id': typeof ListingsIdRoute
@@ -166,6 +173,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/beta': typeof BetaRoute
+  '/help': typeof HelpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/listings/$id': typeof ListingsIdRoute
   '/listings': typeof ListingsIndexRoute
@@ -188,6 +196,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/beta': typeof BetaRoute
+  '/help': typeof HelpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/listings/$id': typeof ListingsIdRoute
@@ -211,6 +220,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/beta'
+    | '/help'
     | '/reset-password'
     | '/dashboard'
     | '/listings/$id'
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/beta'
+    | '/help'
     | '/reset-password'
     | '/listings/$id'
     | '/listings'
@@ -253,6 +264,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/beta'
+    | '/help'
     | '/reset-password'
     | '/_authenticated/dashboard'
     | '/listings/$id'
@@ -276,6 +288,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   BetaRoute: typeof BetaRoute
+  HelpRoute: typeof HelpRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ListingsIdRoute: typeof ListingsIdRoute
   ListingsIndexRoute: typeof ListingsIndexRoute
@@ -311,6 +324,13 @@ declare module '@tanstack/react-router' {
       path: '/beta'
       fullPath: '/beta'
       preLoaderRoute: typeof BetaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -481,6 +501,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   BetaRoute: BetaRoute,
+  HelpRoute: HelpRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ListingsIdRoute: ListingsIdRoute,
   ListingsIndexRoute: ListingsIndexRoute,

@@ -43,12 +43,20 @@ function BetaPage() {
               Roost<span className="text-verified">.</span>ni
             </span>
           </span>
-          <Link
-            to="/auth"
-            className="rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
-          >
-            Sign in
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/help"
+              className="rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground"
+            >
+              Help & FAQ
+            </Link>
+            <Link
+              to="/auth"
+              className="rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+            >
+              Sign in
+            </Link>
+          </div>
         </div>
       </header>
 
