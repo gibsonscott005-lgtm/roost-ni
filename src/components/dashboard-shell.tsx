@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/hooks/use-auth";
 import type { User } from "@supabase/supabase-js";
 import { NotificationsBell } from "@/components/notifications-bell";
+import { BetaBanner } from "@/components/beta-feedback";
 
 export type DashboardKey = "properties" | "add" | "applications" | "passport" | "settings";
 
@@ -188,7 +189,10 @@ export function DashboardShell({
           )}
         </aside>
 
-        <section>{children}</section>
+        <section>
+          <BetaBanner />
+          {children}
+        </section>
       </main>
     </div>
   );
