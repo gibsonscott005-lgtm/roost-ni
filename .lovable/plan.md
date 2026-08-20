@@ -10,7 +10,7 @@
 
 ## Why I still wouldn't hit "invite" yet
 
-1. The **lovable.app URL** exposes the builder platform and gives the project away to anyone who looks at the address bar.
+1. The **lovable.app URL** exposes the builder platform. `roostni.co.uk` fixes that.
 2. There is **no beta landing surface** — testers will be dropped straight into the auth/sign-up flow with no context, instructions, or way to give feedback.
 3. The **Lovable badge** is visible on the public deployment, which undermines the Roost brand for a closed beta.
 
