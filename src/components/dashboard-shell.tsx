@@ -3,6 +3,7 @@ import {
   Home,
   Inbox,
   LayoutGrid,
+  LifeBuoy,
   LogOut,
   Plus,
   IdCard,
