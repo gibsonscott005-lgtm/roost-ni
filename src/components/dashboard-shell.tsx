@@ -235,7 +235,7 @@ function NavLink({
   label,
   badge,
 }: {
-  to: "/dashboard/applications" | "/dashboard/settings";
+  to: "/dashboard/applications" | "/dashboard/settings" | "/help";
   active: boolean;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
