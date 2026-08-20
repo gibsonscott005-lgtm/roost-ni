@@ -1,0 +1,231 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+  IdCard,
+  Home,
+  ShieldCheck,
+  FileSignature,
+  Wrench,
+  MessageSquarePlus,
+} from "lucide-react";
+
+export const Route = createFileRoute("/beta")({
+  head: () => ({
+    meta: [
+      { title: "Join the Roost Beta — Northern Ireland Renting, Direct" },
+      {
+        name: "description",
+        content:
+          "Help test Roost, Northern Ireland's direct renting platform. Tenant passports, compliant listings and full tenancy management — built around NI law.",
+      },
+      { property: "og:title", content: "Join the Roost Beta" },
+      {
+        property: "og:description",
+        content:
+          "Test Roost before launch: tenant passports for renters, compliant listings and tenancy management for landlords across Northern Ireland.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: BetaPage,
+});
+
+function BetaPage() {
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="border-b border-border/70 bg-surface/80 backdrop-blur">
+        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
+          <span className="flex items-center gap-2">
+            <span className="grid h-8 w-8 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
+              <Home className="h-4 w-4" strokeWidth={2.25} />
+            </span>
+            <span className="font-display text-base font-semibold tracking-tight">
+              Roost<span className="text-verified">.</span>ni
+            </span>
+          </span>
+          <Link
+            to="/auth"
+            className="rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+          >
+            Sign in
+          </Link>
+        </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+        <span className="inline-flex items-center gap-2 rounded-full border border-verified/30 bg-verified-soft/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
+          Closed beta
+        </span>
+        <h1 className="mt-5 max-w-3xl font-display text-3xl font-semibold tracking-tight sm:text-5xl">
+          Renting in Northern Ireland, direct between tenant and landlord.
+        </h1>
+        <p className="mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
+          Roost gives renters a self-certified Tenant Passport and gives self-managing
+          landlords everything a tenancy needs — listings, applications, leases, deposits,
+          rent and repairs — with Northern Ireland's rules built in. You're here early:
+          your job is to break it and tell us where it hurts.
+        </p>
+
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <Link
+            to="/auth"
+            search={{ role: "tenant" }}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
+          >
+            <IdCard className="h-4 w-4" />
+            I'm a tenant
+          </Link>
+          <Link
+            to="/auth"
+            search={{ role: "landlord" }}
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 py-3 font-display text-sm font-semibold text-foreground shadow-resting transition hover:bg-secondary"
+          >
+            <Home className="h-4 w-4" />
+            I'm a landlord
+          </Link>
+        </div>
+
+        <section className="mt-14 grid gap-4 sm:grid-cols-2">
+          <PathCard
+            icon={IdCard}
+            title="Tenants: build your passport"
+            steps={[
+              "Create an account and open your Tenant Passport.",
+              "Add identity, income (including benefits) and references.",
+              "Browse listings and apply with one tap — no re-typing.",
+              "Track applications, sign your lease and manage the tenancy.",
+            ]}
+          />
+          <PathCard
+            icon={Home}
+            title="Landlords: list and let"
+            steps={[
+              "Create an account and add a property with your NI registration number.",
+              "Set rent, deposit, heating and Fair Fuel terms.",
+              "Review received passports and affordability at a glance.",
+              "Issue the lease, protect the deposit and run the tenancy.",
+            ]}
+          />
+        </section>
+
+        <section className="mt-12">
+          <h2 className="font-display text-xl font-semibold tracking-tight">
+            What we'd most like you to test
+          </h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <Tile
+              icon={ShieldCheck}
+              title="Passport & screening"
+              body="Does uploading documents and sharing them with a landlord feel safe and clear?"
+            />
+            <Tile
+              icon={FileSignature}
+              title="Lease & deposit"
+              body="Issue, sign, counter-sign, then protect the deposit inside the 28-day window."
+            />
+            <Tile
+              icon={Wrench}
+              title="Living in it"
+              body="Rent ledger, inventory, Fair Fuel readings, repairs and ending a tenancy."
+            />
+          </div>
+        </section>
+
+        <section className="mt-12 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+          <h2 className="font-display text-xl font-semibold tracking-tight">
+            Ground rules for the beta
+          </h2>
+          <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
+            <li>
+              <span className="font-medium text-foreground">Use test data.</span> Don't
+              upload a real passport, payslip or anyone else's personal details.
+            </li>
+            <li>
+              <span className="font-medium text-foreground">Nothing is charged.</span>{" "}
+              Pricing is shown for feedback only — payments are switched off.
+            </li>
+            <li>
+              <span className="font-medium text-foreground">Roost assists, it never decides.</span>{" "}
+              Documents are self-certified by the tenant; Roost does not run background checks
+              or approve anyone on a landlord's behalf.
+            </li>
+            <li>
+              <span className="font-medium text-foreground">Tell us everything.</span> Use the
+              Feedback button in the bottom corner of every signed-in page.
+            </li>
+          </ul>
+          <p className="mt-5 inline-flex items-center gap-2 text-sm text-foreground">
+            <MessageSquarePlus className="h-4 w-4 text-verified" />
+            Feedback goes straight to the team — a one-line note is genuinely useful.
+          </p>
+        </section>
+
+        <div className="mt-12 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+          <Link
+            to="/auth"
+            search={{ role: "tenant" }}
+            className="inline-flex items-center justify-center rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
+          >
+            Create your beta account
+          </Link>
+          <span className="text-sm text-muted-foreground">
+            Takes about two minutes. You can switch roles later by signing up again.
+          </span>
+        </div>
+      </main>
+
+      <footer className="border-t border-border/70 py-8">
+        <p className="mx-auto w-full max-w-5xl px-4 text-xs text-muted-foreground sm:px-6">
+          Roost — built for Northern Ireland. Beta software: expect rough edges.
+        </p>
+      </footer>
+    </div>
+  );
+}
+
+function PathCard({
+  icon: Icon,
+  title,
+  steps,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  steps: string[];
+}) {
+  return (
+    <div className="rounded-3xl border border-border bg-surface p-6 shadow-resting">
+      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-surface-muted">
+        <Icon className="h-5 w-5 text-foreground" />
+      </span>
+      <h3 className="mt-4 font-display text-lg font-semibold tracking-tight">{title}</h3>
+      <ol className="mt-3 space-y-2 text-sm text-muted-foreground">
+        {steps.map((s, i) => (
+          <li key={s} className="flex gap-2.5">
+            <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-surface-muted text-[11px] font-semibold text-foreground">
+              {i + 1}
+            </span>
+            {s}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+function Tile({
+  icon: Icon,
+  title,
+  body,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-5 shadow-resting">
+      <Icon className="h-4 w-4 text-verified" />
+      <h3 className="mt-3 text-sm font-semibold text-foreground">{title}</h3>
+      <p className="mt-1.5 text-sm text-muted-foreground">{body}</p>
+    </div>
+  );
+}

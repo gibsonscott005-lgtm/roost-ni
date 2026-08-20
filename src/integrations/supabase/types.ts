@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      beta_feedback: {
+        Row: {
+          account_type: string | null
+          category: string
+          created_at: string
+          id: string
+          message: string
+          page_path: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          account_type?: string | null
+          category: string
+          created_at?: string
+          id?: string
+          message: string
+          page_path?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          account_type?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string
+          page_path?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       billing_config: {
         Row: {
           created_at: string
