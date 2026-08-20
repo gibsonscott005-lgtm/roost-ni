@@ -5,10 +5,21 @@ import { Home, Mail, Lock, UserRound, ShieldCheck, Building2, IdCard } from "luc
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { role?: "tenant" | "landlord" } => {
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { role?: "tenant" | "landlord"; next?: string } => {
     const role = search['role'];
-    return role === "tenant" || role === "landlord" ? { role } : {};
+    const rawNext = search['next'];
+    const next =
+      typeof rawNext === "string" && rawNext.startsWith("/") && !rawNext.startsWith("//")
+        ? rawNext
+        : undefined;
+    return {
+      ...(role === "tenant" || role === "landlord" ? { role } : {}),
+      ...(next ? { next } : {}),
+    };
   },
+
   head: () => ({
     meta: [
       { title: "Sign in or sign up — Roost NI" },
