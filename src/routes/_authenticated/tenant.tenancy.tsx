@@ -11,6 +11,7 @@ import {
   Clock,
   Download,
   Droplet,
+  ExternalLink,
   FileText,
   Receipt,
   ShieldCheck,
@@ -32,6 +33,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TenancyEndPanel } from "@/components/tenancy-end-panel";
 import { TenantMaintenanceTab } from "@/components/maintenance-panel";
 import { fairFuelSentence, fuelTankLabel, usesFuelTank } from "@/lib/listing-details";
+import { downloadStoredDoc } from "@/lib/download-doc";
 
 export const Route = createFileRoute("/_authenticated/tenant/tenancy")({
   validateSearch: z.object({
