@@ -50,18 +50,7 @@ function AdminDashboard() {
       return;
     }
     const rows = (data as FeedbackRow[] | null) ?? [];
-    const userIds = Array.from(new Set(rows.map((r) => r.user_id).filter(Boolean)));
-    let emailMap: Record<string, string> = {};
-    if (userIds.length > 0) {
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, email")
-        .in("id", userIds);
-      for (const p of (profiles as { id: string; email: string | null }[] | null) ?? []) {
-        if (p.email) emailMap[p.id] = p.email;
-      }
-    }
-    setItems(rows.map((r) => ({ ...r, email: emailMap[r.user_id] ?? null })));
+    setItems(rows);
     setLoading(false);
   };
 
