@@ -1602,6 +1602,21 @@ function DocumentsTab({
     window.open(data.signedUrl, "_blank", "noopener");
   };
 
+  const downloadCustomLease = async () => {
+    if (!share.lease_document_path) return;
+    try {
+      await downloadStoredDoc(
+        share.lease_document_path,
+        `${share.listing?.title || "lease"}-signed-agreement.pdf`.replace(/\s+/g, "-"),
+      );
+      toast.success("Lease download started");
+    } catch (err) {
+      toast.error("Couldn't download the lease", {
+        description: err instanceof Error ? err.message : "Please try again",
+      });
+    }
+  };
+
   const printNotice = () => {
     const html = tenancyInfoNoticeHtml({
       tenantName,
