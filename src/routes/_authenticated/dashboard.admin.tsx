@@ -25,7 +25,6 @@ type FeedbackRow = {
   page_path: string | null;
   account_type: string | null;
   user_id: string;
-  email?: string | null;
 };
 
 function AdminDashboard() {
