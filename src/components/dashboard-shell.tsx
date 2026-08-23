@@ -167,6 +167,14 @@ export function DashboardShell({
                 icon={Settings}
                 label="Notifications"
               />
+              {isAdmin ? (
+                <NavLink
+                  to="/dashboard/admin"
+                  active={activeKey === "admin"}
+                  icon={Shield}
+                  label="Admin"
+                />
+              ) : null}
               <NavLink to="/help" active={false} icon={LifeBuoy} label="Help & FAQ" />
             </nav>
           ) : (
