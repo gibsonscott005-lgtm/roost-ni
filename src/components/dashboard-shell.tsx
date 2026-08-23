@@ -197,6 +197,14 @@ export function DashboardShell({
                 icon={Settings}
                 label="Notifications"
               />
+              {isAdmin ? (
+                <TenantNavLink
+                  to="/dashboard/admin"
+                  active={pathname.startsWith("/dashboard/admin")}
+                  icon={Shield}
+                  label="Admin"
+                />
+              ) : null}
               <TenantNavLink to="/help" active={false} icon={LifeBuoy} label="Help & FAQ" />
             </nav>
           )}
