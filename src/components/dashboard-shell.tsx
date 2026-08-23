@@ -39,6 +39,7 @@ export function DashboardShell({
 }: Props) {
   const navigate = useNavigate();
   const isLandlord = profile?.account_type === "landlord";
+  const isAdmin = profile?.account_type === "admin";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const handleSignOut = async () => {
