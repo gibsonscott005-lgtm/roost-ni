@@ -780,35 +780,61 @@ function TenantTenancyPage() {
                     The legally binding contract digitally signed by you and your landlord.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (share.lease_kind === "custom" && share.lease_document_path) {
-                      void openStoredDoc(share.lease_document_path);
-                      return;
-                    }
-                    openPrintable(
-                      leaseDocumentHtml({
-                        tenantName: profile?.full_name || "Tenant",
-                        landlordName: "Your landlord",
-                        address,
-                        rent,
-                        deposit,
-                        tenantSignature: share.lease_signed_name || profile?.full_name || "",
-                        tenantSignedAt: share.lease_signed_at,
-                        oilClause: !!share.lease_oil_clause,
-                        heatingType: listing?.heating_type ?? null,
-                        counterSigned: share.lease_status === "counter_signed",
-                      }),
-                    );
-                  }}
-                  className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-foreground shadow-sm transition hover:bg-surface-muted"
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  {share.lease_kind === "custom" && share.lease_document_path
-                    ? "Open lease PDF"
-                    : "Download printable PDF"}
-                </button>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {share.lease_kind === "custom" && share.lease_document_path ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            await downloadStoredDoc(
+                              share.lease_document_path!,
+                              `${share.listing?.title || "lease"}-signed-agreement.pdf`.replace(/\s+/g, "-"),
+                            );
+                            toast.success("Lease download started");
+                          } catch (err) {
+                            toast.error("Couldn't download the lease", {
+                              description: err instanceof Error ? err.message : "Please try again",
+                            });
+                          }
+                        }}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-foreground shadow-sm transition hover:bg-surface-muted"
+                      >
+                        <Download className="h-3.5 w-3.5" /> Download lease
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void openStoredDoc(share.lease_document_path!)}
+                        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-secondary"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" /> Open lease
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openPrintable(
+                          leaseDocumentHtml({
+                            tenantName: profile?.full_name || "Tenant",
+                            landlordName: "Your landlord",
+                            address,
+                            rent,
+                            deposit,
+                            tenantSignature: share.lease_signed_name || profile?.full_name || "",
+                            tenantSignedAt: share.lease_signed_at,
+                            oilClause: !!share.lease_oil_clause,
+                            heatingType: listing?.heating_type ?? null,
+                            counterSigned: share.lease_status === "counter_signed",
+                          }),
+                        )
+                      }
+                      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-white px-3 py-2 text-xs font-semibold text-foreground shadow-sm transition hover:bg-surface-muted"
+                    >
+                      <Download className="h-3.5 w-3.5" /> Download printable PDF
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="flex flex-col justify-between rounded-3xl border border-border bg-surface p-5 transition hover:border-foreground/20">
                 <div>
