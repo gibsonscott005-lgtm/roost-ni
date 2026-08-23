@@ -6,15 +6,15 @@ What remains falls into three buckets.
 
 ## 1. Simulated, not real (deliberate — decide when to switch on)
 
-- **Payments** run behind `VITE_ENABLE_PAYMENT_GATEWAY=false`. Pricing tiers and breakdowns render, but no money moves. Turning this on needs a provider decision and checkout/webhook work.
 - **Identity verification** is modelled on a provider flow but returns simulated results. Going real needs a live provider account and the tenant-pays charge.
+- **Payments** are held for now per the user's approval decision.
 
 ## 2. Needs verifying before wider use
 
 - **Outbound email**: high-priority notifications and reminders call Resend, but no `RESEND_API_KEY` is present in this environment, so those emails are silently skipped. Either add the key and send a test, or make the fallback visible so nobody assumes an email went out.
 - **Daily reminder job**: scheduled via pg_cron at 08:00. Worth confirming recent runs in `reminder_log` rather than assuming it fires.
 
-## 3. Genuine product gaps
+## 3. Genuine product gaps (approved for this build)
 
 - **Landlord cannot download a signed custom-PDF lease** the way the Roost standard template can be printed.
 - **Tenant has no view of past/ended tenancies** — the workspace only shows the current one.
@@ -28,8 +28,9 @@ What remains falls into three buckets.
 2. Email delivery verified end to end
 3. Signed custom-PDF lease download + tenant past-tenancies view
 4. Lightweight admin view for beta feedback
-5. Payments and real identity verification when you're ready to charge
+5. Notification preferences completion
+6. Real identity verification and payments when you're ready to charge
 
 ## Technical notes
 
-Items 1–4 are frontend plus small server-function work; no schema changes except possibly an admin read policy. Payments and identity are the only items requiring external accounts.
+Items 1–5 are frontend plus small server-function work; no schema changes except possibly an admin read policy. Payments and identity are the only items requiring external accounts.
