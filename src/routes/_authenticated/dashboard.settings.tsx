@@ -191,6 +191,12 @@ function SettingsPage() {
     },
   });
 
+  const emailStatusFn = useServerFn(getEmailConfigStatus);
+  const emailStatusQuery = useQuery({
+    queryKey: ["email-config-status"],
+    queryFn: () => emailStatusFn(),
+  });
+
   const [enabled, setEnabled] = useState(true);
   const [muted, setMuted] = useState<NotificationType[]>([]);
   const [emailEnabled, setEmailEnabled] = useState(true);
