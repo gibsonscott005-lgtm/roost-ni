@@ -1675,13 +1675,22 @@ function DocumentsTab({
         </ul>
         <div className="mt-4 flex flex-wrap gap-2">
           {isCustom ? (
-            <button
-              type="button"
-              onClick={openCustomLease}
-              className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
-            >
-              <Download className="h-3.5 w-3.5" /> Open uploaded lease
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={downloadCustomLease}
+                className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
+              >
+                <Download className="h-3.5 w-3.5" /> Download lease
+              </button>
+              <button
+                type="button"
+                onClick={openCustomLease}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-secondary"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> Open lease
+              </button>
+            </>
           ) : null}
           <button
             type="button"
