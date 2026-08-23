@@ -162,7 +162,6 @@ function AdminDashboard() {
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
                       <span>{new Date(item.created_at).toLocaleString("en-GB")}</span>
-                      {item.email ? <span>{item.email}</span> : null}
                       {item.account_type ? (
                         <span className="rounded bg-surface px-1 py-0.5 text-[10px] uppercase">
                           {item.account_type}
