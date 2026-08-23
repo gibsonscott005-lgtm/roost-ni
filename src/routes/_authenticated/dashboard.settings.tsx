@@ -7,6 +7,7 @@ import {
   Bell,
   BellOff,
   Check,
+  Info,
   KeyRound,
   Loader2,
   Mail,
@@ -26,6 +27,7 @@ import {
 import { completionFeePence, formatGBP, monthlyLabel, monthlyPence } from "@/lib/pricing";
 import { NOTIFICATION_TYPES, type NotificationType } from "@/lib/notifications.functions";
 import { deleteAccount } from "@/lib/account.functions";
+import { getEmailConfigStatus } from "@/lib/email-status.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/settings")({
   head: () => ({
