@@ -8,6 +8,7 @@ import {
   Plus,
   IdCard,
   Settings,
+  Shield,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/hooks/use-auth";
@@ -15,7 +16,7 @@ import type { User } from "@supabase/supabase-js";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { BetaBanner } from "@/components/beta-feedback";
 
-export type DashboardKey = "properties" | "add" | "applications" | "passport" | "settings";
+export type DashboardKey = "properties" | "add" | "applications" | "passport" | "settings" | "admin";
 
 interface Props {
   user: User | null;
@@ -38,6 +39,7 @@ export function DashboardShell({
 }: Props) {
   const navigate = useNavigate();
   const isLandlord = profile?.account_type === "landlord";
+  const isAdmin = profile?.account_type === "admin";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const handleSignOut = async () => {
@@ -165,6 +167,14 @@ export function DashboardShell({
                 icon={Settings}
                 label="Notifications"
               />
+              {isAdmin ? (
+                <NavLink
+                  to="/dashboard/admin"
+                  active={activeKey === "admin"}
+                  icon={Shield}
+                  label="Admin"
+                />
+              ) : null}
               <NavLink to="/help" active={false} icon={LifeBuoy} label="Help & FAQ" />
             </nav>
           ) : (
@@ -187,6 +197,14 @@ export function DashboardShell({
                 icon={Settings}
                 label="Notifications"
               />
+              {isAdmin ? (
+                <TenantNavLink
+                  to="/dashboard/admin"
+                  active={pathname.startsWith("/dashboard/admin")}
+                  icon={Shield}
+                  label="Admin"
+                />
+              ) : null}
               <TenantNavLink to="/help" active={false} icon={LifeBuoy} label="Help & FAQ" />
             </nav>
           )}
@@ -236,7 +254,7 @@ function NavLink({
   label,
   badge,
 }: {
-  to: "/dashboard/applications" | "/dashboard/settings" | "/help";
+  to: "/dashboard/applications" | "/dashboard/settings" | "/dashboard/admin" | "/help";
   active: boolean;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
@@ -259,7 +277,7 @@ function TenantNavLink({
   icon: Icon,
   label,
 }: {
-  to: "/dashboard" | "/dashboard/passport" | "/dashboard/settings" | "/help";
+  to: "/dashboard" | "/dashboard/passport" | "/dashboard/settings" | "/dashboard/admin" | "/help";
   active: boolean;
   icon: React.ComponentType<{ className?: string }>;
   label: string;

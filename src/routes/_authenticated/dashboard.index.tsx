@@ -810,7 +810,84 @@ function TenantDashboard() {
           </ul>
         )}
       </div>
+
+      <PastTenanciesSection shares={allShares} userEmail={user?.email} />
     </>
+  );
+}
+
+function PastTenanciesSection({
+  shares,
+  userEmail,
+}: {
+  shares: {
+    id: string;
+    status: string;
+    lease_status: string | null;
+    tenancy_status: string | null;
+    listing: { id: string; title: string; address: string; location: string | null; monthly_rent: number | null } | null;
+  }[];
+  userEmail?: string;
+}) {
+  const past = shares.filter(
+    (s) => s.tenancy_status === "completed" || s.tenancy_status === "ended",
+  );
+  if (past.length === 0) return null;
+
+  return (
+    <div className="mt-5 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Tenancy history
+          </p>
+          <h3 className="mt-1 font-display text-lg font-semibold tracking-tight sm:text-xl">
+            {past.length} past tenancy{past.length === 1 ? "" : "ies"}
+          </h3>
+        </div>
+      </div>
+      <ul className="mt-4 space-y-2">
+        {past.map((s) => {
+          const closed = s.tenancy_status === "completed";
+          return (
+            <li
+              key={s.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface-muted/50 p-3.5"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-display text-sm font-semibold tracking-tight text-foreground">
+                  {s.listing?.title ?? "Listing unavailable"}
+                </p>
+                {s.listing?.address ? (
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    {s.listing.address}
+                    {s.listing.location ? ` · ${s.listing.location}` : ""}
+                  </p>
+                ) : null}
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                    closed
+                      ? "bg-surface-muted text-muted-foreground"
+                      : "bg-amber-100 text-amber-800"
+                  }`}
+                >
+                  {closed ? "Closed" : "Ended · action needed"}
+                </span>
+                <Link
+                  to="/tenant/tenancy"
+                  search={{ share: s.id }}
+                  className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-background transition hover:brightness-110"
+                >
+                  Open tenancy
+                </Link>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 

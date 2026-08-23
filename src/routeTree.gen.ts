@@ -24,6 +24,7 @@ import { Route as ListingsIdRouteImport } from './routes/listings.$id'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
+import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard.admin'
 import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
 import { Route as AuthenticatedDashboardListingEditRouteImport } from './routes/_authenticated/dashboard.listing-edit'
 import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
@@ -114,6 +115,12 @@ const AuthenticatedDashboardIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardAdminRoute =
+  AuthenticatedDashboardAdminRouteImport.update({
+    id: '/admin',
+    path: '/admin',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardApplicationsRoute =
   AuthenticatedDashboardApplicationsRouteImport.update({
     id: '/applications',
@@ -194,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/listings/': typeof ListingsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/listing-edit': typeof AuthenticatedDashboardListingEditRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
@@ -220,6 +228,7 @@ export interface FileRoutesByTo {
   '/listings': typeof ListingsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/listing-edit': typeof AuthenticatedDashboardListingEditRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
@@ -249,6 +258,7 @@ export interface FileRoutesById {
   '/listings/': typeof ListingsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
+  '/_authenticated/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/_authenticated/dashboard/listing-edit': typeof AuthenticatedDashboardListingEditRoute
   '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/listings/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/dashboard/admin'
     | '/dashboard/applications'
     | '/dashboard/listing-edit'
     | '/dashboard/settings'
@@ -304,6 +315,7 @@ export interface FileRouteTypes {
     | '/listings'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/dashboard/admin'
     | '/dashboard/applications'
     | '/dashboard/listing-edit'
     | '/dashboard/settings'
@@ -332,6 +344,7 @@ export interface FileRouteTypes {
     | '/listings/'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
+    | '/_authenticated/dashboard/admin'
     | '/_authenticated/dashboard/applications'
     | '/_authenticated/dashboard/listing-edit'
     | '/_authenticated/dashboard/settings'
@@ -471,6 +484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/admin': {
+      id: '/_authenticated/dashboard/admin'
+      path: '/admin'
+      fullPath: '/dashboard/admin'
+      preLoaderRoute: typeof AuthenticatedDashboardAdminRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/applications': {
       id: '/_authenticated/dashboard/applications'
       path: '/applications'
@@ -552,6 +572,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedDashboardRouteChildren {
+  AuthenticatedDashboardAdminRoute: typeof AuthenticatedDashboardAdminRoute
   AuthenticatedDashboardApplicationsRoute: typeof AuthenticatedDashboardApplicationsRoute
   AuthenticatedDashboardListingEditRoute: typeof AuthenticatedDashboardListingEditRoute
   AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
@@ -562,6 +583,7 @@ interface AuthenticatedDashboardRouteChildren {
 
 const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
   {
+    AuthenticatedDashboardAdminRoute: AuthenticatedDashboardAdminRoute,
     AuthenticatedDashboardApplicationsRoute:
       AuthenticatedDashboardApplicationsRoute,
     AuthenticatedDashboardListingEditRoute:

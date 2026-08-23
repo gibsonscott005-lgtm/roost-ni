@@ -7,6 +7,7 @@ import {
   Bell,
   BellOff,
   Check,
+  Info,
   KeyRound,
   Loader2,
   Mail,
@@ -26,6 +27,7 @@ import {
 import { completionFeePence, formatGBP, monthlyLabel, monthlyPence } from "@/lib/pricing";
 import { NOTIFICATION_TYPES, type NotificationType } from "@/lib/notifications.functions";
 import { deleteAccount } from "@/lib/account.functions";
+import { getEmailConfigStatus } from "@/lib/email-status.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/settings")({
   head: () => ({
@@ -187,6 +189,12 @@ function SettingsPage() {
       if (error) throw error;
       return data;
     },
+  });
+
+  const emailStatusFn = useServerFn(getEmailConfigStatus);
+  const emailStatusQuery = useQuery({
+    queryKey: ["email-config-status"],
+    queryFn: () => emailStatusFn(),
   });
 
   const [enabled, setEnabled] = useState(true);
@@ -354,6 +362,25 @@ function SettingsPage() {
             Everything appears in your bell. Only these time-critical alerts are also sent to your
             email address, so a deadline never waits for your next sign-in.
           </p>
+
+          {emailStatusQuery.isPending ? null : emailStatusQuery.data?.connected ? (
+            <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-verified/30 bg-verified-soft/50 p-3 text-sm text-foreground">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
+              <span>
+                Email delivery is connected. Urgent alerts will be sent to the email address on your
+                account.
+              </span>
+            </div>
+          ) : (
+            <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-amber-400/40 bg-amber-100/50 p-3 text-sm text-foreground">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+              <span>
+                Email alerts are not connected yet. In-app notifications still work, but nothing
+                will leave Roost as email until an email provider is connected in workspace
+                settings.
+              </span>
+            </div>
+          )}
 
           <button
             type="button"

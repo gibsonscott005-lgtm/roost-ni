@@ -9,6 +9,7 @@ import {
   Check,
   ClipboardList,
   Download,
+  ExternalLink,
   FileText,
   Flame,
   Info,
@@ -41,6 +42,7 @@ import {
   fuelTankLabel,
   usesFuelTank,
 } from "@/lib/listing-details";
+import { downloadStoredDoc } from "@/lib/download-doc";
 
 export const Route = createFileRoute("/_authenticated/landlord/manage-tenancy")({
   validateSearch: z.object({
@@ -1600,6 +1602,21 @@ function DocumentsTab({
     window.open(data.signedUrl, "_blank", "noopener");
   };
 
+  const downloadCustomLease = async () => {
+    if (!share.lease_document_path) return;
+    try {
+      await downloadStoredDoc(
+        share.lease_document_path,
+        `${share.listing?.title || "lease"}-signed-agreement.pdf`.replace(/\s+/g, "-"),
+      );
+      toast.success("Lease download started");
+    } catch (err) {
+      toast.error("Couldn't download the lease", {
+        description: err instanceof Error ? err.message : "Please try again",
+      });
+    }
+  };
+
   const printNotice = () => {
     const html = tenancyInfoNoticeHtml({
       tenantName,
@@ -1658,13 +1675,22 @@ function DocumentsTab({
         </ul>
         <div className="mt-4 flex flex-wrap gap-2">
           {isCustom ? (
-            <button
-              type="button"
-              onClick={openCustomLease}
-              className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
-            >
-              <Download className="h-3.5 w-3.5" /> Open uploaded lease
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={downloadCustomLease}
+                className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
+              >
+                <Download className="h-3.5 w-3.5" /> Download lease
+              </button>
+              <button
+                type="button"
+                onClick={openCustomLease}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-secondary"
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> Open lease
+              </button>
+            </>
           ) : null}
           <button
             type="button"
