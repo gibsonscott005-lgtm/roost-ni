@@ -8,6 +8,7 @@ import {
   Plus,
   IdCard,
   Settings,
+  Shield,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Profile } from "@/hooks/use-auth";
