@@ -9,6 +9,7 @@ import {
   Check,
   ClipboardList,
   Download,
+  ExternalLink,
   FileText,
   Flame,
   Info,
@@ -41,6 +42,7 @@ import {
   fuelTankLabel,
   usesFuelTank,
 } from "@/lib/listing-details";
+import { downloadStoredDoc } from "@/lib/download-doc";
 
 export const Route = createFileRoute("/_authenticated/landlord/manage-tenancy")({
   validateSearch: z.object({
