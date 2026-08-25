@@ -4,11 +4,12 @@
  * Everything else stays in the bell. This only fires for the things a tenant or
  * landlord cannot afford to miss while they are not signed in.
  *
- * Sending is off until an email domain is connected for the workspace — the
- * helper then simply does nothing, so no notification path ever fails because
- * email is unavailable.
+ * Sending runs through Lovable's managed email service on the verified sender
+ * domain. The helper never throws — an email failure must not roll back or
+ * block the in-app notification that already landed.
  */
 import type { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { sendTemplateEmail } from "@/lib/email-templates/send-email";
 
 type Admin = typeof supabaseAdmin;
 
@@ -47,31 +48,8 @@ function appOrigin() {
   return (
     process.env["PUBLIC_APP_URL"] ??
     process.env["VITE_PUBLIC_APP_URL"] ??
-    "https://roost-ni.lovable.app"
+    "https://roostni.co.uk"
   );
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function renderEmail(title: string, body: string, url: string) {
-  const t = escapeHtml(title);
-  const b = escapeHtml(body);
-  return `<!doctype html>
-<html lang="en-GB"><body style="margin:0;padding:24px;background:#f6f7f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0f172a">
-  <div style="max-width:520px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;padding:28px">
-    <p style="margin:0 0 20px;font-size:18px;font-weight:700;letter-spacing:-0.01em">Roost<span style="color:#059669">.</span>ni</p>
-    <h1 style="margin:0 0 12px;font-size:18px;line-height:1.35">${t}</h1>
-    <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#475569">${b}</p>
-    <a href="${url}" style="display:inline-block;background:#059669;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:11px 18px;border-radius:9px">Open in Roost</a>
-    <p style="margin:24px 0 0;font-size:12px;line-height:1.6;color:#94a3b8">You are receiving this because it affects your tenancy or your property. You can turn these emails off in Roost under Settings, Notifications.</p>
-  </div>
-</body></html>`;
 }
 
 interface SendArgs {
@@ -80,19 +58,17 @@ interface SendArgs {
   title: string;
   body: string;
   linkPath: string;
+  /** Stable id of the triggering event, used to dedupe retries. */
+  eventId?: string;
 }
 
 /**
- * Best-effort email for one notification. Never throws — an email failure must
- * not roll back or block the in-app notification that already landed.
+ * Best-effort email for one notification. Never throws.
  */
 export async function sendNotificationEmail(admin: Admin, args: SendArgs): Promise<boolean> {
   try {
     if (!isEmailNotificationType(args.type)) return false;
-
-    const apiKey = process.env["RESEND_API_KEY"];
-    const from = process.env["EMAIL_FROM"];
-    if (!apiKey || !from) return false; // email not connected yet
+    if (!process.env["LOVABLE_API_KEY"]) return false; // sending not available yet
 
     // Respect the recipient's email preferences.
     const { data: prefs } = await admin
@@ -113,28 +89,21 @@ export async function sendNotificationEmail(admin: Admin, args: SendArgs): Promi
 
     const url = `${appOrigin().replace(/\/$/, "")}${args.linkPath}`;
 
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+    const result = await sendTemplateEmail("notification-alert", to, {
+      templateData: {
+        title: args.title,
+        message: args.body,
+        url,
+        actionLabel: "Open in Roost",
       },
-      body: JSON.stringify({
-        from,
-        to,
-        subject: `Roost — ${args.title}`,
-        html: renderEmail(args.title, args.body, url),
-        text: `${args.title}\n\n${args.body}\n\n${url}`,
-      }),
+      idempotencyKey: args.eventId
+        ? `notification-alert-${args.type}-${args.eventId}`
+        : `notification-alert-${args.type}-${args.recipientId}-${Date.now()}`,
     });
 
-    if (!res.ok) {
-      console.error("[notification-email] send failed", res.status, await res.text());
-      return false;
-    }
-    return true;
+    return result.sent;
   } catch (err) {
-    console.error("[notification-email] unexpected failure", err);
+    console.error("[notification-email] send failed", err);
     return false;
   }
 }
