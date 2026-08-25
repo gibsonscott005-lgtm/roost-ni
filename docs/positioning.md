@@ -28,6 +28,21 @@ reusable passport. Being paid by both is the honest version of neutrality — th
 tenant is a customer, not the product. The price comparison is a high-street
 agent's fee, not a listings portal's.
 
+## Two-sided balance
+
+Roost must never sound like a landlord-only tool or a tenant-only tool, even when
+one audience is dominant. The platform is paid by and built for both sides:
+
+- **Renters** get a reusable Tenant Passport, transparent screening, and a direct
+  line to the landlord — no repeated forms, no opaque intermediaries.
+- **Landlords** get a compliant tenancy workspace and organised evidence, while
+  keeping the letting decision entirely in their own hands.
+
+Because both sides pay, Roost can be neutral. The renter is a customer, not the
+product. The landlord is a customer, not the only stakeholder. Any description of
+Roost — on the landing page, in outreach, or in the product — should make both
+sides' benefits visible.
+
 ## The liability boundary
 
 The single largest risk to Roost is a landlord believing Roost vetted a tenant.
