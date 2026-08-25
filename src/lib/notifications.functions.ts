@@ -110,6 +110,7 @@ export const emitNotification = createServerFn({ method: "POST" })
         title: data.title,
         body: data.body ?? "",
         linkPath: data.link_path,
+        eventId: String(rpcData),
       });
     }
 

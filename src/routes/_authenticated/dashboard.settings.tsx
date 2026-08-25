@@ -375,9 +375,9 @@ function SettingsPage() {
             <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-amber-400/40 bg-amber-100/50 p-3 text-sm text-foreground">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
               <span>
-                Email alerts are not connected yet. In-app notifications still work, but nothing
-                will leave Roost as email until an email provider is connected in workspace
-                settings.
+                Email alerts are not sending yet. In-app notifications still work, and urgent
+                alerts will start arriving by email as soon as the Roost sending domain finishes
+                verifying.
               </span>
             </div>
           )}
