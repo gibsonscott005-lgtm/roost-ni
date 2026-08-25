@@ -14,10 +14,6 @@ import {
 
 interface EmailChangeEmailProps {
   siteName: string
-  // oldEmail is the user's current address (HookData.OldEmail). For the
-  // NEW-recipient half of a secure email_change fanout, `email` equals the
-  // recipient (NEW), so the "from" line must render oldEmail to read
-  // "from OLD to NEW" instead of "from NEW to NEW".
   oldEmail: string
   email: string
   newEmail: string
@@ -25,36 +21,43 @@ interface EmailChangeEmailProps {
 }
 
 export const EmailChangeEmail = ({
-  siteName,
   oldEmail,
   newEmail,
   confirmationUrl,
 }: EmailChangeEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>Confirm your email change for {siteName}</Preview>
+  <Html lang="en-GB" dir="ltr">
+    <Head>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Manrope:wght@400;500;600&display=swap"
+        rel="stylesheet"
+      />
+    </Head>
+    <Preview>Confirm your Roost email change</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm your email change</Heading>
-        <Text style={text}>
-          You requested to change your email address for {siteName} from{' '}
-          <Link href={`mailto:${oldEmail}`} style={link}>
-            {oldEmail}
-          </Link>{' '}
-          to{' '}
-          <Link href={`mailto:${newEmail}`} style={link}>
-            {newEmail}
-          </Link>
-          .
+        <Text style={wordmark}>
+          Roost<span style={dot}>.</span>ni
         </Text>
-        <Text style={text}>
-          Click the button below to confirm this change:
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Confirm Email Change
-        </Button>
+        <div style={card}>
+          <Heading style={h1}>Confirm your email change</Heading>
+          <Text style={text}>
+            You requested to change your Roost email address from{' '}
+            <Link href={`mailto:${oldEmail}`} style={link}>
+              {oldEmail}
+            </Link>{' '}
+            to{' '}
+            <Link href={`mailto:${newEmail}`} style={link}>
+              {newEmail}
+            </Link>
+            .
+          </Text>
+          <Text style={text}>Click the button below to confirm this change:</Text>
+          <Button style={button} href={confirmationUrl}>
+            Confirm email change
+          </Button>
+        </div>
         <Text style={footer}>
-          If you didn't request this change, please secure your account
+          If you did not request this change, please secure your account
           immediately.
         </Text>
       </Container>
@@ -64,27 +67,67 @@ export const EmailChangeEmail = ({
 
 export default EmailChangeEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
-const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
+const main: React.CSSProperties = {
+  backgroundColor: '#ffffff',
+  fontFamily:
+    "'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+  color: '#0f172a',
+  margin: 0,
+  padding: '32px 0',
+}
+
+const container: React.CSSProperties = { maxWidth: '540px', margin: '0 auto', padding: '0 16px' }
+
+const wordmark: React.CSSProperties = {
+  margin: '0 0 20px',
+  fontSize: '18px',
+  fontWeight: 700,
+  letterSpacing: '-0.01em',
+  fontFamily:
+    "'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+}
+
+const dot: React.CSSProperties = { color: '#059669' }
+
+const card: React.CSSProperties = {
+  border: '1px solid #e7e5e0',
+  borderRadius: '14px',
+  padding: '28px',
+  backgroundColor: '#fdfcfa',
+}
+
+const h1: React.CSSProperties = {
+  fontSize: '20px',
+  fontWeight: 700,
+  color: '#0f172a',
+  margin: '0 0 16px',
+  fontFamily:
+    "'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+}
+
+const text: React.CSSProperties = {
+  fontSize: '14px',
+  color: '#475569',
+  lineHeight: '1.65',
   margin: '0 0 20px',
 }
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
-}
-const link = { color: 'inherit', textDecoration: 'underline' }
-const button = {
-  backgroundColor: '#000000',
+
+const link: React.CSSProperties = { color: '#0f172a', textDecoration: 'underline' }
+
+const button: React.CSSProperties = {
+  backgroundColor: '#0f172a',
   color: '#ffffff',
   fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
+  fontWeight: 600,
+  borderRadius: '9px',
+  padding: '11px 18px',
   textDecoration: 'none',
+  display: 'inline-block',
 }
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
+
+const footer: React.CSSProperties = {
+  fontSize: '12px',
+  color: '#94a3b8',
+  margin: '20px 0 0',
+  lineHeight: '1.6',
+}
