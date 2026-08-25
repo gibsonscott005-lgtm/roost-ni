@@ -105,13 +105,14 @@ const paragraph: React.CSSProperties = {
 }
 
 const button: React.CSSProperties = {
-  backgroundColor: '#059669',
+  backgroundColor: '#0f172a',
   color: '#ffffff',
   fontSize: '14px',
   fontWeight: 600,
   padding: '11px 18px',
   borderRadius: '9px',
   textDecoration: 'none',
+  display: 'inline-block',
 }
 
 const footnote: React.CSSProperties = {

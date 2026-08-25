@@ -36,6 +36,8 @@ import { Route as ApiPublicDailyRemindersRouteImport } from './routes/api/public
 import { Route as ApiPublicIdentityWebhookRouteImport } from './routes/api/public/identity-webhook'
 import { Route as AuthenticatedDashboardPassportIndexRouteImport } from './routes/_authenticated/dashboard.passport.index'
 import { Route as AuthenticatedDashboardPassportEditRouteImport } from './routes/_authenticated/dashboard.passport.edit'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -187,6 +189,16 @@ const AuthenticatedDashboardPassportEditRoute =
     path: '/passport/edit',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -220,6 +232,8 @@ export interface FileRoutesByFullPath {
   '/api/public/identity-webhook': typeof ApiPublicIdentityWebhookRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/dashboard/passport/': typeof AuthenticatedDashboardPassportIndexRoute
 }
@@ -248,6 +262,8 @@ export interface FileRoutesByTo {
   '/api/public/identity-webhook': typeof ApiPublicIdentityWebhookRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/dashboard/passport': typeof AuthenticatedDashboardPassportIndexRoute
 }
@@ -279,6 +295,8 @@ export interface FileRoutesById {
   '/api/public/identity-webhook': typeof ApiPublicIdentityWebhookRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/dashboard/passport/': typeof AuthenticatedDashboardPassportIndexRoute
 }
@@ -310,6 +328,8 @@ export interface FileRouteTypes {
     | '/api/public/identity-webhook'
     | '/dashboard/'
     | '/dashboard/passport/edit'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/dashboard/passport/'
   fileRoutesByTo: FileRoutesByTo
@@ -338,6 +358,8 @@ export interface FileRouteTypes {
     | '/api/public/identity-webhook'
     | '/dashboard'
     | '/dashboard/passport/edit'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/dashboard/passport'
   id:
@@ -368,6 +390,8 @@ export interface FileRouteTypes {
     | '/api/public/identity-webhook'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/passport/edit'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/_authenticated/dashboard/passport/'
   fileRoutesById: FileRoutesById
@@ -388,6 +412,8 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicDailyRemindersRoute: typeof ApiPublicDailyRemindersRoute
   ApiPublicIdentityWebhookRoute: typeof ApiPublicIdentityWebhookRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -582,6 +608,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardPassportEditRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -659,6 +699,8 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicDailyRemindersRoute: ApiPublicDailyRemindersRoute,
   ApiPublicIdentityWebhookRoute: ApiPublicIdentityWebhookRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
