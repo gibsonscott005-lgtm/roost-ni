@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import { template as notificationAlertTemplate } from './notification-alert'
 
 export interface TemplateEntry {
   component: ComponentType<any>
