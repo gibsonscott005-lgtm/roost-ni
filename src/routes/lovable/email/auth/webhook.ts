@@ -9,7 +9,7 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 // Configuration
-const SITE_NAME = "Northern Ireland Rental Hub"
+const SITE_NAME = "Roost"
 const SENDER_DOMAIN = "notify.roostni.co.uk"
 const ROOT_DOMAIN = "roostni.co.uk"
 const FROM_DOMAIN = "notify.roostni.co.uk"
