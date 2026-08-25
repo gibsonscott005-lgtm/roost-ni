@@ -3,6 +3,7 @@
 ## Core
 App name is **Roost** — letting agent replacement for small self-managing landlords in Northern Ireland. Wordmark renders as `Roost.ni` with the dot in `text-verified`.
 Roost assists, it never decides: never vet, score, rank or recommend a tenant. The letting decision is always the landlord's.
+Roost is a two-sided workspace: renter benefit and landlord benefit are stated together, even in landlord-facing copy. Neither side is the product.
 "Verified" is retired from user-facing copy — use "Self-Certified", "Declared" or "Evidence attached". Missing name → "Applicant".
 Never invent social-proof numbers (applicant counts, demand stats, match counts).
 British English (UK) throughout user-facing copy (colour, organise, £).
