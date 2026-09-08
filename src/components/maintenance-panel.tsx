@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { readSafeImage } from "@/lib/safe-image";
 import { emitNotification } from "@/lib/notifications.functions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RefreshCw } from "lucide-react";
