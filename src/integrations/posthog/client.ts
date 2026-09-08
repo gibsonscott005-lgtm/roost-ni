@@ -20,6 +20,7 @@ export function initPostHog() {
     autocapture: true,
     debug: import.meta.env.DEV,
     loaded: (posthogInstance) => {
+      (window as unknown as Record<string, unknown>).__roostPostHog = posthogInstance;
       posthogInstance.capture("$pageview");
       posthogInstance.capture("roost_test_loaded_event");
       if (import.meta.env.DEV) {
