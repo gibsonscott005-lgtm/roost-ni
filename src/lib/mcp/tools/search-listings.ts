@@ -30,7 +30,13 @@ export default defineTool({
       .order("created_at", { ascending: false })
       .limit(limit ?? 20);
 
-    if (query) q = q.or(`title.ilike.%${query}%,address.ilike.%${query}%,location.ilike.%${query}%`);
+    if (query) {
+      // Strip characters PostgREST treats as filter syntax so user text can
+      // never alter the structure of the generated query.
+      const safe = query.replace(/[,.()%*\\"']/g, " ").trim().slice(0, 100);
+      if (safe)
+        q = q.or(`title.ilike.%${safe}%,address.ilike.%${safe}%,location.ilike.%${safe}%`);
+    }
     if (typeof maxRent === "number") q = q.lte("monthly_rent", maxRent);
     if (typeof minBedrooms === "number") q = q.gte("bedrooms", minBedrooms);
     if (heatingType) q = q.eq("heating_type", heatingType);

@@ -214,13 +214,12 @@ export function TenantMaintenanceTab({
     }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-      const path = `${tenantId}/maintenance/${crypto.randomUUID()}.${ext}`;
-      const buffer = await file.arrayBuffer();
+      const image = await readSafeImage(file);
+      const path = `${tenantId}/maintenance/${crypto.randomUUID()}.${image.extension}`;
       const { error } = await supabase.storage.from(BUCKET).upload(
         path,
-        new Blob([buffer], { type: file.type || "image/jpeg" }),
-        { cacheControl: "3600", upsert: false, contentType: file.type || "image/jpeg" },
+        new Blob([image.bytes], { type: image.contentType }),
+        { cacheControl: "3600", upsert: false, contentType: image.contentType },
       );
       if (error) throw error;
       setPaths((p) => [...p, path]);
