@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { readSafeImage } from "@/lib/safe-image";
 import { emitNotification } from "@/lib/notifications.functions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RefreshCw } from "lucide-react";
@@ -112,7 +113,7 @@ function SignedPhoto({ path }: { path: string }) {
     );
   }
   return (
-    <a href={data} target="_blank" rel="noreferrer" className="block">
+    <a href={data} target="_blank" rel="noreferrer noopener" download className="block">
       <img
         src={data}
         alt="Maintenance photo"
@@ -214,13 +215,12 @@ export function TenantMaintenanceTab({
     }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-      const path = `${tenantId}/maintenance/${crypto.randomUUID()}.${ext}`;
-      const buffer = await file.arrayBuffer();
+      const image = await readSafeImage(file);
+      const path = `${tenantId}/maintenance/${crypto.randomUUID()}.${image.extension}`;
       const { error } = await supabase.storage.from(BUCKET).upload(
         path,
-        new Blob([buffer], { type: file.type || "image/jpeg" }),
-        { cacheControl: "3600", upsert: false, contentType: file.type || "image/jpeg" },
+        new Blob([image.bytes], { type: image.contentType }),
+        { cacheControl: "3600", upsert: false, contentType: image.contentType },
       );
       if (error) throw error;
       setPaths((p) => [...p, path]);

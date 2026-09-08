@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ImageIcon, ChevronLeft, ChevronRight, Star, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { readSafeImage } from "@/lib/safe-image";
 
 export const LISTING_PHOTOS_BUCKET = "listing-photos";
 
@@ -8,12 +9,11 @@ export const LISTING_PHOTOS_BUCKET = "listing-photos";
 export async function uploadListingPhotos(landlordId: string, files: File[]) {
   const paths: string[] = [];
   for (const file of files) {
-    const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-    const path = `${landlordId}/${crypto.randomUUID()}.${ext}`;
-    const bytes = await file.arrayBuffer();
+    const image = await readSafeImage(file);
+    const path = `${landlordId}/${crypto.randomUUID()}.${image.extension}`;
     const { error } = await supabase.storage
       .from(LISTING_PHOTOS_BUCKET)
-      .upload(path, bytes, { contentType: file.type || "image/jpeg", upsert: false });
+      .upload(path, image.bytes, { contentType: image.contentType, upsert: false });
     if (error) throw error;
     paths.push(path);
   }
