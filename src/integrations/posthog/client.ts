@@ -18,6 +18,7 @@ export function initPostHog() {
     capture_pageview: false,
     capture_pageleave: true,
     autocapture: true,
+    debug: import.meta.env.DEV,
     loaded: (posthogInstance) => {
       posthogInstance.capture("$pageview");
       if (import.meta.env.DEV) {
