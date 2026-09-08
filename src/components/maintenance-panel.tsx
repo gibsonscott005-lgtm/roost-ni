@@ -113,7 +113,7 @@ function SignedPhoto({ path }: { path: string }) {
     );
   }
   return (
-    <a href={data} target="_blank" rel="noreferrer" className="block">
+    <a href={data} target="_blank" rel="noreferrer noopener" download className="block">
       <img
         src={data}
         alt="Maintenance photo"
