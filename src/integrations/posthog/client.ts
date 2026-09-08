@@ -21,6 +21,7 @@ export function initPostHog() {
     debug: import.meta.env.DEV,
     loaded: (posthogInstance) => {
       posthogInstance.capture("$pageview");
+      posthogInstance.capture("roost_test_loaded_event");
       if (import.meta.env.DEV) {
         // eslint-disable-next-line no-console
         console.log("PostHog loaded", posthogInstance.get_distinct_id());
