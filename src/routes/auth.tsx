@@ -178,6 +178,23 @@ function AuthPage() {
         if (error && !/user|not found/i.test(error.message)) throw error;
         setResetSent(true);
       } else if (mode === "signup") {
+        const signupData: Record<string, string> = {
+          full_name: fullName,
+          account_type: role,
+        };
+        if (hearAboutUs.trim()) signupData.hear_about_us = hearAboutUs.trim();
+        if (utmParams.source) signupData.utm_source = utmParams.source;
+        if (utmParams.medium) signupData.utm_medium = utmParams.medium;
+        if (utmParams.campaign) signupData.utm_campaign = utmParams.campaign;
+
+        posthog.capture("sign_up_started", {
+          account_type: role,
+          source: hearAboutUs.trim() || undefined,
+          utm_source: utmParams.source,
+          utm_medium: utmParams.medium,
+          utm_campaign: utmParams.campaign,
+        });
+
         const { error } = await supabase.auth.signUp({
           email: normalizedEmail,
           password,
@@ -185,8 +202,7 @@ function AuthPage() {
             emailRedirectTo: `${window.location.origin}/auth${
               nextFromSearch ? `?next=${encodeURIComponent(nextFromSearch)}` : ""
             }`,
-
-            data: { full_name: fullName, account_type: role },
+            data: signupData,
           },
         });
         if (error) throw error;
