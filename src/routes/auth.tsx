@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Home, Mail, Lock, UserRound, ShieldCheck, Building2, IdCard } from "lucide-react";
+import { Home, Mail, Lock, UserRound, ShieldCheck, Building2, IdCard, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { posthog } from "@/integrations/posthog/client";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (
@@ -97,10 +98,22 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [hearAboutUs, setHearAboutUs] = useState("");
+  const [utmParams, setUtmParams] = useState<{ source?: string; medium?: string; campaign?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    setUtmParams({
+      source: params.get("utm_source") ?? undefined,
+      medium: params.get("utm_medium") ?? undefined,
+      campaign: params.get("utm_campaign") ?? undefined,
+    });
+  }, []);
 
   useEffect(() => {
     const routeByAccountType = async (userId: string) => {
@@ -165,6 +178,23 @@ function AuthPage() {
         if (error && !/user|not found/i.test(error.message)) throw error;
         setResetSent(true);
       } else if (mode === "signup") {
+        const signupData: Record<string, string> = {
+          full_name: fullName,
+          account_type: role,
+        };
+        if (hearAboutUs.trim()) signupData.hear_about_us = hearAboutUs.trim();
+        if (utmParams.source) signupData.utm_source = utmParams.source;
+        if (utmParams.medium) signupData.utm_medium = utmParams.medium;
+        if (utmParams.campaign) signupData.utm_campaign = utmParams.campaign;
+
+        posthog.capture("sign_up_started", {
+          account_type: role,
+          source: hearAboutUs.trim() || undefined,
+          utm_source: utmParams.source,
+          utm_medium: utmParams.medium,
+          utm_campaign: utmParams.campaign,
+        });
+
         const { error } = await supabase.auth.signUp({
           email: normalizedEmail,
           password,
@@ -172,8 +202,7 @@ function AuthPage() {
             emailRedirectTo: `${window.location.origin}/auth${
               nextFromSearch ? `?next=${encodeURIComponent(nextFromSearch)}` : ""
             }`,
-
-            data: { full_name: fullName, account_type: role },
+            data: signupData,
           },
         });
         if (error) throw error;
@@ -321,6 +350,28 @@ function AuthPage() {
                     placeholder="James Stewart"
                     className={`${inputCx} pl-9`}
                   />
+                </div>
+              </label>
+            ) : null}
+
+            {mode === "signup" ? (
+              <label className="block">
+                <span className="text-sm font-medium text-foreground">How did you hear about us? <span className="font-normal text-muted-foreground">(optional)</span></span>
+                <div className="relative mt-1.5">
+                  <Users className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <select
+                    value={hearAboutUs}
+                    onChange={(e) => setHearAboutUs(e.target.value)}
+                    className={`${inputCx} appearance-none pl-9 pr-8`}
+                  >
+                    <option value="">Select an option</option>
+                    <option value="Facebook or community group">Facebook or community group</option>
+                    <option value="Search engine">Search engine</option>
+                    <option value="Friend or colleague">Friend or colleague</option>
+                    <option value="Landlord association (LANI)">Landlord association (LANI)</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">▼</span>
                 </div>
               </label>
             ) : null}

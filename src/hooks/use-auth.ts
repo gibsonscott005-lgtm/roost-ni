@@ -9,6 +9,7 @@ export interface Profile {
   full_name: string;
   phone: string | null;
   account_type: AccountType;
+  hear_about_us: string | null;
 }
 
 export function useAuth() {
@@ -36,7 +37,7 @@ export function useAuth() {
         setTimeout(() => {
           supabase
             .from("profiles")
-            .select("id, full_name, phone, account_type")
+            .select("id, full_name, phone, account_type, hear_about_us")
             .eq("id", s.user.id)
             .maybeSingle()
             .then(({ data }) => setProfile(data as Profile | null));
@@ -51,7 +52,7 @@ export function useAuth() {
       if (data.session?.user) {
         supabase
           .from("profiles")
-          .select("id, full_name, phone, account_type")
+          .select("id, full_name, phone, account_type, hear_about_us")
           .eq("id", data.session.user.id)
           .maybeSingle()
           .then(({ data: p }) => {

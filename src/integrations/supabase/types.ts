@@ -408,6 +408,7 @@ export type Database = {
           account_type: Database["public"]["Enums"]["account_type"]
           created_at: string
           full_name: string
+          hear_about_us: string | null
           id: string
           phone: string | null
           updated_at: string
@@ -416,6 +417,7 @@ export type Database = {
           account_type?: Database["public"]["Enums"]["account_type"]
           created_at?: string
           full_name?: string
+          hear_about_us?: string | null
           id: string
           phone?: string | null
           updated_at?: string
@@ -424,6 +426,7 @@ export type Database = {
           account_type?: Database["public"]["Enums"]["account_type"]
           created_at?: string
           full_name?: string
+          hear_about_us?: string | null
           id?: string
           phone?: string | null
           updated_at?: string

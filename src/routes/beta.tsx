@@ -92,6 +92,13 @@ function BetaPage() {
             I'm a landlord
           </Link>
         </div>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Want to look first?{" "}
+          <Link to="/listings" className="font-medium text-foreground underline-offset-4 hover:underline">
+            Browse example listings
+          </Link>
+          .
+        </p>
 
         <section className="mt-14 grid gap-4 sm:grid-cols-2">
           <PathCard
