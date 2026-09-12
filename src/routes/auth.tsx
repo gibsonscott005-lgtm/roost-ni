@@ -354,6 +354,28 @@ function AuthPage() {
               </label>
             ) : null}
 
+            {mode === "signup" ? (
+              <label className="block">
+                <span className="text-sm font-medium text-foreground">How did you hear about us? <span className="font-normal text-muted-foreground">(optional)</span></span>
+                <div className="relative mt-1.5">
+                  <Users className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <select
+                    value={hearAboutUs}
+                    onChange={(e) => setHearAboutUs(e.target.value)}
+                    className={`${inputCx} appearance-none pl-9 pr-8`}
+                  >
+                    <option value="">Select an option</option>
+                    <option value="Facebook or community group">Facebook or community group</option>
+                    <option value="Search engine">Search engine</option>
+                    <option value="Friend or colleague">Friend or colleague</option>
+                    <option value="Landlord association (LANI)">Landlord association (LANI)</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">▼</span>
+                </div>
+              </label>
+            ) : null}
+
             <label className="block">
               <span className="text-sm font-medium text-foreground">Email address</span>
               <div className="relative mt-1.5">
