@@ -355,7 +355,7 @@ function AuthPage() {
               </label>
             ) : null}
 
-            {mode === "signup" ? (
+            {mode === "signup" && showHearAboutUs ? (
               <label className="block">
                 <span className="text-sm font-medium text-foreground">How did you hear about us? <span className="font-normal text-muted-foreground">(optional)</span></span>
                 <div className="relative mt-1.5">
