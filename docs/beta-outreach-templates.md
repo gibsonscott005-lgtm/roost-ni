@@ -14,10 +14,12 @@ Aim for 3–5 groups that are clearly based in Northern Ireland and allow proper
 
 Use these UTM-tagged links so PostHog shows which group each tester came from.
 
+**Lead with the listings link** — let people browse real examples before asking them to sign up. Every listing has a "Sign in to apply" button, so the path to sign-up is still one tap.
+
+- Example listings (use this one in posts): `https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit`
 - Home / beta entry: `https://roostni.co.uk/beta?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit`
-- Tenant sign-up: `https://roostni.co.uk/auth?role=tenant&utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit`
-- Landlord sign-up: `https://roostni.co.uk/auth?role=landlord&utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit`
-- Example listings: `https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit`
+- Tenant sign-up (direct, only if someone asks): `https://roostni.co.uk/auth?role=tenant&utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit`
+- Landlord sign-up (direct, only if someone asks): `https://roostni.co.uk/auth?role=landlord&utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit`
 
 Replace `facebook` with the actual group name or platform if you post elsewhere (e.g. `reddit_ni`, `property118`).
 
@@ -28,8 +30,8 @@ Hi everyone — I'm helping test a new NI renting tool called Roost.ni. It's bui
 
 It's in closed beta, so testers are needed. Everything is free during beta and you should only use test documents, not real ones.
 
-If you'd like to try it and give feedback:
-https://roostni.co.uk/auth?role=tenant&utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
+Take a look first, then try it if you like what you see:
+https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
 
 Happy to answer questions in the comments.
 ```
@@ -43,8 +45,8 @@ A friend is building Roost.ni — a workspace for NI landlords to list a propert
 
 It's in closed beta and looking for a small group of NI landlords to test it. No cost, no obligation, and you only need test data.
 
-If you're interested:
-https://roostni.co.uk/auth?role=landlord&utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
+You can see an example listing here:
+https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
 ```
 
 ## Post template 3 — short "look first" version
