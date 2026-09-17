@@ -99,6 +99,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [hearAboutUs, setHearAboutUs] = useState("");
+  const [showHearAboutUs, setShowHearAboutUs] = useState(false);
   const [utmParams, setUtmParams] = useState<{ source?: string; medium?: string; campaign?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
@@ -262,12 +263,12 @@ function AuthPage() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-md flex-col px-4 pb-16 pt-10 sm:px-6">
-        <div className="mb-6 text-center">
+      <main className="mx-auto flex w-full max-w-md flex-col px-4 pb-12 pt-5 sm:px-6 sm:pt-10">
+        <div className="mb-5 text-center sm:mb-6">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
             {mode === "signup" ? "Create your account" : mode === "reset" ? "Password reset" : "Welcome back"}
           </p>
-          <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h1 className="mt-1 font-display text-xl font-semibold tracking-tight sm:mt-1.5 sm:text-3xl">
             {mode === "signup" ? "Join Roost NI" : mode === "reset" ? "Forgot your password?" : "Sign in to Roost"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -279,7 +280,7 @@ function AuthPage() {
           </p>
         </div>
 
-        <section className="rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
+        <section className="rounded-3xl border border-border bg-surface p-4 shadow-floating sm:p-7">
           {mode === "reset" ? null : (
           <div
             role="tablist"
