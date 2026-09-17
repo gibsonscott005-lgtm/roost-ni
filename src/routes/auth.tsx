@@ -472,6 +472,16 @@ function AuthPage() {
                     : "Sign in"}
             </button>
 
+            {mode === "signup" && !showHearAboutUs ? (
+              <button
+                type="button"
+                onClick={() => setShowHearAboutUs(true)}
+                className="text-center text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                How did you hear about us? (optional)
+              </button>
+            ) : null}
+
             {mode === "reset" ? (
               <button
                 type="button"
