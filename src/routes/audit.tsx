@@ -499,9 +499,10 @@ function AuditPage() {
             </div>
 
             <p className="mt-8 text-xs text-muted-foreground">
-              This is a self-check based on your own answers. Roost organises and evidences
-              your records; it doesn't inspect your property, verify your documents or give
-              legal advice.
+              This is a self-check based on your own answers. Roost helps self-managing
+              landlords track compliance deadlines, leases and rent records. Applicants provide
+              their own self-certified documents in one organised pack — Roost doesn't inspect
+              your property, verify documents, provide credit scores or give legal advice.
             </p>
           </section>
         ) : null}
