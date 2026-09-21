@@ -516,6 +516,11 @@ function AuthPage() {
                   </button>
                 </div>
               ) : null}
+              {!emailSuggestion && emailWarning ? (
+                <p className="mt-2 rounded-xl border border-amber-400/40 bg-amber-100/50 px-3 py-2 text-xs text-foreground">
+                  {emailWarning}
+                </p>
+              ) : null}
             </label>
 
             {mode === "reset" ? null : (
