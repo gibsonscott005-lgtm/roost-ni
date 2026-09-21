@@ -184,6 +184,7 @@ function AuthPage() {
   const [submitting, setSubmitting] = useState(false);
   const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
+  const [emailWarning, setEmailWarning] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
