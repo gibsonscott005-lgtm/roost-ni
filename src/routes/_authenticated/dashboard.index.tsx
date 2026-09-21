@@ -1338,14 +1338,119 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
     <form onSubmit={onSubmit}>
       <div className="mb-5">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          New listing
+          New property
         </p>
         <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-          Create a compliant NI listing
+          Add a property to Roost
         </h2>
       </div>
 
-      <FormCard eyebrow="Step 01" title="Basic info">
+      <FormCard eyebrow="Step 01" title="Is the property occupied?">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          {(
+            [
+              {
+                key: "tenanted" as const,
+                label: "Currently tenanted",
+                hint: "Keep your certificates, rent records and deadlines in order. Never shown publicly.",
+              },
+              {
+                key: "vacant" as const,
+                label: "Vacant",
+                hint: "Empty or between tenancies. You choose when to advertise it on Roost.",
+              },
+            ]
+          ).map((opt) => {
+            const active = occupancy === opt.key;
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => setOccupancy(opt.key)}
+                aria-pressed={active}
+                className={`flex items-start gap-3 rounded-2xl border p-3.5 text-left transition ${
+                  active
+                    ? "border-foreground/20 bg-surface shadow-raised"
+                    : "border-border bg-surface-muted hover:bg-secondary"
+                }`}
+              >
+                <span
+                  className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full border transition ${
+                    active
+                      ? "border-verified bg-verified text-[var(--color-verified-foreground)]"
+                      : "border-border bg-surface"
+                  }`}
+                >
+                  {active ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : null}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium text-foreground">{opt.label}</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">{opt.hint}</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {isTenanted ? (
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Current tenant's name" className="sm:col-span-2">
+              <input
+                value={tenantName}
+                onChange={(e) => setTenantName(e.target.value)}
+                placeholder="Sarah McKee"
+                className={inputCx}
+              />
+            </Field>
+            <Field label="Tenant email (optional)" hint="Used only for rent receipts you choose to send.">
+              <input
+                type="email"
+                value={tenantEmail}
+                onChange={(e) => setTenantEmail(e.target.value)}
+                placeholder="sarah@example.com"
+                className={inputCx}
+              />
+            </Field>
+            <Field label="Tenancy start date">
+              <input
+                type="date"
+                value={tenancyStart}
+                onChange={(e) => setTenancyStart(e.target.value)}
+                className={inputCx}
+              />
+            </Field>
+            <Field label="Deposit scheme">
+              <select
+                value={depositScheme}
+                onChange={(e) => setDepositScheme(e.target.value)}
+                className={inputCx}
+              >
+                <option value="">Not recorded yet</option>
+                <option value="TDS Northern Ireland">TDS Northern Ireland</option>
+                <option value="MyDeposits Northern Ireland">MyDeposits Northern Ireland</option>
+                <option value="Letting Protection Service NI">
+                  Letting Protection Service NI
+                </option>
+              </select>
+            </Field>
+            <Field label="Deposit reference (optional)">
+              <input
+                value={depositRef}
+                onChange={(e) => setDepositRef(e.target.value)}
+                placeholder="Scheme certificate number"
+                className={inputCx}
+              />
+            </Field>
+            <div className="sm:col-span-2 flex items-start gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
+              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              This property stays private to you. When the tenancy ends, you can advertise it on
+              Roost with one tap.
+            </div>
+          </div>
+        ) : null}
+      </FormCard>
+
+      <FormCard eyebrow="Step 02" title="Basic info">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Property title" className="sm:col-span-2">
             <input
