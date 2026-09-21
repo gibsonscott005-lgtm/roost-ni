@@ -1715,21 +1715,29 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
       />
 
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
-        <button
-          type="button"
-          onClick={() => void save("draft")}
-          disabled={submitting !== false}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 font-display text-sm font-semibold text-foreground transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-        >
-          {submitting === "draft" ? "Saving…" : "Save as draft"}
-        </button>
+        {!isTenanted ? (
+          <button
+            type="button"
+            onClick={() => void save("private")}
+            disabled={submitting !== false}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 font-display text-sm font-semibold text-foreground transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          >
+            {submitting === "private" ? "Saving…" : "Save without advertising"}
+          </button>
+        ) : null}
         <button
           type="submit"
           disabled={submitting !== false}
           className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-base font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:translate-y-[-1px] hover:bg-foreground/92 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           <Sparkles className="h-4 w-4" />
-          {submitting === "publish" ? "Publishing…" : "Publish listing"}
+          {isTenanted
+            ? submitting === "private"
+              ? "Saving…"
+              : "Save private property"
+            : submitting === "publish"
+              ? "Publishing…"
+              : "Advertise on Roost"}
         </button>
       </div>
     </form>
