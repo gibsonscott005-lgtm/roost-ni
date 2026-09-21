@@ -28,7 +28,7 @@ Replace `facebook` with the actual group name or platform if you post elsewhere 
 ```text
 Hi everyone — I'm helping test a new NI renting tool called RoostNI. It's built for tenants in Northern Ireland: a single passport you can share with landlords, instead of re-sending payslips, references and ID over WhatsApp every time.
 
-It's in free early beta, and anyone can join — no fees, no card required. Everything is free during beta and you should only use test documents, not real ones.
+It's in free early beta — anyone can join, no fees and no card required. Just use test documents, not real ones.
 
 Take a look first, then try it if you like what you see:
 https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
@@ -43,7 +43,7 @@ Are there any self-managing landlords here who run tenancies on spreadsheets and
 
 A friend is building RoostNI — a workspace for NI landlords to list a property, receive tenant passports, issue a NI-compliant lease, record the deposit and track rent and repairs. NI rules like the 28-day deposit window and Notice to Quit periods are built in.
 
-It's in free early beta and open to NI landlords right now to test it. No cost, no obligation, and you only need test data.
+It's in free early beta and open to NI landlords now. No cost, no obligation, and you only need test data.
 
 You can see an example listing here:
 https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
