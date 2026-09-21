@@ -49,17 +49,71 @@ const COMMON_EMAIL_DOMAINS = [
   "gmail.com",
   "googlemail.com",
   "outlook.com",
+  "outlook.co.uk",
   "hotmail.com",
+  "hotmail.co.uk",
   "icloud.com",
   "yahoo.com",
   "yahoo.co.uk",
   "live.com",
+  "live.co.uk",
+  "msn.com",
   "me.com",
+  "mac.com",
   "aol.com",
+  "aol.co.uk",
   "protonmail.com",
   "proton.me",
   "btinternet.com",
+  "btopenworld.com",
+  "sky.com",
+  "talktalk.net",
+  "virginmedia.com",
+  "blueyonder.co.uk",
+  "ntlworld.com",
+  "tiscali.co.uk",
+  "zen.co.uk",
+  "plus.com",
+  "gmx.co.uk",
+  "yandex.com",
+  "mail.com",
 ] as const;
+
+// Valid public suffixes we expect from UK/NI renters and landlords.
+const VALID_TLDS = new Set([
+  "com",
+  "net",
+  "org",
+  "uk",
+  "ie",
+  "me",
+  "io",
+  "co",
+  "eu",
+  "info",
+  "biz",
+  "scot",
+  "wales",
+  "email",
+  "dev",
+  "app",
+  "gov",
+  "ac",
+  "nhs",
+  "police",
+  "sch",
+  "edu",
+  "de",
+  "fr",
+  "es",
+  "it",
+  "nl",
+  "pl",
+  "au",
+  "nz",
+  "ca",
+  "us",
+]);
 
 function levenshtein(a: string, b: string): number {
   if (a === b) return 0;
@@ -81,6 +135,17 @@ function levenshtein(a: string, b: string): number {
   return prev[b.length];
 }
 
+function hasInvalidTld(email: string): boolean {
+  const at = email.lastIndexOf("@");
+  if (at < 1) return false;
+  const domain = email.slice(at + 1).toLowerCase();
+  const parts = domain.split(".");
+  if (parts.length < 2) return true;
+  const tld = parts[parts.length - 1] ?? "";
+  if (tld.length < 2 || /[^a-z]/.test(tld)) return true;
+  return !VALID_TLDS.has(tld);
+}
+
 function suggestEmailFix(email: string): string | null {
   const at = email.lastIndexOf("@");
   if (at < 1 || at === email.length - 1) return null;
@@ -88,10 +153,12 @@ function suggestEmailFix(email: string): string | null {
   const domain = email.slice(at + 1).toLowerCase();
   if (!domain.includes(".")) return null;
   if ((COMMON_EMAIL_DOMAINS as readonly string[]).includes(domain)) return null;
+  const invalidTld = hasInvalidTld(email);
+  const maxDist = invalidTld ? 3 : 2;
   let best: { domain: string; dist: number } | null = null;
   for (const candidate of COMMON_EMAIL_DOMAINS) {
     const dist = levenshtein(domain, candidate);
-    if (dist > 0 && dist <= 2 && (!best || dist < best.dist)) {
+    if (dist > 0 && dist <= maxDist && (!best || dist < best.dist)) {
       best = { domain: candidate, dist };
     }
   }
@@ -117,6 +184,7 @@ function AuthPage() {
   const [submitting, setSubmitting] = useState(false);
   const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
+  const [emailWarning, setEmailWarning] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
@@ -179,7 +247,15 @@ function AuthPage() {
     if (!suggestionDismissed) {
       const suggestion = suggestEmailFix(normalizedEmail);
       if (suggestion) {
+        setEmailWarning(null);
         setEmailSuggestion(suggestion);
+        return;
+      }
+      if (hasInvalidTld(normalizedEmail)) {
+        setEmailWarning(
+          "That email address ends in something we don't recognise. Please double-check it — if it's right, tap continue again.",
+        );
+        setSuggestionDismissed(true);
         return;
       }
     }
@@ -404,6 +480,7 @@ function AuthPage() {
                   onChange={(e) => {
                     setEmail(e.target.value);
                     setEmailSuggestion(null);
+                    setEmailWarning(null);
                     setSuggestionDismissed(false);
                   }}
                   type="email"
@@ -438,6 +515,11 @@ function AuthPage() {
                     Keep typed
                   </button>
                 </div>
+              ) : null}
+              {!emailSuggestion && emailWarning ? (
+                <p className="mt-2 rounded-xl border border-amber-400/40 bg-amber-100/50 px-3 py-2 text-xs text-foreground">
+                  {emailWarning}
+                </p>
               ) : null}
             </label>
 
