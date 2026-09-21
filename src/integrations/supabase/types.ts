@@ -74,6 +74,45 @@ export type Database = {
         }
         Relationships: []
       }
+      compliance_audits: {
+        Row: {
+          answers: Json
+          band: string
+          contact_name: string | null
+          created_at: string
+          email: string | null
+          gaps: string[]
+          id: string
+          property_count: string | null
+          score: number
+          utm: Json
+        }
+        Insert: {
+          answers?: Json
+          band: string
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          gaps?: string[]
+          id?: string
+          property_count?: string | null
+          score: number
+          utm?: Json
+        }
+        Update: {
+          answers?: Json
+          band?: string
+          contact_name?: string | null
+          created_at?: string
+          email?: string | null
+          gaps?: string[]
+          id?: string
+          property_count?: string | null
+          score?: number
+          utm?: Json
+        }
+        Relationships: []
+      }
       maintenance_tickets: {
         Row: {
           created_at: string
