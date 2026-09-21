@@ -387,9 +387,9 @@ function AuditPage() {
                     Saved to {email}
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Next step: open a free landlord account and Roost will hold the
-                    certificates, dates and records this check asked about — so next time
-                    you can answer yes to all of it.
+                    Next step: join the free beta and Roost will hold the certificates, dates
+                    and records this check asked about — so next time you can answer yes to all
+                    of it. No fees, no card required.
                   </p>
                   <Link
                     to="/auth"
@@ -397,7 +397,7 @@ function AuditPage() {
                     className="mt-5 inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
                   >
                     <ShieldCheck className="h-4 w-4" />
-                    Create my free landlord account
+                    Join the free beta — organise your tenancy records
                   </Link>
                 </div>
               ) : (
