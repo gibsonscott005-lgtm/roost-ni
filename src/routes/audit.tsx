@@ -313,6 +313,10 @@ function AuditPage() {
 
         {stage === "result" ? (
           <section>
+            <p className="mb-4 rounded-2xl border border-border bg-surface-muted px-4 py-3 text-xs text-muted-foreground">
+              Roost is currently free in early beta for Northern Ireland landlords. No fees, no
+              card required.
+            </p>
             <div className="rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
               <div className="flex flex-wrap items-center gap-5">
                 <div className="grid h-24 w-24 shrink-0 place-items-center rounded-full border-4 border-verified/30 bg-verified-soft/50">
