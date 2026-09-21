@@ -172,6 +172,10 @@ function AuditPage() {
               <ClipboardCheck className="h-3.5 w-3.5" />
               Free self-check
             </span>
+            <p className="mt-4 rounded-2xl border border-border bg-surface-muted px-4 py-3 text-xs text-muted-foreground">
+              Roost is currently free in early beta for Northern Ireland landlords. No fees,
+              no card required.
+            </p>
             <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
               Is your Northern Ireland tenancy paperwork in order?
             </h1>
