@@ -946,12 +946,36 @@ function MyProperties({
   loading,
   executedByListing,
   onAdd,
+  onRefresh,
 }: {
   listings: Listing[];
   loading: boolean;
   executedByListing: Record<string, string>;
   onAdd: () => void;
+  onRefresh: () => Promise<void> | void;
 }) {
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const setStatus = async (
+    l: Listing,
+    patch: Record<string, unknown>,
+    message: string,
+    description: string,
+  ) => {
+    setBusyId(l.id);
+    const { error } = await supabase
+      .from("property_listings")
+      .update(patch as never)
+      .eq("id", l.id);
+    setBusyId(null);
+    if (error) {
+      toast.error("Could not update this property", { description: error.message });
+      return;
+    }
+    toast.success(message, { description });
+    await onRefresh();
+  };
+
   return (
     <div>
       <div className="mb-5 flex items-end justify-between gap-3">
