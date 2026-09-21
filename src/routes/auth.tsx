@@ -8,18 +8,25 @@ import { posthog } from "@/integrations/posthog/client";
 export const Route = createFileRoute("/auth")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { role?: "tenant" | "landlord"; next?: string } => {
+  ): { role?: "tenant" | "landlord"; next?: string; email?: string } => {
     const role = search['role'];
     const rawNext = search['next'];
+    const rawEmail = search['email'];
     const next =
       typeof rawNext === "string" && rawNext.startsWith("/") && !rawNext.startsWith("//")
         ? rawNext
         : undefined;
+    const email =
+      typeof rawEmail === "string" && rawEmail.includes("@") && rawEmail.length <= 200
+        ? rawEmail
+        : undefined;
     return {
       ...(role === "tenant" || role === "landlord" ? { role } : {}),
       ...(next ? { next } : {}),
+      ...(email ? { email } : {}),
     };
   },
+
 
   head: () => ({
     meta: [
