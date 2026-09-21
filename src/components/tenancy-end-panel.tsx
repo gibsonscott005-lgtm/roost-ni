@@ -1620,17 +1620,22 @@ function CompleteSection({
         } as never)
         .eq("id", shareId);
       if (error) throw error;
-      if (relist) {
-        const { error: listErr } = await supabase
-          .from("property_listings")
-          .update({ status: "available" } as never)
-          .eq("id", listingId);
-        if (listErr) throw listErr;
-      }
+      const { error: listErr } = await supabase
+        .from("property_listings")
+        .update({
+          occupancy_status: "vacant",
+          is_published: false,
+          tenancy_ended_at: new Date().toISOString(),
+          ...(relist ? { status: "available" } : {}),
+        } as never)
+        .eq("id", listingId);
+      if (listErr) throw listErr;
     },
     onSuccess: () => {
       toast.success("Tenancy completed", {
-        description: relist ? "The property is back on the market as available." : undefined,
+        description: relist
+          ? "The property is now marked vacant. Advertise it on Roost whenever you're ready."
+          : "The property is now marked vacant and stays off the public listings.",
       });
       void notify(
         "tenancy_completed",

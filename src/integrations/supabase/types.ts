@@ -533,6 +533,11 @@ export type Database = {
           deposit: number
           description: string | null
           enforce_empty_in_full_out: boolean
+          existing_deposit_reference: string | null
+          existing_deposit_scheme: string | null
+          existing_tenancy_start: string | null
+          existing_tenant_email: string | null
+          existing_tenant_name: string | null
           features: string[]
           furnished: string | null
           garden: string | null
@@ -544,10 +549,12 @@ export type Database = {
           min_tenancy_months: number | null
           monthly_rent: number
           ni_landlord_reg_number: string
+          occupancy_status: string
           parking: string | null
           photo_urls: string[]
           property_type: string | null
           status: string
+          tenancy_ended_at: string | null
           tenant_preferences: string[]
           title: string
           updated_at: string
@@ -562,6 +569,11 @@ export type Database = {
           deposit: number
           description?: string | null
           enforce_empty_in_full_out?: boolean
+          existing_deposit_reference?: string | null
+          existing_deposit_scheme?: string | null
+          existing_tenancy_start?: string | null
+          existing_tenant_email?: string | null
+          existing_tenant_name?: string | null
           features?: string[]
           furnished?: string | null
           garden?: string | null
@@ -573,10 +585,12 @@ export type Database = {
           min_tenancy_months?: number | null
           monthly_rent: number
           ni_landlord_reg_number: string
+          occupancy_status?: string
           parking?: string | null
           photo_urls?: string[]
           property_type?: string | null
           status?: string
+          tenancy_ended_at?: string | null
           tenant_preferences?: string[]
           title: string
           updated_at?: string
@@ -591,6 +605,11 @@ export type Database = {
           deposit?: number
           description?: string | null
           enforce_empty_in_full_out?: boolean
+          existing_deposit_reference?: string | null
+          existing_deposit_scheme?: string | null
+          existing_tenancy_start?: string | null
+          existing_tenant_email?: string | null
+          existing_tenant_name?: string | null
           features?: string[]
           furnished?: string | null
           garden?: string | null
@@ -602,10 +621,12 @@ export type Database = {
           min_tenancy_months?: number | null
           monthly_rent?: number
           ni_landlord_reg_number?: string
+          occupancy_status?: string
           parking?: string | null
           photo_urls?: string[]
           property_type?: string | null
           status?: string
+          tenancy_ended_at?: string | null
           tenant_preferences?: string[]
           title?: string
           updated_at?: string

@@ -75,6 +75,9 @@ interface Listing {
   is_published: boolean;
   created_at: string;
   photo_urls: string[] | null;
+  occupancy_status: string;
+  existing_tenant_name: string | null;
+  existing_tenancy_start: string | null;
 }
 
 const TENANT_PREFS = [
@@ -101,7 +104,7 @@ function Dashboard() {
     const { data } = await supabase
       .from("property_listings")
       .select(
-        "id, title, address, location, monthly_rent, heating_type, is_published, created_at, photo_urls",
+        "id, title, address, location, monthly_rent, heating_type, is_published, created_at, photo_urls, occupancy_status, existing_tenant_name, existing_tenancy_start",
       )
       .eq("landlord_id", user.id)
       .order("created_at", { ascending: false });
@@ -166,7 +169,9 @@ function Dashboard() {
           loading={loading}
           executedByListing={executedByListing}
           onAdd={() => setTab("add")}
+          onRefresh={loadListings}
         />
+
       ) : (
         <AddPropertyForm
           onCreated={async () => {
@@ -941,12 +946,36 @@ function MyProperties({
   loading,
   executedByListing,
   onAdd,
+  onRefresh,
 }: {
   listings: Listing[];
   loading: boolean;
   executedByListing: Record<string, string>;
   onAdd: () => void;
+  onRefresh: () => Promise<void> | void;
 }) {
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const setStatus = async (
+    l: Listing,
+    patch: Record<string, unknown>,
+    message: string,
+    description: string,
+  ) => {
+    setBusyId(l.id);
+    const { error } = await supabase
+      .from("property_listings")
+      .update(patch as never)
+      .eq("id", l.id);
+    setBusyId(null);
+    if (error) {
+      toast.error("Could not update this property", { description: error.message });
+      return;
+    }
+    toast.success(message, { description });
+    await onRefresh();
+  };
+
   return (
     <div>
       <div className="mb-5 flex items-end justify-between gap-3">
@@ -1051,18 +1080,26 @@ function MyProperties({
                           <BadgeCheck className="h-3 w-3 shrink-0" />
                           Let Agreed
                         </span>
+                      ) : l.occupancy_status === "tenanted" ? (
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-[#1d4ed8]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#1d4ed8]">
+                          <Building2 className="h-3 w-3 shrink-0" />
+                          Tenanted · off market
+                        </span>
+                      ) : l.is_published ? (
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
+                          <ShieldCheck className="h-3 w-3 shrink-0" />
+                          Live · advertising
+                        </span>
                       ) : (
-                        <span
-                          className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                            l.is_published
-                              ? "bg-verified-soft text-verified"
-                              : "bg-surface-muted text-muted-foreground"
-                          }`}
-                        >
-                          {l.is_published ? <ShieldCheck className="h-3 w-3 shrink-0" /> : null}
-                          {l.is_published ? "Live" : "Draft"}
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          Vacant · not advertised
                         </span>
                       )}
+                      {l.occupancy_status === "tenanted" && l.existing_tenant_name ? (
+                        <span className="text-[11px] text-muted-foreground">
+                          {l.existing_tenant_name}
+                        </span>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -1078,24 +1115,85 @@ function MyProperties({
                     <FileSignature className="h-3 w-3 shrink-0" />
                     Manage Tenancy
                   </Link>
+                ) : l.occupancy_status === "tenanted" ? (
+                  <>
+                    <Link
+                      to="/dashboard/listing-edit"
+                      search={{ id: l.id }}
+                      className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                    >
+                      <ShieldCheck className="h-3 w-3 shrink-0" />
+                      Records & certificates
+                    </Link>
+                    <button
+                      type="button"
+                      disabled={busyId === l.id}
+                      onClick={() =>
+                        void setStatus(
+                          l,
+                          { occupancy_status: "vacant", tenancy_ended_at: new Date().toISOString() },
+                          "Marked as vacant",
+                          "You can advertise it on Roost whenever you're ready.",
+                        )
+                      }
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
+                    >
+                      Tenancy ended
+                    </button>
+                  </>
+                ) : l.is_published ? (
+                  <>
+                    <Link
+                      to="/dashboard/applications"
+                      search={{ listing: l.id }}
+                      className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                    >
+                      <Users className="h-3 w-3 shrink-0" />
+                      View applicants
+                    </Link>
+                    <Link
+                      to="/listings/$id"
+                      params={{ id: l.id }}
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary"
+                    >
+                      <ExternalLink className="h-3 w-3 shrink-0" />
+                      View listing
+                    </Link>
+                    <button
+                      type="button"
+                      disabled={busyId === l.id}
+                      onClick={() =>
+                        void setStatus(
+                          l,
+                          { is_published: false },
+                          "Taken off the market",
+                          "It's hidden from the public listings but kept in your account.",
+                        )
+                      }
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
+                    >
+                      Take off market
+                    </button>
+                  </>
                 ) : (
-                  <Link
-                    to="/dashboard/applications"
-                    search={{ listing: l.id }}
-                    className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                  <button
+                    type="button"
+                    disabled={busyId === l.id}
+                    onClick={() =>
+                      void setStatus(
+                        l,
+                        { is_published: true, occupancy_status: "vacant" },
+                        "Now advertising on Roost",
+                        "Tenants can view it and apply with their Roost passport.",
+                      )
+                    }
+                    className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92 disabled:opacity-60"
                   >
-                    <Users className="h-3 w-3 shrink-0" />
-                    View applicants
-                  </Link>
+                    <Sparkles className="h-3 w-3 shrink-0" />
+                    Advertise on Roost
+                  </button>
                 )}
-                <Link
-                  to="/listings/$id"
-                  params={{ id: l.id }}
-                  className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary"
-                >
-                  <ExternalLink className="h-3 w-3 shrink-0" />
-                  View listing
-                </Link>
+
                 <Link
                   to="/dashboard/listing-edit"
                   search={{ id: l.id }}
@@ -1126,18 +1224,32 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
   const [heatingOpen, setHeatingOpen] = useState(false);
   const [fuelPolicy, setFuelPolicy] = useState(true);
   const [prefs, setPrefs] = useState<string[]>(["No pets", "Non-smokers"]);
-  const [submitting, setSubmitting] = useState<false | "draft" | "publish">(false);
+  const [submitting, setSubmitting] = useState<false | "private" | "publish">(false);
   const [photos, setPhotos] = useState<File[]>([]);
   const [details, setDetails] = useState<ListingDetailInput>(emptyListingDetails);
+  const [occupancy, setOccupancy] = useState<"tenanted" | "vacant">("tenanted");
+  const [tenantName, setTenantName] = useState("");
+  const [tenantEmail, setTenantEmail] = useState("");
+  const [tenancyStart, setTenancyStart] = useState("");
+  const [depositScheme, setDepositScheme] = useState("");
+  const [depositRef, setDepositRef] = useState("");
+
+  const isTenanted = occupancy === "tenanted";
 
   const togglePref = (label: string) =>
     setPrefs((s) => (s.includes(label) ? s.filter((x) => x !== label) : [...s, label]));
 
-  const save = async (mode: "draft" | "publish") => {
+  const save = async (mode: "private" | "publish") => {
     if (!user || submitting) return;
     const detailError = validateListingDetails(details);
     if (detailError) {
       toast.error("Check the property details", { description: detailError });
+      return;
+    }
+    if (isTenanted && !tenantName.trim()) {
+      toast.error("Add the current tenant's name", {
+        description: "It keeps your rent records and receipts clear.",
+      });
       return;
     }
     setSubmitting(mode);
@@ -1148,7 +1260,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
           photoPaths = await uploadListingPhotos(user.id, photos);
         } catch {
           toast.error("Photos could not be uploaded", {
-            description: "The listing was not saved. Please try again.",
+            description: "The property was not saved. Please try again.",
           });
           setSubmitting(false);
           return;
@@ -1165,17 +1277,31 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         heating_type: heating,
         enforce_empty_in_full_out: usesFuelTank(heating) ? fuelPolicy : false,
         tenant_preferences: prefs,
-        is_published: mode === "publish",
+        is_published: !isTenanted && mode === "publish",
+        occupancy_status: occupancy,
+        existing_tenant_name: isTenanted ? tenantName.trim() : null,
+        existing_tenant_email: isTenanted && tenantEmail.trim() ? tenantEmail.trim() : null,
+        existing_tenancy_start: isTenanted && tenancyStart ? tenancyStart : null,
+        existing_deposit_scheme: isTenanted && depositScheme ? depositScheme : null,
+        existing_deposit_reference: isTenanted && depositRef.trim() ? depositRef.trim() : null,
         photo_urls: photoPaths,
         ...listingDetailPayload(details),
-      });
+      } as never);
       if (error) throw error;
-      toast.success(mode === "publish" ? "Listing published" : "Draft saved", {
-        description:
-          mode === "publish"
-            ? "Your property is live and ready for verified NI tenants."
-            : "You can finish and publish it any time from My properties.",
-      });
+      toast.success(
+        isTenanted
+          ? "Property saved privately"
+          : mode === "publish"
+            ? "Now advertising on Roost"
+            : "Property saved as vacant",
+        {
+          description: isTenanted
+            ? "It is never shown publicly. Add your safety certificates and rent records any time."
+            : mode === "publish"
+              ? "Tenants can view it and apply with their Roost passport."
+              : "Advertise it on Roost whenever you're ready.",
+        },
+      );
       setTitle("");
       setAddress("");
       setLocation("");
@@ -1185,9 +1311,14 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
       setRegNumber("");
       setPhotos([]);
       setDetails(emptyListingDetails);
+      setTenantName("");
+      setTenantEmail("");
+      setTenancyStart("");
+      setDepositScheme("");
+      setDepositRef("");
       await onCreated();
     } catch (err: unknown) {
-      toast.error("Could not save listing", {
+      toast.error("Could not save property", {
         description: err instanceof Error ? err.message : "Please try again",
       });
     } finally {
@@ -1197,7 +1328,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    void save("publish");
+    void save(isTenanted ? "private" : "publish");
   };
 
   const inputCx =
@@ -1207,14 +1338,119 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
     <form onSubmit={onSubmit}>
       <div className="mb-5">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          New listing
+          New property
         </p>
         <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-          Create a compliant NI listing
+          Add a property to Roost
         </h2>
       </div>
 
-      <FormCard eyebrow="Step 01" title="Basic info">
+      <FormCard eyebrow="Step 01" title="Is the property occupied?">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          {(
+            [
+              {
+                key: "tenanted" as const,
+                label: "Currently tenanted",
+                hint: "Keep your certificates, rent records and deadlines in order. Never shown publicly.",
+              },
+              {
+                key: "vacant" as const,
+                label: "Vacant",
+                hint: "Empty or between tenancies. You choose when to advertise it on Roost.",
+              },
+            ]
+          ).map((opt) => {
+            const active = occupancy === opt.key;
+            return (
+              <button
+                key={opt.key}
+                type="button"
+                onClick={() => setOccupancy(opt.key)}
+                aria-pressed={active}
+                className={`flex items-start gap-3 rounded-2xl border p-3.5 text-left transition ${
+                  active
+                    ? "border-foreground/20 bg-surface shadow-raised"
+                    : "border-border bg-surface-muted hover:bg-secondary"
+                }`}
+              >
+                <span
+                  className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full border transition ${
+                    active
+                      ? "border-verified bg-verified text-[var(--color-verified-foreground)]"
+                      : "border-border bg-surface"
+                  }`}
+                >
+                  {active ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : null}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium text-foreground">{opt.label}</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">{opt.hint}</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {isTenanted ? (
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Current tenant's name" className="sm:col-span-2">
+              <input
+                value={tenantName}
+                onChange={(e) => setTenantName(e.target.value)}
+                placeholder="Sarah McKee"
+                className={inputCx}
+              />
+            </Field>
+            <Field label="Tenant email (optional)" hint="Used only for rent receipts you choose to send.">
+              <input
+                type="email"
+                value={tenantEmail}
+                onChange={(e) => setTenantEmail(e.target.value)}
+                placeholder="sarah@example.com"
+                className={inputCx}
+              />
+            </Field>
+            <Field label="Tenancy start date">
+              <input
+                type="date"
+                value={tenancyStart}
+                onChange={(e) => setTenancyStart(e.target.value)}
+                className={inputCx}
+              />
+            </Field>
+            <Field label="Deposit scheme">
+              <select
+                value={depositScheme}
+                onChange={(e) => setDepositScheme(e.target.value)}
+                className={inputCx}
+              >
+                <option value="">Not recorded yet</option>
+                <option value="TDS Northern Ireland">TDS Northern Ireland</option>
+                <option value="MyDeposits Northern Ireland">MyDeposits Northern Ireland</option>
+                <option value="Letting Protection Service NI">
+                  Letting Protection Service NI
+                </option>
+              </select>
+            </Field>
+            <Field label="Deposit reference (optional)">
+              <input
+                value={depositRef}
+                onChange={(e) => setDepositRef(e.target.value)}
+                placeholder="Scheme certificate number"
+                className={inputCx}
+              />
+            </Field>
+            <div className="sm:col-span-2 flex items-start gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
+              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              This property stays private to you. When the tenancy ends, you can advertise it on
+              Roost with one tap.
+            </div>
+          </div>
+        ) : null}
+      </FormCard>
+
+      <FormCard eyebrow="Step 02" title="Basic info">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Property title" className="sm:col-span-2">
             <input
@@ -1283,27 +1519,27 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         </div>
       </FormCard>
 
-      <FormCard eyebrow="Step 02" title="Property basics">
+      <FormCard eyebrow="Step 03" title="Property basics">
         <PropertyBasicsFields value={details} onChange={setDetails} />
       </FormCard>
 
-      <FormCard eyebrow="Step 03" title="Availability">
+      <FormCard eyebrow="Step 04" title="Availability">
         <AvailabilityFields value={details} onChange={setDetails} />
       </FormCard>
 
-      <FormCard eyebrow="Step 04" title="Description">
+      <FormCard eyebrow="Step 05" title="Description">
         <DescriptionField value={details} onChange={setDetails} />
       </FormCard>
 
-      <FormCard eyebrow="Step 05" title="Features & running costs">
+      <FormCard eyebrow="Step 06" title="Features & running costs">
         <FeaturesFields value={details} onChange={setDetails} />
       </FormCard>
 
-      <FormCard eyebrow="Step 06" title="Property photos">
+      <FormCard eyebrow="Step 07" title="Property photos">
         <PhotoPicker files={photos} onChange={setPhotos} />
       </FormCard>
 
-      <FormCard eyebrow="Step 07" title="NI compliance verification">
+      <FormCard eyebrow="Step 08" title="NI compliance verification">
         <Field
           label="Northern Ireland Landlord Registration Number"
           hint="Legally required for all private tenancies in Northern Ireland. Format: LRN-NI-XXXXXX."
@@ -1321,7 +1557,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         </Field>
       </FormCard>
 
-      <FormCard eyebrow="Step 08" title="Smart infrastructure">
+      <FormCard eyebrow="Step 09" title="Smart infrastructure">
         <Field label="Heating & utility type">
           <div className="relative mt-1.5">
             <button
@@ -1429,7 +1665,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         )}
       </FormCard>
 
-      <FormCard eyebrow="Step 09" title="Tenant requirements">
+      <FormCard eyebrow="Step 10" title="Tenant requirements">
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {TENANT_PREFS.map(({ label, hint }) => {
             const active = prefs.includes(label);
@@ -1479,21 +1715,29 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
       />
 
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
-        <button
-          type="button"
-          onClick={() => void save("draft")}
-          disabled={submitting !== false}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 font-display text-sm font-semibold text-foreground transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-        >
-          {submitting === "draft" ? "Saving…" : "Save as draft"}
-        </button>
+        {!isTenanted ? (
+          <button
+            type="button"
+            onClick={() => void save("private")}
+            disabled={submitting !== false}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 font-display text-sm font-semibold text-foreground transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          >
+            {submitting === "private" ? "Saving…" : "Save without advertising"}
+          </button>
+        ) : null}
         <button
           type="submit"
           disabled={submitting !== false}
           className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-base font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:translate-y-[-1px] hover:bg-foreground/92 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
         >
           <Sparkles className="h-4 w-4" />
-          {submitting === "publish" ? "Publishing…" : "Publish listing"}
+          {isTenanted
+            ? submitting === "private"
+              ? "Saving…"
+              : "Save private property"
+            : submitting === "publish"
+              ? "Publishing…"
+              : "Advertise on Roost"}
         </button>
       </div>
     </form>

@@ -8,6 +8,13 @@
       "when": 1789953729836,
       "tag": "0000_create_compliance_audits",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789957144662,
+      "tag": "0001_add_property_occupancy_status",
+      "breakpoints": true
     }
   ]
 }

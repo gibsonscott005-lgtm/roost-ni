@@ -200,7 +200,9 @@ function EditListingPage() {
           tenant_preferences: prefs,
           photo_urls: photoPaths,
           ...listingDetailPayload(details),
-          ...(publish === undefined ? {} : { is_published: publish }),
+          ...(publish === undefined
+            ? {}
+            : { is_published: publish, ...(publish ? { occupancy_status: "vacant" } : {}) }),
         } as never)
         .eq("id", id);
       if (error) throw error;
@@ -280,6 +282,78 @@ function EditListingPage() {
             void save();
           }}
         >
+          <Card title="Status">
+            {listing.occupancy_status === "tenanted" ? (
+              <div className="space-y-3">
+                <p className="text-sm text-foreground">
+                  <span className="font-semibold">Tenanted · off market.</span> This property is
+                  private to you and never appears on the public listings.
+                  {listing.existing_tenant_name ? ` Current tenant: ${listing.existing_tenant_name}.` : ""}
+                </p>
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={async () => {
+                    setSaving(true);
+                    const { error } = await supabase
+                      .from("property_listings")
+                      .update({
+                        occupancy_status: "vacant",
+                        tenancy_ended_at: new Date().toISOString(),
+                      } as never)
+                      .eq("id", id!);
+                    setSaving(false);
+                    if (error) {
+                      toast.error("Could not update this property", { description: error.message });
+                      return;
+                    }
+                    toast.success("Marked as vacant", {
+                      description: "You can advertise it on Roost whenever you're ready.",
+                    });
+                    await invalidate();
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold transition hover:bg-secondary disabled:opacity-60"
+                >
+                  Tenancy has ended
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-sm text-foreground">
+                  <span className="font-semibold">
+                    {listing.is_published ? "Live · advertising." : "Vacant · not advertised."}
+                  </span>{" "}
+                  {listing.is_published
+                    ? "Tenants can view this property and apply with their Roost passport."
+                    : "Only you can see this property. Advertise it when you're ready for applications."}
+                </p>
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={async () => {
+                    setSaving(true);
+                    const { error } = await supabase
+                      .from("property_listings")
+                      .update({ occupancy_status: "tenanted", is_published: false } as never)
+                      .eq("id", id!);
+                    setSaving(false);
+                    if (error) {
+                      toast.error("Could not update this property", { description: error.message });
+                      return;
+                    }
+                    toast.success("Marked as tenanted", {
+                      description: "It is now private and off the public listings.",
+                    });
+                    await invalidate();
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold transition hover:bg-secondary disabled:opacity-60"
+                >
+                  A tenant is already in place
+                </button>
+              </div>
+            )}
+          </Card>
+
           <Card title="Basic info">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Property title" className="sm:col-span-2">
@@ -464,14 +538,16 @@ function EditListingPage() {
             >
               <Check className="h-4 w-4" /> {saving ? "Saving…" : "Save changes"}
             </button>
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => void save(!listing.is_published)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold transition hover:bg-secondary disabled:opacity-60"
-            >
-              {listing.is_published ? "Unpublish listing" : "Publish listing"}
-            </button>
+            {listing.occupancy_status === "tenanted" ? null : (
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => void save(!listing.is_published)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold transition hover:bg-secondary disabled:opacity-60"
+              >
+                {listing.is_published ? "Take off market" : "Advertise on Roost"}
+              </button>
+            )}
             <div className="ml-auto flex items-center gap-2">
               {confirmDelete ? (
                 <>
