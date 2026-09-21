@@ -1080,18 +1080,26 @@ function MyProperties({
                           <BadgeCheck className="h-3 w-3 shrink-0" />
                           Let Agreed
                         </span>
+                      ) : l.occupancy_status === "tenanted" ? (
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-[#1d4ed8]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#1d4ed8]">
+                          <Building2 className="h-3 w-3 shrink-0" />
+                          Tenanted · off market
+                        </span>
+                      ) : l.is_published ? (
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
+                          <ShieldCheck className="h-3 w-3 shrink-0" />
+                          Live · advertising
+                        </span>
                       ) : (
-                        <span
-                          className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                            l.is_published
-                              ? "bg-verified-soft text-verified"
-                              : "bg-surface-muted text-muted-foreground"
-                          }`}
-                        >
-                          {l.is_published ? <ShieldCheck className="h-3 w-3 shrink-0" /> : null}
-                          {l.is_published ? "Live" : "Draft"}
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          Vacant · not advertised
                         </span>
                       )}
+                      {l.occupancy_status === "tenanted" && l.existing_tenant_name ? (
+                        <span className="text-[11px] text-muted-foreground">
+                          {l.existing_tenant_name}
+                        </span>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -1107,24 +1115,85 @@ function MyProperties({
                     <FileSignature className="h-3 w-3 shrink-0" />
                     Manage Tenancy
                   </Link>
+                ) : l.occupancy_status === "tenanted" ? (
+                  <>
+                    <Link
+                      to="/dashboard/listing-edit"
+                      search={{ id: l.id }}
+                      className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                    >
+                      <ShieldCheck className="h-3 w-3 shrink-0" />
+                      Records & certificates
+                    </Link>
+                    <button
+                      type="button"
+                      disabled={busyId === l.id}
+                      onClick={() =>
+                        void setStatus(
+                          l,
+                          { occupancy_status: "vacant", tenancy_ended_at: new Date().toISOString() },
+                          "Marked as vacant",
+                          "You can advertise it on Roost whenever you're ready.",
+                        )
+                      }
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
+                    >
+                      Tenancy ended
+                    </button>
+                  </>
+                ) : l.is_published ? (
+                  <>
+                    <Link
+                      to="/dashboard/applications"
+                      search={{ listing: l.id }}
+                      className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                    >
+                      <Users className="h-3 w-3 shrink-0" />
+                      View applicants
+                    </Link>
+                    <Link
+                      to="/listings/$id"
+                      params={{ id: l.id }}
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary"
+                    >
+                      <ExternalLink className="h-3 w-3 shrink-0" />
+                      View listing
+                    </Link>
+                    <button
+                      type="button"
+                      disabled={busyId === l.id}
+                      onClick={() =>
+                        void setStatus(
+                          l,
+                          { is_published: false },
+                          "Taken off the market",
+                          "It's hidden from the public listings but kept in your account.",
+                        )
+                      }
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
+                    >
+                      Take off market
+                    </button>
+                  </>
                 ) : (
-                  <Link
-                    to="/dashboard/applications"
-                    search={{ listing: l.id }}
-                    className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                  <button
+                    type="button"
+                    disabled={busyId === l.id}
+                    onClick={() =>
+                      void setStatus(
+                        l,
+                        { is_published: true, occupancy_status: "vacant" },
+                        "Now advertising on Roost",
+                        "Tenants can view it and apply with their Roost passport.",
+                      )
+                    }
+                    className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92 disabled:opacity-60"
                   >
-                    <Users className="h-3 w-3 shrink-0" />
-                    View applicants
-                  </Link>
+                    <Sparkles className="h-3 w-3 shrink-0" />
+                    Advertise on Roost
+                  </button>
                 )}
-                <Link
-                  to="/listings/$id"
-                  params={{ id: l.id }}
-                  className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary"
-                >
-                  <ExternalLink className="h-3 w-3 shrink-0" />
-                  View listing
-                </Link>
+
                 <Link
                   to="/dashboard/listing-edit"
                   search={{ id: l.id }}
