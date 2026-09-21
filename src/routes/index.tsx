@@ -3,6 +3,8 @@ import {
   ArrowRight,
   BadgeCheck,
   Building2,
+  ClipboardCheck,
+
   FileSignature,
   Home,
   IdCard,
