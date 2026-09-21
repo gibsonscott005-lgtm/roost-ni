@@ -1450,7 +1450,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         ) : null}
       </FormCard>
 
-      <FormCard eyebrow="Step 03" title="Basic info">
+      <FormCard eyebrow="Step 02" title="Basic info">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Property title" className="sm:col-span-2">
             <input
@@ -1665,7 +1665,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         )}
       </FormCard>
 
-      <FormCard eyebrow="Step 110" title="Tenant requirements">
+      <FormCard eyebrow="Step 10" title="Tenant requirements">
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {TENANT_PREFS.map(({ label, hint }) => {
             const active = prefs.includes(label);
