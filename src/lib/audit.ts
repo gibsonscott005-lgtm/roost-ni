@@ -252,7 +252,7 @@ export function scoreAudit(answers: AuditAnswers): AuditResult {
       : band === "Mostly there"
         ? "The core is in place. A handful of documents and dates would be hard to produce at short notice."
         : band === "Some gaps"
-          ? "Several things a tenant, a council officer or a deposit scheme could ask for aren't currently evidenced."
+          ? "Several things a tenant, a deposit scheme adjudicator or the Landlord Registration Scheme could ask for aren't currently evidenced."
           : "A number of the documents and records an NI tenancy relies on aren't in place yet. Worth working through one at a time.";
 
   const areaScores = AUDIT_AREAS.map((area) => {
