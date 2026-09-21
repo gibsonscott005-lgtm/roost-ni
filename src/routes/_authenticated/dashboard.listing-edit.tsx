@@ -200,7 +200,9 @@ function EditListingPage() {
           tenant_preferences: prefs,
           photo_urls: photoPaths,
           ...listingDetailPayload(details),
-          ...(publish === undefined ? {} : { is_published: publish }),
+          ...(publish === undefined
+            ? {}
+            : { is_published: publish, ...(publish ? { occupancy_status: "vacant" } : {}) }),
         } as never)
         .eq("id", id);
       if (error) throw error;
