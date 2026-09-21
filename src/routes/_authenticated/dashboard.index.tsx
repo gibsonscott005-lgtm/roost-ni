@@ -1450,7 +1450,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         ) : null}
       </FormCard>
 
-      <FormCard eyebrow="Step 02" title="Basic info">
+      <FormCard eyebrow="Step 03" title="Basic info">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Property title" className="sm:col-span-2">
             <input
@@ -1519,27 +1519,27 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         </div>
       </FormCard>
 
-      <FormCard eyebrow="Step 02" title="Property basics">
+      <FormCard eyebrow="Step 03" title="Property basics">
         <PropertyBasicsFields value={details} onChange={setDetails} />
       </FormCard>
 
-      <FormCard eyebrow="Step 03" title="Availability">
+      <FormCard eyebrow="Step 04" title="Availability">
         <AvailabilityFields value={details} onChange={setDetails} />
       </FormCard>
 
-      <FormCard eyebrow="Step 04" title="Description">
+      <FormCard eyebrow="Step 05" title="Description">
         <DescriptionField value={details} onChange={setDetails} />
       </FormCard>
 
-      <FormCard eyebrow="Step 05" title="Features & running costs">
+      <FormCard eyebrow="Step 06" title="Features & running costs">
         <FeaturesFields value={details} onChange={setDetails} />
       </FormCard>
 
-      <FormCard eyebrow="Step 06" title="Property photos">
+      <FormCard eyebrow="Step 07" title="Property photos">
         <PhotoPicker files={photos} onChange={setPhotos} />
       </FormCard>
 
-      <FormCard eyebrow="Step 07" title="NI compliance verification">
+      <FormCard eyebrow="Step 08" title="NI compliance verification">
         <Field
           label="Northern Ireland Landlord Registration Number"
           hint="Legally required for all private tenancies in Northern Ireland. Format: LRN-NI-XXXXXX."
@@ -1557,7 +1557,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         </Field>
       </FormCard>
 
-      <FormCard eyebrow="Step 08" title="Smart infrastructure">
+      <FormCard eyebrow="Step 09" title="Smart infrastructure">
         <Field label="Heating & utility type">
           <div className="relative mt-1.5">
             <button
@@ -1665,7 +1665,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         )}
       </FormCard>
 
-      <FormCard eyebrow="Step 09" title="Tenant requirements">
+      <FormCard eyebrow="Step 110" title="Tenant requirements">
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {TENANT_PREFS.map(({ label, hint }) => {
             const active = prefs.includes(label);
