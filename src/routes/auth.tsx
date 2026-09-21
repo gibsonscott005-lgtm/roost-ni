@@ -99,11 +99,16 @@ function suggestEmailFix(email: string): string | null {
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { role: roleFromSearch, next: nextFromSearch } = Route.useSearch();
+  const {
+    role: roleFromSearch,
+    next: nextFromSearch,
+    email: emailFromSearch,
+  } = Route.useSearch();
   const [role, setRole] = useState<Role>(roleFromSearch ?? "tenant");
   const [mode, setMode] = useState<Mode>("signup");
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(emailFromSearch ?? "");
+
   const [password, setPassword] = useState("");
   const [hearAboutUs, setHearAboutUs] = useState("");
   const [showHearAboutUs, setShowHearAboutUs] = useState(false);
