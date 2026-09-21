@@ -1224,18 +1224,32 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
   const [heatingOpen, setHeatingOpen] = useState(false);
   const [fuelPolicy, setFuelPolicy] = useState(true);
   const [prefs, setPrefs] = useState<string[]>(["No pets", "Non-smokers"]);
-  const [submitting, setSubmitting] = useState<false | "draft" | "publish">(false);
+  const [submitting, setSubmitting] = useState<false | "private" | "publish">(false);
   const [photos, setPhotos] = useState<File[]>([]);
   const [details, setDetails] = useState<ListingDetailInput>(emptyListingDetails);
+  const [occupancy, setOccupancy] = useState<"tenanted" | "vacant">("tenanted");
+  const [tenantName, setTenantName] = useState("");
+  const [tenantEmail, setTenantEmail] = useState("");
+  const [tenancyStart, setTenancyStart] = useState("");
+  const [depositScheme, setDepositScheme] = useState("");
+  const [depositRef, setDepositRef] = useState("");
+
+  const isTenanted = occupancy === "tenanted";
 
   const togglePref = (label: string) =>
     setPrefs((s) => (s.includes(label) ? s.filter((x) => x !== label) : [...s, label]));
 
-  const save = async (mode: "draft" | "publish") => {
+  const save = async (mode: "private" | "publish") => {
     if (!user || submitting) return;
     const detailError = validateListingDetails(details);
     if (detailError) {
       toast.error("Check the property details", { description: detailError });
+      return;
+    }
+    if (isTenanted && !tenantName.trim()) {
+      toast.error("Add the current tenant's name", {
+        description: "It keeps your rent records and receipts clear.",
+      });
       return;
     }
     setSubmitting(mode);
@@ -1246,7 +1260,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
           photoPaths = await uploadListingPhotos(user.id, photos);
         } catch {
           toast.error("Photos could not be uploaded", {
-            description: "The listing was not saved. Please try again.",
+            description: "The property was not saved. Please try again.",
           });
           setSubmitting(false);
           return;
@@ -1263,17 +1277,31 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         heating_type: heating,
         enforce_empty_in_full_out: usesFuelTank(heating) ? fuelPolicy : false,
         tenant_preferences: prefs,
-        is_published: mode === "publish",
+        is_published: !isTenanted && mode === "publish",
+        occupancy_status: occupancy,
+        existing_tenant_name: isTenanted ? tenantName.trim() : null,
+        existing_tenant_email: isTenanted && tenantEmail.trim() ? tenantEmail.trim() : null,
+        existing_tenancy_start: isTenanted && tenancyStart ? tenancyStart : null,
+        existing_deposit_scheme: isTenanted && depositScheme ? depositScheme : null,
+        existing_deposit_reference: isTenanted && depositRef.trim() ? depositRef.trim() : null,
         photo_urls: photoPaths,
         ...listingDetailPayload(details),
-      });
+      } as never);
       if (error) throw error;
-      toast.success(mode === "publish" ? "Listing published" : "Draft saved", {
-        description:
-          mode === "publish"
-            ? "Your property is live and ready for verified NI tenants."
-            : "You can finish and publish it any time from My properties.",
-      });
+      toast.success(
+        isTenanted
+          ? "Property saved privately"
+          : mode === "publish"
+            ? "Now advertising on Roost"
+            : "Property saved as vacant",
+        {
+          description: isTenanted
+            ? "It is never shown publicly. Add your safety certificates and rent records any time."
+            : mode === "publish"
+              ? "Tenants can view it and apply with their Roost passport."
+              : "Advertise it on Roost whenever you're ready.",
+        },
+      );
       setTitle("");
       setAddress("");
       setLocation("");
@@ -1283,9 +1311,14 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
       setRegNumber("");
       setPhotos([]);
       setDetails(emptyListingDetails);
+      setTenantName("");
+      setTenantEmail("");
+      setTenancyStart("");
+      setDepositScheme("");
+      setDepositRef("");
       await onCreated();
     } catch (err: unknown) {
-      toast.error("Could not save listing", {
+      toast.error("Could not save property", {
         description: err instanceof Error ? err.message : "Please try again",
       });
     } finally {
@@ -1295,7 +1328,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    void save("publish");
+    void save(isTenanted ? "private" : "publish");
   };
 
   const inputCx =
