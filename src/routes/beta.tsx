@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  ClipboardCheck,
   IdCard,
   Home,
   ShieldCheck,
