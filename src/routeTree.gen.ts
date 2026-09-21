@@ -15,6 +15,7 @@ import { Route as AuditRouteImport } from './routes/audit'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BetaRouteImport } from './routes/beta'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as LandlordRegistrationNiRouteImport } from './routes/landlord-registration-ni'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -69,6 +70,11 @@ const BetaRoute = BetaRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LandlordRegistrationNiRoute = LandlordRegistrationNiRouteImport.update({
+  id: '/landlord-registration-ni',
+  path: '/landlord-registration-ni',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -224,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/beta': typeof BetaRoute
   '/help': typeof HelpRoute
+  '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -257,6 +264,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/beta': typeof BetaRoute
   '/help': typeof HelpRoute
+  '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -291,6 +299,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/beta': typeof BetaRoute
   '/help': typeof HelpRoute
+  '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
   '/mcp': typeof McpRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -326,6 +335,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/beta'
     | '/help'
+    | '/landlord-registration-ni'
     | '/mcp'
     | '/reset-password'
     | '/sitemap.xml'
@@ -359,6 +369,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/beta'
     | '/help'
+    | '/landlord-registration-ni'
     | '/mcp'
     | '/reset-password'
     | '/sitemap.xml'
@@ -392,6 +403,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/beta'
     | '/help'
+    | '/landlord-registration-ni'
     | '/mcp'
     | '/reset-password'
     | '/sitemap.xml'
@@ -427,6 +439,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BetaRoute: typeof BetaRoute
   HelpRoute: typeof HelpRoute
+  LandlordRegistrationNiRoute: typeof LandlordRegistrationNiRoute
   McpRoute: typeof McpRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -485,6 +498,13 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/help'
       preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/landlord-registration-ni': {
+      id: '/landlord-registration-ni'
+      path: '/landlord-registration-ni'
+      fullPath: '/landlord-registration-ni'
+      preLoaderRoute: typeof LandlordRegistrationNiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -729,6 +749,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BetaRoute: BetaRoute,
   HelpRoute: HelpRoute,
+  LandlordRegistrationNiRoute: LandlordRegistrationNiRoute,
   McpRoute: McpRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
