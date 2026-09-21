@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Home, Mail, Lock, UserRound, ShieldCheck, Building2, IdCard, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { posthog } from "@/integrations/posthog/client";
+import { sendWelcomeEmail } from "@/lib/welcome-email.functions";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (
@@ -208,7 +209,7 @@ function AuthPage() {
           utm_campaign: utmParams.campaign,
         });
 
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpResult, error } = await supabase.auth.signUp({
           email: normalizedEmail,
           password,
           options: {
@@ -219,6 +220,10 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        // Fire-and-forget welcome email — never blocks or breaks sign-up.
+        if (signUpResult.user?.id) {
+          sendWelcomeEmail({ data: { userId: signUpResult.user.id } }).catch(() => {});
+        }
         toast.success("Account created", {
           description:
             role === "landlord"
