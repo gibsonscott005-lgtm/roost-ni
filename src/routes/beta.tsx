@@ -63,7 +63,7 @@ function BetaPage() {
 
       <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
         <span className="inline-flex items-center gap-2 rounded-full border border-verified/30 bg-verified-soft/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
-          Closed beta
+          Free early beta
         </span>
         <h1 className="mt-5 max-w-3xl font-display text-3xl font-semibold tracking-tight sm:text-5xl">
           Renting in Northern Ireland, direct between tenant and landlord.

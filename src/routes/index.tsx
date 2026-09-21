@@ -84,7 +84,7 @@ function HomePage() {
           <div className="grid gap-10 lg:grid-cols-[1fr_420px] lg:items-center">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full border border-verified/30 bg-verified-soft/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
-                <BadgeCheck className="h-3.5 w-3.5 text-verified" /> Closed beta
+                <BadgeCheck className="h-3.5 w-3.5 text-verified" /> Free early beta
               </span>
               <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-5xl lg:text-[3.25rem]">
                 Renting in Northern Ireland, done direct.
@@ -253,11 +253,10 @@ function HomePage() {
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <p className="font-display text-lg font-semibold tracking-tight sm:text-xl">
-                  RoostNI is in closed beta
+                  RoostNI is in free early beta
                 </p>
                 <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-                  We're testing with a small group of tenants and landlords across Northern Ireland.
-                  Your feedback shapes what ships next.
+                  Anyone can join now — no fees, no card required. Your feedback shapes what ships next.
                 </p>
               </div>
               <Link
