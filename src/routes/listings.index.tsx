@@ -449,11 +449,18 @@ function Header() {
         </Link>
         <div className="flex items-center gap-1.5">
           <Link
+            to="/audit"
+            className="hidden rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground sm:inline-block"
+          >
+            Landlord audit
+          </Link>
+          <Link
             to="/beta"
             className="hidden rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground sm:inline-block"
           >
             About the beta
           </Link>
+
           <Link
             to="/help"
             className="hidden rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground sm:inline-block"
