@@ -208,8 +208,10 @@ function AuditPage() {
               <ArrowRight className="h-4 w-4" />
             </button>
             <p className="mt-8 text-xs text-muted-foreground">
-              Roost is a tenancy admin tool for self-managing landlords in Northern Ireland.
-              It organises and evidences your records — it never vets or scores a tenant.
+              Roost helps self-managing landlords in Northern Ireland track compliance
+              deadlines, leases and rent records. Applicants provide their own self-certified
+              documents in one organised pack — Roost never vets or scores a tenant, and does
+              not provide credit scores or legal advice.
             </p>
           </section>
         ) : null}
