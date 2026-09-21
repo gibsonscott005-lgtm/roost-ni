@@ -208,7 +208,7 @@ function AuthPage() {
           utm_campaign: utmParams.campaign,
         });
 
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpResult, error } = await supabase.auth.signUp({
           email: normalizedEmail,
           password,
           options: {
@@ -219,6 +219,10 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        // Fire-and-forget welcome email — never blocks or breaks sign-up.
+        if (signUpResult.user?.id) {
+          sendWelcomeEmail({ data: { userId: signUpResult.user.id } }).catch(() => {});
+        }
         toast.success("Account created", {
           description:
             role === "landlord"
