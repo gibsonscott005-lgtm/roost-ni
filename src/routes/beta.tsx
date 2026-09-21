@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  ClipboardCheck,
   IdCard,
   Home,
   ShieldCheck,
@@ -92,17 +93,22 @@ function BetaPage() {
             I'm a landlord
           </Link>
         </div>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Want to look first?{" "}
-          <Link to="/listings" className="font-medium text-foreground underline-offset-4 hover:underline">
-            Browse example listings
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
+          <span>
+            Want to look first?{" "}
+            <Link to="/listings" className="font-medium text-foreground underline-offset-4 hover:underline">
+              Browse example listings
+            </Link>
+            .
+          </span>
+          <Link
+            to="/audit"
+            className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 font-display text-xs font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
+          >
+            <ClipboardCheck className="h-3.5 w-3.5" />
+            Run Free Landlord Audit
           </Link>
-          {" · "}
-          <Link to="/audit" className="font-medium text-foreground underline-offset-4 hover:underline">
-            Landlords: take the free compliance audit
-          </Link>
-          .
-        </p>
+        </div>
 
 
         <section className="mt-14 grid gap-4 sm:grid-cols-2">

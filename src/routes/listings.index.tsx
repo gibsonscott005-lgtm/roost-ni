@@ -450,9 +450,9 @@ function Header() {
         <div className="flex items-center gap-1.5">
           <Link
             to="/audit"
-            className="hidden rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground sm:inline-block"
+            className="hidden items-center gap-1.5 rounded-full bg-foreground px-3.5 py-1.5 text-xs font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92 sm:inline-flex"
           >
-            Landlord audit
+            Run Free Landlord Audit
           </Link>
           <Link
             to="/beta"
