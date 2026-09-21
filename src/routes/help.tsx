@@ -38,7 +38,23 @@ const LANDLORD_STEPS = [
   "Issue the lease, protect the deposit within 28 days, then run rent, inventory and repairs from the tenancy workspace.",
 ];
 
-const FAQS: { q: string; a: string }[] = [
+const FAQS: { q: string; a: React.ReactNode }[] = [
+  {
+    q: "Do I need to register as a landlord in Northern Ireland?",
+    a: (
+      <>
+        Yes — every private landlord must register with the Landlord Registration Scheme. It costs
+        £70 online, lasts three years, and the register is public. Read our{" "}
+        <Link
+          to="/landlord-registration-ni"
+          className="font-medium text-foreground underline underline-offset-4 hover:text-verified"
+        >
+          plain-English guide to landlord registration in NI
+        </Link>
+        .
+      </>
+    ),
+  },
   {
     q: "What does “self-certified” mean?",
     a: "Documents and details on a Tenant Passport are uploaded and declared by the tenant themselves. RoostNI stores and presents them securely, but it does not run credit checks, employment checks or background checks. Landlords should read the evidence and make their own decision.",
