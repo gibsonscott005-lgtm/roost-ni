@@ -172,6 +172,10 @@ function AuditPage() {
               <ClipboardCheck className="h-3.5 w-3.5" />
               Free self-check
             </span>
+            <p className="mt-4 rounded-2xl border border-border bg-surface-muted px-4 py-3 text-xs text-muted-foreground">
+              Roost is currently free in early beta for Northern Ireland landlords. No fees,
+              no card required.
+            </p>
             <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
               Is your Northern Ireland tenancy paperwork in order?
             </h1>
@@ -204,8 +208,10 @@ function AuditPage() {
               <ArrowRight className="h-4 w-4" />
             </button>
             <p className="mt-8 text-xs text-muted-foreground">
-              Roost is a tenancy admin tool for self-managing landlords in Northern Ireland.
-              It organises and evidences your records — it never vets or scores a tenant.
+              Roost helps self-managing landlords in Northern Ireland track compliance
+              deadlines, leases and rent records. Applicants provide their own self-certified
+              documents in one organised pack — Roost never vets or scores a tenant, and does
+              not provide credit scores or legal advice.
             </p>
           </section>
         ) : null}
@@ -307,6 +313,10 @@ function AuditPage() {
 
         {stage === "result" ? (
           <section>
+            <p className="mb-4 rounded-2xl border border-border bg-surface-muted px-4 py-3 text-xs text-muted-foreground">
+              Roost is currently free in early beta for Northern Ireland landlords. No fees, no
+              card required.
+            </p>
             <div className="rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
               <div className="flex flex-wrap items-center gap-5">
                 <div className="grid h-24 w-24 shrink-0 place-items-center rounded-full border-4 border-verified/30 bg-verified-soft/50">
@@ -381,9 +391,9 @@ function AuditPage() {
                     Saved to {email}
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Next step: open a free landlord account and Roost will hold the
-                    certificates, dates and records this check asked about — so next time
-                    you can answer yes to all of it.
+                    Next step: join the free beta and Roost will hold the certificates, dates
+                    and records this check asked about — so next time you can answer yes to all
+                    of it. No fees, no card required.
                   </p>
                   <Link
                     to="/auth"
@@ -391,7 +401,7 @@ function AuditPage() {
                     className="mt-5 inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
                   >
                     <ShieldCheck className="h-4 w-4" />
-                    Create my free landlord account
+                    Join the free beta — organise your tenancy records
                   </Link>
                 </div>
               ) : (
@@ -489,9 +499,10 @@ function AuditPage() {
             </div>
 
             <p className="mt-8 text-xs text-muted-foreground">
-              This is a self-check based on your own answers. Roost organises and evidences
-              your records; it doesn't inspect your property, verify your documents or give
-              legal advice.
+              This is a self-check based on your own answers. Roost helps self-managing
+              landlords track compliance deadlines, leases and rent records. Applicants provide
+              their own self-certified documents in one organised pack — Roost doesn't inspect
+              your property, verify documents, provide credit scores or give legal advice.
             </p>
           </section>
         ) : null}
