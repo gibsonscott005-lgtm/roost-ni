@@ -33,7 +33,7 @@ import {
 export const Route = createFileRoute("/_authenticated/dashboard/passport/edit")({
   head: () => ({
     meta: [
-      { title: "Edit Tenant Passport — Roost NI" },
+      { title: "Edit Tenant Passport — RoostNI" },
       {
         name: "description",
         content:
@@ -199,7 +199,7 @@ function PassportEditPage() {
               </h2>
               <p className="mt-1 max-w-xl text-sm text-muted-foreground">
                 Three short steps to a self-certified passport. Save progress at any time — your
-                uploaded documents are shared securely with landlords when you apply. Roost does
+                uploaded documents are shared securely with landlords when you apply. RoostNI does
                 not run background checks.
               </p>
             </div>
@@ -256,7 +256,7 @@ function PassportEditPage() {
 
           <p className="mt-6 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
             <Lock className="h-3 w-3" />
-            Documents stored privately. Shared securely with landlords when you apply — Roost does
+            Documents stored privately. Shared securely with landlords when you apply — RoostNI does
             not run background checks.
           </p>
         </div>
@@ -773,7 +773,7 @@ function VerifyIdentityPanel({
       </p>
       <p className="mt-1.5 text-xs text-muted-foreground">
         A checked ID is the strongest thing on your passport. You pay once and it applies to
-        every landlord you apply to — no repeat referencing fees. Roost still does not
+        every landlord you apply to — no repeat referencing fees. RoostNI still does not
         recommend you to landlords; the decision is always theirs.
       </p>
 

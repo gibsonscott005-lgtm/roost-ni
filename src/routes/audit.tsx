@@ -26,7 +26,7 @@ import { posthog } from "@/integrations/posthog/client";
 export const Route = createFileRoute("/audit")({
   head: () => ({
     meta: [
-      { title: "NI Landlord Compliance & Tenancy Readiness Audit — Roost.ni" },
+      { title: "NI Landlord Compliance & Tenancy Readiness Audit — RoostNI" },
       {
         name: "description",
         content:
@@ -153,7 +153,7 @@ function AuditPage() {
               <Home className="h-4 w-4" strokeWidth={2.25} />
             </span>
             <span className="font-display text-sm font-semibold tracking-tight sm:text-base">
-              Roost<span className="text-verified">.</span>ni
+              Roost<span className="text-verified">NI</span>
             </span>
           </Link>
           <Link
@@ -173,7 +173,7 @@ function AuditPage() {
               Free self-check
             </span>
             <p className="mt-4 rounded-2xl border border-border bg-surface-muted px-4 py-3 text-xs text-muted-foreground">
-              Roost is currently free in early beta for Northern Ireland landlords. No fees,
+              RoostNI is currently free in early beta for Northern Ireland landlords. No fees,
               no card required.
             </p>
             <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -208,9 +208,9 @@ function AuditPage() {
               <ArrowRight className="h-4 w-4" />
             </button>
             <p className="mt-8 text-xs text-muted-foreground">
-              Roost helps self-managing landlords in Northern Ireland track compliance
+              RoostNI helps self-managing landlords in Northern Ireland track compliance
               deadlines, leases and rent records. Applicants provide their own self-certified
-              documents in one organised pack — Roost never vets or scores a tenant, and does
+              documents in one organised pack — RoostNI never vets or scores a tenant, and does
               not provide credit scores or legal advice.
             </p>
           </section>
@@ -314,7 +314,7 @@ function AuditPage() {
         {stage === "result" ? (
           <section>
             <p className="mb-4 rounded-2xl border border-border bg-surface-muted px-4 py-3 text-xs text-muted-foreground">
-              Roost is currently free in early beta for Northern Ireland landlords. No fees, no
+              RoostNI is currently free in early beta for Northern Ireland landlords. No fees, no
               card required.
             </p>
             <div className="rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
@@ -391,7 +391,7 @@ function AuditPage() {
                     Saved to {email}
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Next step: join the free beta and Roost will hold the certificates, dates
+                    Next step: join the free beta and RoostNI will hold the certificates, dates
                     and records this check asked about — so next time you can answer yes to all
                     of it. No fees, no card required.
                   </p>
@@ -494,14 +494,14 @@ function AuditPage() {
                 to="/beta"
                 className="font-medium text-muted-foreground underline-offset-4 hover:underline"
               >
-                What is Roost?
+                What is RoostNI?
               </Link>
             </div>
 
             <p className="mt-8 text-xs text-muted-foreground">
-              This is a self-check based on your own answers. Roost helps self-managing
+              This is a self-check based on your own answers. RoostNI helps self-managing
               landlords track compliance deadlines, leases and rent records. Applicants provide
-              their own self-certified documents in one organised pack — Roost doesn't inspect
+              their own self-certified documents in one organised pack — RoostNI doesn't inspect
               your property, verify documents, provide credit scores or give legal advice.
             </p>
           </section>
@@ -510,7 +510,7 @@ function AuditPage() {
 
       <footer className="border-t border-border/70 py-8">
         <p className="mx-auto w-full max-w-3xl px-4 text-xs text-muted-foreground sm:px-6">
-          Roost — tenancy admin built for Northern Ireland.
+          RoostNI — tenancy admin built for Northern Ireland.
         </p>
       </footer>
     </div>

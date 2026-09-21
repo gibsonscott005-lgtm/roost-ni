@@ -23,11 +23,11 @@ export const Route = createFileRoute("/_authenticated/dashboard/applications")({
   validateSearch: z.object({ listing: z.string().optional() }),
   head: () => ({
     meta: [
-      { title: "Received Passports — Roost NI" },
+      { title: "Received Passports — RoostNI" },
       {
         name: "description",
         content:
-          "Review self-certified Tenant Passports submitted to your NI listings. Roost organises the information — the letting decision stays yours.",
+          "Review self-certified Tenant Passports submitted to your NI listings. RoostNI organises the information — the letting decision stays yours.",
       },
     ],
   }),
@@ -275,7 +275,7 @@ function ApplicationsPage() {
                 No applications yet — inbox is clear
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                When a tenant shares their Roost passport with one of your listings, they'll land here with a full self-certified summary.
+                When a tenant shares their RoostNI passport with one of your listings, they'll land here with a full self-certified summary.
               </p>
               <Link
                 to="/dashboard"
@@ -444,7 +444,7 @@ function ApplicationsPage() {
 function VerifyBadge({ label, ok }: { label: string; ok: boolean }) {
   return (
     <span
-      title={ok ? `${label}: declared by the applicant with evidence attached. Not independently checked by Roost.` : `${label}: not yet declared by the applicant.`}
+      title={ok ? `${label}: declared by the applicant with evidence attached. Not independently checked by RoostNI.` : `${label}: not yet declared by the applicant.`}
       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
         ok ? "bg-verified-soft text-verified" : "bg-surface-muted text-muted-foreground"
       }`}
@@ -455,17 +455,17 @@ function VerifyBadge({ label, ok }: { label: string; ok: boolean }) {
   );
 }
 
-/** States plainly what Roost does and does not do, where the decision is made. */
+/** States plainly what RoostNI does and does not do, where the decision is made. */
 function HowRoostWorksPanel() {
   return (
     <div className="mt-4 rounded-2xl border border-border bg-surface-muted/50 p-4">
       <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         <Info className="h-3.5 w-3.5" />
-        How Roost works
+        How RoostNI works
       </p>
       <p className="mt-2 text-sm text-foreground">
-        Roost collects and organises what an applicant tells you, and keeps a timestamped record
-        of it. <strong>Roost does not vet, reference or recommend tenants</strong>, and it does not
+        RoostNI collects and organises what an applicant tells you, and keeps a timestamped record
+        of it. <strong>RoostNI does not vet, reference or recommend tenants</strong>, and it does not
         rank or score them. Whether to let is your decision, and your own checks still apply.
       </p>
     </div>
@@ -490,13 +490,13 @@ function ChecksSplit({ idVerified = false }: { idVerified?: boolean }) {
       : ["Identity — compare the document against the person"]),
     "Employment — contact the employer directly",
     "Previous landlord — take up the reference yourself",
-    "Credit history — Roost does not run credit checks",
+    "Credit history — RoostNI does not run credit checks",
   ];
   return (
     <div className="grid gap-3 rounded-2xl border border-border bg-surface p-3.5 sm:grid-cols-2">
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-verified">
-          What Roost checked
+          What RoostNI checked
         </p>
         <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
           {checked.map((t) => (
@@ -566,7 +566,7 @@ function IdBadge({ passport }: { passport: Passport | null }) {
       : null;
     return (
       <span
-        title={`Document authenticity and face match confirmed by an identity provider${when ? ` on ${when}` : ""}. Roost still does not vouch for this applicant.`}
+        title={`Document authenticity and face match confirmed by an identity provider${when ? ` on ${when}` : ""}. RoostNI still does not vouch for this applicant.`}
         className="inline-flex items-center gap-1 rounded-full border border-verified/30 bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified"
       >
         <ShieldCheck className="h-3 w-3" strokeWidth={2.5} />
@@ -668,7 +668,7 @@ function AffordabilityBadge({
   const result = computeAffordability(passport, monthlyRent);
   if (!result) return null;
   const rounded = Math.round(result.ratio * 10) / 10;
-  const tooltip = `Calculation only, from figures the applicant entered: £${Math.round(result.effectiveCapacity).toLocaleString()} declared annual capacity ÷ £${result.annualRent.toLocaleString()} annual rent = ${rounded.toFixed(1)}× (benefits weighted 1.25×). A common landlord benchmark is 2.5×. Roost is not assessing this applicant — the judgement is yours.`;
+  const tooltip = `Calculation only, from figures the applicant entered: £${Math.round(result.effectiveCapacity).toLocaleString()} declared annual capacity ÷ £${result.annualRent.toLocaleString()} annual rent = ${rounded.toFixed(1)}× (benefits weighted 1.25×). A common landlord benchmark is 2.5×. RoostNI is not assessing this applicant — the judgement is yours.`;
   if (result.ratio >= 2.5) {
     return (
       <span
@@ -1015,7 +1015,7 @@ function PassportModal({
                 className="mt-0.5 h-4 w-4 shrink-0 accent-amber-600"
               />
               <span>
-                I have carried out my own checks on this applicant and I understand Roost has not
+                I have carried out my own checks on this applicant and I understand RoostNI has not
                 vetted, referenced or recommended them. This letting decision is mine.
               </span>
             </label>

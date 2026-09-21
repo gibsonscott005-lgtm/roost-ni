@@ -31,18 +31,18 @@ export const SignupEmail = ({
         rel="stylesheet"
       />
     </Head>
-    <Preview>Confirm your email for Roost</Preview>
+    <Preview>Confirm your email for RoostNI</Preview>
     <Body style={main}>
       <Container style={container}>
         <Text style={wordmark}>
-          Roost<span style={dot}>.</span>ni
+          Roost<span style={dot}>NI</span>
         </Text>
         <div style={card}>
           <Heading style={h1}>Confirm your email</Heading>
           <Text style={text}>
             Thanks for signing up to{' '}
             <Link href={siteUrl} style={link}>
-              <strong>Roost.ni</strong>
+              <strong>RoostNI</strong>
             </Link>
             , the Northern Ireland tenancy platform.
           </Text>

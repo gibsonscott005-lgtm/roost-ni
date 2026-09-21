@@ -12,17 +12,17 @@ import {
 export const Route = createFileRoute("/beta")({
   head: () => ({
     meta: [
-      { title: "Join the Roost Beta — Northern Ireland Renting, Direct" },
+      { title: "Join the RoostNI Beta — Northern Ireland Renting, Direct" },
       {
         name: "description",
         content:
-          "Help test Roost, Northern Ireland's direct renting platform. Tenant passports, compliant listings and full tenancy management — built around NI law.",
+          "Help test RoostNI, Northern Ireland's direct renting platform. Tenant passports, compliant listings and full tenancy management — built around NI law.",
       },
-      { property: "og:title", content: "Join the Roost Beta" },
+      { property: "og:title", content: "Join the RoostNI Beta" },
       {
         property: "og:description",
         content:
-          "Test Roost before launch: tenant passports for renters, compliant listings and tenancy management for landlords across Northern Ireland.",
+          "Test RoostNI before launch: tenant passports for renters, compliant listings and tenancy management for landlords across Northern Ireland.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -41,7 +41,7 @@ function BetaPage() {
               <Home className="h-4 w-4" strokeWidth={2.25} />
             </span>
             <span className="font-display text-base font-semibold tracking-tight">
-              Roost<span className="text-verified">.</span>ni
+              Roost<span className="text-verified">NI</span>
             </span>
           </span>
           <div className="flex items-center gap-2">
@@ -69,7 +69,7 @@ function BetaPage() {
           Renting in Northern Ireland, direct between tenant and landlord.
         </h1>
         <p className="mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
-          Roost gives renters a self-certified Tenant Passport and gives self-managing
+          RoostNI gives renters a self-certified Tenant Passport and gives self-managing
           landlords everything a tenancy needs — listings, applications, leases, deposits,
           rent and repairs — with Northern Ireland's rules built in. You're here early:
           your job is to break it and tell us where it hurts.
@@ -171,8 +171,8 @@ function BetaPage() {
               Pricing is shown for feedback only — payments are switched off.
             </li>
             <li>
-              <span className="font-medium text-foreground">Roost assists, it never decides.</span>{" "}
-              Documents are self-certified by the tenant; Roost does not run background checks
+              <span className="font-medium text-foreground">RoostNI assists, it never decides.</span>{" "}
+              Documents are self-certified by the tenant; RoostNI does not run background checks
               or approve anyone on a landlord's behalf.
             </li>
             <li>
@@ -202,7 +202,7 @@ function BetaPage() {
 
       <footer className="border-t border-border/70 py-8">
         <p className="mx-auto w-full max-w-5xl px-4 text-xs text-muted-foreground sm:px-6">
-          Roost — built for Northern Ireland. Beta software: expect rough edges.
+          RoostNI — built for Northern Ireland. Beta software: expect rough edges.
         </p>
       </footer>
     </div>

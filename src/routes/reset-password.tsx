@@ -8,10 +8,10 @@ export const Route = createFileRoute("/reset-password")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Set a new password — Roost NI" },
+      { title: "Set a new password — RoostNI" },
       {
         name: "description",
-        content: "Choose a new password for your Roost NI tenant or landlord account.",
+        content: "Choose a new password for your RoostNI tenant or landlord account.",
       },
       { name: "robots", content: "noindex" },
     ],
@@ -85,7 +85,7 @@ function ResetPasswordPage() {
               <Home className="h-4 w-4" strokeWidth={2.25} />
             </span>
             <span className="font-display text-base font-semibold tracking-tight">
-              Roost<span className="text-verified">.</span>ni
+              Roost<span className="text-verified">NI</span>
             </span>
           </Link>
         </div>

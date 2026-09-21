@@ -19,7 +19,7 @@ import { DocumentRow, formatEmployment } from "@/components/passport-bits";
 export const Route = createFileRoute("/_authenticated/dashboard/passport/")({
   head: () => ({
     meta: [
-      { title: "My Passport — Roost NI" },
+      { title: "My Passport — RoostNI" },
       {
         name: "description",
         content: "Your self-certified tenant passport: identity, income and references in one place.",
@@ -150,7 +150,7 @@ function MyPassportPage() {
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             {doneCount} of 3 steps complete. Documents you upload are shared securely with landlords
-            when you apply — Roost does not run background checks.
+            when you apply — RoostNI does not run background checks.
           </p>
           <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-secondary">
             <div className="h-full rounded-full bg-verified transition-all" style={{ width: `${pct}%` }} />

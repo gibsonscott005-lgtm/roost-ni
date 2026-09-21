@@ -4,17 +4,17 @@ import { Home, IdCard, MessageSquarePlus, LifeBuoy } from "lucide-react";
 export const Route = createFileRoute("/help")({
   head: () => ({
     meta: [
-      { title: "Help & FAQ — Roost Northern Ireland" },
+      { title: "Help & FAQ — RoostNI Northern Ireland" },
       {
         name: "description",
         content:
-          "How Roost works for tenants and landlords in Northern Ireland: tenant passports, applications, leases, deposits, Fair Fuel and notice periods.",
+          "How RoostNI works for tenants and landlords in Northern Ireland: tenant passports, applications, leases, deposits, Fair Fuel and notice periods.",
       },
-      { property: "og:title", content: "Help & FAQ — Roost" },
+      { property: "og:title", content: "Help & FAQ — RoostNI" },
       {
         property: "og:description",
         content:
-          "Getting started guides and answers for tenants and landlords using Roost in Northern Ireland.",
+          "Getting started guides and answers for tenants and landlords using RoostNI in Northern Ireland.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -40,11 +40,11 @@ const LANDLORD_STEPS = [
 const FAQS: { q: string; a: string }[] = [
   {
     q: "What does “self-certified” mean?",
-    a: "Documents and details on a Tenant Passport are uploaded and declared by the tenant themselves. Roost stores and presents them securely, but it does not run credit checks, employment checks or background checks. Landlords should read the evidence and make their own decision.",
+    a: "Documents and details on a Tenant Passport are uploaded and declared by the tenant themselves. RoostNI stores and presents them securely, but it does not run credit checks, employment checks or background checks. Landlords should read the evidence and make their own decision.",
   },
   {
-    q: "Does Roost approve or reject anyone?",
-    a: "No. Roost assists, it never decides. We organise the evidence, the paperwork and the deadlines — accepting or declining an applicant is always the landlord's call.",
+    q: "Does RoostNI approve or reject anyone?",
+    a: "No. RoostNI assists, it never decides. We organise the evidence, the paperwork and the deadlines — accepting or declining an applicant is always the landlord's call.",
   },
   {
     q: "How does Fair Fuel work for oil and LPG?",
@@ -52,11 +52,11 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "What is the 28-day deposit rule?",
-    a: "In Northern Ireland a landlord must protect a tenancy deposit with an approved scheme within 28 days of receiving it and give the tenant the prescribed information. Roost counts the days down for you and stores the protection certificate against the tenancy.",
+    a: "In Northern Ireland a landlord must protect a tenancy deposit with an approved scheme within 28 days of receiving it and give the tenant the prescribed information. RoostNI counts the days down for you and stores the protection certificate against the tenancy.",
   },
   {
     q: "What notice periods apply?",
-    a: "Notice to quit lengths depend on how long the tenant has lived in the property: 4 weeks for under 12 months, 8 weeks for 12 months to 10 years, and 12 weeks for over 10 years. Roost works the correct period out from the tenancy start date when you serve a notice.",
+    a: "Notice to quit lengths depend on how long the tenant has lived in the property: 4 weeks for under 12 months, 8 weeks for 12 months to 10 years, and 12 weeks for over 10 years. RoostNI works the correct period out from the tenancy start date when you serve a notice.",
   },
   {
     q: "Who can see my documents?",
@@ -82,7 +82,7 @@ function HelpPage() {
               <Home className="h-4 w-4" strokeWidth={2.25} />
             </span>
             <span className="font-display text-base font-semibold tracking-tight">
-              Roost<span className="text-verified">.</span>ni
+              Roost<span className="text-verified">NI</span>
             </span>
           </Link>
           <div className="flex items-center gap-2">
@@ -108,7 +108,7 @@ function HelpPage() {
           Help centre
         </span>
         <h1 className="mt-5 max-w-3xl font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-          How Roost works
+          How RoostNI works
         </h1>
         <p className="mt-4 max-w-2xl text-base text-muted-foreground">
           Short guides for both sides of a tenancy, plus answers to the questions we're
@@ -153,7 +153,7 @@ function HelpPage() {
               to="/auth"
               className="inline-flex items-center justify-center rounded-full bg-foreground px-5 py-2.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
             >
-              Sign in to Roost
+              Sign in to RoostNI
             </Link>
             <Link
               to="/beta"
@@ -167,7 +167,7 @@ function HelpPage() {
 
       <footer className="border-t border-border/70 py-8">
         <p className="mx-auto w-full max-w-5xl px-4 text-xs text-muted-foreground sm:px-6">
-          Roost — built for Northern Ireland. Roost assists, it never decides.
+          RoostNI — built for Northern Ireland. RoostNI assists, it never decides.
         </p>
       </footer>
     </div>

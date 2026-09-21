@@ -310,7 +310,7 @@ async function runRentAndDepositReminders(admin: Admin, runDate: string, out: Re
                 ? "Your deposit is not yet shown as protected"
                 : "Deposit protection deadline approaching",
               body: overdue
-                ? `Your landlord had until ${formatDay(deadline)} to protect your deposit and give you the scheme details. Nothing has been recorded in Roost yet.`
+                ? `Your landlord had until ${formatDay(deadline)} to protect your deposit and give you the scheme details. Nothing has been recorded in RoostNI yet.`
                 : `Your deposit should be protected in an approved scheme by ${formatDay(deadline)}.`,
               linkPath: "/tenant/tenancy?tab=deposit",
             },

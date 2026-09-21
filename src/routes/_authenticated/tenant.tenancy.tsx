@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_authenticated/tenant/tenancy")({
   }),
   head: () => ({
     meta: [
-      { title: "My Tenancy — Roost NI" },
+      { title: "My Tenancy — RoostNI" },
       {
         name: "description",
         content: "Track your move-in funds, deposit protection, inventory and tenancy documents.",
@@ -540,7 +540,7 @@ function TenantTenancyPage() {
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Under the Private Tenancies Act (NI) 2022, your landlord must issue a written
-                  receipt for any cash payment within 28 days. Roost archives every receipt here
+                  receipt for any cash payment within 28 days. RoostNI archives every receipt here
                   automatically.
                 </p>
               </div>

@@ -26,20 +26,20 @@ export const MagicLinkEmail = ({
         rel="stylesheet"
       />
     </Head>
-    <Preview>Your Roost login link</Preview>
+    <Preview>Your RoostNI login link</Preview>
     <Body style={main}>
       <Container style={container}>
         <Text style={wordmark}>
-          Roost<span style={dot}>.</span>ni
+          Roost<span style={dot}>NI</span>
         </Text>
         <div style={card}>
           <Heading style={h1}>Your login link</Heading>
           <Text style={text}>
-            Click the button below to sign in to Roost. This link will expire
+            Click the button below to sign in to RoostNI. This link will expire
             shortly.
           </Text>
           <Button style={button} href={confirmationUrl}>
-            Sign in to Roost
+            Sign in to RoostNI
           </Button>
         </div>
         <Text style={footer}>

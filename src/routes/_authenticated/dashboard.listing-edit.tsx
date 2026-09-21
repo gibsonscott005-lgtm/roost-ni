@@ -41,7 +41,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/listing-edit")({
   validateSearch: z.object({ id: z.string().optional() }),
   head: () => ({
     meta: [
-      { title: "Edit listing — Roost NI" },
+      { title: "Edit listing — RoostNI" },
       {
         name: "description",
         content:
@@ -308,7 +308,7 @@ function EditListingPage() {
                       return;
                     }
                     toast.success("Marked as vacant", {
-                      description: "You can advertise it on Roost whenever you're ready.",
+                      description: "You can advertise it on RoostNI whenever you're ready.",
                     });
                     await invalidate();
                   }}
@@ -324,7 +324,7 @@ function EditListingPage() {
                     {listing.is_published ? "Live · advertising." : "Vacant · not advertised."}
                   </span>{" "}
                   {listing.is_published
-                    ? "Tenants can view this property and apply with their Roost passport."
+                    ? "Tenants can view this property and apply with their RoostNI passport."
                     : "Only you can see this property. Advertise it when you're ready for applications."}
                 </p>
                 <button
@@ -545,7 +545,7 @@ function EditListingPage() {
                 onClick={() => void save(!listing.is_published)}
                 className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold transition hover:bg-secondary disabled:opacity-60"
               >
-                {listing.is_published ? "Take off market" : "Advertise on Roost"}
+                {listing.is_published ? "Take off market" : "Advertise on RoostNI"}
               </button>
             )}
             <div className="ml-auto flex items-center gap-2">

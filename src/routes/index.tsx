@@ -17,17 +17,17 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Roost.ni — Northern Ireland Direct Renting Platform" },
+      { title: "RoostNI — Northern Ireland Direct Renting Platform" },
       {
         name: "description",
         content:
-          "Roost is Northern Ireland's direct renting platform: self-certified tenant passports, compliant landlord listings and full tenancy management built around NI law.",
+          "RoostNI is Northern Ireland's direct renting platform: self-certified tenant passports, compliant landlord listings and full tenancy management built around NI law.",
       },
-      { property: "og:title", content: "Roost.ni — Northern Ireland Direct Renting Platform" },
+      { property: "og:title", content: "RoostNI — Northern Ireland Direct Renting Platform" },
       {
         property: "og:description",
         content:
-          "Self-certified tenant passports. Compliant landlords. Roost handles the whole tenancy across Northern Ireland.",
+          "Self-certified tenant passports. Compliant landlords. RoostNI handles the whole tenancy across Northern Ireland.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -46,7 +46,7 @@ function HomePage() {
               <Home className="h-4 w-4" strokeWidth={2.25} />
             </span>
             <span className="truncate font-display text-sm font-semibold tracking-tight sm:text-base">
-              Roost<span className="text-verified">.</span>ni
+              Roost<span className="text-verified">NI</span>
             </span>
           </Link>
           <div className="flex shrink-0 items-center gap-1.5">
@@ -90,7 +90,7 @@ function HomePage() {
                 Renting in Northern Ireland, done direct.
               </h1>
               <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Roost replaces chaotic social-media listings with a clean, NI-focused platform:
+                RoostNI replaces chaotic social-media listings with a clean, NI-focused platform:
                 self-certified tenant passports, compliant property listings, digital leases,
                 deposit tracking and maintenance — all in one place.
               </p>
@@ -170,7 +170,7 @@ function HomePage() {
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="text-center">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Why Roost
+                Why RoostNI
               </p>
               <h2 className="mx-auto mt-2 max-w-2xl font-display text-2xl font-semibold tracking-tight sm:text-3xl">
                 Built for the whole tenancy, not just the listing.
@@ -253,7 +253,7 @@ function HomePage() {
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <p className="font-display text-lg font-semibold tracking-tight sm:text-xl">
-                  Roost is in closed beta
+                  RoostNI is in closed beta
                 </p>
                 <p className="mt-1 max-w-xl text-sm text-muted-foreground">
                   We're testing with a small group of tenants and landlords across Northern Ireland.
@@ -279,7 +279,7 @@ function HomePage() {
               <Home className="h-3.5 w-3.5" strokeWidth={2.25} />
             </span>
             <span className="font-display text-sm font-semibold tracking-tight">
-              Roost<span className="text-verified">.</span>ni
+              Roost<span className="text-verified">NI</span>
             </span>
           </span>
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
@@ -297,7 +297,7 @@ function HomePage() {
             </Link>
           </div>
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Roost.ni · Northern Ireland
+            © {new Date().getFullYear()} RoostNI · Northern Ireland
           </p>
         </div>
       </footer>

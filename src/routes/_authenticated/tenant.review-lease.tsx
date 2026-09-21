@@ -15,8 +15,8 @@ export const Route = createFileRoute("/_authenticated/tenant/review-lease")({
   validateSearch: z.object({ share: z.string().optional() }),
   head: () => ({
     meta: [
-      { title: "Review & Sign Lease — Roost NI" },
-      { name: "description", content: "Review and digitally sign your Roost Standard NI lease agreement." },
+      { title: "Review & Sign Lease — RoostNI" },
+      { name: "description", content: "Review and digitally sign your RoostNI Standard NI lease agreement." },
     ],
   }),
   component: ReviewLeasePage,
@@ -169,7 +169,7 @@ function ReviewLeasePage() {
             Review &amp; Sign Lease
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {propertyAddress} · Issued by your landlord via Roost
+            {propertyAddress} · Issued by your landlord via RoostNI
           </p>
         </div>
         {alreadySigned ? (
@@ -218,7 +218,7 @@ function ReviewLeasePage() {
             {isCustom ? (
               <div className="bg-surface-muted/30 px-6 py-8 text-center">
                 <p className="text-sm text-foreground/90">
-                  Your landlord uploaded their own tenancy agreement instead of the Roost standard
+                  Your landlord uploaded their own tenancy agreement instead of the RoostNI standard
                   template.
                 </p>
                 <p className="mx-auto mt-2 max-w-md text-xs text-muted-foreground">

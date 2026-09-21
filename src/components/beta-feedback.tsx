@@ -79,7 +79,7 @@ export function BetaFeedbackWidget() {
       });
       if (error) throw error;
       toast.success("Thanks — feedback received", {
-        description: "Every note during the beta helps us sharpen Roost.",
+        description: "Every note during the beta helps us sharpen RoostNI.",
       });
       setMessage("");
       setOpen(false);
@@ -121,7 +121,7 @@ export function BetaFeedbackWidget() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                  Roost beta
+                  RoostNI beta
                 </p>
                 <h2 className="mt-1 font-display text-lg font-semibold tracking-tight">
                   Tell us what you found
@@ -204,7 +204,7 @@ export function BetaBanner() {
       <div className="flex items-start gap-2.5">
         <FlaskConical className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
         <p className="text-sm text-foreground">
-          <span className="font-semibold">You're in the Roost beta.</span>{" "}
+          <span className="font-semibold">You're in the RoostNI beta.</span>{" "}
           <span className="text-muted-foreground">
             Use real steps but test data only — tell us anything that feels off.
           </span>

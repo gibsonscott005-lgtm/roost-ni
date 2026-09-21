@@ -410,7 +410,7 @@ export function CertificatesPanel({
             <ShieldCheck className="h-4 w-4 text-verified" /> Safety certificates
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Keep EPC, gas, electrical and alarm records in one place. Roost stores what you upload
+            Keep EPC, gas, electrical and alarm records in one place. RoostNI stores what you upload
             and tracks the expiry date — it does not check the certificate itself.
           </p>
         </div>

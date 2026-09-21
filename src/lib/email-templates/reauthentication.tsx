@@ -22,11 +22,11 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
         rel="stylesheet"
       />
     </Head>
-    <Preview>Your Roost verification code</Preview>
+    <Preview>Your RoostNI verification code</Preview>
     <Body style={main}>
       <Container style={container}>
         <Text style={wordmark}>
-          Roost<span style={dot}>.</span>ni
+          Roost<span style={dot}>NI</span>
         </Text>
         <div style={card}>
           <Heading style={h1}>Confirm reauthentication</Heading>

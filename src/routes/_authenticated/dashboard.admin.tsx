@@ -9,7 +9,7 @@ import { Check, Loader2, MessageSquare, Shield, X } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/dashboard/admin")({
   head: () => ({
     meta: [
-      { title: "Admin — Roost NI" },
+      { title: "Admin — RoostNI" },
       { name: "description", content: "Beta feedback and platform oversight." },
     ],
   }),

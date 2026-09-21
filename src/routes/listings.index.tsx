@@ -23,13 +23,13 @@ import {
 export const Route = createFileRoute("/listings/")({
   head: () => ({
     meta: [
-      { title: "Browse Properties — Roost NI" },
+      { title: "Browse Properties — RoostNI" },
       {
         name: "description",
         content:
           "Browse verified rental listings across Northern Ireland. Honest rent, transparent fuel policies and compliant landlords only.",
       },
-      { property: "og:title", content: "Browse NI rentals — Roost" },
+      { property: "og:title", content: "Browse NI rentals — RoostNI" },
       {
         property: "og:description",
         content:
@@ -444,7 +444,7 @@ function Header() {
             <Home className="h-4 w-4" strokeWidth={2.25} />
           </span>
           <span className="font-display text-base font-semibold tracking-tight">
-            Roost<span className="text-verified">.</span>ni
+            Roost<span className="text-verified">NI</span>
           </span>
         </Link>
         <div className="flex items-center gap-1.5">

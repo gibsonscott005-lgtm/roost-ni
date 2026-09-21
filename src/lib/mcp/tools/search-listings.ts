@@ -6,7 +6,7 @@ export default defineTool({
   name: "search_listings",
   title: "Search rental listings",
   description:
-    "Search published Northern Ireland rental listings on Roost by text, town, rent range, bedrooms and heating type.",
+    "Search published Northern Ireland rental listings on RoostNI by text, town, rent range, bedrooms and heating type.",
   inputSchema: {
     query: z.string().trim().optional().describe("Free text matched against title, address and town."),
     maxRent: z.number().positive().optional().describe("Maximum monthly rent in GBP."),

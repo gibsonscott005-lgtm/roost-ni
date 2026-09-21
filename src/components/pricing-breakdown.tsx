@@ -50,7 +50,7 @@ export function SimulatedBillingNotice({ className = "" }: { className?: string 
       <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
       <span>
         <strong className="font-semibold">Simulated — no payment taken.</strong> Billing is not
-        active on Roost yet. Prices are shown for preview only and nothing is charged or
+        active on RoostNI yet. Prices are shown for preview only and nothing is charged or
         restricted.
       </span>
     </p>

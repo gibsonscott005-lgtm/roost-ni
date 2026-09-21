@@ -721,7 +721,7 @@ function NoticeSection(
 
         <p className="mt-4 rounded-xl bg-surface-muted p-3 text-xs text-muted-foreground">
           A Notice to Quit must be in writing. Print the notice above and deliver it to the other
-          party — Roost keeps the dated record. Deposits must be settled within{" "}
+          party — RoostNI keeps the dated record. Deposits must be settled within{" "}
           {DEPOSIT_RETURN_DAYS} days of the end date (by{" "}
           {formatDate(depositDeadline(activeNotice.end_date))}).
         </p>
@@ -734,7 +734,7 @@ function NoticeSection(
       <p className={label}>Ending the tenancy</p>
       <h3 className="mt-1 text-lg font-semibold">Serve a Notice to Quit</h3>
       <p className="mt-1 text-sm text-muted-foreground">
-        Roost works out the statutory minimum notice under the Private Tenancies Act (Northern
+        RoostNI works out the statutory minimum notice under the Private Tenancies Act (Northern
         Ireland) 2022 from the tenancy start date.
       </p>
 
@@ -797,7 +797,7 @@ function NoticeSection(
       {!tenancyStart ? (
         <p className="mt-2 text-xs text-amber-700">
           <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
-          Set the tenancy start date in the Overview tab before serving notice — Roost needs it to
+          Set the tenancy start date in the Overview tab before serving notice — RoostNI needs it to
           work out the statutory period.
         </p>
       ) : null}
@@ -932,7 +932,7 @@ function FinalInspectionSection({
         value === "agreed"
           ? "Tenant agreed the final inspection"
           : "Tenant disputed the final inspection",
-        "Move-out condition report response recorded in Roost.",
+        "Move-out condition report response recorded in RoostNI.",
       );
       refresh();
     },
@@ -1634,13 +1634,13 @@ function CompleteSection({
     onSuccess: () => {
       toast.success("Tenancy completed", {
         description: relist
-          ? "The property is now marked vacant. Advertise it on Roost whenever you're ready."
+          ? "The property is now marked vacant. Advertise it on RoostNI whenever you're ready."
           : "The property is now marked vacant and stays off the public listings.",
       });
       void notify(
         "tenancy_completed",
         "Tenancy completed",
-        "Your tenancy has been closed off in Roost.",
+        "Your tenancy has been closed off in RoostNI.",
       );
       refresh();
     },
