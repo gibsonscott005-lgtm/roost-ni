@@ -8,18 +8,25 @@ import { posthog } from "@/integrations/posthog/client";
 export const Route = createFileRoute("/auth")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { role?: "tenant" | "landlord"; next?: string } => {
+  ): { role?: "tenant" | "landlord"; next?: string; email?: string } => {
     const role = search['role'];
     const rawNext = search['next'];
+    const rawEmail = search['email'];
     const next =
       typeof rawNext === "string" && rawNext.startsWith("/") && !rawNext.startsWith("//")
         ? rawNext
         : undefined;
+    const email =
+      typeof rawEmail === "string" && rawEmail.includes("@") && rawEmail.length <= 200
+        ? rawEmail
+        : undefined;
     return {
       ...(role === "tenant" || role === "landlord" ? { role } : {}),
       ...(next ? { next } : {}),
+      ...(email ? { email } : {}),
     };
   },
+
 
   head: () => ({
     meta: [
@@ -92,11 +99,16 @@ function suggestEmailFix(email: string): string | null {
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { role: roleFromSearch, next: nextFromSearch } = Route.useSearch();
+  const {
+    role: roleFromSearch,
+    next: nextFromSearch,
+    email: emailFromSearch,
+  } = Route.useSearch();
   const [role, setRole] = useState<Role>(roleFromSearch ?? "tenant");
   const [mode, setMode] = useState<Mode>("signup");
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(emailFromSearch ?? "");
+
   const [password, setPassword] = useState("");
   const [hearAboutUs, setHearAboutUs] = useState("");
   const [showHearAboutUs, setShowHearAboutUs] = useState(false);

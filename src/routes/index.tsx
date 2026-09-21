@@ -3,6 +3,8 @@ import {
   ArrowRight,
   BadgeCheck,
   Building2,
+  ClipboardCheck,
+
   FileSignature,
   Home,
   IdCard,
@@ -117,7 +119,24 @@ function HomePage() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
+              <Link
+                to="/audit"
+                className="mt-6 flex items-start gap-3 rounded-2xl border border-verified/30 bg-verified-soft/50 p-4 transition hover:bg-verified-soft/70"
+              >
+                <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0 text-verified" />
+                <span>
+                  <span className="block text-sm font-semibold text-foreground">
+                    Landlords: is your tenancy paperwork in order?
+                  </span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                    Free two-minute NI compliance and tenancy readiness audit — no account
+                    needed.
+                  </span>
+                </span>
+                <ArrowRight className="ml-auto mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+              </Link>
             </div>
+
             <div className="rounded-[2rem] border border-border bg-surface p-6 shadow-floating sm:p-8">
               <div className="flex items-center gap-3">
                 <span className="grid h-10 w-10 place-items-center rounded-2xl bg-verified text-[var(--color-verified-foreground)]">
