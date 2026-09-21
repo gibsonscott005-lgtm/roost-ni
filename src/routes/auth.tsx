@@ -135,6 +135,17 @@ function levenshtein(a: string, b: string): number {
   return prev[b.length];
 }
 
+function hasInvalidTld(email: string): boolean {
+  const at = email.lastIndexOf("@");
+  if (at < 1) return false;
+  const domain = email.slice(at + 1).toLowerCase();
+  const parts = domain.split(".");
+  if (parts.length < 2) return true;
+  const tld = parts[parts.length - 1] ?? "";
+  if (tld.length < 2 || /[^a-z]/.test(tld)) return true;
+  return !VALID_TLDS.has(tld);
+}
+
 function suggestEmailFix(email: string): string | null {
   const at = email.lastIndexOf("@");
   if (at < 1 || at === email.length - 1) return null;
@@ -142,10 +153,12 @@ function suggestEmailFix(email: string): string | null {
   const domain = email.slice(at + 1).toLowerCase();
   if (!domain.includes(".")) return null;
   if ((COMMON_EMAIL_DOMAINS as readonly string[]).includes(domain)) return null;
+  const invalidTld = hasInvalidTld(email);
+  const maxDist = invalidTld ? 3 : 2;
   let best: { domain: string; dist: number } | null = null;
   for (const candidate of COMMON_EMAIL_DOMAINS) {
     const dist = levenshtein(domain, candidate);
-    if (dist > 0 && dist <= 2 && (!best || dist < best.dist)) {
+    if (dist > 0 && dist <= maxDist && (!best || dist < best.dist)) {
       best = { domain: candidate, dist };
     }
   }
