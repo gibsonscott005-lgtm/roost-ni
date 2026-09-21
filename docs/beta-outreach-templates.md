@@ -1,4 +1,4 @@
-# Beta outreach templates — Roost NI
+# Beta outreach templates — RoostNI
 
 Use these for organic, low-friction recruitment in Northern Ireland landlord and tenant Facebook groups or community forums. Keep posts honest, short and local. Do not buy ads, bulk-message strangers, or invent user numbers.
 
@@ -26,9 +26,9 @@ Replace `facebook` with the actual group name or platform if you post elsewhere 
 ## Post template 1 — tenant-focused
 
 ```text
-Hi everyone — I'm helping test a new NI renting tool called Roost.ni. It's built for tenants in Northern Ireland: a single passport you can share with landlords, instead of re-sending payslips, references and ID over WhatsApp every time.
+Hi everyone — I'm helping test a new NI renting tool called RoostNI. It's built for tenants in Northern Ireland: a single passport you can share with landlords, instead of re-sending payslips, references and ID over WhatsApp every time.
 
-It's in closed beta, so testers are needed. Everything is free during beta and you should only use test documents, not real ones.
+It's in free early beta — anyone can join, no fees and no card required. Just use test documents, not real ones.
 
 Take a look first, then try it if you like what you see:
 https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
@@ -41,9 +41,9 @@ Happy to answer questions in the comments.
 ```text
 Are there any self-managing landlords here who run tenancies on spreadsheets and messages?
 
-A friend is building Roost.ni — a workspace for NI landlords to list a property, receive tenant passports, issue a NI-compliant lease, record the deposit and track rent and repairs. NI rules like the 28-day deposit window and Notice to Quit periods are built in.
+A friend is building RoostNI — a workspace for NI landlords to list a property, receive tenant passports, issue a NI-compliant lease, record the deposit and track rent and repairs. NI rules like the 28-day deposit window and Notice to Quit periods are built in.
 
-It's in closed beta and looking for a small group of NI landlords to test it. No cost, no obligation, and you only need test data.
+It's in free early beta and open to NI landlords now. No cost, no obligation, and you only need test data.
 
 You can see an example listing here:
 https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
@@ -52,7 +52,7 @@ https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaig
 ## Post template 3 — short "look first" version
 
 ```text
-Quick one: if you're renting or letting in Northern Ireland, a new local platform called Roost.ni is in closed beta and needs testers.
+Quick one: if you're renting or letting in Northern Ireland, a new local platform called RoostNI is in free early beta and open to new users.
 
 You can browse a couple of example listings before signing up:
 https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
@@ -65,7 +65,7 @@ Feedback-only at this stage — no payments, no real documents needed.
 Use this when someone comments or messages asking for more detail.
 
 ```text
-Thanks for the interest. Roost is a closed beta for NI renting — tenant passports for renters and a compliance-friendly workspace for self-managing landlords.
+Thanks for the interest. RoostNI is in free early beta for NI renting — tenant passports for renters and a compliance-friendly workspace for self-managing landlords.
 
 Right now we're after honest feedback on what's confusing, what's missing and what you'd actually use. No cost, and we only ask people to use test data (not real passports or payslips).
 
@@ -91,7 +91,7 @@ The first ten people who complete a 10-minute feedback call with us will get a �
 
 ## What not to do
 
-- Don't claim Roost is "verified" for anything except the paid identity check.
+- Don't claim anything or anyone is "verified" — applicant documents are self-certified, and RoostNI doesn't vet tenants.
 - Don't promise features that aren't live (live identity provider, payments, safety certificate vault).
 - Don't post in groups that ban promotion.
 - Don't buy ads or pay for sign-ups.
