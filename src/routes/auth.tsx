@@ -247,7 +247,15 @@ function AuthPage() {
     if (!suggestionDismissed) {
       const suggestion = suggestEmailFix(normalizedEmail);
       if (suggestion) {
+        setEmailWarning(null);
         setEmailSuggestion(suggestion);
+        return;
+      }
+      if (hasInvalidTld(normalizedEmail)) {
+        setEmailWarning(
+          "That email address ends in something we don't recognise. Please double-check it — if it's right, tap continue again.",
+        );
+        setSuggestionDismissed(true);
         return;
       }
     }
