@@ -1,7 +1,7 @@
 # Project Memory
 
 ## Core
-App name is **RoostNI** — letting agent replacement for small self-managing landlords in Northern Ireland. Wordmark renders as `RoostNI` with `NI` in `text-verified`. Always write the brand as "RoostNI", never bare "RoostNI".
+App name is **RoostNI** — letting agent replacement for small self-managing landlords in Northern Ireland. Wordmark renders as `RoostNI` with `NI` in `text-verified`. Always write the brand as "RoostNI", never bare "Roost".
 RoostNI assists, it never decides: never vet, score, rank or recommend a tenant. The letting decision is always the landlord's.
 RoostNI is a two-sided workspace: renter benefit and landlord benefit are stated together, even in landlord-facing copy. Neither side is the product.
 "Verified" is retired from user-facing copy — use "Self-Certified", "Declared" or "Evidence attached". Missing name → "Applicant".
