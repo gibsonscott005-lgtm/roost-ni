@@ -538,14 +538,16 @@ function EditListingPage() {
             >
               <Check className="h-4 w-4" /> {saving ? "Saving…" : "Save changes"}
             </button>
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => void save(!listing.is_published)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold transition hover:bg-secondary disabled:opacity-60"
-            >
-              {listing.is_published ? "Unpublish listing" : "Publish listing"}
-            </button>
+            {listing.occupancy_status === "tenanted" ? null : (
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => void save(!listing.is_published)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold transition hover:bg-secondary disabled:opacity-60"
+              >
+                {listing.is_published ? "Take off market" : "Advertise on Roost"}
+              </button>
+            )}
             <div className="ml-auto flex items-center gap-2">
               {confirmDelete ? (
                 <>
