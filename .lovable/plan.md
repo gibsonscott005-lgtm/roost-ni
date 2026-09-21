@@ -7,12 +7,13 @@ Every new RoostNI sign-up automatically receives a branded welcome email moments
 ## How it works
 
 1. **Two new email templates** (`welcome-tenant`, `welcome-landlord`) in the existing email template folder, matching the RoostNI look already used for notification emails (white background, emerald accents, reply-to support@roostni.co.uk).
-2. **A server-side send function** that:
+2. **Personal founder sign-off**: each email closes like a hand-written note — "Thanks again, Scott — Founder, RoostNI" — with an invitation to reply directly. Plain, warm copy (no marketing buttons or hype) so it reads as a personal email, not an automated blast.
+3. **A server-side send function** that:
    - Checks the account genuinely exists and was created within the last 15 minutes (prevents anyone abusing it to send email to arbitrary addresses).
    - Picks the tenant or landlord template based on the account type.
    - Uses a fixed idempotency key per account (`welcome-{userId}`) so retries can never send the same person two welcome emails.
    - Fails silently — an email problem never breaks or blocks sign-up.
-3. **Sign-up page hook**: after `supabase.auth.signUp` succeeds in `src/routes/auth.tsx`, the page calls the send function fire-and-forget (not awaited, errors swallowed). The existing "Account created" toast and redirect are untouched.
+4. **Sign-up page hook**: after `supabase.auth.signUp` succeeds in `src/routes/auth.tsx`, the page calls the send function fire-and-forget (not awaited, errors swallowed). The existing "Account created" toast and redirect are untouched.
 
 ## Technical details
 
