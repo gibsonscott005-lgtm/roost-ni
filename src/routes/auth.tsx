@@ -480,6 +480,7 @@ function AuthPage() {
                   onChange={(e) => {
                     setEmail(e.target.value);
                     setEmailSuggestion(null);
+                    setEmailWarning(null);
                     setSuggestionDismissed(false);
                   }}
                   type="email"
