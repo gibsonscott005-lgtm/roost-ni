@@ -172,7 +172,7 @@ export function DashboardShell({
                   to="/dashboard/admin"
                   active={activeKey === "admin"}
                   icon={Shield}
-                  label="Admin"
+                  label="Command centre"
                 />
               ) : null}
               <NavLink to="/help" active={false} icon={LifeBuoy} label="Help & FAQ" />
@@ -202,7 +202,7 @@ export function DashboardShell({
                   to="/dashboard/admin"
                   active={pathname.startsWith("/dashboard/admin")}
                   icon={Shield}
-                  label="Admin"
+                  label="Command centre"
                 />
               ) : null}
               <TenantNavLink to="/help" active={false} icon={LifeBuoy} label="Help & FAQ" />
