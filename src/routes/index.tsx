@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "RoostNI — Northern Ireland Direct Renting Platform" },

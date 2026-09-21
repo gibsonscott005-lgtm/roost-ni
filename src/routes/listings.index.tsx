@@ -21,6 +21,7 @@ import {
 } from "@/lib/listing-details";
 
 export const Route = createFileRoute("/listings/")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Browse Properties — RoostNI" },

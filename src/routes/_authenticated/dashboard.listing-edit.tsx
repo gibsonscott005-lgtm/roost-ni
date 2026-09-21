@@ -38,6 +38,7 @@ import {
 } from "@/lib/listing-details";
 
 export const Route = createFileRoute("/_authenticated/dashboard/listing-edit")({
+  staticData: { sitemap: false },
   validateSearch: z.object({ id: z.string().optional() }),
   head: () => ({
     meta: [

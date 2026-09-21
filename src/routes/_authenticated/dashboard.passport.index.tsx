@@ -17,6 +17,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { DocumentRow, formatEmployment } from "@/components/passport-bits";
 
 export const Route = createFileRoute("/_authenticated/dashboard/passport/")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "My Passport — RoostNI" },

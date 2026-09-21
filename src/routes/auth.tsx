@@ -7,6 +7,7 @@ import { posthog } from "@/integrations/posthog/client";
 import { sendWelcomeEmail } from "@/lib/welcome-email.functions";
 
 export const Route = createFileRoute("/auth")({
+  staticData: { sitemap: false },
   validateSearch: (
     search: Record<string, unknown>,
   ): { role?: "tenant" | "landlord"; next?: string; email?: string } => {

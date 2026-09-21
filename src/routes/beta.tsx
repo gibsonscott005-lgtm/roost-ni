@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/beta")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Join the RoostNI Beta — Northern Ireland Renting, Direct" },

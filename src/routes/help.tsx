@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Home, IdCard, MessageSquarePlus, LifeBuoy } from "lucide-react";
 
 export const Route = createFileRoute("/help")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Help & FAQ — RoostNI Northern Ireland" },
