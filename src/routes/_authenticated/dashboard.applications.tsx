@@ -20,6 +20,7 @@ function notify(payload: EmitNotificationInput) {
 }
 
 export const Route = createFileRoute("/_authenticated/dashboard/applications")({
+  staticData: { sitemap: false },
   validateSearch: z.object({ listing: z.string().optional() }),
   head: () => ({
     meta: [

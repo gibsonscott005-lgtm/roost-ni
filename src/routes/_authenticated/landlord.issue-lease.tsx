@@ -11,6 +11,7 @@ import { emitNotification } from "@/lib/notifications.functions";
 import { fuelLabel, fuelTankLabel } from "@/lib/listing-details";
 
 export const Route = createFileRoute("/_authenticated/landlord/issue-lease")({
+  staticData: { sitemap: false },
   validateSearch: z.object({ share: z.string().optional() }),
   head: () => ({
     meta: [

@@ -53,6 +53,7 @@ interface ListingDetail extends ListingDetailFields {
 }
 
 export const Route = createFileRoute("/listings/$id")({
+  staticData: { sitemap: false },
   loader: async ({ params }) => {
     const { data, error } = await supabase
       .from("property_listings")

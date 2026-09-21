@@ -31,6 +31,7 @@ import {
 } from "@/lib/identity-verification.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/passport/edit")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Edit Tenant Passport — RoostNI" },

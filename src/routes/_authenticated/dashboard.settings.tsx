@@ -30,6 +30,7 @@ import { deleteAccount } from "@/lib/account.functions";
 import { getEmailConfigStatus } from "@/lib/email-status.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/settings")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Account & notification settings — RoostNI" },

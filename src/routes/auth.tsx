@@ -7,6 +7,7 @@ import { posthog } from "@/integrations/posthog/client";
 import { sendWelcomeEmail } from "@/lib/welcome-email.functions";
 
 export const Route = createFileRoute("/auth")({
+  staticData: { sitemap: false },
   validateSearch: (
     search: Record<string, unknown>,
   ): { role?: "tenant" | "landlord"; next?: string; email?: string } => {
@@ -35,9 +36,19 @@ export const Route = createFileRoute("/auth")({
       {
         name: "description",
         content:
-          "Create a verified Tenant or Landlord account on RoostNI. Email sign-up for renters and property owners in Northern Ireland.",
+          "Create a free Tenant or Landlord account on RoostNI. Email sign-up for renters and property owners in Northern Ireland.",
       },
+      { property: "og:title", content: "Sign in or sign up — RoostNI" },
+      {
+        property: "og:description",
+        content:
+          "Create a free Tenant or Landlord account on RoostNI — tenant passports and compliant listings for Northern Ireland.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://roostni.co.uk/auth" },
+      { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://roostni.co.uk/auth" }],
   }),
   component: AuthPage,
 });

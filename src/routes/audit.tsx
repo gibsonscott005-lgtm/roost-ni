@@ -24,6 +24,7 @@ import { saveAuditResult } from "@/lib/audit.functions";
 import { posthog } from "@/integrations/posthog/client";
 
 export const Route = createFileRoute("/audit")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "NI Landlord Compliance & Tenancy Readiness Audit — RoostNI" },

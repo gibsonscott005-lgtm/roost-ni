@@ -32,6 +32,7 @@ async function handle(request: Request) {
 }
 
 export const Route = createFileRoute("/api/public/daily-reminders")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: ({ request }) => handle(request),

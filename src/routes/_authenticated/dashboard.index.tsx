@@ -51,6 +51,7 @@ import {
 } from "@/lib/listing-details";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Dashboard — RoostNI" },

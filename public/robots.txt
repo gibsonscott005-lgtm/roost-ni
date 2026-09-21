@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://roostni.co.uk/sitemap.xml

@@ -45,6 +45,7 @@ import {
 import { downloadStoredDoc } from "@/lib/download-doc";
 
 export const Route = createFileRoute("/_authenticated/landlord/manage-tenancy")({
+  staticData: { sitemap: false },
   validateSearch: z.object({
     share: z.string().optional(),
     tab: z.string().optional(),

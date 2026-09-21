@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/admin")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Command centre — RoostNI" },

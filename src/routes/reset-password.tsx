@@ -5,6 +5,7 @@ import { Home, Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/reset-password")({
+  staticData: { sitemap: false },
   ssr: false,
   head: () => ({
     meta: [
