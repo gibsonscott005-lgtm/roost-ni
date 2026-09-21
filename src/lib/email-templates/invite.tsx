@@ -29,18 +29,18 @@ export const InviteEmail = ({
         rel="stylesheet"
       />
     </Head>
-    <Preview>You are invited to join Roost</Preview>
+    <Preview>You are invited to join RoostNI</Preview>
     <Body style={main}>
       <Container style={container}>
         <Text style={wordmark}>
-          Roost<span style={dot}>.</span>ni
+          Roost<span style={dot}>NI</span>
         </Text>
         <div style={card}>
           <Heading style={h1}>You are invited</Heading>
           <Text style={text}>
             You have been invited to join{' '}
             <Link href={siteUrl} style={link}>
-              <strong>Roost.ni</strong>
+              <strong>RoostNI</strong>
             </Link>
             . Click the button below to accept and create your account.
           </Text>

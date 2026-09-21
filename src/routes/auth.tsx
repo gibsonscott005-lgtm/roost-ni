@@ -30,11 +30,11 @@ export const Route = createFileRoute("/auth")({
 
   head: () => ({
     meta: [
-      { title: "Sign in or sign up — Roost NI" },
+      { title: "Sign in or sign up — RoostNI" },
       {
         name: "description",
         content:
-          "Create a verified Tenant or Landlord account on Roost NI. Email sign-up for renters and property owners in Northern Ireland.",
+          "Create a verified Tenant or Landlord account on RoostNI. Email sign-up for renters and property owners in Northern Ireland.",
       },
     ],
   }),
@@ -222,8 +222,8 @@ function AuthPage() {
         toast.success("Account created", {
           description:
             role === "landlord"
-              ? "Welcome to Roost. Your landlord dashboard is ready."
-              : "Welcome to Roost. Your tenant passport is being prepared.",
+              ? "Welcome to RoostNI. Your landlord dashboard is ready."
+              : "Welcome to RoostNI. Your tenant passport is being prepared.",
         });
         // onAuthStateChange will handle the role-based redirect
       } else {
@@ -255,7 +255,7 @@ function AuthPage() {
               <Home className="h-4 w-4" strokeWidth={2.25} />
             </span>
             <span className="font-display text-base font-semibold tracking-tight">
-              Roost<span className="text-verified">.</span>ni
+              Roost<span className="text-verified">NI</span>
             </span>
           </Link>
           <div className="flex items-center gap-1">
@@ -281,7 +281,7 @@ function AuthPage() {
             {mode === "signup" ? "Create your account" : mode === "reset" ? "Password reset" : "Welcome back"}
           </p>
           <h1 className="mt-1 font-display text-xl font-semibold tracking-tight sm:mt-1.5 sm:text-3xl">
-            {mode === "signup" ? "Join Roost NI" : mode === "reset" ? "Forgot your password?" : "Sign in to Roost"}
+            {mode === "signup" ? "Join RoostNI" : mode === "reset" ? "Forgot your password?" : "Sign in to RoostNI"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "signup"

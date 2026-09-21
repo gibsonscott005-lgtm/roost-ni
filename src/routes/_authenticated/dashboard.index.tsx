@@ -53,10 +53,10 @@ import {
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   head: () => ({
     meta: [
-      { title: "Dashboard — Roost NI" },
+      { title: "Dashboard — RoostNI" },
       {
         name: "description",
-        content: "Manage your Roost NI properties or your self-certified tenant passport.",
+        content: "Manage your RoostNI properties or your self-certified tenant passport.",
       },
     ],
   }),
@@ -515,7 +515,7 @@ function TenantDashboard() {
           Welcome back{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Here's a snapshot of your tenant activity on Roost.
+          Here's a snapshot of your tenant activity on RoostNI.
         </p>
 
         <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
@@ -1133,7 +1133,7 @@ function MyProperties({
                           l,
                           { occupancy_status: "vacant", tenancy_ended_at: new Date().toISOString() },
                           "Marked as vacant",
-                          "You can advertise it on Roost whenever you're ready.",
+                          "You can advertise it on RoostNI whenever you're ready.",
                         )
                       }
                       className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
@@ -1183,14 +1183,14 @@ function MyProperties({
                       void setStatus(
                         l,
                         { is_published: true, occupancy_status: "vacant" },
-                        "Now advertising on Roost",
-                        "Tenants can view it and apply with their Roost passport.",
+                        "Now advertising on RoostNI",
+                        "Tenants can view it and apply with their RoostNI passport.",
                       )
                     }
                     className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92 disabled:opacity-60"
                   >
                     <Sparkles className="h-3 w-3 shrink-0" />
-                    Advertise on Roost
+                    Advertise on RoostNI
                   </button>
                 )}
 
@@ -1292,14 +1292,14 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         isTenanted
           ? "Property saved privately"
           : mode === "publish"
-            ? "Now advertising on Roost"
+            ? "Now advertising on RoostNI"
             : "Property saved as vacant",
         {
           description: isTenanted
             ? "It is never shown publicly. Add your safety certificates and rent records any time."
             : mode === "publish"
-              ? "Tenants can view it and apply with their Roost passport."
-              : "Advertise it on Roost whenever you're ready.",
+              ? "Tenants can view it and apply with their RoostNI passport."
+              : "Advertise it on RoostNI whenever you're ready.",
         },
       );
       setTitle("");
@@ -1341,7 +1341,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
           New property
         </p>
         <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-          Add a property to Roost
+          Add a property to RoostNI
         </h2>
       </div>
 
@@ -1357,7 +1357,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
               {
                 key: "vacant" as const,
                 label: "Vacant",
-                hint: "Empty or between tenancies. You choose when to advertise it on Roost.",
+                hint: "Empty or between tenancies. You choose when to advertise it on RoostNI.",
               },
             ]
           ).map((opt) => {
@@ -1444,7 +1444,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
             <div className="sm:col-span-2 flex items-start gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
               <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               This property stays private to you. When the tenancy ends, you can advertise it on
-              Roost with one tap.
+              RoostNI with one tap.
             </div>
           </div>
         ) : null}
@@ -1659,7 +1659,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
           <div className="mt-5 flex items-start gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             Select <span className="font-medium text-foreground">Oil</span> or{" "}
-            <span className="font-medium text-foreground">LPG</span> to enable Roost's Fair Fuel
+            <span className="font-medium text-foreground">LPG</span> to enable RoostNI's Fair Fuel
             same-level-out tenancy clause.
           </div>
         )}
@@ -1737,7 +1737,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
               : "Save private property"
             : submitting === "publish"
               ? "Publishing…"
-              : "Advertise on Roost"}
+              : "Advertise on RoostNI"}
         </button>
       </div>
     </form>

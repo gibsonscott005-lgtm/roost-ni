@@ -72,7 +72,7 @@ export function DashboardShell({
               <Home className="h-4 w-4" strokeWidth={2.25} />
             </span>
             <span className="truncate font-display text-sm font-semibold tracking-tight sm:text-base">
-              Roost<span className="text-verified">.</span>ni
+              Roost<span className="text-verified">NI</span>
             </span>
             {profile ? (
               <span

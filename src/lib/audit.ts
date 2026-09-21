@@ -25,7 +25,7 @@ export interface AuditQuestion {
   options: AuditOption[];
   /** Shown in the results list when the answer scores below 2. */
   gap: string;
-  /** Where in Roost this gap is handled. */
+  /** Where in RoostNI this gap is handled. */
   fix: string;
 }
 
@@ -47,7 +47,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
       "No, or I'm not sure it's still current",
     ),
     gap: "Your landlord registration number isn't immediately to hand.",
-    fix: "Roost stores it against each property and puts it on every listing and lease.",
+    fix: "RoostNI stores it against each property and puts it on every listing and lease.",
   },
   {
     id: "tenancy_notice",
@@ -60,7 +60,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
       "No, or I'm not sure what that is",
     ),
     gap: "No statutory Tenancy Information Notice on file.",
-    fix: "Roost generates the notice from the tenancy details and keeps a dated copy for both sides.",
+    fix: "RoostNI generates the notice from the tenancy details and keeps a dated copy for both sides.",
   },
   {
     id: "written_agreement",
@@ -72,7 +72,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
       "No written agreement",
     ),
     gap: "No signed agreement you can produce on demand.",
-    fix: "Roost issues an NI agreement (or your own PDF), the tenant signs, you counter-sign, and both keep it.",
+    fix: "RoostNI issues an NI agreement (or your own PDF), the tenant signs, you counter-sign, and both keep it.",
   },
   {
     id: "deposit_scheme",
@@ -85,7 +85,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
       "No, I'm holding it myself or I'm not sure",
     ),
     gap: "Deposit protection can't be evidenced with a certificate.",
-    fix: "Roost runs the 28-day countdown, records the scheme and number, and stores the certificate for the tenant to see.",
+    fix: "RoostNI runs the 28-day countdown, records the scheme and number, and stores the certificate for the tenant to see.",
   },
   {
     id: "deposit_timing",
@@ -97,7 +97,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
       "No",
     ),
     gap: "The 28-day protection timeline isn't evidenced.",
-    fix: "Roost timestamps when the deposit was received and when it was protected.",
+    fix: "RoostNI timestamps when the deposit was received and when it was protected.",
   },
   {
     id: "inventory",
@@ -110,7 +110,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
       "No inventory",
     ),
     gap: "No agreed move-in inventory to compare against at the end.",
-    fix: "Roost builds the inventory room by room, the tenant signs it off or flags a disagreement, and check-out compares against it.",
+    fix: "RoostNI builds the inventory room by room, the tenant signs it off or flags a disagreement, and check-out compares against it.",
   },
   {
     id: "gas_safety",
@@ -123,7 +123,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
       { value: "no", label: "Out of date, or I'd need to check", points: 0 },
     ],
     gap: "Gas safety evidence is out of date or hasn't reached the tenant.",
-    fix: "Roost's certificate vault tracks the expiry date, reminds you before it lapses, and shows the tenant their copy.",
+    fix: "RoostNI's certificate vault tracks the expiry date, reminds you before it lapses, and shows the tenant their copy.",
   },
   {
     id: "epc",
@@ -136,7 +136,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
       "No, or I've never had one done",
     ),
     gap: "EPC missing or of uncertain validity.",
-    fix: "Roost stores the EPC against the property with its expiry, and attaches it to the listing.",
+    fix: "RoostNI stores the EPC against the property with its expiry, and attaches it to the listing.",
   },
   {
     id: "electrical_alarms",
@@ -148,7 +148,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
       "Not fitted, or I don't know",
     ),
     gap: "Alarm testing isn't recorded.",
-    fix: "Roost keeps alarm and electrical checks alongside the other certificates, with reminders.",
+    fix: "RoostNI keeps alarm and electrical checks alongside the other certificates, with reminders.",
   },
   {
     id: "rent_records",
@@ -161,7 +161,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
       "No real record",
     ),
     gap: "No itemised rent record you could hand over or use at year end.",
-    fix: "Roost keeps a rent schedule and ledger, flags arrears, and issues receipts.",
+    fix: "RoostNI keeps a rent schedule and ledger, flags arrears, and issues receipts.",
   },
   {
     id: "repairs_log",
@@ -173,7 +173,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
       "No record",
     ),
     gap: "Repair history lives in messages rather than a record.",
-    fix: "Roost logs each repair with urgency, photos, your notes and the date it was resolved.",
+    fix: "RoostNI logs each repair with urgency, photos, your notes and the date it was resolved.",
   },
   {
     id: "notice_periods",
@@ -186,7 +186,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
       "No",
     ),
     gap: "Notice periods would need looking up under pressure.",
-    fix: "Roost works the period out from the tenancy start date and produces a dated notice.",
+    fix: "RoostNI works the period out from the tenancy start date and produces a dated notice.",
   },
 ];
 

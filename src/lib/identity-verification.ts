@@ -7,14 +7,14 @@ import { BIOMETRIC_FEE_PENCE } from "./pricing";
 
 export type VerificationMode = "simulated" | "test" | "live";
 
-/** One-off tenant fee for a verified passport. Priced in the Roost pricing catalogue. */
+/** One-off tenant fee for a verified passport. Priced in the RoostNI pricing catalogue. */
 export const VERIFICATION_FEE_PENCE = BIOMETRIC_FEE_PENCE;
 
 export function formatFee(pence: number = VERIFICATION_FEE_PENCE): string {
   return `£${(pence / 100).toFixed(2).replace(/\.00$/, "")}`;
 }
 
-/** Roost never charges and never contacts a provider outside live mode. */
+/** RoostNI never charges and never contacts a provider outside live mode. */
 export function isChargeable(mode: VerificationMode): boolean {
   return mode === "live";
 }

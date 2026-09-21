@@ -19,7 +19,7 @@
       {
         "name": "search_listings",
         "title": "Search rental listings",
-        "description": "Search published Northern Ireland rental listings on Roost by text, town, rent range, bedrooms and heating type.",
+        "description": "Search published Northern Ireland rental listings on RoostNI by text, town, rent range, bedrooms and heating type.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -68,7 +68,7 @@
       {
         "name": "get_listing",
         "title": "Get listing details",
-        "description": "Fetch the full detail of one Roost rental listing, including NI-specific fields such as heating type and Fair Fuel policy.",
+        "description": "Fetch the full detail of one RoostNI rental listing, including NI-specific fields such as heating type and Fair Fuel policy.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -182,7 +182,7 @@
       {
         "name": "my_notifications",
         "title": "My notifications",
-        "description": "List recent Roost notifications for the signed-in user, newest first.",
+        "description": "List recent RoostNI notifications for the signed-in user, newest first.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,

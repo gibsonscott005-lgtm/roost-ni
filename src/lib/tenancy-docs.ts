@@ -69,7 +69,7 @@ export function leaseDocumentHtml(opts: LeaseDocOptions) {
   const signedAt = tenantSignedAt
     ? new Date(tenantSignedAt).toLocaleString("en-GB")
     : new Date().toLocaleString("en-GB");
-  return `<!doctype html><html><head><meta charset="utf-8"><title>Roost NI Tenancy Agreement — ${esc(address)}</title>
+  return `<!doctype html><html><head><meta charset="utf-8"><title>RoostNI Tenancy Agreement — ${esc(address)}</title>
     <style>${BASE_STYLE}</style></head><body>
     <h1>Private Residential Tenancy Agreement</h1>
     <p class="muted">Made under the Private Tenancies Act (Northern Ireland) 2022</p>
@@ -83,7 +83,7 @@ export function leaseDocumentHtml(opts: LeaseDocOptions) {
     <div class="clause"><h3>${oilClause ? "6" : "5"}. Repairs &amp; Maintenance</h3><p>Landlord responsible for structural repairs and supply installations as required by statute.</p></div>
     <div class="sig">
       <div><strong>Tenant</strong><br>${esc(tenantSignature)}<br><span class="muted">Signed electronically ${esc(signedAt)}</span></div>
-      <div><strong>Landlord</strong><br>${esc(landlordName)}<br><span class="muted">${counterSigned ? "Counter-signed via Roost" : "Awaiting counter-signature"}</span></div>
+      <div><strong>Landlord</strong><br>${esc(landlordName)}<br><span class="muted">${counterSigned ? "Counter-signed via RoostNI" : "Awaiting counter-signature"}</span></div>
     </div>
     </body></html>`;
 }
@@ -132,7 +132,7 @@ export function tenancyInfoNoticeHtml(opts: NoticeDocOptions) {
       <tr><th>Property</th><td>${esc(opts.address)}</td></tr>
       <tr><th>Date the tenancy began</th><td>${esc(gb(opts.tenancyStart))}</td></tr>
       <tr><th>Rent payable</th><td>£${Number(opts.rent).toLocaleString()} per calendar month, in advance on the 1st of each month</td></tr>
-      <tr><th>How rent is paid</th><td>Standing order or bank transfer to the landlord. Receipts are issued through Roost for every payment.</td></tr>
+      <tr><th>How rent is paid</th><td>Standing order or bank transfer to the landlord. Receipts are issued through RoostNI for every payment.</td></tr>
       <tr><th>Rates</th><td>Where the rent is inclusive of rates this is stated in the tenancy agreement; otherwise the tenant is responsible.</td></tr>
     </table>
 
@@ -149,7 +149,7 @@ export function tenancyInfoNoticeHtml(opts: NoticeDocOptions) {
     <table>
       <tr><th>Heating type</th><td>${esc(val(opts.heatingType))}</td></tr>
       <tr><th>Fuel policy</th><td>${opts.oilClause ? `Fair Fuel — the ${esc(fuelLabel(opts.heatingType))} tank is returned at the level recorded at handover (full in, full out; empty in, empty out).` : "Standard — no fuel tank clause applies."}</td></tr>
-      <tr><th>Reporting repairs</th><td>Report all repairs through the Roost maintenance workspace so both parties keep a timestamped record.</td></tr>
+      <tr><th>Reporting repairs</th><td>Report all repairs through the RoostNI maintenance workspace so both parties keep a timestamped record.</td></tr>
       <tr><th>Landlord repair duties</th><td>Structure and exterior, and the installations for the supply of water, gas, electricity, sanitation, space heating and heating water.</td></tr>
       <tr><th>Certificates</th><td>Electrical (EICR), gas safety where applicable, and an Energy Performance Certificate are supplied to the tenant on or before commencement.</td></tr>
     </table>
@@ -158,10 +158,10 @@ export function tenancyInfoNoticeHtml(opts: NoticeDocOptions) {
     <p>Notice to quit periods are set by the Private Tenancies Act (Northern Ireland) 2022 and depend on how long the tenancy has run. Neither party may end the tenancy with less notice than the statute requires.</p>
 
     <div class="sig">
-      <div><strong>Issued by</strong><br>${esc(opts.landlordName)}<br><span class="muted">via Roost · ${new Date().toLocaleDateString("en-GB")}</span></div>
+      <div><strong>Issued by</strong><br>${esc(opts.landlordName)}<br><span class="muted">via RoostNI · ${new Date().toLocaleDateString("en-GB")}</span></div>
       <div><strong>Received by</strong><br>${esc(opts.tenantName)}<br><span class="muted">Acknowledged on signing the tenancy agreement</span></div>
     </div>
-    <p class="muted">This notice is generated from the tenancy record held in Roost. It is provided for convenience and does not constitute legal advice.</p>
+    <p class="muted">This notice is generated from the tenancy record held in RoostNI. It is provided for convenience and does not constitute legal advice.</p>
     </body></html>`;
 }
 export interface NoticeToQuitOptions {
@@ -203,8 +203,8 @@ export function noticeToQuitHtml(o: NoticeToQuitOptions) {
     ${o.reason ? `<div class="clause"><h3>Reason given</h3><p>${esc(o.reason)}</p></div>` : ""}
     <div class="clause"><h3>Deposit</h3><p>Any tenancy deposit must be returned, or proposed deductions agreed, within 28 days of the tenancy ending. Disputes may be referred to the approved scheme protecting the deposit.</p></div>
     <div class="sig">
-      <div><strong>Served by</strong><br>${esc(fromParty)}<br><span class="muted">Issued via Roost on ${esc(formatDate(o.servedOn))}</span></div>
-      <div><strong>Received by</strong><br>${esc(toParty)}<br><span class="muted">Acknowledgement recorded in Roost</span></div>
+      <div><strong>Served by</strong><br>${esc(fromParty)}<br><span class="muted">Issued via RoostNI on ${esc(formatDate(o.servedOn))}</span></div>
+      <div><strong>Received by</strong><br>${esc(toParty)}<br><span class="muted">Acknowledgement recorded in RoostNI</span></div>
     </div>
     <p class="muted" style="margin-top:24px">${esc(NI_LEGAL_DISCLAIMER)}</p>
     </body></html>`;

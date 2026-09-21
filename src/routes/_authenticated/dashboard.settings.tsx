@@ -32,11 +32,11 @@ import { getEmailConfigStatus } from "@/lib/email-status.functions";
 export const Route = createFileRoute("/_authenticated/dashboard/settings")({
   head: () => ({
     meta: [
-      { title: "Account & notification settings — Roost NI" },
+      { title: "Account & notification settings — RoostNI" },
       {
         name: "description",
         content:
-          "Update your Roost account details and password, and choose which tenancy alerts you receive.",
+          "Update your RoostNI account details and password, and choose which tenancy alerts you receive.",
       },
     ],
   }),
@@ -277,7 +277,7 @@ function SettingsPage() {
           Account settings
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Update your details, change your password and choose which Roost alerts reach you.
+          Update your details, change your password and choose which RoostNI alerts reach you.
         </p>
       </div>
 
@@ -376,7 +376,7 @@ function SettingsPage() {
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
               <span>
                 Email alerts are not sending yet. In-app notifications still work, and urgent
-                alerts will start arriving by email as soon as the Roost sending domain finishes
+                alerts will start arriving by email as soon as the RoostNI sending domain finishes
                 verifying.
               </span>
             </div>
@@ -630,7 +630,7 @@ function AccountDetailsCard() {
         <div>
           <h3 className="font-display text-base font-semibold tracking-tight">Your details</h3>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Shown to the landlords or tenants you deal with on Roost.
+            Shown to the landlords or tenants you deal with on RoostNI.
           </p>
         </div>
       </div>
@@ -791,7 +791,7 @@ function DeleteAccountCard({ onDeleted }: { onDeleted: () => Promise<void> }) {
             Delete account
           </h3>
           <p className="mt-0.5 text-xs text-red-700/80">
-            This permanently removes your Roost account, passport data, listings and tenancy records.
+            This permanently removes your RoostNI account, passport data, listings and tenancy records.
             It cannot be undone.
           </p>
         </div>

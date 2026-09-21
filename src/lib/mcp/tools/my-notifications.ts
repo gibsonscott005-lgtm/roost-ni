@@ -5,7 +5,7 @@ import { supabaseForUser, notAuthenticated, jsonResult, errorResult } from "../s
 export default defineTool({
   name: "my_notifications",
   title: "My notifications",
-  description: "List recent Roost notifications for the signed-in user, newest first.",
+  description: "List recent RoostNI notifications for the signed-in user, newest first.",
   inputSchema: {
     unreadOnly: z.boolean().default(false).describe("Only return notifications that are still unread."),
     limit: z.number().int().min(1).max(50).default(20),

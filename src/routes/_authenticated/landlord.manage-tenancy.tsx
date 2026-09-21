@@ -51,7 +51,7 @@ export const Route = createFileRoute("/_authenticated/landlord/manage-tenancy")(
   }),
   head: () => ({
     meta: [
-      { title: "Tenancy Workspace — Roost NI" },
+      { title: "Tenancy Workspace — RoostNI" },
       {
         name: "description",
         content:
@@ -1648,7 +1648,7 @@ function DocumentsTab({
             <p className="font-display text-base font-semibold tracking-tight">
               {isCustom
                 ? "Custom tenancy agreement (uploaded)"
-                : "Roost Standard NI Tenancy Agreement"}
+                : "RoostNI Standard NI Tenancy Agreement"}
             </p>
             <p className="text-xs text-muted-foreground">Fully executed · ready to download</p>
           </div>

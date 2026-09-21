@@ -67,8 +67,8 @@ export const Route = createFileRoute("/listings/$id")({
       return data as unknown as ListingDetail;
   },
   head: ({ loaderData }) => {
-    if (!loaderData) return { meta: [{ title: "Listing — Roost NI" }] };
-    const t = `${loaderData.title} — Roost NI`;
+    if (!loaderData) return { meta: [{ title: "Listing — RoostNI" }] };
+    const t = `${loaderData.title} — RoostNI`;
     const d = `${loaderData.address}${loaderData.location ? ` · ${loaderData.location}` : ""} · £${Number(loaderData.monthly_rent).toLocaleString()} pcm · Heating: ${loaderData.heating_type}.`;
     return {
       meta: [
@@ -672,7 +672,7 @@ function Header() {
             <Home className="h-4 w-4" strokeWidth={2.25} />
           </span>
           <span className="font-display text-base font-semibold tracking-tight">
-            Roost<span className="text-verified">.</span>ni
+            Roost<span className="text-verified">NI</span>
           </span>
         </Link>
         <div className="flex items-center gap-1.5">

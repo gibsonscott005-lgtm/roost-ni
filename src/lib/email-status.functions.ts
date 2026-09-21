@@ -9,6 +9,6 @@ export const getEmailConfigStatus = createServerFn({ method: "GET" }).handler(as
   const configured = !!process.env["LOVABLE_API_KEY"];
   return {
     connected: configured,
-    from: configured ? "Roost <noreply@notify.roostni.co.uk>" : null,
+    from: configured ? "RoostNI <noreply@notify.roostni.co.uk>" : null,
   };
 });

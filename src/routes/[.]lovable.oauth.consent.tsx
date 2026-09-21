@@ -63,7 +63,7 @@ function Shell({ children }: { children: React.ReactNode }) {
             <Home className="h-4 w-4" strokeWidth={2.25} />
           </span>
           <span className="font-display text-base font-semibold tracking-tight">
-            Roost<span className="text-verified">.</span>ni
+            Roost<span className="text-verified">NI</span>
           </span>
         </div>
         {children}
@@ -102,10 +102,10 @@ function Consent() {
   return (
     <Shell>
       <h1 className="font-display text-xl font-semibold tracking-tight">
-        Connect {clientName} to your Roost account
+        Connect {clientName} to your RoostNI account
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        {clientName} will be able to read your Roost data — listings, applications, tenancies,
+        {clientName} will be able to read your RoostNI data — listings, applications, tenancies,
         maintenance tickets and notifications — as you. You can disconnect it at any time.
       </p>
       {error ? (

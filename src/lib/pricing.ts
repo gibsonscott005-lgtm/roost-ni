@@ -1,5 +1,5 @@
 /**
- * Roost pricing model — client-safe. No secrets, no provider SDKs.
+ * RoostNI pricing model — client-safe. No secrets, no provider SDKs.
  *
  * The tables below mirror `public.pricing_tiers` / `public.pricing_items` and act
  * as the typed fallback when the database has not been read yet. Prices are held
@@ -148,7 +148,7 @@ export function paymentGatewayFlag(): boolean {
 
 /**
  * Charging only happens when the client flag AND the server-side config agree.
- * Either one being off keeps Roost in simulated mode.
+ * Either one being off keeps RoostNI in simulated mode.
  */
 export function paymentsActive(config: BillingConfig | null | undefined): boolean {
   return paymentGatewayFlag() && !!config?.payments_enabled;

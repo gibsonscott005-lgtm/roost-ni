@@ -3,14 +3,14 @@
  *
  * Notice to Quit periods come from the Private Tenancies Act (Northern Ireland)
  * 2022 and are worked out from how long the tenancy has run at the date the
- * notice is served. Roost calculates and documents — it never advises on
+ * notice is served. RoostNI calculates and documents — it never advises on
  * possession, which only a court can order.
  */
 
 export type NoticeParty = "landlord" | "tenant";
 
 export const NI_LEGAL_DISCLAIMER =
-  "Roost prepares this notice from the tenancy details you have entered. It is not legal advice. Only a court can order possession of a property in Northern Ireland.";
+  "RoostNI prepares this notice from the tenancy details you have entered. It is not legal advice. Only a court can order possession of a property in Northern Ireland.";
 
 export const DEPOSIT_RETURN_DAYS = 28;
 

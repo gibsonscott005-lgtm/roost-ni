@@ -63,7 +63,7 @@ export function supabaseForUser(ctx: ToolContext) {
 
 export function notAuthenticated() {
   return {
-    content: [{ type: "text" as const, text: "Not authenticated. Sign in to Roost to use this tool." }],
+    content: [{ type: "text" as const, text: "Not authenticated. Sign in to RoostNI to use this tool." }],
     isError: true,
   };
 }

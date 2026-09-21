@@ -13,7 +13,7 @@ export default defineMcp({
   title: "Northern Ireland Rental Hub",
   version: "0.1.0",
   instructions:
-    "Tools for Roost, a Northern Ireland direct rental platform. Search published listings, read listing detail, and — as the signed-in user — review their own properties, passport applications and tenancies, maintenance tickets and notifications. All data is scoped to the signed-in account.",
+    "Tools for RoostNI, a Northern Ireland direct rental platform. Search published listings, read listing detail, and — as the signed-in user — review their own properties, passport applications and tenancies, maintenance tickets and notifications. All data is scoped to the signed-in account.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",

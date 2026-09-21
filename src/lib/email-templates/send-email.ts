@@ -6,7 +6,7 @@ import { TEMPLATES } from './registry'
 // Server-only: reads LOVABLE_API_KEY. Never import from client components.
 
 // Configuration baked in at scaffold time
-const SITE_NAME = "Roost"
+const SITE_NAME = "RoostNI"
 // SENDER_DOMAIN is the verified sender subdomain FQDN (e.g., "notify.example.com").
 // It MUST match the subdomain delegated to Lovable's nameservers. NEVER use the root domain.
 const SENDER_DOMAIN = "notify.roostni.co.uk"
@@ -14,7 +14,7 @@ const SENDER_DOMAIN = "notify.roostni.co.uk"
 // Can be the root domain when display_from_root is enabled — this is cosmetic only.
 const FROM_DOMAIN = "notify.roostni.co.uk"
 // Replies to app emails go to the owner's Cloudflare-routed mailbox on the root domain.
-const REPLY_TO = "Roost Support <support@roostni.co.uk>"
+const REPLY_TO = "RoostNI Support <support@roostni.co.uk>"
 
 export type SendTemplateEmailResult =
   | { sent: true }

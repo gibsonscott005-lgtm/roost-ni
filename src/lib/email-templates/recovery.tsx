@@ -26,16 +26,16 @@ export const RecoveryEmail = ({
         rel="stylesheet"
       />
     </Head>
-    <Preview>Reset your Roost password</Preview>
+    <Preview>Reset your RoostNI password</Preview>
     <Body style={main}>
       <Container style={container}>
         <Text style={wordmark}>
-          Roost<span style={dot}>.</span>ni
+          Roost<span style={dot}>NI</span>
         </Text>
         <div style={card}>
           <Heading style={h1}>Reset your password</Heading>
           <Text style={text}>
-            We received a request to reset your Roost password. Click the button
+            We received a request to reset your RoostNI password. Click the button
             below to choose a new one.
           </Text>
           <Button style={button} href={confirmationUrl}>

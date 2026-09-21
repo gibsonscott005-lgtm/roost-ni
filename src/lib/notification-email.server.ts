@@ -94,7 +94,7 @@ export async function sendNotificationEmail(admin: Admin, args: SendArgs): Promi
         title: args.title,
         message: args.body,
         url,
-        actionLabel: "Open in Roost",
+        actionLabel: "Open in RoostNI",
       },
       idempotencyKey: args.eventId
         ? `notification-alert-${args.type}-${args.eventId}`

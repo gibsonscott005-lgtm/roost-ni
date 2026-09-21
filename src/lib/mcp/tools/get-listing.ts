@@ -6,7 +6,7 @@ export default defineTool({
   name: "get_listing",
   title: "Get listing details",
   description:
-    "Fetch the full detail of one Roost rental listing, including NI-specific fields such as heating type and Fair Fuel policy.",
+    "Fetch the full detail of one RoostNI rental listing, including NI-specific fields such as heating type and Fair Fuel policy.",
   inputSchema: { listingId: z.string().uuid().describe("The listing id.") },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ listingId }, ctx) => {

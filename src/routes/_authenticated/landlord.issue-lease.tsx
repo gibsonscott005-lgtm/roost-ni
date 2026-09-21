@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/landlord/issue-lease")({
   validateSearch: z.object({ share: z.string().optional() }),
   head: () => ({
     meta: [
-      { title: "Prepare & Issue Lease — Roost NI" },
+      { title: "Prepare & Issue Lease — RoostNI" },
       { name: "description", content: "Issue a Private Tenancies Act NI 2022 compliant lease to your accepted tenant." },
     ],
   }),
@@ -184,7 +184,7 @@ function IssueLeasePage() {
           active={choice === "standard"}
           onClick={() => setChoice("standard")}
           icon={<FileText className="h-5 w-5" />}
-          title="Use Roost Standard NI Template"
+          title="Use RoostNI Standard NI Template"
           subtitle="Private Tenancies Act (NI) 2022 compliant"
           meta="Includes statutory Deposit Protection notice"
         />
@@ -278,7 +278,7 @@ function IssueLeasePage() {
                 for the supply of water, gas, electricity, heating and sanitation as required by statute.
               </Clause>
               <footer className="border-t border-border pt-3 text-xs text-muted-foreground">
-                Signed electronically by the parties via Roost on issue. Roost retains an audit copy.
+                Signed electronically by the parties via RoostNI on issue. RoostNI retains an audit copy.
               </footer>
             </article>
           </div>
