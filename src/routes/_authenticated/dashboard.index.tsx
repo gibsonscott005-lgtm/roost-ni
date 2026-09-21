@@ -169,7 +169,9 @@ function Dashboard() {
           loading={loading}
           executedByListing={executedByListing}
           onAdd={() => setTab("add")}
+          onRefresh={loadListings}
         />
+
       ) : (
         <AddPropertyForm
           onCreated={async () => {
