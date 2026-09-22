@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ImageIcon, ChevronLeft, ChevronRight, Star, Upload, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ImageIcon, ChevronLeft, ChevronRight, Maximize2, Star, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { readSafeImage } from "@/lib/safe-image";
 
