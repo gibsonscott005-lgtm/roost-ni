@@ -20,7 +20,13 @@ export async function uploadListingPhotos(landlordId: string, files: File[]) {
   return paths;
 }
 
-/** Turn stored storage paths into temporary viewable URLs. */
+/**
+ * Turn stored storage paths into temporary viewable URLs.
+ *
+ * Landlords sign their own photos directly (storage RLS covers their folder).
+ * Everyone else — including anonymous visitors — goes through the server
+ * function, which only signs photos that belong to an advertised listing.
+ */
 export function useSignedPhotoUrls(paths: string[] | null | undefined) {
   const key = (paths ?? []).join("|");
   const [urls, setUrls] = useState<string[]>([]);
@@ -32,17 +38,30 @@ export function useSignedPhotoUrls(paths: string[] | null | undefined) {
       setUrls([]);
       return;
     }
-    void supabase.storage
-      .from(LISTING_PHOTOS_BUCKET)
-      .createSignedUrls(list, 60 * 60)
-      .then(({ data }) => {
-        if (cancelled) return;
-        setUrls(
+
+    const load = async () => {
+      const own = await supabase.storage
+        .from(LISTING_PHOTOS_BUCKET)
+        .createSignedUrls(list, 60 * 60)
+        .then(({ data }) =>
           (data ?? [])
             .map((d) => d.signedUrl)
             .filter((u): u is string => typeof u === "string" && u.length > 0),
-        );
-      });
+        )
+        .catch(() => [] as string[]);
+
+      if (own.length === list.length) {
+        if (!cancelled) setUrls(own);
+        return;
+      }
+
+      const publicUrls = await getListingPhotoUrls({ data: { paths: list } }).catch(
+        () => [] as string[],
+      );
+      if (!cancelled) setUrls(publicUrls.length ? publicUrls : own);
+    };
+
+    void load();
     return () => {
       cancelled = true;
     };
