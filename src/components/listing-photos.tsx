@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ImageIcon, ChevronLeft, ChevronRight, Star, Upload, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ImageIcon, ChevronLeft, ChevronRight, Maximize2, Star, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { readSafeImage } from "@/lib/safe-image";
 
@@ -303,20 +303,59 @@ export function ListingGallery({
 }) {
   const urls = useSignedPhotoUrls(paths);
   const [index, setIndex] = useState(0);
+  const [fullscreen, setFullscreen] = useState(false);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     setIndex(0);
   }, [urls.length]);
+
+  useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [fullscreen]);
 
   if (urls.length === 0) return <PhotoPlaceholder className="aspect-[16/9]" />;
 
   const go = (delta: number) =>
     setIndex((i) => (i + delta + urls.length) % urls.length);
 
+  const swipeHandlers = {
+    onTouchStart: (e: React.TouchEvent) => {
+      const t = e.touches[0];
+      touchStart.current = t ? { x: t.clientX, y: t.clientY } : null;
+    },
+    onTouchEnd: (e: React.TouchEvent) => {
+      const start = touchStart.current;
+      const t = e.changedTouches[0];
+      touchStart.current = null;
+      if (!start || !t) return;
+      const dx = t.clientX - start.x;
+      const dy = t.clientY - start.y;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) && urls.length > 1) {
+        go(dx < 0 ? 1 : -1);
+      }
+    },
+  };
+
   return (
     <div className="w-full">
-      <div className="relative aspect-[16/9] w-full overflow-hidden bg-surface-muted">
-        <img src={urls[index]} alt={alt} className="h-full w-full object-cover" />
+      <div
+        className="relative aspect-[16/9] w-full select-none overflow-hidden bg-surface-muted"
+        {...swipeHandlers}
+      >
+        <button
+          type="button"
+          onClick={() => setFullscreen(true)}
+          aria-label="Enlarge photo"
+          className="block h-full w-full cursor-zoom-in"
+        >
+          <img src={urls[index]} alt={alt} className="h-full w-full object-cover" />
+        </button>
         {urls.length > 1 ? (
           <>
             <button
@@ -335,11 +374,15 @@ export function ListingGallery({
             >
               <ChevronRight className="h-4 w-4" />
             </button>
-            <span className="absolute bottom-3 right-3 rounded-full bg-foreground/70 px-2.5 py-1 text-[11px] font-semibold text-background backdrop-blur">
+            <span className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-foreground/70 px-2.5 py-1 text-[11px] font-semibold text-background backdrop-blur">
               {index + 1} / {urls.length}
             </span>
           </>
         ) : null}
+        <span className="pointer-events-none absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-foreground/70 px-2.5 py-1 text-[11px] font-semibold text-background backdrop-blur">
+          <Maximize2 className="h-3 w-3" />
+          Tap to enlarge
+        </span>
       </div>
       {urls.length > 1 ? (
         <div className="flex gap-2 overflow-x-auto px-4 py-3">
@@ -356,6 +399,53 @@ export function ListingGallery({
               <img src={u} alt="" className="h-full w-full object-cover" />
             </button>
           ))}
+        </div>
+      ) : null}
+
+      {fullscreen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/95 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Photo viewer"
+          {...swipeHandlers}
+        >
+          <button
+            type="button"
+            aria-label="Close photo viewer"
+            onClick={() => setFullscreen(false)}
+            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-surface/90 text-foreground shadow"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <img
+            src={urls[index]}
+            alt={alt}
+            className="max-h-full max-w-full object-contain"
+          />
+          {urls.length > 1 ? (
+            <>
+              <button
+                type="button"
+                aria-label="Previous photo"
+                onClick={() => go(-1)}
+                className="absolute left-3 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-surface/90 text-foreground shadow"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                aria-label="Next photo"
+                onClick={() => go(1)}
+                className="absolute right-3 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-surface/90 text-foreground shadow"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+              <span className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-surface/90 px-3 py-1 text-xs font-semibold text-foreground">
+                {index + 1} / {urls.length}
+              </span>
+            </>
+          ) : null}
         </div>
       ) : null}
     </div>
