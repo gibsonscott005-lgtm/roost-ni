@@ -26,10 +26,17 @@ export const getBillingSnapshot = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<BillingSnapshot> => {
     const { supabase, userId } = context;
 
+    // The catalogue tables are no longer readable by app users directly; the
+    // caller is already authenticated above, so we read them server-side.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
     const [tiersRes, itemsRes, configRes, countRes] = await Promise.all([
-      supabase.from("pricing_tiers").select("*").order("sort_order"),
-      supabase.from("pricing_items").select("*").eq("is_active", true).order("sort_order"),
-      supabase.from("billing_config").select("payments_enabled, currency, notice").maybeSingle(),
+      supabaseAdmin.from("pricing_tiers").select("*").order("sort_order"),
+      supabaseAdmin.from("pricing_items").select("*").eq("is_active", true).order("sort_order"),
+      supabaseAdmin
+        .from("billing_config")
+        .select("payments_enabled, currency, notice")
+        .maybeSingle(),
       supabase
         .from("property_listings")
         .select("id", { count: "exact", head: true })

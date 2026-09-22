@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ImageIcon, ChevronLeft, ChevronRight, Maximize2, Star, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { readSafeImage } from "@/lib/safe-image";
+import { getListingPhotoUrls } from "@/lib/listing-photos.functions";
 
 export const LISTING_PHOTOS_BUCKET = "listing-photos";
 
