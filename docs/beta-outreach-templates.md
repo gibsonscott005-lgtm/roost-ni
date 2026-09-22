@@ -50,6 +50,33 @@ https://roostni.co.uk/audit?utm_source=facebook&utm_medium=community&utm_campaig
 I'm a local developer building tools for NI landlords and I'd genuinely like to know what score people get and what's missing. Comments welcome.
 ```
 
+## Post template 2b — audit + "it's much more than an audit"
+
+Use this once the audit post has had its run in a group. The audit earns the attention; this shows landlords RoostNI is a full toolkit, not just a quiz. Leads with listing their property, because that's the outcome landlords care about.
+
+```text
+A couple of weeks ago I shared a free 2-minute self-check for NI landlords here — thanks to everyone who tried it and commented.
+
+A few people asked "ok, so what is it exactly?", so here's the honest answer: it's the front door to something much bigger.
+
+RoostNI is a Northern Ireland renting platform I'm building. If you're a self-managing landlord you can:
+
+• List your property to tenants who apply with a ready-made Tenant Passport — identity, income and references organised in one pack instead of scattered over WhatsApp
+• Keep an existing tenancy in order even if you don't advertise — tenancy details, deposit tracking, rent ledger, safety certificates with expiry reminders, maintenance records
+• Issue a proper NI tenancy agreement, signed digitally, with the statutory bits included
+• Handle end of tenancy properly — notice to quit, final inspection, deposit settlement
+
+It's free during early beta — no fees, no card. The audit is still there if you want to check your paperwork first (2 minutes, no sign-up):
+
+https://roostni.co.uk/audit?utm_source=facebook&utm_medium=community&utm_campaign=audit_launch
+
+Or go straight in and list a property:
+
+https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
+
+Local developer, building this for NI landlords — feedback genuinely shapes what gets built next, so tell me what's missing.
+```
+
 ## Post template 2 — landlord audit (shorter variant)
 
 For groups with stricter promo rules — more question, less pitch.
