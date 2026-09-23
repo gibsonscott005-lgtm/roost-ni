@@ -7,6 +7,7 @@ export type AuditArea =
   | "Deposit"
   | "Safety certificates"
   | "Rent & records"
+  | "Tenant vetting & turnover"
   | "Ending a tenancy";
 
 export interface AuditOption {
