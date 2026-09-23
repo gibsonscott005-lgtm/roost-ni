@@ -148,3 +148,38 @@ The first ten people who complete a 10-minute feedback call with us will get a �
 - Don't post in groups that ban promotion.
 - Don't buy ads or pay for sign-ups.
 - Don't invent testimonials, user counts or demand stats.
+
+## Replying to property enquiries ("is this available?")
+
+Anyone messaging about a listing is a real prospective tenant — the most valuable kind of visitor. Be upfront straight away: the listings currently on the site are beta examples, not genuine lets. Never imply a property is available when it isn't. Then turn their interest into feedback: invite them to try RoostNI free and tell you what's confusing or missing.
+
+Full reply (use when they ask for details):
+
+```text
+Thanks for the message! Just to be upfront with you: that listing is a test property I'm using to trial a new renting platform I'm building for Northern Ireland — so it's not a genuine let, and I don't want you going through the process for nothing.
+
+The site itself is live and free during early beta. It's built for renters: instead of re-sending ID, payslips and references over Messenger for every place, you fill in one passport and share it with landlords.
+
+If you're currently looking, you'd be a brilliant person to try it and tell me what's confusing or missing (use test documents, not real ones):
+https://roostni.co.uk/beta
+
+Happy to answer any questions here too.
+```
+
+Shorter version (if they just asked "is this still available?"):
+
+```text
+Thanks for asking! Quick honesty: that's a test property I'm using to try out a new NI renting platform, not a real let. If you're house-hunting though, the site itself is free to try during beta — one passport with your details instead of re-sending everything to every landlord: https://roostni.co.uk/beta
+```
+
+If they say "so there are no real properties?":
+
+```text
+Correct at the moment — it's early days and the listings are examples while I test the site with real landlords. The idea is that landlords list directly here and tenants apply with a ready-made passport, no agent fees. If you'd like to be first in line when real properties go up, you can set up a free passport now: https://roostni.co.uk/beta
+```
+
+Notes:
+
+- Reply the same evening if you can — renting enquiries go cold fast.
+- Do not promise when real listings will appear, or name landlords.
+- This is a strong signal: real tenants are finding the listings. Consider it when deciding what to build or post next.
