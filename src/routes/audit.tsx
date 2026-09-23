@@ -5,13 +5,16 @@ import { toast } from "sonner";
 import {
   ArrowLeft,
   ArrowRight,
+  Banknote,
   CheckCircle2,
   ClipboardCheck,
+  FileSignature,
   Home,
   Loader2,
   Mail,
   ShieldCheck,
   Sparkles,
+  Users,
 } from "lucide-react";
 import {
   AUDIT_AREAS,
