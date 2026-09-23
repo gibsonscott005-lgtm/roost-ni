@@ -40,7 +40,7 @@ export const Route = createFileRoute("/audit")({
       {
         property: "og:description",
         content:
-          "Twelve questions, two minutes, no account needed. Get a plain-English list of what's missing from your NI tenancy records.",
+          "Fourteen questions, two minutes, no account needed. Get a plain-English list of what's missing from your NI tenancy records.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -181,10 +181,10 @@ function AuditPage() {
               Is your Northern Ireland tenancy paperwork in order?
             </h1>
             <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-              Twelve questions about the documents and records an NI tenancy relies on —
-              registration, the statutory tenancy notice, deposit protection, safety
-              certificates, rent records and notice periods. You'll get a score and a
-              plain-English list of what's missing.
+              Fourteen questions about the documents, records and habits an NI tenancy relies
+              on — registration, the statutory tenancy notice, deposit protection, safety
+              certificates, rent records, how applicants' documents reach you, and notice
+              periods. You'll get a score and a plain-English list of what's missing.
             </p>
             <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
               <li className="flex gap-2">
