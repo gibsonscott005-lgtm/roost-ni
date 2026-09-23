@@ -226,6 +226,7 @@ export const AUDIT_AREAS: AuditArea[] = [
   "Deposit",
   "Safety certificates",
   "Rent & records",
+  "Tenant vetting & turnover",
   "Ending a tenancy",
 ];
 
