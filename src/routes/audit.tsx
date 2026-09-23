@@ -527,6 +527,28 @@ function AuditPage() {
               )}
             </div>
 
+            {!saved ? (
+              <div className="mt-6">
+                <Link
+                  to="/auth"
+                  search={{ role: "landlord" }}
+                  onClick={() =>
+                    posthog.capture("audit_cta_clicked", {
+                      source: "audit_result_toolkit",
+                      ...utm,
+                    })
+                  }
+                  className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  Join the free beta — list, let and manage without agent fees
+                </Link>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Free during early beta. No fees, no card required.
+                </p>
+              </div>
+            ) : null}
+
             <div className="mt-8 flex flex-wrap items-center gap-4 text-sm">
               <button
                 type="button"
