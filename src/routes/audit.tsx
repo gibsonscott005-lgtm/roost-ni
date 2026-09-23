@@ -384,6 +384,49 @@ function AuditPage() {
               </ol>
             )}
 
+            <h2 className="mt-12 font-display text-xl font-semibold tracking-tight">
+              Beyond the paperwork — what else RoostNI does
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Keeping records straight is only part of it. RoostNI also handles the letting
+              itself, so you don't need an agent or a Facebook thread to fill a property.
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {[
+                {
+                  icon: Banknote,
+                  title: "Let direct, no agent fee",
+                  body: "Advertise a vacant property to NI tenants yourself. Agents typically charge a month's rent, or £350–£600 plus VAT, just to find a tenant and draw up an agreement.",
+                },
+                {
+                  icon: Users,
+                  title: "Applications that arrive organised",
+                  body: "Instead of forty unvetted messages, applicants apply with a Tenant Passport — their own ID, income and references in one pack, clearly marked as what they provided versus what you still check yourself.",
+                },
+                {
+                  icon: FileSignature,
+                  title: "The whole tenancy in one place",
+                  body: "NI tenancy agreement signed on screen, room-by-room inventory, deposit dates, rent ledger and receipts, repair log, and correct notice periods worked out for you at the end.",
+                },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-border bg-surface p-5 shadow-resting"
+                >
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-verified-soft/70 text-foreground">
+                    <item.icon className="h-4 w-4 text-verified" />
+                  </span>
+                  <p className="mt-3 text-sm font-semibold text-foreground">{item.title}</p>
+                  <p className="mt-1.5 text-sm text-muted-foreground">{item.body}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 rounded-2xl border border-border bg-surface-muted px-4 py-3 text-xs text-muted-foreground">
+              Already have a tenant in place? You can keep a property private and off the
+              public listings, and still hold its certificates, deposit dates and records —
+              then advertise it only when it actually falls vacant.
+            </p>
+
             <div className="mt-10 rounded-3xl border border-border bg-surface-muted/60 p-6 shadow-resting sm:p-8">
               {saved ? (
                 <div>
