@@ -43,6 +43,7 @@ function AdminDashboard() {
   const fetchOverview = useServerFn(getAdminOverview);
   const updateStatusFn = useServerFn(setFeedbackStatus);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [data, setData] = useState<AdminOverview | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [tab, setTab] = useState<"signups" | "audits" | "feedback">("signups");
@@ -50,15 +51,18 @@ function AdminDashboard() {
   const isAdmin = profile?.account_type === "admin";
 
   const load = async (quiet = false) => {
-    if (!quiet) setLoading(true);
+    if (quiet) setRefreshing(true);
+    else setLoading(true);
     try {
       setData(await fetchOverview({ data: undefined } as never));
+      if (quiet) toast.success("Command centre updated");
     } catch (error) {
       toast.error("Couldn't load the command centre", {
         description: error instanceof Error ? error.message : undefined,
       });
     }
     setLoading(false);
+    setRefreshing(false);
   };
 
   useEffect(() => {
@@ -149,10 +153,11 @@ function AdminDashboard() {
               <button
                 type="button"
                 onClick={() => load(true)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+                disabled={refreshing}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
               >
-                <RefreshCw className="h-3.5 w-3.5" />
-                Refresh
+                <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
+                {refreshing ? "Refreshing…" : "Refresh"}
               </button>
               <a
                 href="https://eu.posthog.com"
