@@ -5,13 +5,16 @@ import { toast } from "sonner";
 import {
   ArrowLeft,
   ArrowRight,
+  Banknote,
   CheckCircle2,
   ClipboardCheck,
+  FileSignature,
   Home,
   Loader2,
   Mail,
   ShieldCheck,
   Sparkles,
+  Users,
 } from "lucide-react";
 import {
   AUDIT_AREAS,
@@ -40,7 +43,7 @@ export const Route = createFileRoute("/audit")({
       {
         property: "og:description",
         content:
-          "Twelve questions, two minutes, no account needed. Get a plain-English list of what's missing from your NI tenancy records.",
+          "Fourteen questions, two minutes, no account needed. Get a plain-English list of what's missing from your NI tenancy records.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -181,10 +184,10 @@ function AuditPage() {
               Is your Northern Ireland tenancy paperwork in order?
             </h1>
             <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-              Twelve questions about the documents and records an NI tenancy relies on —
-              registration, the statutory tenancy notice, deposit protection, safety
-              certificates, rent records and notice periods. You'll get a score and a
-              plain-English list of what's missing.
+              Fourteen questions about the documents, records and habits an NI tenancy relies
+              on — registration, the statutory tenancy notice, deposit protection, safety
+              certificates, rent records, how applicants' documents reach you, and notice
+              periods. You'll get a score and a plain-English list of what's missing.
             </p>
             <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
               <li className="flex gap-2">
@@ -384,6 +387,49 @@ function AuditPage() {
               </ol>
             )}
 
+            <h2 className="mt-12 font-display text-xl font-semibold tracking-tight">
+              Beyond the paperwork — what else RoostNI does
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Keeping records straight is only part of it. RoostNI also handles the letting
+              itself, so you don't need an agent or a Facebook thread to fill a property.
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {[
+                {
+                  icon: Banknote,
+                  title: "Let direct, no agent fee",
+                  body: "Advertise a vacant property to NI tenants yourself. Agents typically charge a month's rent, or £350–£600 plus VAT, just to find a tenant and draw up an agreement.",
+                },
+                {
+                  icon: Users,
+                  title: "Applications that arrive organised",
+                  body: "Instead of forty unvetted messages, applicants apply with a Tenant Passport — their own ID, income and references in one pack, clearly marked as what they provided versus what you still check yourself.",
+                },
+                {
+                  icon: FileSignature,
+                  title: "The whole tenancy in one place",
+                  body: "NI tenancy agreement signed on screen, room-by-room inventory, deposit dates, rent ledger and receipts, repair log, and correct notice periods worked out for you at the end.",
+                },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-border bg-surface p-5 shadow-resting"
+                >
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-verified-soft/70 text-foreground">
+                    <item.icon className="h-4 w-4 text-verified" />
+                  </span>
+                  <p className="mt-3 text-sm font-semibold text-foreground">{item.title}</p>
+                  <p className="mt-1.5 text-sm text-muted-foreground">{item.body}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 rounded-2xl border border-border bg-surface-muted px-4 py-3 text-xs text-muted-foreground">
+              Already have a tenant in place? You can keep a property private and off the
+              public listings, and still hold its certificates, deposit dates and records —
+              then advertise it only when it actually falls vacant.
+            </p>
+
             <div className="mt-10 rounded-3xl border border-border bg-surface-muted/60 p-6 shadow-resting sm:p-8">
               {saved ? (
                 <div>
@@ -392,9 +438,9 @@ function AuditPage() {
                     Saved to {email}
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Next step: join the free beta and RoostNI will hold the certificates, dates
-                    and records this check asked about — so next time you can answer yes to all
-                    of it. No fees, no card required.
+                    Next step: join the free beta. RoostNI will hold the certificates, dates and
+                    records this check asked about — and when the property next falls vacant,
+                    you can advertise it and take applications without an agent's fee.
                   </p>
                   <Link
                     to="/auth"
@@ -402,8 +448,12 @@ function AuditPage() {
                     className="mt-5 inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
                   >
                     <ShieldCheck className="h-4 w-4" />
-                    Join the free beta — organise your tenancy records
+                    Join the free beta — list, let and manage without agent fees
                   </Link>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Free during early beta. No fees, no card required. Keep a tenanted property
+                    private, or advertise one when it's vacant.
+                  </p>
                 </div>
               ) : (
                 <form onSubmit={onSave}>
@@ -476,6 +526,28 @@ function AuditPage() {
                 </form>
               )}
             </div>
+
+            {!saved ? (
+              <div className="mt-6">
+                <Link
+                  to="/auth"
+                  search={{ role: "landlord" }}
+                  onClick={() =>
+                    posthog.capture("audit_cta_clicked", {
+                      source: "audit_result_toolkit",
+                      ...utm,
+                    })
+                  }
+                  className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  Join the free beta — list, let and manage without agent fees
+                </Link>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Free during early beta. No fees, no card required.
+                </p>
+              </div>
+            ) : null}
 
             <div className="mt-8 flex flex-wrap items-center gap-4 text-sm">
               <button
