@@ -177,6 +177,36 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
     fix: "RoostNI logs each repair with urgency, photos, your notes and the date it was resolved.",
   },
   {
+    id: "applicant_pack",
+    area: "Tenant vetting & turnover",
+    question:
+      "When someone applies, do you get photo ID, proof of income and previous landlord references in one organised pack?",
+    help: "Applicants provide these themselves. This is about whether they arrive together, or in pieces across messages.",
+    options: YES_PARTLY_NO(
+      "Yes — a consistent set of documents I keep on file",
+      "Bits and pieces over WhatsApp, email or on paper",
+      "Mostly a conversation and a gut feel",
+    ),
+    gap: "Applicant documents arrive scattered rather than as one pack.",
+    fix: "Applicants apply with a Tenant Passport — ID, income and references in one structured pack, shown as what they provided versus what you still need to check yourself.",
+  },
+  {
+    id: "turnover_cost",
+    area: "Tenant vetting & turnover",
+    question: "When the property becomes vacant, what does finding a new tenant cost you?",
+    options: [
+      { value: "direct", label: "Nothing — I advertise and screen it myself", points: 2 },
+      { value: "mixed", label: "It varies, or the property rarely comes vacant", points: 1 },
+      {
+        value: "agent",
+        label: "A letting agent's finder fee, or hours sifting social media messages",
+        points: 0,
+      },
+    ],
+    gap: "Re-letting currently costs you a finder fee or a lot of your own time.",
+    fix: "Advertise direct on RoostNI at no cost and take applications with a Tenant Passport attached — no agent finder fee, no message sifting.",
+  },
+  {
     id: "notice_periods",
     area: "Ending a tenancy",
     question: "Do you know the notice period you'd have to give your current tenant?",
