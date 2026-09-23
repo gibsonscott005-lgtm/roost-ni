@@ -438,9 +438,9 @@ function AuditPage() {
                     Saved to {email}
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Next step: join the free beta and RoostNI will hold the certificates, dates
-                    and records this check asked about — so next time you can answer yes to all
-                    of it. No fees, no card required.
+                    Next step: join the free beta. RoostNI will hold the certificates, dates and
+                    records this check asked about — and when the property next falls vacant,
+                    you can advertise it and take applications without an agent's fee.
                   </p>
                   <Link
                     to="/auth"
@@ -448,8 +448,12 @@ function AuditPage() {
                     className="mt-5 inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
                   >
                     <ShieldCheck className="h-4 w-4" />
-                    Join the free beta — organise your tenancy records
+                    Join the free beta — list, let and manage without agent fees
                   </Link>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Free during early beta. No fees, no card required. Keep a tenanted property
+                    private, or advertise one when it's vacant.
+                  </p>
                 </div>
               ) : (
                 <form onSubmit={onSave}>
