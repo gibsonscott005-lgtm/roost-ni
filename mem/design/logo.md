@@ -16,6 +16,8 @@ Assets:
 - `public/favicon.png` — 64px emblem.
 - `/mnt/documents/roostni-logo.png` — full master logo (emblem + wordmark).
 - `/mnt/documents/roostni-facebook-avatar.png` — circle-safe square avatar for the Facebook page.
+- `/mnt/documents/roostni-profile-picture.png` — emblem-only profile picture (1024×1024, white bg).
+- `/mnt/documents/roostni-facebook-cover.png` — Facebook page cover (1920×710): emblem + bold "RoostNI" + tagline "Renting, sorted for Northern Ireland", centred for mobile safe area.
 
 Rules: never reintroduce the generic lucide `Home` tile in headers; keep the
 emerald arc — it is the brand accent, distinct from the in-app "verified" token.
