@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { LogoMark } from "@/components/logo";
 import { useState } from "react";
-import { Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 type OAuthNamespace = {
@@ -60,9 +60,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     <main className="grid min-h-screen place-items-center bg-background px-4 py-12">
       <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-resting">
         <div className="mb-4 flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
-            <Home className="h-4 w-4" strokeWidth={2.25} />
-          </span>
+          <LogoMark />
           <span className="font-display text-base font-semibold tracking-tight">
             Roost<span className="text-verified">NI</span>
           </span>

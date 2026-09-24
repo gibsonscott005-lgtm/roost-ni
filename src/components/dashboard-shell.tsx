@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { LogoMark } from "@/components/logo";
 import {
-  Home,
   Inbox,
   LayoutGrid,
   LifeBuoy,
@@ -68,9 +68,7 @@ export function DashboardShell({
             style={{ cursor: "pointer", pointerEvents: "auto" }}
             className="flex min-w-0 items-center gap-2"
           >
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
-              <Home className="h-4 w-4" strokeWidth={2.25} />
-            </span>
+            <LogoMark />
             <span className="truncate font-display text-sm font-semibold tracking-tight sm:text-base">
               Roost<span className="text-verified">NI</span>
             </span>

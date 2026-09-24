@@ -17,6 +17,7 @@ All tenant verification is self-certification — never say "Verified by RoostNI
 Every milestone mutation must fanout via `emitNotification` to the counterparty; do NOT add per-page realtime channels (the single one lives in NotificationsBell).
 
 ## Memories
+- [RoostNI logo](mem://design/logo) — charcoal house in emerald nest arc; LogoMark component in all headers; bold lettering only
 - [Notifications ledger](mem://features/notifications-ledger) — polymorphic notifications table, event-driven fanout via emitNotification server fn, single realtime channel in NotificationsBell
 - [Maintenance tickets](mem://features/maintenance-tickets) — maintenance_tickets table + panel components, storage RLS gated by ticket ownership, notification fanout on status changes
 - [Self-certified passport](mem://features/self-certified-passport) — tenant_passports schema, wizard, verification_audit_logs, landlord ID viewing via signIdDocumentUrl, tenant-documents bucket rules
