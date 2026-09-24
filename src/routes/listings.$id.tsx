@@ -669,9 +669,7 @@ function Header() {
     <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
       <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
         <Link to="/" className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
-            <Home className="h-4 w-4" strokeWidth={2.25} />
-          </span>
+          <LogoMark />
           <span className="font-display text-base font-semibold tracking-tight">
             Roost<span className="text-verified">NI</span>
           </span>

@@ -43,9 +43,7 @@ function HomePage() {
       <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-2 px-4 sm:px-6">
           <Link to="/" className="flex min-w-0 items-center gap-2">
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-foreground text-[var(--color-primary-foreground)]">
-              <Home className="h-4 w-4" strokeWidth={2.25} />
-            </span>
+            <LogoMark />
             <span className="truncate font-display text-sm font-semibold tracking-tight sm:text-base">
               Roost<span className="text-verified">NI</span>
             </span>
