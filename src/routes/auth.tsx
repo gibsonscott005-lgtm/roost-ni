@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { LogoMark } from "@/components/logo";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Mail, Lock, UserRound, ShieldCheck, Building2, IdCard, Users } from "lucide-react";

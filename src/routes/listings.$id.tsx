@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import { LogoMark } from "@/components/logo";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { emitNotification, type EmitNotificationInput } from "@/lib/notifications.functions";

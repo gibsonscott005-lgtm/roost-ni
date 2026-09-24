@@ -1,4 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { LogoMark } from "@/components/logo";
 import {
   Inbox,
   LayoutGrid,

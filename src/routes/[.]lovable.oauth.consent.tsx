@@ -1,4 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { LogoMark } from "@/components/logo";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
