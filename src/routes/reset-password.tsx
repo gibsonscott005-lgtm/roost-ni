@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Home, Lock, Loader2 } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/reset-password")({

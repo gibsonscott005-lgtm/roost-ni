@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Home, Mail, Lock, UserRound, ShieldCheck, Building2, IdCard, Users } from "lucide-react";
+import { Mail, Lock, UserRound, ShieldCheck, Building2, IdCard, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { posthog } from "@/integrations/posthog/client";
 import { sendWelcomeEmail } from "@/lib/welcome-email.functions";

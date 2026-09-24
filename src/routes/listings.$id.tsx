@@ -19,7 +19,6 @@ import {
   Building2,
   Check,
   Flame,
-  Home,
   MapPin,
   PoundSterling,
   ShieldCheck,

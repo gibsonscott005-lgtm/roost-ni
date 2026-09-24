@@ -4,7 +4,6 @@ import {
   Bell,
   ChevronDown,
   Flame,
-  Home,
   MapPin,
   PoundSterling,
   Search,

@@ -4,7 +4,6 @@ import {
   BadgePoundSterling,
   ClipboardCheck,
   FileText,
-  Home,
   RefreshCcw,
   ShieldAlert,
   UserCheck,

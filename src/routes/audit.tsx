@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   ClipboardCheck,
   FileSignature,
-  Home,
   Loader2,
   Mail,
   ShieldCheck,
