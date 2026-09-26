@@ -19,6 +19,9 @@ Based on real traffic to the site:
 - **People browse before they commit.** Listings and the audit get views; the sign-up form is where they leave. So never lead with "sign up" — lead with something they can look at with no account.
 - **The audit works.** About 1 in 5 visitors who saw it completed it, in under 3 minutes. It's the strongest hook we have for landlords.
 - **Don't bump quiet posts.** If a post gets no comments after a day, move on to the next group.
+- **Real tenant demand is the landlord hook now.** Renters are signing up for passports and messaging about listings — lead with that when talking to landlords, not with features.
+- **The Facebook page works on its own.** Traffic keeps arriving on days with no group post. Tag @Roostni in group posts so people can follow the page.
+- **Keep question counts current.** The audit is now 14 questions (tenant vetting and agent fees were added) — never say "twelve".
 
 ## Tracking links
 
@@ -43,7 +46,7 @@ If a tenant or a deposit scheme adjudicator asked for your tenancy paperwork tom
 
 Deposit protected within 28 days. Tenancy Information Notice. Gas cert. EPC. Rent receipts. Correct notice periods.
 
-I built a free 2-minute self-check for NI landlords. Twelve questions, covers the main statutory duties, and you get your score straight away — no email, no account, nothing to sign up for.
+I built a free 2-minute self-check for NI landlords. Fourteen questions, covers the main statutory duties (including tenant vetting and agent fees), and you get your score straight away — no email, no account, nothing to sign up for.
 
 https://roostni.co.uk/audit?utm_source=facebook&utm_medium=community&utm_campaign=audit_launch
 
@@ -108,6 +111,40 @@ Take a look first, then try it if you like what you see:
 https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
 
 Happy to answer questions in the comments.
+```
+
+## Post template 4 — landlord: real tenant demand (weekend refresh)
+
+Lead with the proof: real renters are signing up and asking about listings. Truthful and general — no invented numbers.
+
+```text
+Self-managing landlords — something has changed this month.
+
+I'm building RoostNI, a renting platform for Northern Ireland. Over the past couple of weeks real renters have started signing up and building their Tenant Passport — ID, income and references organised in one pack. One messaged about a listing within hours of it going up.
+
+That's the point: when you list a property here, enquiries come from tenants who've already got their paperwork together — no chasing payslips over WhatsApp.
+
+It's free during early beta — no fees, no card. You can list a property, or keep an existing tenancy's certificates and records in order even if you're not advertising:
+
+https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
+
+The 2-minute compliance self-check is still there too (fourteen questions, no sign-up):
+
+https://roostni.co.uk/audit?utm_source=facebook&utm_medium=community&utm_campaign=audit_launch
+```
+
+## Post template 5 — weekend conversation starter (vacancy pain point)
+
+Question-first, works on a Saturday morning or evening when people have time to comment.
+
+```text
+Self-managing landlords — a question for the weekend.
+
+When a property comes vacant, what's the biggest pain point right now? Finding tenants, sorting the paperwork, or the turnaround work in between?
+
+Asking because I'm building RoostNI — a NI renting platform where tenants apply with a ready-made passport (ID, income and references already organised) and landlords get a compliance-friendly workspace for the paperwork side. Free during early beta.
+
+Curious what the biggest pain point is when a property comes vacant right now.
 ```
 
 ## One-to-one reply script
