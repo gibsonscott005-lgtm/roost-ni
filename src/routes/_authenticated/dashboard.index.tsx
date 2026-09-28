@@ -1220,6 +1220,7 @@ function MyProperties({
 
 function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void }) {
   const { user } = useAuth();
+  const notifyPublished = useServerFn(notifyListingPublished);
   const [title, setTitle] = useState("");
   const [address, setAddress] = useState("");
   const [location, setLocation] = useState("");
@@ -1273,28 +1274,36 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
           return;
         }
       }
-      const { error } = await supabase.from("property_listings").insert({
-        landlord_id: user.id,
-        title,
-        address,
-        location: [location, postcode].filter(Boolean).join(" · ") || null,
-        monthly_rent: Number(rent),
-        deposit: Number(deposit),
-        ni_landlord_reg_number: regNumber,
-        heating_type: heating,
-        enforce_empty_in_full_out: usesFuelTank(heating) ? fuelPolicy : false,
-        tenant_preferences: prefs,
-        is_published: !isTenanted && mode === "publish",
-        occupancy_status: occupancy,
-        existing_tenant_name: isTenanted ? tenantName.trim() : null,
-        existing_tenant_email: isTenanted && tenantEmail.trim() ? tenantEmail.trim() : null,
-        existing_tenancy_start: isTenanted && tenancyStart ? tenancyStart : null,
-        existing_deposit_scheme: isTenanted && depositScheme ? depositScheme : null,
-        existing_deposit_reference: isTenanted && depositRef.trim() ? depositRef.trim() : null,
-        photo_urls: photoPaths,
-        ...listingDetailPayload(details),
-      } as never);
+      const { data: created, error } = await supabase
+        .from("property_listings")
+        .insert({
+          landlord_id: user.id,
+          title,
+          address,
+          location: [location, postcode].filter(Boolean).join(" · ") || null,
+          monthly_rent: Number(rent),
+          deposit: Number(deposit),
+          ni_landlord_reg_number: regNumber,
+          heating_type: heating,
+          enforce_empty_in_full_out: usesFuelTank(heating) ? fuelPolicy : false,
+          tenant_preferences: prefs,
+          is_published: !isTenanted && mode === "publish",
+          occupancy_status: occupancy,
+          existing_tenant_name: isTenanted ? tenantName.trim() : null,
+          existing_tenant_email: isTenanted && tenantEmail.trim() ? tenantEmail.trim() : null,
+          existing_tenancy_start: isTenanted && tenancyStart ? tenancyStart : null,
+          existing_deposit_scheme: isTenanted && depositScheme ? depositScheme : null,
+          existing_deposit_reference: isTenanted && depositRef.trim() ? depositRef.trim() : null,
+          photo_urls: photoPaths,
+          ...listingDetailPayload(details),
+        } as never)
+        .select("id")
+        .single();
       if (error) throw error;
+      if (!isTenanted && mode === "publish" && created) {
+        const newId = (created as { id: string }).id;
+        void notifyPublished({ data: { listingId: newId } }).catch(() => {});
+      }
       toast.success(
         isTenanted
           ? "Property saved privately"

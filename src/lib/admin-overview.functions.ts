@@ -33,6 +33,12 @@ export interface AdminFeedback {
   author: string | null;
 }
 
+export interface AdminAlertSubscriber {
+  id: string;
+  email: string;
+  created_at: string;
+}
+
 export interface AdminOverview {
   totals: {
     tenants: number;
@@ -47,10 +53,12 @@ export interface AdminOverview {
     applications: number;
     openFeedback: number;
     passports: number;
+    alertSubscribers: number;
   };
   signUps: AdminSignUp[];
   audits: AdminAudit[];
   feedback: AdminFeedback[];
+  alertSubscribers: AdminAlertSubscriber[];
 }
 
 async function assertAdmin(supabase: {
