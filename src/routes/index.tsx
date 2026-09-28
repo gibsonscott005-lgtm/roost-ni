@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { LogoMark } from "@/components/logo";
+import { posthog } from "@/integrations/posthog/client";
 import {
   ArrowRight,
   BadgeCheck,
@@ -39,10 +41,11 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const [side, setSide] = useState<"tenant" | "landlord">("tenant");
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
-        <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-2 px-4 sm:px-6">
+        <div className="mx-auto grid h-14 w-full max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 sm:flex sm:justify-between sm:px-6">
           <Link to="/" className="flex min-w-0 items-center gap-2">
             <LogoMark />
             <span className="truncate font-display text-sm font-semibold tracking-tight sm:text-base">
@@ -52,9 +55,11 @@ function HomePage() {
           <div className="flex shrink-0 items-center gap-1.5">
             <Link
               to="/listings"
-              className="hidden shrink-0 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary sm:inline"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
             >
-              Browse properties
+              <Home className="h-3.5 w-3.5" />
+              <span className="sm:hidden">Browse</span>
+              <span className="hidden sm:inline">Browse properties</span>
             </Link>
             <Link
               to="/help"
@@ -64,7 +69,7 @@ function HomePage() {
             </Link>
             <Link
               to="/beta"
-              className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+              className="hidden shrink-0 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary sm:inline"
             >
               Beta
             </Link>
@@ -96,49 +101,119 @@ function HomePage() {
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  to="/auth"
-                  search={{ role: "tenant" }}
+                  to="/listings"
+                  onClick={() => posthog.capture("home_cta_click", { target: "listings" })}
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
                 >
-                  <IdCard className="h-4 w-4" />
-                  I'm a tenant
+                  <Home className="h-4 w-4" />
+                  Browse rentals in NI
                 </Link>
-                <Link
-                  to="/auth"
-                  search={{ role: "landlord" }}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 font-display text-sm font-semibold text-foreground shadow-resting transition hover:bg-secondary"
-                >
-                  <Building2 className="h-4 w-4" />
-                  I'm a landlord
-                </Link>
-                <Link
-                  to="/beta"
-                  className="inline-flex items-center justify-center gap-1.5 rounded-full px-6 py-3.5 text-sm font-medium text-muted-foreground transition hover:text-foreground sm:px-4"
-                >
-                  About the beta
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-              <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-verified/30 bg-verified-soft/50 p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-start gap-3">
-                  <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0 text-verified" />
-                  <span>
-                    <span className="block text-sm font-semibold text-foreground">
-                      Landlords: is your tenancy paperwork in order?
-                    </span>
-                    <span className="mt-0.5 block text-xs text-muted-foreground">
-                      Free two-minute NI compliance and tenancy readiness audit — no account
-                      needed.
-                    </span>
-                  </span>
-                </div>
                 <Link
                   to="/audit"
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
+                  onClick={() => posthog.capture("home_cta_click", { target: "audit" })}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-verified/40 bg-verified-soft/60 px-6 py-3.5 font-display text-sm font-semibold text-foreground shadow-resting transition hover:bg-verified-soft"
                 >
-                  <ClipboardCheck className="h-4 w-4" />
-                  Run Free Landlord Audit
+                  <ClipboardCheck className="h-4 w-4 text-verified" />
+                  Free 2-min landlord audit
                 </Link>
+              </div>
+              <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+                No account needed to browse or run the audit.{" "}
+                <Link
+                  to="/auth"
+                  className="font-medium text-foreground underline-offset-2 hover:underline"
+                >
+                  Sign in
+                </Link>
+                {" · "}
+                <Link
+                  to="/beta"
+                  className="font-medium text-foreground underline-offset-2 hover:underline"
+                >
+                  About the beta
+                </Link>
+              </p>
+              <div className="mt-6 rounded-2xl border border-border bg-surface p-2 shadow-resting">
+                <div className="grid grid-cols-2 gap-1 rounded-xl bg-surface-muted/60 p-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSide("tenant");
+                      posthog.capture("home_side_switch", { side: "tenant" });
+                    }}
+                    className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                      side === "tenant"
+                        ? "bg-surface text-foreground shadow-resting"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Looking for a home?
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSide("landlord");
+                      posthog.capture("home_side_switch", { side: "landlord" });
+                    }}
+                    className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+                      side === "landlord"
+                        ? "bg-surface text-foreground shadow-resting"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    Self-managing a rental?
+                  </button>
+                </div>
+                {side === "tenant" ? (
+                  <div className="p-4">
+                    <ul className="space-y-2.5 text-sm text-foreground">
+                      <li className="flex items-start gap-2.5">
+                        <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
+                        Real NI listings with rent, area and certificates up front.
+                      </li>
+                      <li className="flex items-start gap-2.5">
+                        <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
+                        Build a free Tenant Passport — apply in one tap, no re-typing.
+                      </li>
+                      <li className="flex items-start gap-2.5">
+                        <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
+                        Message landlords direct. No agent calls, no paper forms.
+                      </li>
+                    </ul>
+                    <Link
+                      to="/listings"
+                      className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground underline-offset-2 hover:underline"
+                    >
+                      Browse rentals now
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="p-4">
+                    <ul className="space-y-2.5 text-sm text-foreground">
+                      <li className="flex items-start gap-2.5">
+                        <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
+                        Free 14-question NI compliance check — registration, deposit scheme,
+                        certificates, vetting.
+                      </li>
+                      <li className="flex items-start gap-2.5">
+                        <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
+                        Instant score with a plain-English list of gaps.
+                      </li>
+                      <li className="flex items-start gap-2.5">
+                        <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
+                        No account, no email — results on screen in two minutes.
+                      </li>
+                    </ul>
+                    <Link
+                      to="/audit"
+                      className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground underline-offset-2 hover:underline"
+                    >
+                      Run the free audit
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -227,22 +302,22 @@ function HomePage() {
             <PathCard
               title="For tenants"
               steps={[
-                "Create your free Tenant Passport.",
-                "Add identity, income and references.",
-                "Browse listings and apply with one tap.",
+                "Browse NI listings with full details up front.",
+                "Create your free Tenant Passport when you find a home.",
+                "Apply with one tap — no re-typing your details.",
                 "Sign your lease and manage your tenancy.",
               ]}
-              cta={{ to: "/auth", search: { role: "tenant" }, label: "Create a passport" }}
+              cta={{ to: "/listings", label: "Browse rentals" }}
             />
             <PathCard
               title="For landlords"
               steps={[
+                "Run the free 14-question NI compliance audit.",
                 "List your property with your NI registration number.",
                 "Receive pre-screened passport applications.",
-                "Issue a lease and protect the deposit.",
-                "Manage rent, repairs and certificates.",
+                "Manage rent, repairs and certificates in one place.",
               ]}
-              cta={{ to: "/auth", search: { role: "landlord" }, label: "List a property" }}
+              cta={{ to: "/audit", label: "Run the free audit" }}
             />
           </div>
         </section>
@@ -359,7 +434,7 @@ function PathCard({
 }: {
   title: string;
   steps: string[];
-  cta: { to: "/auth"; search: { role: "tenant" | "landlord" }; label: string };
+  cta: { to: "/listings" | "/audit"; label: string };
 }) {
   return (
     <div className="rounded-[2rem] border border-border bg-surface p-6 shadow-resting sm:p-8">
@@ -378,7 +453,6 @@ function PathCard({
       </ol>
       <Link
         to={cta.to}
-        search={cta.search}
         className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
       >
         {cta.label}
