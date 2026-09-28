@@ -24,15 +24,28 @@ export async function uploadListingPhotos(landlordId: string, files: File[]) {
 /**
  * Turn stored storage paths into temporary viewable URLs.
  *
- * Landlords sign their own photos directly (storage RLS covers their folder).
- * Everyone else — including anonymous visitors — goes through the server
- * function, which only signs photos that belong to an advertised listing.
+ * Public listing pages resolve URLs on the server and pass them in as
+ * `presetUrls`, so this hook does nothing at all there. Otherwise: landlords
+ * sign their own photos directly (storage RLS covers their folder); everyone
+ * else — including anonymous visitors — goes through the server function,
+ * which only signs photos that belong to an advertised listing. Anonymous
+ * visitors skip the direct storage call entirely because strict in-app
+ * browsers (e.g. Facebook's) can drop those requests wholesale (status 0,
+ * promise never settles), which left galleries stuck on the placeholder.
  */
-export function useSignedPhotoUrls(paths: string[] | null | undefined) {
+export function useSignedPhotoUrls(
+  paths: string[] | null | undefined,
+  presetUrls?: string[],
+) {
   const key = (paths ?? []).join("|");
-  const [urls, setUrls] = useState<string[]>([]);
+  const presetKey = (presetUrls ?? []).join("|");
+  const [urls, setUrls] = useState<string[]>(presetUrls ?? []);
 
   useEffect(() => {
+    if (presetUrls && presetUrls.length > 0) {
+      setUrls(presetUrls);
+      return;
+    }
     let cancelled = false;
     const list = key ? key.split("|").filter(Boolean) : [];
     if (list.length === 0) {
@@ -41,19 +54,29 @@ export function useSignedPhotoUrls(paths: string[] | null | undefined) {
     }
 
     const load = async () => {
-      const own = await supabase.storage
-        .from(LISTING_PHOTOS_BUCKET)
-        .createSignedUrls(list, 60 * 60)
-        .then(({ data }) =>
-          (data ?? [])
-            .map((d) => d.signedUrl)
-            .filter((u): u is string => typeof u === "string" && u.length > 0),
-        )
-        .catch(() => [] as string[]);
+      let signedIn = false;
+      try {
+        signedIn = !!(await supabase.auth.getSession()).data.session;
+      } catch {
+        signedIn = false;
+      }
 
-      if (own.length === list.length) {
-        if (!cancelled) setUrls(own);
-        return;
+      let own: string[] = [];
+      if (signedIn) {
+        own = await supabase.storage
+          .from(LISTING_PHOTOS_BUCKET)
+          .createSignedUrls(list, 60 * 60)
+          .then(({ data }) =>
+            (data ?? [])
+              .map((d) => d.signedUrl)
+              .filter((u): u is string => typeof u === "string" && u.length > 0),
+          )
+          .catch(() => [] as string[]);
+
+        if (own.length === list.length) {
+          if (!cancelled) setUrls(own);
+          return;
+        }
       }
 
       const publicUrls = await getListingPhotoUrls({ data: { paths: list } }).catch(
@@ -66,12 +89,19 @@ export function useSignedPhotoUrls(paths: string[] | null | undefined) {
     return () => {
       cancelled = true;
     };
-  }, [key]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, presetKey]);
 
   return urls;
 }
 
-export function PhotoPlaceholder({ className }: { className?: string }) {
+export function PhotoPlaceholder({
+  className,
+  message = "No photos yet",
+}: {
+  className?: string;
+  message?: string;
+}) {
   return (
     <div
       className={`relative flex w-full items-center justify-center overflow-hidden bg-[linear-gradient(135deg,var(--color-surface-muted)_0%,var(--color-secondary)_100%)] ${className ?? "aspect-[16/10]"}`}
@@ -89,7 +119,7 @@ export function PhotoPlaceholder({ className }: { className?: string }) {
           <ImageIcon className="h-4 w-4" />
         </span>
         <span className="text-[10px] font-medium uppercase tracking-[0.18em]">
-          No photos yet
+          {message}
         </span>
       </div>
     </div>
@@ -102,26 +132,36 @@ export function ListingCover({
   alt,
   className,
   showCount = true,
+  coverUrl,
 }: {
   paths: string[] | null | undefined;
   alt: string;
   className?: string;
   showCount?: boolean;
+  coverUrl?: string;
 }) {
-  const urls = useSignedPhotoUrls(paths);
+  const urls = useSignedPhotoUrls(paths, coverUrl ? [coverUrl] : undefined);
+  const src = coverUrl ?? urls[0];
+  const [broken, setBroken] = useState(false);
+  useEffect(() => setBroken(false), [src]);
   const box = className ?? "aspect-[16/10]";
-  if (urls.length === 0) return <PhotoPlaceholder className={box} />;
+  const photoCount = paths?.length ?? urls.length;
+  if (!src) return <PhotoPlaceholder className={box} />;
+  if (broken)
+    return <PhotoPlaceholder className={box} message="Photo couldn't load" />;
   return (
     <div className={`relative w-full overflow-hidden bg-surface-muted ${box}`}>
       <img
-        src={urls[0]}
+        src={src}
         alt={alt}
         loading="lazy"
+        draggable={false}
+        onError={() => setBroken(true)}
         className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
       />
-      {showCount && urls.length > 1 ? (
+      {showCount && photoCount > 1 ? (
         <span className="absolute bottom-2 right-2 rounded-full bg-foreground/70 px-2 py-0.5 text-[10px] font-semibold text-background backdrop-blur">
-          {urls.length} photos
+          {photoCount} photos
         </span>
       ) : null}
     </div>
