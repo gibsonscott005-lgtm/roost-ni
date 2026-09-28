@@ -11,8 +11,10 @@ import {
 } from "@/lib/admin-overview.functions";
 import {
   BarChart3,
+  BellRing,
   Check,
   ClipboardCheck,
+  Copy,
   ExternalLink,
   Loader2,
   MessageSquare,
@@ -46,7 +48,7 @@ function AdminDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [data, setData] = useState<AdminOverview | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [tab, setTab] = useState<"signups" | "audits" | "feedback">("signups");
+  const [tab, setTab] = useState<"signups" | "audits" | "feedback" | "alerts">("signups");
 
   const isAdmin = profile?.account_type === "admin";
 
@@ -187,6 +189,7 @@ function AdminDashboard() {
             <Stat label="Vacant, not advertised" value={t?.listingsVacant ?? 0} />
             <Stat label="Applications" value={t?.applications ?? 0} />
             <Stat label="Audits with email" value={t?.auditsWithEmail ?? 0} />
+            <Stat label="Tenant alerts" value={t?.alertSubscribers ?? 0} />
             <Stat label="Open feedback" value={t?.openFeedback ?? 0} />
           </div>
         </div>
@@ -210,6 +213,12 @@ function AdminDashboard() {
               onClick={() => setTab("feedback")}
               icon={MessageSquare}
               label={`Feedback (${data?.feedback.length ?? 0})`}
+            />
+            <TabButton
+              active={tab === "alerts"}
+              onClick={() => setTab("alerts")}
+              icon={BellRing}
+              label={`Tenant alerts (${data?.alertSubscribers.length ?? 0})`}
             />
           </div>
 
@@ -367,6 +376,54 @@ function AdminDashboard() {
               </ul>
             ) : (
               <Empty icon={MessageSquare} text="No beta feedback yet." />
+            )
+          ) : null}
+
+          {tab === "alerts" ? (
+            data && data.alertSubscribers.length > 0 ? (
+              <div className="mt-6">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-xs text-muted-foreground">
+                    Tenants who asked to hear when a new home is listed. When a listing
+                    goes live, copy these into a BCC email to let them know.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void navigator.clipboard
+                        .writeText(data.alertSubscribers.map((s) => s.email).join(", "))
+                        .then(() =>
+                          toast.success("Emails copied", {
+                            description: "Paste them into the BCC field of your email.",
+                          }),
+                        )
+                        .catch(() => toast.error("Couldn't copy — select the emails manually."));
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3 py-1.5 text-xs font-semibold text-[var(--color-primary-foreground)] transition hover:bg-foreground/90"
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    Copy all emails
+                  </button>
+                </div>
+                <ul className="space-y-2">
+                  {data.alertSubscribers.map((s) => (
+                    <li
+                      key={s.id}
+                      className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-surface-muted/50 px-4 py-3"
+                    >
+                      <span className="truncate text-sm text-foreground">{s.email}</span>
+                      <span className="shrink-0 text-[11px] text-muted-foreground">
+                        {dateFmt(s.created_at)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <Empty
+                icon={BellRing}
+                text="No tenant alerts yet — the sign-up box sits at the top of the public listings page."
+              />
             )
           ) : null}
         </div>
