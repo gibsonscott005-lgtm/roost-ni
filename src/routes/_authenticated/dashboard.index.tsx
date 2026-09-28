@@ -1,10 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
   reapplyApplication,
   withdrawApplication,
 } from "@/lib/application-withdraw.functions";
+import { notifyListingPublished } from "@/lib/listing-alerts.functions";
 import {
   Building2,
   Check,
@@ -956,6 +958,7 @@ function MyProperties({
   onRefresh: () => Promise<void> | void;
 }) {
   const [busyId, setBusyId] = useState<string | null>(null);
+  const notifyPublished = useServerFn(notifyListingPublished);
 
   const setStatus = async (
     l: Listing,
@@ -974,6 +977,9 @@ function MyProperties({
       return;
     }
     toast.success(message, { description });
+    if (patch.is_published === true) {
+      void notifyPublished({ data: { listingId: l.id } }).catch(() => {});
+    }
     await onRefresh();
   };
 
