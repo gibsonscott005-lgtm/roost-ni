@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import {
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { ViewSwitcher } from "../components/view-switcher";
 import { ListingCover } from "@/components/listing-photos";
+import { getListingCoverUrls } from "@/lib/listing-photos.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { subscribeToListingAlerts } from "@/lib/listing-alerts.functions";
 import { posthog } from "@/integrations/posthog/client";
@@ -46,6 +47,40 @@ export const Route = createFileRoute("/listings/")({
       },
     ],
   }),
+  loader: async () => {
+    const { data } = await supabase
+      .from("property_listings")
+      .select(
+        "id, title, monthly_rent, address, location, heating_type, enforce_empty_in_full_out, status, photo_urls, property_type, bedrooms, bathrooms, furnished, available_from, bills_included, parking",
+      )
+      .eq("is_published", true)
+      .order("created_at", { ascending: false });
+    const rows = (data as Listing[] | null) ?? [];
+    // Sign cover photos on the server so the first paint already contains real
+    // images — strict in-app browsers can drop direct storage requests.
+    const covers = await getListingCoverUrls({
+      data: { listingIds: rows.map((r) => r.id) },
+    }).catch(() => ({}) as Record<string, string>);
+    return { rows, covers };
+  },
+  errorComponent: ({ error }) => {
+    const router = useRouter();
+    return (
+      <div className="mx-auto max-w-md p-10 text-center">
+        <p className="font-display text-lg font-semibold tracking-tight">
+          Couldn't load listings
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{(error as Error).message}</p>
+        <button
+          type="button"
+          onClick={() => router.invalidate()}
+          className="mt-5 rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground transition hover:bg-secondary"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  },
   component: ListingsIndexPage,
 });
 
@@ -80,9 +115,8 @@ const SORTS: { key: SortKey; label: string }[] = [
 ];
 
 function ListingsIndexPage() {
+  const { rows, covers } = Route.useLoaderData();
   const [query, setQuery] = useState("");
-  const [rows, setRows] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [maxRent, setMaxRent] = useState("");
   const [minRent, setMinRent] = useState("");
@@ -96,20 +130,6 @@ function ListingsIndexPage() {
   const [billsOnly, setBillsOnly] = useState(false);
   const [parkingOnly, setParkingOnly] = useState(false);
   const [sort, setSort] = useState<SortKey>("newest");
-
-  useEffect(() => {
-    supabase
-      .from("property_listings")
-      .select(
-        "id, title, monthly_rent, address, location, heating_type, enforce_empty_in_full_out, status, photo_urls, property_type, bedrooms, bathrooms, furnished, available_from, bills_included, parking",
-      )
-      .eq("is_published", true)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setRows((data as Listing[] | null) ?? []);
-        setLoading(false);
-      });
-  }, []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -219,8 +239,8 @@ function ListingsIndexPage() {
             Verified rentals across Northern Ireland
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Every listing comes from a registered NI landlord.{" "}
-            {loading ? "Loading…" : `${filtered.length} listings live.`}
+            Every listing comes from a registered NI landlord. {filtered.length} listings
+            live.
           </p>
         </div>
 
@@ -394,7 +414,7 @@ function ListingsIndexPage() {
           ) : null}
         </div>
 
-        {!loading && rows.length === 0 ? (
+        {rows.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-border bg-surface p-10 text-center">
             <p className="font-display text-base font-semibold tracking-tight">
               No listings yet
@@ -407,11 +427,11 @@ function ListingsIndexPage() {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((l) => (
-            <ListingCard key={l.id} listing={l} />
+            <ListingCard key={l.id} listing={l} coverUrl={covers[l.id]} />
           ))}
         </div>
 
-        {!loading && rows.length > 0 && filtered.length === 0 ? (
+        {rows.length > 0 && filtered.length === 0 ? (
           <p className="mt-10 text-center text-sm text-muted-foreground">
             No listings match your search or filters yet.
           </p>
@@ -605,7 +625,7 @@ function ListingSpecStats({ listing }: { listing: Listing }) {
   );
 }
 
-function ListingCard({ listing }: { listing: Listing }) {
+function ListingCard({ listing, coverUrl }: { listing: Listing; coverUrl?: string }) {
   return (
     <Link
       to="/listings/$id"
@@ -613,7 +633,7 @@ function ListingCard({ listing }: { listing: Listing }) {
       className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-raised transition hover:border-foreground/15 hover:shadow-floating"
     >
       <div className="border-b border-border">
-        <ListingCover paths={listing.photo_urls} alt={listing.title} />
+        <ListingCover paths={listing.photo_urls} alt={listing.title} coverUrl={coverUrl} />
       </div>
       <div className="flex flex-1 flex-col p-5">
         <div className="flex items-start justify-between gap-3">

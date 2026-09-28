@@ -7,6 +7,8 @@ import {
   reapplyApplication,
   withdrawApplication,
 } from "@/lib/application-withdraw.functions";
+import { getListingPhotoUrls } from "@/lib/listing-photos.functions";
+import { posthog } from "@/integrations/posthog/client";
 
 function notify(payload: EmitNotificationInput) {
   emitNotification({ data: payload }).catch((err) =>
@@ -50,6 +52,7 @@ interface ListingDetail extends ListingDetailFields {
   tenant_preferences: string[];
   status: string;
   photo_urls: string[] | null;
+  photoUrls: string[];
 }
 
 export const Route = createFileRoute("/listings/$id")({
@@ -65,20 +68,42 @@ export const Route = createFileRoute("/listings/$id")({
       .maybeSingle();
     if (error) throw error;
     if (!data) throw notFound();
-      return data as unknown as ListingDetail;
+    const listing = data as unknown as ListingDetail;
+    // Sign photo URLs on the server so the first paint already contains real
+    // images — strict in-app browsers (e.g. Facebook's) can silently drop
+    // direct storage requests from anonymous visitors.
+    const photoPaths = (listing.photo_urls ?? []).filter(
+      (p): p is string => typeof p === "string" && p.length > 0,
+    );
+    const photoUrls =
+      photoPaths.length > 0
+        ? await getListingPhotoUrls({ data: { paths: photoPaths.slice(0, 24) } }).catch(
+            () => [] as string[],
+          )
+        : [];
+    return { ...listing, photoUrls };
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Listing — RoostNI" }] };
     const t = `${loaderData.title} — RoostNI`;
     const d = `${loaderData.address}${loaderData.location ? ` · ${loaderData.location}` : ""} · £${Number(loaderData.monthly_rent).toLocaleString()} pcm · Heating: ${loaderData.heating_type}.`;
-    return {
-      meta: [
-        { title: t },
-        { name: "description", content: d },
-        { property: "og:title", content: t },
-        { property: "og:description", content: d },
-      ],
-    };
+    const meta = [
+      { title: t },
+      { name: "description", content: d },
+      { property: "og:title", content: t },
+      { property: "og:description", content: d },
+      { property: "og:type", content: "website" },
+    ];
+    if (loaderData.photoUrls[0]) {
+      meta.push(
+        { property: "og:image", content: loaderData.photoUrls[0] },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: loaderData.photoUrls[0] },
+      );
+    } else {
+      meta.push({ name: "twitter:card", content: "summary" });
+    }
+    return { meta };
   },
   errorComponent: ({ error }) => {
     const router = useRouter();
@@ -156,7 +181,11 @@ function ListingDetailPage() {
         </div>
 
         <section className="mt-6 overflow-hidden rounded-3xl border border-border bg-surface shadow-resting">
-          <ListingGallery paths={listing.photo_urls} alt={listing.title} />
+          <ListingGallery
+            paths={listing.photo_urls}
+            photoUrls={listing.photoUrls}
+            alt={listing.title}
+          />
         </section>
 
         <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -395,22 +424,47 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
 
   if (!user) {
     return (
-      <div className="mt-6 flex flex-col items-start gap-3 rounded-3xl border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-        <div>
-          <p className="font-display text-base font-semibold tracking-tight">
-            Apply with your verified Tenant Passport
-          </p>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            Sign in to share your verified ID, income and references in one tap.
-          </p>
+      <div className="mt-6 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-6">
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="font-display text-base font-semibold tracking-tight">
+              Apply for this property
+            </p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              Free 2-minute Tenant Passport · One-tap application · You control who
+              sees your details
+            </p>
+          </div>
+          <Link
+            to="/auth"
+            search={{ role: "tenant", next: `/listings/${listingId}`, listingId }}
+            onClick={() => posthog.capture("apply_cta_clicked", { listing_id: listingId })}
+            className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-full bg-verified px-5 py-3 font-display text-sm font-semibold text-[var(--color-verified-foreground)] shadow-verified transition hover:brightness-95 sm:w-auto"
+          >
+            <Sparkles className="h-4 w-4" />
+            Apply for this property
+          </Link>
         </div>
-        <Link
-          to="/auth"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-verified px-5 py-3 font-display text-sm font-semibold text-[var(--color-verified-foreground)] shadow-verified transition hover:brightness-95 sm:w-auto"
-        >
-          <Sparkles className="h-4 w-4" />
-          Sign in to apply
-        </Link>
+        <ol className="mt-4 grid grid-cols-1 gap-2.5 border-t border-border pt-4 text-xs text-muted-foreground sm:grid-cols-3">
+          <li className="flex items-start gap-2">
+            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-verified-soft text-[11px] font-semibold text-verified">
+              1
+            </span>
+            <span>Create your free account — we'll bring you straight back here</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-verified-soft text-[11px] font-semibold text-verified">
+              2
+            </span>
+            <span>Add your identity, income and rental history</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-verified-soft text-[11px] font-semibold text-verified">
+              3
+            </span>
+            <span>Send — the landlord sees your passport instantly</span>
+          </li>
+        </ol>
       </div>
     );
   }
