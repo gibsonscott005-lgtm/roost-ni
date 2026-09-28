@@ -2,7 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { notifyListingPublished } from "@/lib/listing-alerts.functions";
 import {
   ArrowLeft,
   Building2,
@@ -148,6 +150,7 @@ function EditListingPage() {
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [details, setDetails] = useState<ListingDetailInput>(emptyListingDetails);
+  const notifyPublished = useServerFn(notifyListingPublished);
 
   useEffect(() => {
     if (!listing) return;
@@ -222,6 +225,9 @@ function EditListingPage() {
               : "Your changes are live.",
         },
       );
+      if (publish === true && id) {
+        void notifyPublished({ data: { listingId: id } }).catch(() => {});
+      }
       await invalidate();
     } catch (err: unknown) {
       toast.error("Could not save listing", {
