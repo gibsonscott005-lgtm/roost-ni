@@ -23,3 +23,4 @@ Every milestone mutation must fanout via `emitNotification` to the counterparty;
 - [Self-certified passport](mem://features/self-certified-passport) — tenant_passports schema, wizard, verification_audit_logs, landlord ID viewing via signIdDocumentUrl, tenant-documents bucket rules
 - [Positioning & vetting boundary](mem://positioning-boundary) — agent-replacement positioning, both-sides pricing, the never-do list, language rules, landlord acceptance confirmation, agent-task roadmap
 - [Palette & elevation](mem://design/palette-and-elevation) — Warm Porcelain tokens, emerald-reserved rule, elevation scale, form field styling
+- [Tenant listing alerts](mem://features/listing-alerts) — /listings email capture, owner heads-up per publish, manual BCC follow-up; no bulk sends
