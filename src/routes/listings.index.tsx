@@ -421,6 +421,93 @@ function ListingsIndexPage() {
   );
 }
 
+function ListingAlertSignup() {
+  const subscribe = useServerFn(subscribeToListingAlerts);
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState<"idle" | "saving" | "done">("idle");
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    const trimmed = email.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(trimmed)) {
+      toast.error("Enter a valid email address");
+      return;
+    }
+    setState("saving");
+    try {
+      const utm: Record<string, string> = {};
+      const params = new URLSearchParams(window.location.search);
+      for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_content"]) {
+        const value = params.get(key);
+        if (value) utm[key.replace("utm_", "")] = value;
+      }
+      await subscribe({ data: { email: trimmed, utm } });
+      posthog.capture("listing_alert_signup", { page: "/listings", ...utm });
+      setState("done");
+    } catch {
+      setState("idle");
+      toast.error("Couldn't save that just now", {
+        description: "Please try again in a moment.",
+      });
+    }
+  };
+
+  if (state === "done") {
+    return (
+      <div className="mb-6 flex items-start gap-3 rounded-2xl border border-verified/30 bg-verified-soft/50 p-4 shadow-resting sm:items-center">
+        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-verified sm:mt-0" />
+        <div>
+          <p className="text-sm font-semibold text-foreground">You're on the list.</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            We'll email {email.trim()} the moment a new NI home is published on RoostNI.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-6 rounded-2xl border border-border bg-surface p-4 shadow-resting sm:p-5">
+      <div className="flex items-start gap-3">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-verified-soft/70 text-verified">
+          <BellRing className="h-4 w-4" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-foreground">
+            Be first to hear about new homes
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            New NI listings appear as landlords publish them. Leave your email and we'll
+            let you know the moment one goes live — no account needed, nothing else sent.
+          </p>
+        </div>
+      </div>
+      <form onSubmit={submit} className="mt-3 flex flex-col gap-2 sm:flex-row">
+        <div className="relative flex-1">
+          <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            autoComplete="email"
+            className="h-10 w-full rounded-xl border border-border bg-surface pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground/80 focus:outline-none focus:ring-2 focus:ring-verified/20"
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={state === "saving"}
+          className="inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-foreground px-4 text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92 disabled:opacity-60"
+        >
+          {state === "saving" ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+          Alert me
+        </button>
+      </form>
+    </div>
+  );
+}
+
 function FilterChip({
   active,
   onClick,
