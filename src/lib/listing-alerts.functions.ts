@@ -25,12 +25,12 @@ export const subscribeToListingAlerts = createServerFn({ method: "POST" })
 
     const { error } = await supabase
       .from("listing_alert_subscribers" as never)
-      .upsert(
-        { email: data.email.trim().toLowerCase(), utm: data.utm ?? {} } as never,
-        { onConflict: "email", ignoreDuplicates: true },
-      );
+      .insert({ email: data.email.trim().toLowerCase(), utm: data.utm ?? {} } as never);
 
-    if (error) throw new Error(error.message);
+    // A duplicate email just means they're already on the list — not an error.
+    if (error && (error as { code?: string }).code !== "23505") {
+      throw new Error(error.message);
+    }
     return { ok: true };
   });
 
