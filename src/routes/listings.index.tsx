@@ -1,10 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import {
   Bell,
+  BellRing,
+  CheckCircle2,
   ChevronDown,
   Flame,
+  Loader2,
+  Mail,
   MapPin,
   PoundSterling,
   Search,
@@ -14,6 +20,8 @@ import {
 import { ViewSwitcher } from "../components/view-switcher";
 import { ListingCover } from "@/components/listing-photos";
 import { supabase } from "@/integrations/supabase/client";
+import { subscribeToListingAlerts } from "@/lib/listing-alerts.functions";
+import { posthog } from "@/integrations/posthog/client";
 import {
   FURNISHED_OPTIONS,
   PROPERTY_TYPES,
@@ -215,6 +223,8 @@ function ListingsIndexPage() {
             {loading ? "Loading…" : `${filtered.length} listings live.`}
           </p>
         </div>
+
+        <ListingAlertSignup />
 
         <div className="mb-6 rounded-2xl border border-border bg-surface p-2 shadow-raised">
           <div className="flex items-center gap-2">
