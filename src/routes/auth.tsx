@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Mail, Lock, UserRound, ShieldCheck, Building2, IdCard, Users } from "lucide-react";
+import { Mail, Lock, UserRound, ShieldCheck, Building2, IdCard, Users, Home, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { posthog } from "@/integrations/posthog/client";
 import { sendWelcomeEmail } from "@/lib/welcome-email.functions";
@@ -11,10 +11,11 @@ export const Route = createFileRoute("/auth")({
   staticData: { sitemap: false },
   validateSearch: (
     search: Record<string, unknown>,
-  ): { role?: "tenant" | "landlord"; next?: string; email?: string } => {
+  ): { role?: "tenant" | "landlord"; next?: string; email?: string; listingId?: string } => {
     const role = search['role'];
     const rawNext = search['next'];
     const rawEmail = search['email'];
+    const rawListingId = search['listingId'];
     const next =
       typeof rawNext === "string" && rawNext.startsWith("/") && !rawNext.startsWith("//")
         ? rawNext
@@ -23,10 +24,15 @@ export const Route = createFileRoute("/auth")({
       typeof rawEmail === "string" && rawEmail.includes("@") && rawEmail.length <= 200
         ? rawEmail
         : undefined;
+    const listingId =
+      typeof rawListingId === "string" && /^[0-9a-fA-F-]{36}$/.test(rawListingId)
+        ? rawListingId
+        : undefined;
     return {
       ...(role === "tenant" || role === "landlord" ? { role } : {}),
       ...(next ? { next } : {}),
       ...(email ? { email } : {}),
+      ...(listingId ? { listingId } : {}),
     };
   },
 
@@ -183,6 +189,7 @@ function AuthPage() {
     role: roleFromSearch,
     next: nextFromSearch,
     email: emailFromSearch,
+    listingId,
   } = Route.useSearch();
   const [role, setRole] = useState<Role>(roleFromSearch ?? "tenant");
   const [mode, setMode] = useState<Mode>("signup");
@@ -198,6 +205,28 @@ function AuthPage() {
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
   const [emailWarning, setEmailWarning] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
+  const [listingTitle, setListingTitle] = useState<string | null>(null);
+
+  // Visitors arriving from a property's "Apply" button get context about the
+  // home they were looking at, so the sign-up wall doesn't feel like a dead end.
+  const backToListingId = nextFromSearch?.match(/^\/listings\/([0-9a-fA-F-]{36})/)?.[1];
+
+  useEffect(() => {
+    if (!listingId) return;
+    let cancelled = false;
+    supabase
+      .from("property_listings")
+      .select("title")
+      .eq("id", listingId)
+      .eq("is_published", true)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled && data?.title) setListingTitle(data.title as string);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [listingId]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -367,6 +396,37 @@ function AuthPage() {
       </header>
 
       <main className="mx-auto flex w-full max-w-md flex-col px-4 pb-12 pt-5 sm:px-6 sm:pt-10">
+        {listingId ? (
+          <div className="mb-4 rounded-2xl border border-verified/25 bg-verified-soft/50 p-4">
+            <div className="flex items-start gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-surface text-verified shadow-resting">
+                <Home className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">
+                  {listingTitle
+                    ? `You're applying for "${listingTitle}"`
+                    : "You're applying for this property"}
+                </p>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                  Create your free Tenant Passport to send your details to the landlord —
+                  it takes about 2 minutes, and we'll bring you straight back to the
+                  listing.
+                </p>
+                {backToListingId ? (
+                  <Link
+                    to="/listings/$id"
+                    params={{ id: backToListingId }}
+                    className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-verified underline-offset-2 hover:underline"
+                  >
+                    <ArrowLeft className="h-3 w-3" />
+                    Back to the property
+                  </Link>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
         <div className="mb-5 text-center sm:mb-6">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
             {mode === "signup" ? "Create your account" : mode === "reset" ? "Password reset" : "Welcome back"}
@@ -605,7 +665,7 @@ function AuthPage() {
 
           <div className="mt-4 flex items-center gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5 text-verified" />
-            Encrypted at rest · GDPR compliant · NI-only verifications
+            100% free during the beta · Encrypted at rest · GDPR compliant
           </div>
 
           {mode === "reset" ? null : (
