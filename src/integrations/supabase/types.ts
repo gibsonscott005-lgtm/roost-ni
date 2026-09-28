@@ -113,6 +113,27 @@ export type Database = {
         }
         Relationships: []
       }
+      listing_alert_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          utm: Json
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          utm?: Json
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          utm?: Json
+        }
+        Relationships: []
+      }
       maintenance_tickets: {
         Row: {
           created_at: string
