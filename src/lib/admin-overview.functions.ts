@@ -91,7 +91,7 @@ export const getAdminOverview = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const [profilesRes, auditsRes, listingsRes, sharesRes, feedbackRes, passportsRes, usersRes] =
+    const [profilesRes, auditsRes, listingsRes, sharesRes, feedbackRes, passportsRes, usersRes, alertsRes] =
       await Promise.all([
         supabaseAdmin
           .from("profiles")
@@ -115,6 +115,11 @@ export const getAdminOverview = createServerFn({ method: "POST" })
           .limit(200),
         supabaseAdmin.from("tenant_passports").select("id").limit(1000),
         supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 500 }),
+        supabaseAdmin
+          .from("listing_alert_subscribers" as never)
+          .select("id, email, created_at")
+          .order("created_at", { ascending: false })
+          .limit(500),
       ]);
 
     const emailById = new Map<string, string | null>(
@@ -125,6 +130,7 @@ export const getAdminOverview = createServerFn({ method: "POST" })
     const audits = auditsRes.data ?? [];
     const listings = listingsRes.data ?? [];
     const feedback = feedbackRes.data ?? [];
+    const alertSubscribers = ((alertsRes.data ?? []) as AdminAlertSubscriber[]);
 
     const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const scores = audits.map((a) => a.score);
@@ -146,6 +152,7 @@ export const getAdminOverview = createServerFn({ method: "POST" })
         applications: (sharesRes.data ?? []).length,
         openFeedback: feedback.filter((f) => f.status === "open").length,
         passports: (passportsRes.data ?? []).length,
+        alertSubscribers: alertSubscribers.length,
       },
       signUps: profiles.slice(0, 100).map((p) => ({
         id: p.id,
@@ -176,6 +183,7 @@ export const getAdminOverview = createServerFn({ method: "POST" })
         user_id: f.user_id,
         author: nameById.get(f.user_id) ?? null,
       })),
+      alertSubscribers,
     };
   });
 
