@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Mail, Lock, UserRound, ShieldCheck, Building2, IdCard, Users, Home, ArrowLeft } from "lucide-react";
+import { Mail, Lock, UserRound, ShieldCheck, Building2, IdCard, Home, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { posthog } from "@/integrations/posthog/client";
 import { sendWelcomeEmail } from "@/lib/welcome-email.functions";
@@ -198,7 +198,6 @@ function AuthPage() {
 
   const [password, setPassword] = useState("");
   const [hearAboutUs, setHearAboutUs] = useState("");
-  const [showHearAboutUs, setShowHearAboutUs] = useState(false);
   const [utmParams, setUtmParams] = useState<{ source?: string; medium?: string; campaign?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
@@ -518,26 +517,39 @@ function AuthPage() {
               </label>
             ) : null}
 
-            {mode === "signup" && showHearAboutUs ? (
-              <label className="block">
-                <span className="text-sm font-medium text-foreground">How did you hear about us? <span className="font-normal text-muted-foreground">(optional)</span></span>
-                <div className="relative mt-1.5">
-                  <Users className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <select
-                    value={hearAboutUs}
-                    onChange={(e) => setHearAboutUs(e.target.value)}
-                    className={`${inputCx} appearance-none pl-9 pr-8`}
-                  >
-                    <option value="">Select an option</option>
-                    <option value="Facebook or community group">Facebook or community group</option>
-                    <option value="Search engine">Search engine</option>
-                    <option value="Friend or colleague">Friend or colleague</option>
-                    <option value="Landlord association (LANI)">Landlord association (LANI)</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">▼</span>
+            {mode === "signup" ? (
+              <fieldset className="block">
+                <legend className="text-sm font-medium text-foreground">
+                  How did you hear about us?{" "}
+                  <span className="font-normal text-muted-foreground">(optional — one tap)</span>
+                </legend>
+                <div className="mt-1.5 flex flex-wrap gap-2">
+                  {[
+                    { label: "Facebook", value: "Facebook or community group" },
+                    { label: "Google / search", value: "Search engine" },
+                    { label: "Friend or colleague", value: "Friend or colleague" },
+                    { label: "Landlord group (LANI)", value: "Landlord association (LANI)" },
+                    { label: "Other", value: "Other" },
+                  ].map((option) => {
+                    const selected = hearAboutUs === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() => setHearAboutUs(selected ? "" : option.value)}
+                        className={`rounded-full border px-3.5 py-2 text-xs font-medium transition ${
+                          selected
+                            ? "border-verified/50 bg-verified-soft/70 text-foreground shadow-resting"
+                            : "border-border bg-surface text-muted-foreground hover:border-verified/30 hover:text-foreground"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
                 </div>
-              </label>
+              </fieldset>
             ) : null}
 
             <label className="block">
@@ -640,16 +652,6 @@ function AuthPage() {
                     ? "Send reset link"
                     : "Sign in"}
             </button>
-
-            {mode === "signup" && !showHearAboutUs ? (
-              <button
-                type="button"
-                onClick={() => setShowHearAboutUs(true)}
-                className="text-center text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              >
-                How did you hear about us? (optional)
-              </button>
-            ) : null}
 
             {mode === "reset" ? (
               <button
