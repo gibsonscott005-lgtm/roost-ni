@@ -97,9 +97,9 @@ function HomePage() {
                 Renting in Northern Ireland, done direct.
               </h1>
               <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                RoostNI replaces chaotic social-media listings with a clean, NI-focused platform:
-                self-certified tenant passports, compliant property listings, digital leases,
-                deposit tracking and maintenance — all in one place.
+                RoostNI lists houses and flats to rent across Northern Ireland, direct from
+                landlords — with self-certified tenant passports, compliant listings, digital
+                leases, deposit tracking and maintenance, all in one place.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
