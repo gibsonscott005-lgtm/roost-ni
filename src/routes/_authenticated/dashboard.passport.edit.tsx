@@ -700,7 +700,7 @@ function VerifyIdentityPanel({
     setBusy(true);
     try {
       const res = await startVerification({
-        data: { returnUrl: `${window.location.origin}/dashboard/passport/edit` },
+        data: { returnPath: "/dashboard/passport/edit" },
       });
       if (res.redirectUrl) {
         window.location.href = res.redirectUrl;
