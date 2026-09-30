@@ -131,8 +131,6 @@ async function sendOnce(admin: Admin, runDate: string, args: SendArgs, out: Remi
   await sendNotificationEmail(admin, {
     recipientId: args.recipientId,
     type: args.type,
-    title: args.title,
-    body: args.body,
     linkPath: args.linkPath,
     eventId: `${args.kind}-${args.entityId}-${new Date().toISOString().slice(0, 10)}`,
   });

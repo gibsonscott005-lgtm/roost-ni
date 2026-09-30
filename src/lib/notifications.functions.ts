@@ -103,12 +103,12 @@ export const emitNotification = createServerFn({ method: "POST" })
     // High-priority types also go out by email, best-effort: a failure here
     // must never undo the in-app notification that already landed.
     if (rpcData) {
+      // Email wording is fixed server-side per type — the caller chooses the
+      // event, never the words that leave the platform.
       const { sendNotificationEmail } = await import("@/lib/notification-email.server");
       await sendNotificationEmail(supabaseAdmin, {
         recipientId: data.recipient_id,
         type: data.type,
-        title: data.title,
-        body: data.body ?? "",
         linkPath: data.link_path,
         eventId: String(rpcData),
       });

@@ -16,8 +16,14 @@ export const Route = createFileRoute("/auth")({
     const rawNext = search['next'];
     const rawEmail = search['email'];
     const rawListingId = search['listingId'];
+    // Same-origin paths only: a leading "//" is a scheme-relative external
+    // URL, and a backslash anywhere (e.g. "/\evil.example") is normalised by
+    // browsers into one — reject both.
     const next =
-      typeof rawNext === "string" && rawNext.startsWith("/") && !rawNext.startsWith("//")
+      typeof rawNext === "string" &&
+      rawNext.startsWith("/") &&
+      !rawNext.startsWith("//") &&
+      !rawNext.includes("\\")
         ? rawNext
         : undefined;
     const email =

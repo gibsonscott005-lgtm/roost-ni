@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { VerificationConfig } from "./identity-verification";
 import { VERIFICATION_FEE_PENCE } from "./identity-verification";
@@ -18,23 +19,34 @@ export const getVerificationConfig = createServerFn({ method: "GET" })
  */
 export const startVerification = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { returnUrl: string }) => {
-    // Only ever hand a provider a same-origin path we constructed ourselves.
-    if (typeof data?.returnUrl !== "string" || !/^https?:\/\//.test(data.returnUrl)) {
-      throw new Error("Invalid return URL");
+  .inputValidator((data: { returnPath?: string }) => {
+    // The client may only name an in-app path; the server turns it into an
+    // absolute URL on the request's own origin, so a provider can never be
+    // handed a caller-chosen external destination.
+    const path =
+      typeof data?.returnPath === "string" && data.returnPath.length > 0
+        ? data.returnPath
+        : "/dashboard/passport/edit";
+    if (path.length > 300 || !/^\/(?!\/)[^\s\\]*$/.test(path)) {
+      throw new Error("Invalid return path");
     }
-    return { returnUrl: data.returnUrl.slice(0, 500) };
+    return { returnPath: path };
   })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { getVerificationMode, startCheck } = await import("./identity-providers.server");
     const mode = getVerificationMode();
 
+    const request = getRequest();
+    const origin = request
+      ? new URL(request.url).origin
+      : (process.env["PUBLIC_APP_URL"] ?? "https://roostni.co.uk");
+
     const started = await startCheck({
       mode,
       userId,
       email: (context.claims?.["email"] as string | undefined) ?? null,
-      returnUrl: data.returnUrl,
+      returnUrl: `${origin}${data.returnPath}`,
     });
 
     const { error } = await supabase
