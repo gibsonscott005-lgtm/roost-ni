@@ -45,6 +45,8 @@ export const Route = createFileRoute("/listings/")({
         content:
           "Verified listings from registered NI landlords. Every property compliant, every fuel policy honest.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   loader: async () => {

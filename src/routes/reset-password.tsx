@@ -15,6 +15,13 @@ export const Route = createFileRoute("/reset-password")({
         name: "description",
         content: "Choose a new password for your RoostNI tenant or landlord account.",
       },
+      { property: "og:title", content: "Set a new password — RoostNI" },
+      {
+        property: "og:description",
+        content: "Choose a new password for your RoostNI tenant or landlord account.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
