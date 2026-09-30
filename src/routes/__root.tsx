@@ -87,6 +87,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // the router concatenates route meta, so site-wide copies here would
       // render as duplicates on every page.
       { property: "og:site_name", content: "RoostNI" },
+      // Google Search Console ownership verification for https://roostni.co.uk/
+      { name: "google-site-verification", content: "-FXGR21tc3IuoXuYMUcXtowG4Fghs0rHA4ESUNuUmNE" },
     ],
     links: [
       {
