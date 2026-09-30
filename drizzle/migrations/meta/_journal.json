@@ -43,6 +43,13 @@
       "when": 1790799578267,
       "tag": "0005_create_marketing_engine_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790801115604,
+      "tag": "0006_restrict_signup_account_type",
+      "breakpoints": true
     }
   ]
 }
