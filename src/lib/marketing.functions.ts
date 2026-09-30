@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { MARKETING_KNOWLEDGE } from "@/lib/marketing-knowledge";
+import type { Database } from "@/integrations/supabase/types";
 
 export interface MarketingPost {
   id: string;
@@ -247,7 +248,7 @@ export const updateMarketingPost = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const patch: Record<string, unknown> = {};
+    const patch: Database["public"]["Tables"]["marketing_posts"]["Update"] = {};
     if (data.body !== undefined) patch.body = data.body;
     if (data.topic !== undefined) patch.topic = data.topic;
     if (data.notes !== undefined) patch.notes = data.notes;

@@ -111,7 +111,7 @@ export function MarketingAdminPanel() {
     setDistilling(true);
     try {
       const { created } = await distillFn({ data: undefined } as never);
-      toast.success(`${created.length} new lesson${created === 1 ? "" : "s"} learned`, {
+      toast.success(`${created} new lesson${created === 1 ? "" : "s"} learned`, {
         description: "Future drafts will take these into account.",
       });
       await load();
