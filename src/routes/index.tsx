@@ -21,17 +21,17 @@ export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "RoostNI — Northern Ireland Direct Renting Platform" },
+      { title: "Houses & Flats to Rent in Northern Ireland — RoostNI" },
       {
         name: "description",
         content:
-          "RoostNI is Northern Ireland's direct renting platform: self-certified tenant passports, compliant landlord listings and full tenancy management built around NI law.",
+          "Houses and flats to rent across Northern Ireland, direct from compliant landlords. Free tenant passports, digital leases and deposit tracking — free in beta.",
       },
-      { property: "og:title", content: "RoostNI — Northern Ireland Direct Renting Platform" },
+      { property: "og:title", content: "Houses & Flats to Rent in Northern Ireland — RoostNI" },
       {
         property: "og:description",
         content:
-          "Self-certified tenant passports. Compliant landlords. RoostNI handles the whole tenancy across Northern Ireland.",
+          "Rent direct from compliant NI landlords: tenant passports, digital leases and deposit tracking, all built around NI law.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk/" },
@@ -97,9 +97,9 @@ function HomePage() {
                 Renting in Northern Ireland, done direct.
               </h1>
               <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                RoostNI replaces chaotic social-media listings with a clean, NI-focused platform:
-                self-certified tenant passports, compliant property listings, digital leases,
-                deposit tracking and maintenance — all in one place.
+                RoostNI lists houses and flats to rent across Northern Ireland, direct from
+                landlords — with self-certified tenant passports, compliant listings, digital
+                leases, deposit tracking and maintenance, all in one place.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link

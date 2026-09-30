@@ -58,6 +58,21 @@ specifically for private tenancies in Northern Ireland.
   digital check-in inventory with photos, rent ledger and receipts,
   maintenance log — replacing a £1,000+/year agent for self-managing landlords.
 
+## Search language (how people actually find rentals — use these phrases)
+- Real UK search volumes per month: "houses to rent" 40,500 · "flats to rent"
+  18,100 · "property to rent" 9,900 · "houses to rent belfast" 1,600 ·
+  "houses to rent northern ireland" 880.
+- The NI-specific terms are low-competition and winnable — anchor copy around
+  "houses to rent in Belfast" and "houses to rent in Northern Ireland".
+- Nobody searches for "rental platform" (~110/month). NEVER call RoostNI a
+  platform in public copy; say "houses and flats to rent, direct from NI
+  landlords".
+- Popular landlord questions worth answering in posts: "how to rent a property
+  without a guarantor" (480/mo), "do you need a licence to rent out a
+  property" (260/mo), "how to rent out a property" (210/mo).
+- Tenants think in place names: Belfast, Lisburn, Bangor, Derry/Londonderry,
+  Newry, Coleraine. Name areas in posts when relevant.
+
 ## Audience & timing heuristics
 - Tenants scroll most Wed–Sun evenings 18:00–21:30; pain points: missing out
   on viewings, agency fees, re-entering the same documents for every

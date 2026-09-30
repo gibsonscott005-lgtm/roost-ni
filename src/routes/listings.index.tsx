@@ -33,21 +33,23 @@ export const Route = createFileRoute("/listings/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Browse Properties — RoostNI" },
+      { title: "Houses to Rent in Belfast & Northern Ireland — RoostNI" },
       {
         name: "description",
         content:
-          "Browse verified rental listings across Northern Ireland. Honest rent, transparent fuel policies and compliant landlords only.",
+          "Browse houses and flats to rent in Belfast and across Northern Ireland. Registered landlords, honest rent and transparent fuel policies — set a free listing alert.",
       },
-      { property: "og:title", content: "Browse NI rentals — RoostNI" },
+      { property: "og:title", content: "Houses to Rent in Belfast & Northern Ireland — RoostNI" },
       {
         property: "og:description",
         content:
-          "Verified listings from registered NI landlords. Every property compliant, every fuel policy honest.",
+          "Houses and flats to rent from registered NI landlords. Every property compliant, every fuel policy honest.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://roostni.co.uk/listings" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://roostni.co.uk/listings" }],
   }),
   loader: async () => {
     const { data } = await supabase
