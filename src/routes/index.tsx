@@ -34,8 +34,10 @@ export const Route = createFileRoute("/")({
           "Self-certified tenant passports. Compliant landlords. RoostNI handles the whole tenancy across Northern Ireland.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://roostni.co.uk/" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://roostni.co.uk/" }],
   }),
   component: HomePage,
 });
