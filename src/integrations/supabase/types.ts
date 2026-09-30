@@ -187,6 +187,87 @@ export type Database = {
           },
         ]
       }
+      marketing_insights: {
+        Row: {
+          active: boolean
+          created_at: string
+          evidence: Json
+          id: string
+          insight: string
+          kind: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          evidence?: Json
+          id?: string
+          insight: string
+          kind: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          evidence?: Json
+          id?: string
+          insight?: string
+          kind?: string
+        }
+        Relationships: []
+      }
+      marketing_posts: {
+        Row: {
+          angle: string
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          link_url: string | null
+          notes: string | null
+          persona: string
+          posted_at: string | null
+          results: Json
+          scheduled_for: string
+          status: string
+          topic: string
+          updated_at: string
+          utm_campaign: string
+        }
+        Insert: {
+          angle: string
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          link_url?: string | null
+          notes?: string | null
+          persona: string
+          posted_at?: string | null
+          results?: Json
+          scheduled_for: string
+          status?: string
+          topic: string
+          updated_at?: string
+          utm_campaign: string
+        }
+        Update: {
+          angle?: string
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          link_url?: string | null
+          notes?: string | null
+          persona?: string
+          posted_at?: string | null
+          results?: Json
+          scheduled_for?: string
+          status?: string
+          topic?: string
+          updated_at?: string
+          utm_campaign?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           email_enabled: boolean

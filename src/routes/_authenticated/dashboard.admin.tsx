@@ -9,6 +9,7 @@ import {
   setFeedbackStatus,
   type AdminOverview,
 } from "@/lib/admin-overview.functions";
+import { MarketingAdminPanel } from "@/components/marketing-admin";
 import {
   BarChart3,
   BellRing,
@@ -17,6 +18,7 @@ import {
   Copy,
   ExternalLink,
   Loader2,
+  Megaphone,
   MessageSquare,
   RefreshCw,
   Shield,
@@ -48,7 +50,7 @@ function AdminDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [data, setData] = useState<AdminOverview | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [tab, setTab] = useState<"signups" | "audits" | "feedback" | "alerts">("signups");
+  const [tab, setTab] = useState<"signups" | "audits" | "feedback" | "alerts" | "marketing">("signups");
 
   const isAdmin = profile?.account_type === "admin";
 
@@ -220,7 +222,15 @@ function AdminDashboard() {
               icon={BellRing}
               label={`Tenant alerts (${data?.alertSubscribers.length ?? 0})`}
             />
+            <TabButton
+              active={tab === "marketing"}
+              onClick={() => setTab("marketing")}
+              icon={Megaphone}
+              label="Marketing engine"
+            />
           </div>
+
+          {tab === "marketing" ? <MarketingAdminPanel /> : null}
 
           {tab === "signups" ? (
             data && data.signUps.length > 0 ? (

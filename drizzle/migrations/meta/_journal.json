@@ -36,6 +36,13 @@
       "when": 1790080194762,
       "tag": "0004_restrict_pricing_and_listing_photo_reads",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790799578267,
+      "tag": "0005_create_marketing_engine_tables",
+      "breakpoints": true
     }
   ]
 }
