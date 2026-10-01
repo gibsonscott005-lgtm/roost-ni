@@ -447,8 +447,20 @@ export const setMarketingInsightActive = createServerFn({ method: "POST" })
 /** Build the paste-ready text for a post, with UTM tags on the CTA link. */
 export function buildShareText(post: MarketingPost): string {
   if (!post.link_url) return post.body;
-  const joiner = post.link_url.includes("?") ? "&" : "?";
-  const tracked = `${post.link_url}${joiner}utm_source=facebook&utm_medium=social&utm_campaign=${post.utm_campaign}`;
+  // Older drafts may carry hand-added UTM tags in the stored link itself —
+  // strip them so the post's own campaign tag is the only one applied.
+  let cleanLink = post.link_url;
+  try {
+    const u = new URL(post.link_url);
+    u.searchParams.delete("utm_source");
+    u.searchParams.delete("utm_medium");
+    u.searchParams.delete("utm_campaign");
+    cleanLink = u.toString();
+  } catch {
+    // not a parseable URL — use as-is
+  }
+  const joiner = cleanLink.includes("?") ? "&" : "?";
+  const tracked = `${cleanLink}${joiner}utm_source=facebook&utm_medium=social&utm_campaign=${post.utm_campaign}`;
   // The generator usually embeds the CTA URL in the body — swap every
   // occurrence for the tracked URL, stripping any query string already
   // attached (older drafts carry hand-added UTM tags). Only append when
