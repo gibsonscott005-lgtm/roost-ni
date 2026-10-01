@@ -465,7 +465,7 @@ export function buildShareText(post: MarketingPost): string {
   // occurrence for the tracked URL, stripping any query string already
   // attached (older drafts carry hand-added UTM tags). Only append when
   // the body lacks the link entirely.
-  const escaped = post.link_url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escaped = cleanLink.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const urlPattern = new RegExp(`${escaped}(\\?\\S*)?`, "g");
   if (urlPattern.test(post.body)) {
     return post.body.replace(urlPattern, tracked);
