@@ -449,10 +449,14 @@ export function buildShareText(post: MarketingPost): string {
   if (!post.link_url) return post.body;
   const joiner = post.link_url.includes("?") ? "&" : "?";
   const tracked = `${post.link_url}${joiner}utm_source=facebook&utm_medium=social&utm_campaign=${post.utm_campaign}`;
-  // The generator usually embeds the bare CTA URL in the body — swap every
-  // occurrence for the tracked URL; only append when the body lacks the link.
-  if (post.body.includes(post.link_url)) {
-    return post.body.split(post.link_url).join(tracked);
+  // The generator usually embeds the CTA URL in the body — swap every
+  // occurrence for the tracked URL, stripping any query string already
+  // attached (older drafts carry hand-added UTM tags). Only append when
+  // the body lacks the link entirely.
+  const escaped = post.link_url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const urlPattern = new RegExp(`${escaped}(\\?\\S*)?`, "g");
+  if (urlPattern.test(post.body)) {
+    return post.body.replace(urlPattern, tracked);
   }
   return `${post.body}\n\n${tracked}`;
 }
