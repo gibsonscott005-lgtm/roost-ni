@@ -158,7 +158,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       "Rules:",
       "- Vary the angle across the batch (compliance risk, money saved, time saved, tenant readiness, community trust, legislation explainer).",
       "- Each post needs exactly one CTA URL from the approved list in the system prompt.",
-      "- Include the full post text ready to paste: body, blank line, CTA URL on its own line, blank line, hashtags.",
+      "- Do NOT paste the CTA URL inside the body text — the posting tool appends the tracked link automatically. Write the body and hashtags only.",
       "- Return ONLY a JSON array, no markdown fences, each item:",
       '  {"persona":"landlord"|"tenant"|"community","angle":"short-kebab-label","topic":"5-10 word summary","body":"full post text with \\n newlines","link_url":"the CTA URL used"}',
     ].join("\n");
