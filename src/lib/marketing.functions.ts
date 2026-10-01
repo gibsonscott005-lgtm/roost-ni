@@ -158,7 +158,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       "Rules:",
       "- Vary the angle across the batch (compliance risk, money saved, time saved, tenant readiness, community trust, legislation explainer).",
       "- Each post needs exactly one CTA URL from the approved list in the system prompt.",
-      "- Include the full post text ready to paste: body, blank line, CTA URL on its own line, blank line, hashtags.",
+      "- Do NOT paste the CTA URL inside the body text — the posting tool appends the tracked link automatically. Write the body and hashtags only.",
       "- Return ONLY a JSON array, no markdown fences, each item:",
       '  {"persona":"landlord"|"tenant"|"community","angle":"short-kebab-label","topic":"5-10 word summary","body":"full post text with \\n newlines","link_url":"the CTA URL used"}',
     ].join("\n");
@@ -446,11 +446,29 @@ export const setMarketingInsightActive = createServerFn({ method: "POST" })
 
 /** Build the paste-ready text for a post, with UTM tags on the CTA link. */
 export function buildShareText(post: MarketingPost): string {
-  let text = post.body;
-  if (post.link_url && !post.body.includes(post.link_url)) {
-    const joiner = post.link_url.includes("?") ? "&" : "?";
-    const tracked = `${post.link_url}${joiner}utm_source=facebook&utm_medium=social&utm_campaign=${post.utm_campaign}`;
-    text = `${post.body}\n\n${tracked}`;
+  if (!post.link_url) return post.body;
+  // Older drafts may carry hand-added UTM tags in the stored link itself —
+  // strip them so the post's own campaign tag is the only one applied.
+  let cleanLink = post.link_url;
+  try {
+    const u = new URL(post.link_url);
+    u.searchParams.delete("utm_source");
+    u.searchParams.delete("utm_medium");
+    u.searchParams.delete("utm_campaign");
+    cleanLink = u.toString();
+  } catch {
+    // not a parseable URL — use as-is
   }
-  return text;
+  const joiner = cleanLink.includes("?") ? "&" : "?";
+  const tracked = `${cleanLink}${joiner}utm_source=facebook&utm_medium=social&utm_campaign=${post.utm_campaign}`;
+  // The generator usually embeds the CTA URL in the body — swap every
+  // occurrence for the tracked URL, stripping any query string already
+  // attached (older drafts carry hand-added UTM tags). Only append when
+  // the body lacks the link entirely.
+  const escaped = cleanLink.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const urlPattern = new RegExp(`${escaped}(\\?\\S*)?`, "g");
+  if (urlPattern.test(post.body)) {
+    return post.body.replace(urlPattern, tracked);
+  }
+  return `${post.body}\n\n${tracked}`;
 }
