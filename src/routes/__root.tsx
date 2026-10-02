@@ -95,12 +95,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap",
-      },
+      // Fonts are self-hosted (see styles.css @font-face) so no external
+      // stylesheet blocks first paint; preload them for an early fetch.
+      { rel: "preload", href: "/fonts/manrope-var.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
+      { rel: "preload", href: "/fonts/sora-var.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
     ],
 
