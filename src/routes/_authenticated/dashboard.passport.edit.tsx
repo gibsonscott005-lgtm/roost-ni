@@ -707,7 +707,7 @@ function VerifyIdentityPanel({
         return;
       }
       toast.info("Simulated check started", {
-        description: "No payment was taken. Choose an outcome to continue testing.",
+        description: "No payment was taken. Run the check to continue testing.",
       });
       setConfig((c) => (c ? { ...c } : c));
       onSaved({ ...passport, id_status: "pending", id_failure_reason: null });
@@ -718,11 +718,11 @@ function VerifyIdentityPanel({
     }
   };
 
-  const resolve = async (outcome: "verified" | "failed") => {
+  const resolve = async () => {
     if (busy) return;
     setBusy(true);
     try {
-      const res = await resolveSimulatedVerification({ data: { outcome } });
+      const res = await resolveSimulatedVerification();
       if (res.outcome === "verified") {
         toast.success("Identity verified", {
           description: "Landlords will see a verified ID badge on your applications.",
@@ -795,26 +795,19 @@ function VerifyIdentityPanel({
             Test mode — no payment, no provider
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Choose the outcome you want to try. Real checks replace this screen once a provider
-            is connected.
+            Run the check against the identity document on your passport — the result is decided
+            by what is on file, not by you. Real checks replace this screen once a provider is
+            connected.
           </p>
           <div className="mt-2.5 flex flex-wrap gap-2">
             <button
               type="button"
               disabled={busy}
-              onClick={() => resolve("verified")}
+              onClick={() => resolve()}
               className="inline-flex items-center gap-1.5 rounded-full bg-verified px-4 py-2 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95 disabled:opacity-60"
             >
               {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" strokeWidth={3} />}
-              Simulate a pass
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => resolve("failed")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-4 py-2 text-xs font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
-            >
-              Simulate a failure
+              Run the simulated check
             </button>
           </div>
         </div>

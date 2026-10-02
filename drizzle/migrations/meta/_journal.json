@@ -50,6 +50,13 @@
       "when": 1790801115604,
       "tag": "0006_restrict_signup_account_type",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790964024015,
+      "tag": "0007_hide_withdrawn_applicant_profiles",
+      "breakpoints": true
     }
   ]
 }
