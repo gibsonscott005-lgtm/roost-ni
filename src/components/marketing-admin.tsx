@@ -179,6 +179,12 @@ export function MarketingAdminPanel() {
   const history = posts
     .filter((p) => p.status === "posted" || p.status === "skipped")
     .sort((a, b) => b.scheduled_for.localeCompare(a.scheduled_for));
+  // Learning needs at least two scored campaigns; gate the button so it never
+  // errors out with "couldn't distill lessons yet".
+  const scoredCount = posts.filter(
+    (p) => p.status === "posted" && typeof p.results?.score === "number",
+  ).length;
+  const canDistill = scoredCount >= 2;
 
   return (
     <div className="mt-6 space-y-6">
@@ -217,15 +223,20 @@ export function MarketingAdminPanel() {
         <button
           type="button"
           onClick={distill}
-          disabled={distilling}
-          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
+          disabled={distilling || !canDistill}
+          title={
+            canDistill
+              ? "Distil lessons from your scored campaigns"
+              : "Needs 2 posted campaigns with refreshed scores"
+          }
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
         >
           {distilling ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : (
             <Brain className="h-3.5 w-3.5" />
           )}
-          Learn from results
+          {canDistill ? "Learn from results" : `Learn from results (${scoredCount}/2 scored)`}
         </button>
       </div>
 
