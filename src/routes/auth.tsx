@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Mail, Lock, UserRound, ShieldCheck, Building2, IdCard, Home, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -206,6 +206,9 @@ function AuthPage() {
   const [hearAboutUs, setHearAboutUs] = useState("");
   const [utmParams, setUtmParams] = useState<{ source?: string; medium?: string; campaign?: string }>({});
   const [submitting, setSubmitting] = useState(false);
+  // Synchronous lock: state updates lag a frame, so a rapid double-tap on
+  // mobile can fire two sign-up requests before `submitting` turns true.
+  const submitLockRef = useRef(false);
   const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
   const [emailWarning, setEmailWarning] = useState<string | null>(null);
@@ -305,6 +308,8 @@ function AuthPage() {
         return;
       }
     }
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
     setSubmitting(true);
     try {
       if (mode === "reset") {
@@ -366,6 +371,7 @@ function AuthPage() {
         { description: message },
       );
     } finally {
+      submitLockRef.current = false;
       setSubmitting(false);
     }
   };
