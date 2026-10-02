@@ -718,11 +718,11 @@ function VerifyIdentityPanel({
     }
   };
 
-  const resolve = async (outcome: "verified" | "failed") => {
+  const resolve = async () => {
     if (busy) return;
     setBusy(true);
     try {
-      const res = await resolveSimulatedVerification({ data: { outcome } });
+      const res = await resolveSimulatedVerification();
       if (res.outcome === "verified") {
         toast.success("Identity verified", {
           description: "Landlords will see a verified ID badge on your applications.",

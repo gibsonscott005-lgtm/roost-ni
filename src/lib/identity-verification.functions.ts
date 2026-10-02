@@ -80,13 +80,7 @@ export const startVerification = createServerFn({ method: "POST" })
  */
 export const resolveSimulatedVerification = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { outcome: "verified" | "failed" }) => {
-    if (data?.outcome !== "verified" && data?.outcome !== "failed") {
-      throw new Error("Invalid outcome");
-    }
-    return { outcome: data.outcome };
-  })
-  .handler(async ({ data, context }) => {
+  .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const { getVerificationMode, simulatedResult } = await import("./identity-providers.server");
     const mode = getVerificationMode();
@@ -102,12 +96,28 @@ export const resolveSimulatedVerification = createServerFn({ method: "POST" })
 
     const { data: existing } = await supabase
       .from("tenant_passports")
-      .select("id_session_id")
+      .select("id_status, id_session_id, id_document_type, id_document_path")
       .eq("user_id", userId)
       .maybeSingle();
 
-    const sessionId = existing?.id_session_id ?? `sim_${crypto.randomUUID()}`;
-    const result = simulatedResult(data.outcome, profile?.full_name ?? null);
+    // A check must have been started first — the outcome is resolved against
+    // the session the server opened, never minted from nothing.
+    if (!existing || existing.id_status !== "pending" || !existing.id_session_id) {
+      throw new Error("Start the identity check before resolving it.");
+    }
+
+    // The caller never chooses the outcome: the simulated check passes only
+    // when the passport on file actually carries an identity document, mirroring
+    // what a real provider would inspect.
+    const hasDocument = Boolean(existing.id_document_type && existing.id_document_path);
+    const outcome: "verified" | "failed" = hasDocument ? "verified" : "failed";
+
+    const sessionId = existing.id_session_id;
+    const result = simulatedResult(outcome, profile?.full_name ?? null);
+    if (outcome === "failed") {
+      result.failureReason =
+        "Simulated failure — add an identity document to your passport before running the check.";
+    }
     const now = new Date().toISOString();
 
     const { data: saved, error } = await supabase
