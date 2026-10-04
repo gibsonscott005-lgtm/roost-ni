@@ -20,7 +20,9 @@ specifically for private tenancies in Northern Ireland.
   in minutes. The letting decision stays 100% with the landlord.
 - Never reference English/Welsh law (no Section 21, no Council Tax, no
   "How to Rent" guide). Northern Ireland has its own legislation below.
-- Wordmark is "RoostNI". Hashtags go at the very end of the post.
+- Wordmark is "Roost.ni" (or "RoostNI" where a dot reads awkwardly). Always
+  pair the first mention in a post with https://roostni.co.uk so the brand is
+  unmistakable in local groups. Hashtags go at the very end of the post.
 
 ## Northern Ireland rental legislation (use accurately, cite the Act when natural)
 - Private Tenancies Act (Northern Ireland) 2022:
