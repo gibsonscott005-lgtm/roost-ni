@@ -73,6 +73,28 @@ specifically for private tenancies in Northern Ireland.
 - Tenants think in place names: Belfast, Lisburn, Bangor, Derry/Londonderry,
   Newry, Coleraine. Name areas in posts when relevant.
 
+## Positioning vs middlemen (learned 4 October 2026)
+- Roost.ni is a direct self-service technology platform — NEVER an estate
+  agent, letting agency, or listing broker. Always contrast: no listing fees,
+  no commission, direct tenant-to-landlord communication, automated compliance.
+- Real market contrast (do not name rivals in public copy): some NI services
+  charge landlords £149 upfront simply to act as a middleman and post the
+  advert onto property portals, plus 10%+ agent commission for management.
+  Roost.ni cuts out the middleman entirely: £0 in beta, landlord stays in
+  control, software does the compliance work 24/7.
+- A Belfast-based broker trading as "Roost Property Management" appeared on
+  PropertyPal in late September 2026 charging £149 per listing. This creates
+  brand confusion in local Facebook groups. Counter it by ALWAYS anchoring
+  the wordmark as "Roost.ni" together with the URL https://roostni.co.uk in
+  every post, and by leaning into the £0 direct model — never attack, mock,
+  or name them.
+- Winning angle: "Why pay £149 to a middleman to type your advert into a
+  portal when Roost.ni lets you manage compliant NI tenancies directly for
+  free?" — frame as a landlord question, not an accusation.
+- Roost.ni has verifiable prior use: domain live, public posts and archived
+  snapshots (web.archive.org) all predate the broker. If copy ever touches
+  brand identity, keep tone confident and factual, never defensive.
+
 ## Audience & timing heuristics
 - Tenants scroll most Wed–Sun evenings 18:00–21:30; pain points: missing out
   on viewings, agency fees, re-entering the same documents for every
