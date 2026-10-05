@@ -90,11 +90,12 @@ const generateSchema = z.object({
   count: z.number().int().min(1).max(5).default(4),
 });
 
-/** Next `n` Monday/Wednesday/Friday dates at 18:00 UTC (19:00 UK), from tomorrow. */
+/** Next `n` Monday/Wednesday/Friday dates at 18:00 UTC (19:00 UK), starting today when today's slot is still ahead. */
 function nextLegalSlots(n: number): Date[] {
   const out: Date[] = [];
   const d = new Date();
   d.setUTCHours(18, 0, 0, 0);
+  if ([1, 3, 5].includes(d.getUTCDay()) && d.getTime() > Date.now()) out.push(new Date(d));
   while (out.length < n) {
     d.setUTCDate(d.getUTCDate() + 1);
     if ([1, 3, 5].includes(d.getUTCDay())) out.push(new Date(d));

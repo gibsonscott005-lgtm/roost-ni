@@ -20,8 +20,8 @@ specifically for private tenancies in Northern Ireland.
   in minutes. The letting decision stays 100% with the landlord.
 - Never reference English/Welsh law (no Section 21, no Council Tax, no
   "How to Rent" guide). Northern Ireland has its own legislation below.
-- Wordmark is "Roost.ni" (or "RoostNI" where a dot reads awkwardly). Always
-  pair the first mention in a post with https://roostni.co.uk so the brand is
+- Wordmark is "RoostNI" — one word, no dot, never "Roost.ni" or "Roost NI".
+  Always pair the first mention in a post with https://roostni.co.uk so the brand is
   unmistakable in local groups. Hashtags go at the very end of the post.
 
 ## Northern Ireland rental legislation (use accurately, cite the Act when natural)
@@ -77,24 +77,24 @@ specifically for private tenancies in Northern Ireland.
   Newry, Coleraine. Name areas in posts when relevant.
 
 ## Positioning vs middlemen (learned 4 October 2026)
-- Roost.ni is a direct self-service technology platform — NEVER an estate
+- RoostNI is a direct self-service technology platform — NEVER an estate
   agent, letting agency, or listing broker. Always contrast: no listing fees,
   no commission, direct tenant-to-landlord communication, automated compliance.
 - Real market contrast (do not name rivals in public copy): some NI services
   charge landlords £149 upfront simply to act as a middleman and post the
   advert onto property portals, plus 10%+ agent commission for management.
-  Roost.ni cuts out the middleman entirely: £0 in beta, landlord stays in
+  RoostNI cuts out the middleman entirely: £0 in beta, landlord stays in
   control, software does the compliance work 24/7.
 - A Belfast-based broker trading as "Roost Property Management" appeared on
   PropertyPal in late September 2026 charging £149 per listing. This creates
   brand confusion in local Facebook groups. Counter it by ALWAYS anchoring
-  the wordmark as "Roost.ni" together with the URL https://roostni.co.uk in
+  the wordmark as "RoostNI" together with the URL https://roostni.co.uk in
   every post, and by leaning into the £0 direct model — never attack, mock,
   or name them.
 - Winning angle: "Why pay £149 to a middleman to type your advert into a
-  portal when Roost.ni lets you manage compliant NI tenancies directly for
+  portal when RoostNI lets you manage compliant NI tenancies directly for
   free?" — frame as a landlord question, not an accusation.
-- Roost.ni has verifiable prior use: domain live, public posts and archived
+- RoostNI has verifiable prior use: domain live, public posts and archived
   snapshots (web.archive.org) all predate the broker. If copy ever touches
   brand identity, keep tone confident and factual, never defensive.
 
@@ -145,7 +145,7 @@ export const NI_LEGAL_GUARDRAILS = `
 - Always end the body with a one-line note: "General information, not legal
   advice — check nidirect.gov.uk for your situation."
 - Structure: hook question → the NI law in plain English (cite it) →
-  "For landlords:" duty + risk → "For tenants:" entitlement → how Roost.ni
+  "For landlords:" duty + risk → "For tenants:" entitlement → how RoostNI
   helps, free in beta.
 `.trim();
 
