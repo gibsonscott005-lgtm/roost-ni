@@ -46,8 +46,9 @@ specifically for private tenancies in Northern Ireland.
 - Fitness standard & smoke/heat/CO alarms: private tenancies must meet the
   statutory fitness standard; working smoke and carbon monoxide alarms are
   expected (CO alarms required where combustion appliances exist).
-- There is no council enforcement of tenancy deposits in NI — disputes go
-  through the approved schemes' free adjudication or the courts.
+- Disputes over deposit deductions go through the approved schemes' free
+  adjudication or the courts; district councils enforce the landlord
+  offences (e.g. failing to protect a deposit or issue required notices).
 
 ## What RoostNI offers (pick the relevant one per post)
 - Free Tenant Passport: ID, income proof and rental history organised once,
@@ -122,3 +123,63 @@ specifically for private tenancies in Northern Ireland.
 - Facebook throttles reach on some external links; end with the plain URL
   anyway (the poster can move it to the first comment).
 `.trim();
+
+/**
+ * NI Legal Series — jurisdiction guardrails applied to every legal post.
+ */
+export const NI_LEGAL_GUARDRAILS = `
+## NI Legal Series — jurisdiction rules (non-negotiable)
+- Every fact must be Northern Ireland law, or UK-wide law that genuinely
+  applies in Northern Ireland (e.g. UK GDPR via the ICO). If unsure whether
+  something applies in NI, leave it out.
+- NEVER mention or rely on England/Wales/Scotland concepts: Section 21,
+  Section 8, Assured Shorthold Tenancies, Council Tax, the "How to Rent"
+  guide, Renters' Rights Act, Right to Rent checks, Selective Licensing,
+  First-tier Tribunal, Private Residential Tenancies.
+- Name the responsible NI body (Department for Communities, Land & Property
+  Services, HSENI, district council, NI Courts / Enforcement of Judgments
+  Office, the approved NI deposit schemes, ICO) and the Act or Regulations.
+- Only state the facts supplied for the topic. Do not invent figures,
+  deadlines, fines or dates. For upcoming changes, say "proposed" or
+  "expected" and advise checking nidirect — never present them as in force.
+- Always end the body with a one-line note: "General information, not legal
+  advice — check nidirect.gov.uk for your situation."
+- Structure: hook question → the NI law in plain English (cite it) →
+  "For landlords:" duty + risk → "For tenants:" entitlement → how Roost.ni
+  helps, free in beta.
+`.trim();
+
+export interface NiLegalTopic {
+  key: string;
+  body: string; // responsible NI body
+  title: string;
+  facts: string;
+  cta: string;
+  upcoming?: boolean;
+}
+
+/** Syllabus of NI-specific legal topics rotated through the legal series. */
+export const NI_LEGAL_TOPICS: NiLegalTopic[] = [
+  { key: "dfc-tenancy-info-notice", body: "Department for Communities", title: "The 28-day Tenancy Information Notice", facts: "Private Tenancies Act (NI) 2022: landlords must give tenants a free written Tenancy Information Notice setting out key terms within 28 days of the tenancy starting. Failing to do so is an offence enforced by district councils (fixed penalty possible).", cta: "https://roostni.co.uk/audit" },
+  { key: "dfc-notice-to-quit", body: "Department for Communities", title: "Notice to quit periods by tenancy length", facts: "Private Tenancies Act (NI) 2022: landlord notice to quit is 4 weeks if the tenancy has lasted under 12 months, 8 weeks for 12 months to 10 years, 12 weeks over 10 years. Notice must be in writing.", cta: "https://roostni.co.uk/audit" },
+  { key: "dfc-deposit-cap", body: "Department for Communities", title: "Deposits capped at one month's rent", facts: "Private Tenancies Act (NI) 2022: a tenancy deposit cannot exceed one month's rent.", cta: "https://roostni.co.uk/audit" },
+  { key: "dfc-rent-receipts", body: "Department for Communities", title: "Written rent receipts", facts: "Private Tenancies Act (NI) 2022: landlords must provide written receipts for rent paid in cash, free of charge; good practice is a receipt or ledger for every payment.", cta: "https://roostni.co.uk/audit" },
+  { key: "dfc-landlord-registration", body: "Department for Communities", title: "Landlord Registration Scheme", facts: "Landlord Registration Scheme Regulations (NI) 2014: every private landlord must register via nidirect and renew every 3 years. Tenants can check whether a landlord is registered.", cta: "https://roostni.co.uk/landlord-registration-ni" },
+  { key: "lps-rates-not-council-tax", body: "Land & Property Services", title: "Rates, not Council Tax", facts: "Northern Ireland has domestic rates collected by Land & Property Services — there is no Council Tax. The tenancy terms should state clearly whether rates are included in the rent or paid by the tenant.", cta: "https://roostni.co.uk/audit" },
+  { key: "lps-epc", body: "Land & Property Services / Department of Finance", title: "EPC before marketing a let", facts: "Energy Performance of Buildings Regulations (NI) 2008: a valid Energy Performance Certificate is needed when a property is marketed for let, and should be given to the prospective tenant. EPCs last 10 years.", cta: "https://roostni.co.uk/audit" },
+  { key: "hseni-gas-safety", body: "HSENI", title: "Annual gas safety checks", facts: "Gas Safety (Installation and Use) Regulations (NI) 2004: landlords must have gas appliances checked every 12 months by a Gas Safe registered engineer, give existing tenants a copy of the record within 28 days and new tenants before they move in, and keep records for 2 years.", cta: "https://roostni.co.uk/audit" },
+  { key: "council-alarms", body: "District councils", title: "Smoke, heat and carbon monoxide alarms", facts: "Under the NI fitness standard as updated following the Private Tenancies Act (NI) 2022, private rentals need working smoke alarms in living rooms and circulation spaces, a heat alarm in the kitchen, and a carbon monoxide alarm where there is a fuel-burning appliance or flue.", cta: "https://roostni.co.uk/audit" },
+  { key: "council-fitness-repairs", body: "District council Environmental Health", title: "Fitness standard, damp and repairs", facts: "District council Environmental Health officers can inspect private rentals for fitness (e.g. serious damp, disrepair, lack of heating) and require works. Tenants should report problems to the landlord in writing first, then contact their council.", cta: "https://roostni.co.uk/audit" },
+  { key: "council-hmo", body: "NI HMO Unit (Belfast City Council)", title: "HMO licensing", facts: "Houses in Multiple Occupation Act (NI) 2016: a property let to 3 or more people from more than 2 households generally needs an HMO licence from the NI HMO Unit, hosted by Belfast City Council. Letting an unlicensed HMO is an offence.", cta: "https://roostni.co.uk/audit" },
+  { key: "courts-illegal-eviction", body: "NI Courts & Enforcement of Judgments Office", title: "Illegal eviction and harassment", facts: "Rent (NI) Order 1978: changing locks, cutting off utilities or removing belongings to force a tenant out is a criminal offence, even after a notice to quit expires. Possession requires a court order, enforced through the Enforcement of Judgments Office.", cta: "https://roostni.co.uk/audit" },
+  { key: "tds-14-28-deadlines", body: "Approved NI deposit schemes", title: "Deposit protection deadlines", facts: "Tenancy Deposit Schemes Regulations (NI) 2012: deposits must be protected in an approved scheme (TDS Northern Ireland, mydeposits Northern Ireland or Letting Protection Service NI) within 28 days of receipt, and prescribed information given to the tenant within 28 days. Councils can fine landlords who fail.", cta: "https://roostni.co.uk/audit" },
+  { key: "tds-wear-and-tear", body: "Approved NI deposit schemes", title: "Fair wear and tear vs damage", facts: "In NI deposit scheme adjudication, landlords cannot charge tenants for fair wear and tear or 'betterment' (ending up better off than at the start); deductions must be evidenced and proportionate to the item's age.", cta: "https://roostni.co.uk/listings" },
+  { key: "tds-inventory", body: "Approved NI deposit schemes", title: "Why check-in inventories decide disputes", facts: "NI deposit scheme adjudicators rely on evidence. A dated, photographic check-in inventory signed by both sides is the strongest evidence in any deposit dispute; without one, landlords struggle to justify deductions.", cta: "https://roostni.co.uk/audit" },
+  { key: "oil-heating-levels", body: "Good practice (NI deposit schemes)", title: "Heating oil levels at check-in and check-out", facts: "Many NI homes use heating oil. There is no statutory rule on oil levels; record the tank level (with a photo) at check-in and check-out and state in the tenancy terms how oil is handled to avoid deposit disputes.", cta: "https://roostni.co.uk/listings" },
+  { key: "ico-tenant-data", body: "Information Commissioner's Office", title: "Handling tenant documents under UK GDPR", facts: "UK GDPR applies in Northern Ireland: landlords collecting ID, bank statements or references must keep them secure, only collect what they need, and not keep them longer than necessary. Many landlords must also pay the ICO data protection fee.", cta: "https://roostni.co.uk/listings" },
+  { key: "upcoming-eicr", body: "Department for Communities", title: "Proposed electrical safety checks", facts: "The Private Tenancies Act (NI) 2022 gave the Department for Communities powers to require periodic electrical safety checks in private rentals (expected to be every 5 years). Present as upcoming/proposed — check nidirect for commencement.", cta: "https://roostni.co.uk/audit", upcoming: true },
+  { key: "upcoming-energy-efficiency", body: "Department for Communities", title: "Proposed energy efficiency standards", facts: "The Department for Communities has signalled minimum energy efficiency standards for NI private rentals. Present as proposed — no date in force; check nidirect.", cta: "https://roostni.co.uk/audit", upcoming: true },
+  { key: "upcoming-rent-increases", body: "Department for Communities", title: "Rent increase limits", facts: "Private Tenancies Act (NI) 2022: rent can be increased no more than once in any 12-month period and the landlord must give at least 3 months' written notice. Check nidirect for the commencement status.", cta: "https://roostni.co.uk/audit", upcoming: true },
+];
+
+export const NI_LEGAL_COOLDOWN_DAYS = 45;
