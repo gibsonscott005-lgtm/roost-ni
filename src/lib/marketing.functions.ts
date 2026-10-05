@@ -1,7 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { MARKETING_KNOWLEDGE } from "@/lib/marketing-knowledge";
+import {
+  MARKETING_KNOWLEDGE,
+  NI_LEGAL_COOLDOWN_DAYS,
+  NI_LEGAL_GUARDRAILS,
+  NI_LEGAL_TOPICS,
+  type NiLegalTopic,
+} from "@/lib/marketing-knowledge";
 import type { Database } from "@/integrations/supabase/types";
 
 export interface MarketingPost {
@@ -80,9 +86,21 @@ export const getMarketingEngine = createServerFn({ method: "POST" })
   });
 
 const generateSchema = z.object({
-  focus: z.enum(["mixed", "landlord", "tenant"]).default("mixed"),
+  focus: z.enum(["mixed", "landlord", "tenant", "ni_legal"]).default("mixed"),
   count: z.number().int().min(1).max(5).default(4),
 });
+
+/** Next `n` Monday/Wednesday/Friday dates at 18:00 UTC (19:00 UK), from tomorrow. */
+function nextLegalSlots(n: number): Date[] {
+  const out: Date[] = [];
+  const d = new Date();
+  d.setUTCHours(18, 0, 0, 0);
+  while (out.length < n) {
+    d.setUTCDate(d.getUTCDate() + 1);
+    if ([1, 3, 5].includes(d.getUTCDay())) out.push(new Date(d));
+  }
+  return out;
+}
 
 interface GeneratedPost {
   persona: string;
@@ -139,15 +157,66 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       ? insights.map((i) => `- (${i.kind}) ${i.insight}`).join("\n")
       : "- none learned yet";
 
+    const isLegal = data.focus === "ni_legal";
+    let legalPicks: NiLegalTopic[] = [];
+    if (isLegal) {
+      // Topic cooldown: exclude any legal topic used in the last N days, then
+      // prefer topics that have gone longest without a post.
+      const since = new Date(Date.now() - NI_LEGAL_COOLDOWN_DAYS * 86400000).toISOString();
+      const { data: legalHistory } = await supabaseAdmin
+        .from("marketing_posts")
+        .select("angle, scheduled_for")
+        .like("angle", "legal:%")
+        .order("scheduled_for", { ascending: false })
+        .limit(200);
+      const lastUsed = new Map<string, string>();
+      for (const row of legalHistory ?? []) {
+        const key = row.angle.slice("legal:".length);
+        if (!lastUsed.has(key)) lastUsed.set(key, row.scheduled_for);
+      }
+      const eligible = NI_LEGAL_TOPICS.filter((t) => {
+        const used = lastUsed.get(t.key);
+        return !used || used < since;
+      }).sort((a, b) => (lastUsed.get(a.key) ?? "").localeCompare(lastUsed.get(b.key) ?? ""));
+      // Keep one "upcoming change" slot (Friday) when available.
+      const upcoming = eligible.filter((t) => t.upcoming);
+      const current = eligible.filter((t) => !t.upcoming);
+      legalPicks = [current[0], current[1], upcoming[0] ?? current[2]].filter(
+        (t): t is NiLegalTopic => Boolean(t),
+      );
+      if (legalPicks.length === 0) {
+        throw new Error(
+          `Every legal topic has been covered in the last ${NI_LEGAL_COOLDOWN_DAYS} days — try again later.`,
+        );
+      }
+    }
+
     const focusLine =
       data.focus === "mixed"
         ? "Mix landlord and tenant posts roughly evenly across the batch."
         : data.focus === "landlord"
           ? "Every post targets private landlords in Northern Ireland."
-          : "Every post targets people looking to rent in Northern Ireland.";
+          : data.focus === "tenant"
+            ? "Every post targets people looking to rent in Northern Ireland."
+            : "This is the NI Legal Series: each post explains ONE Northern Ireland legal topic with implications for BOTH landlords and tenants.";
+
+    const legalBlock = isLegal
+      ? [
+          "",
+          NI_LEGAL_GUARDRAILS,
+          "",
+          `Write exactly ${legalPicks.length} posts, one per topic below, in this order. Use ONLY these facts:`,
+          ...legalPicks.map(
+            (t, i) =>
+              `${i + 1}. key=${t.key} | ${t.title} | Responsible body: ${t.body}${t.upcoming ? " | UPCOMING/PROPOSED" : ""}\n   Facts: ${t.facts}\n   link_url: ${t.cta}`,
+          ),
+          'Set "persona" to "community" and "angle" to "legal:<key>" exactly.',
+        ]
+      : [];
 
     const prompt = [
-      `Draft ${data.count} Facebook posts for RoostNI. ${focusLine}`,
+      `Draft ${isLegal ? legalPicks.length : data.count} Facebook posts for RoostNI. ${focusLine}`,
+      ...legalBlock,
       "",
       "Learned lessons from past performance (obey these):",
       insightSummary,
@@ -156,7 +225,9 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       recentSummary,
       "",
       "Rules:",
-      "- Vary the angle across the batch (compliance risk, money saved, time saved, tenant readiness, community trust, legislation explainer).",
+      isLegal
+        ? "- Northern Ireland law only; follow the jurisdiction rules above."
+        : "- Vary the angle across the batch (compliance risk, money saved, time saved, tenant readiness, community trust, legislation explainer).",
       "- Each post needs exactly one CTA URL from the approved list in the system prompt.",
       "- Do NOT paste the CTA URL inside the body text — the posting tool appends the tracked link automatically. Write the body and hashtags only.",
       "- Return ONLY a JSON array, no markdown fences, each item:",
@@ -185,35 +256,47 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       throw new Error("The AI returned an unexpected format — try again.");
     }
     const parsed = JSON.parse(text.slice(start, end + 1)) as GeneratedPost[];
+    const maxCount = isLegal ? legalPicks.length : data.count;
     const cleaned = parsed
       .filter((p) => p && typeof p.body === "string" && p.body.trim().length > 40)
-      .slice(0, data.count);
+      .slice(0, maxCount);
     if (cleaned.length === 0) {
       throw new Error("The AI returned no usable posts — try again.");
     }
 
-    // Schedule one post per day at 18:00 UTC (19:00 UK) starting tomorrow.
+    // Legal series: Mon/Wed/Fri. Otherwise one post per day. 18:00 UTC.
     const base = new Date();
     base.setUTCDate(base.getUTCDate() + 1);
     base.setUTCHours(18, 0, 0, 0);
+    const legalSlots = isLegal ? nextLegalSlots(cleaned.length) : [];
 
     const rows = cleaned.map((p, i) => {
-      const when = new Date(base.getTime() + i * 24 * 60 * 60 * 1000);
+      const when = isLegal
+        ? legalSlots[i]
+        : new Date(base.getTime() + i * 24 * 60 * 60 * 1000);
       const dateSlug = when.toISOString().slice(0, 10);
-      const topicSlug = p.topic
+      // Force the topic key from our own pick so the cooldown is reliable.
+      const legalTopic = isLegal ? legalPicks[i] : undefined;
+      const topicSlug = (legalTopic?.key ?? p.topic)
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "")
         .slice(0, 32);
       return {
         created_by: context.userId,
-        persona: ["landlord", "tenant", "community"].includes(p.persona)
-          ? p.persona
-          : "community",
-        angle: String(p.angle ?? "general").slice(0, 60),
-        topic: String(p.topic ?? "Untitled post").slice(0, 140),
+        persona: legalTopic
+          ? "community"
+          : ["landlord", "tenant", "community"].includes(p.persona)
+            ? p.persona
+            : "community",
+        angle: legalTopic ? `legal:${legalTopic.key}` : String(p.angle ?? "general").slice(0, 60),
+        topic: String(p.topic ?? legalTopic?.title ?? "Untitled post").slice(0, 140),
         body: p.body.trim().slice(0, 4000),
-        link_url: typeof p.link_url === "string" ? p.link_url.slice(0, 300) : null,
+        link_url: legalTopic
+          ? legalTopic.cta
+          : typeof p.link_url === "string"
+            ? p.link_url.slice(0, 300)
+            : null,
         utm_campaign: `fb_${dateSlug}_${topicSlug || "post"}_${i}`.slice(0, 90),
         scheduled_for: when.toISOString(),
         status: "scheduled",

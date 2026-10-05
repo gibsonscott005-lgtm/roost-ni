@@ -52,7 +52,7 @@ export function MarketingAdminPanel() {
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<MarketingEngineData | null>(null);
-  const [focus, setFocus] = useState<"mixed" | "landlord" | "tenant">("mixed");
+  const [focus, setFocus] = useState<"mixed" | "landlord" | "tenant" | "ni_legal">("mixed");
   const [generating, setGenerating] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [distilling, setDistilling] = useState(false);
@@ -197,6 +197,7 @@ export function MarketingAdminPanel() {
           <option value="mixed">Mixed audience</option>
           <option value="landlord">Landlords only</option>
           <option value="tenant">Tenants only</option>
+          <option value="ni_legal">NI Legal Series (Mon / Wed / Fri)</option>
         </select>
         <button
           type="button"
