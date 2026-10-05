@@ -21,17 +21,17 @@ export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Houses & Flats to Rent in Northern Ireland — RoostNI" },
+      { title: "Rent Houses & Flats Direct in Northern Ireland | RoostNI" },
       {
         name: "description",
         content:
-          "Rent houses and flats in Northern Ireland direct from compliant landlords. Free tenant passports, digital leases and deposit tracking — all free in beta.",
+          "Houses and flats to rent across Northern Ireland — apply direct to landlords. Free tenant passports, digital leases and deposit tracking, free in beta.",
       },
-      { property: "og:title", content: "Houses & Flats to Rent in Northern Ireland — RoostNI" },
+      { property: "og:title", content: "Rent Houses & Flats Direct in Northern Ireland | RoostNI" },
       {
         property: "og:description",
         content:
-          "Rent houses and flats in Northern Ireland direct from compliant landlords. Free tenant passports, digital leases and deposit tracking — all free in beta.",
+          "Houses and flats to rent across Northern Ireland — apply direct to landlords. Free tenant passports, digital leases and deposit tracking, free in beta.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk/" },
