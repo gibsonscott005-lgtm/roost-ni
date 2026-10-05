@@ -80,9 +80,21 @@ export const getMarketingEngine = createServerFn({ method: "POST" })
   });
 
 const generateSchema = z.object({
-  focus: z.enum(["mixed", "landlord", "tenant"]).default("mixed"),
+  focus: z.enum(["mixed", "landlord", "tenant", "ni_legal"]).default("mixed"),
   count: z.number().int().min(1).max(5).default(4),
 });
+
+/** Next `n` Monday/Wednesday/Friday dates at 18:00 UTC (19:00 UK), from tomorrow. */
+function nextLegalSlots(n: number): Date[] {
+  const out: Date[] = [];
+  const d = new Date();
+  d.setUTCHours(18, 0, 0, 0);
+  while (out.length < n) {
+    d.setUTCDate(d.getUTCDate() + 1);
+    if ([1, 3, 5].includes(d.getUTCDay())) out.push(new Date(d));
+  }
+  return out;
+}
 
 interface GeneratedPost {
   persona: string;
@@ -139,15 +151,66 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       ? insights.map((i) => `- (${i.kind}) ${i.insight}`).join("\n")
       : "- none learned yet";
 
+    const isLegal = data.focus === "ni_legal";
+    let legalPicks: NiLegalTopic[] = [];
+    if (isLegal) {
+      // Topic cooldown: exclude any legal topic used in the last N days, then
+      // prefer topics that have gone longest without a post.
+      const since = new Date(Date.now() - NI_LEGAL_COOLDOWN_DAYS * 86400000).toISOString();
+      const { data: legalHistory } = await supabaseAdmin
+        .from("marketing_posts")
+        .select("angle, scheduled_for")
+        .like("angle", "legal:%")
+        .order("scheduled_for", { ascending: false })
+        .limit(200);
+      const lastUsed = new Map<string, string>();
+      for (const row of legalHistory ?? []) {
+        const key = row.angle.slice("legal:".length);
+        if (!lastUsed.has(key)) lastUsed.set(key, row.scheduled_for);
+      }
+      const eligible = NI_LEGAL_TOPICS.filter((t) => {
+        const used = lastUsed.get(t.key);
+        return !used || used < since;
+      }).sort((a, b) => (lastUsed.get(a.key) ?? "").localeCompare(lastUsed.get(b.key) ?? ""));
+      // Keep one "upcoming change" slot (Friday) when available.
+      const upcoming = eligible.filter((t) => t.upcoming);
+      const current = eligible.filter((t) => !t.upcoming);
+      legalPicks = [current[0], current[1], upcoming[0] ?? current[2]].filter(
+        (t): t is NiLegalTopic => Boolean(t),
+      );
+      if (legalPicks.length === 0) {
+        throw new Error(
+          `Every legal topic has been covered in the last ${NI_LEGAL_COOLDOWN_DAYS} days — try again later.`,
+        );
+      }
+    }
+
     const focusLine =
       data.focus === "mixed"
         ? "Mix landlord and tenant posts roughly evenly across the batch."
         : data.focus === "landlord"
           ? "Every post targets private landlords in Northern Ireland."
-          : "Every post targets people looking to rent in Northern Ireland.";
+          : data.focus === "tenant"
+            ? "Every post targets people looking to rent in Northern Ireland."
+            : "This is the NI Legal Series: each post explains ONE Northern Ireland legal topic with implications for BOTH landlords and tenants.";
+
+    const legalBlock = isLegal
+      ? [
+          "",
+          NI_LEGAL_GUARDRAILS,
+          "",
+          `Write exactly ${legalPicks.length} posts, one per topic below, in this order. Use ONLY these facts:`,
+          ...legalPicks.map(
+            (t, i) =>
+              `${i + 1}. key=${t.key} | ${t.title} | Responsible body: ${t.body}${t.upcoming ? " | UPCOMING/PROPOSED" : ""}\n   Facts: ${t.facts}\n   link_url: ${t.cta}`,
+          ),
+          'Set "persona" to "community" and "angle" to "legal:<key>" exactly.',
+        ]
+      : [];
 
     const prompt = [
-      `Draft ${data.count} Facebook posts for RoostNI. ${focusLine}`,
+      `Draft ${isLegal ? legalPicks.length : data.count} Facebook posts for RoostNI. ${focusLine}`,
+      ...legalBlock,
       "",
       "Learned lessons from past performance (obey these):",
       insightSummary,
@@ -156,7 +219,9 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       recentSummary,
       "",
       "Rules:",
-      "- Vary the angle across the batch (compliance risk, money saved, time saved, tenant readiness, community trust, legislation explainer).",
+      isLegal
+        ? "- Northern Ireland law only; follow the jurisdiction rules above."
+        : "- Vary the angle across the batch (compliance risk, money saved, time saved, tenant readiness, community trust, legislation explainer).",
       "- Each post needs exactly one CTA URL from the approved list in the system prompt.",
       "- Do NOT paste the CTA URL inside the body text — the posting tool appends the tracked link automatically. Write the body and hashtags only.",
       "- Return ONLY a JSON array, no markdown fences, each item:",
