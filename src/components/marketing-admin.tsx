@@ -197,6 +197,7 @@ export function MarketingAdminPanel() {
           <option value="mixed">Mixed audience</option>
           <option value="landlord">Landlords only</option>
           <option value="tenant">Tenants only</option>
+          <option value="ni_legal">NI Legal Series (Mon / Wed / Fri)</option>
         </select>
         <button
           type="button"

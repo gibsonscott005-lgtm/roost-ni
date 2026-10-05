@@ -1,7 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { MARKETING_KNOWLEDGE } from "@/lib/marketing-knowledge";
+import {
+  MARKETING_KNOWLEDGE,
+  NI_LEGAL_COOLDOWN_DAYS,
+  NI_LEGAL_GUARDRAILS,
+  NI_LEGAL_TOPICS,
+  type NiLegalTopic,
+} from "@/lib/marketing-knowledge";
 import type { Database } from "@/integrations/supabase/types";
 
 export interface MarketingPost {
@@ -250,35 +256,47 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       throw new Error("The AI returned an unexpected format — try again.");
     }
     const parsed = JSON.parse(text.slice(start, end + 1)) as GeneratedPost[];
+    const maxCount = isLegal ? legalPicks.length : data.count;
     const cleaned = parsed
       .filter((p) => p && typeof p.body === "string" && p.body.trim().length > 40)
-      .slice(0, data.count);
+      .slice(0, maxCount);
     if (cleaned.length === 0) {
       throw new Error("The AI returned no usable posts — try again.");
     }
 
-    // Schedule one post per day at 18:00 UTC (19:00 UK) starting tomorrow.
+    // Legal series: Mon/Wed/Fri. Otherwise one post per day. 18:00 UTC.
     const base = new Date();
     base.setUTCDate(base.getUTCDate() + 1);
     base.setUTCHours(18, 0, 0, 0);
+    const legalSlots = isLegal ? nextLegalSlots(cleaned.length) : [];
 
     const rows = cleaned.map((p, i) => {
-      const when = new Date(base.getTime() + i * 24 * 60 * 60 * 1000);
+      const when = isLegal
+        ? legalSlots[i]
+        : new Date(base.getTime() + i * 24 * 60 * 60 * 1000);
       const dateSlug = when.toISOString().slice(0, 10);
-      const topicSlug = p.topic
+      // Force the topic key from our own pick so the cooldown is reliable.
+      const legalTopic = isLegal ? legalPicks[i] : undefined;
+      const topicSlug = (legalTopic?.key ?? p.topic)
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "")
         .slice(0, 32);
       return {
         created_by: context.userId,
-        persona: ["landlord", "tenant", "community"].includes(p.persona)
-          ? p.persona
-          : "community",
-        angle: String(p.angle ?? "general").slice(0, 60),
-        topic: String(p.topic ?? "Untitled post").slice(0, 140),
+        persona: legalTopic
+          ? "community"
+          : ["landlord", "tenant", "community"].includes(p.persona)
+            ? p.persona
+            : "community",
+        angle: legalTopic ? `legal:${legalTopic.key}` : String(p.angle ?? "general").slice(0, 60),
+        topic: String(p.topic ?? legalTopic?.title ?? "Untitled post").slice(0, 140),
         body: p.body.trim().slice(0, 4000),
-        link_url: typeof p.link_url === "string" ? p.link_url.slice(0, 300) : null,
+        link_url: legalTopic
+          ? legalTopic.cta
+          : typeof p.link_url === "string"
+            ? p.link_url.slice(0, 300)
+            : null,
         utm_campaign: `fb_${dateSlug}_${topicSlug || "post"}_${i}`.slice(0, 90),
         scheduled_for: when.toISOString(),
         status: "scheduled",
