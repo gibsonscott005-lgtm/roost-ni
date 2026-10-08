@@ -268,6 +268,30 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_visits: {
+        Row: {
+          created_at: string
+          id: string
+          landing_path: string | null
+          utm_campaign: string
+          utm_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          landing_path?: string | null
+          utm_campaign: string
+          utm_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          landing_path?: string | null
+          utm_campaign?: string
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           email_enabled: boolean

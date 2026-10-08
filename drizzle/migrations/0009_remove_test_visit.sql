@@ -1,0 +1,1 @@
+DELETE FROM public.marketing_visits WHERE utm_campaign = 'test_visit_check';

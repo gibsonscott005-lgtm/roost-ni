@@ -1,4 +1,5 @@
 import { captureUtmFromUrl } from "@/lib/utm-session";
+import { logCampaignVisit } from "@/lib/visit-log.functions";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -130,6 +131,24 @@ function RootComponent() {
   useEffect(() => {
     captureUtmFromUrl();
     initPostHog();
+    // Log one campaign visit per session for marketing post scoring.
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const campaign = params.get("utm_campaign");
+      const flag = `roost_visit_${campaign}`;
+      if (campaign && !window.sessionStorage.getItem(flag)) {
+        window.sessionStorage.setItem(flag, "1");
+        void logCampaignVisit({
+          data: {
+            campaign: campaign.slice(0, 120),
+            source: params.get("utm_source")?.slice(0, 120) || undefined,
+            path: window.location.pathname.slice(0, 300),
+          },
+        }).catch(() => window.sessionStorage.removeItem(flag));
+      }
+    } catch {
+      /* storage blocked — skip */
+    }
   }, []);
 
   return (

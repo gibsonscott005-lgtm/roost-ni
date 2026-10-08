@@ -57,6 +57,20 @@
       "when": 1790964024015,
       "tag": "0007_hide_withdrawn_applicant_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791497337631,
+      "tag": "0008_marketing_visits",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791497404298,
+      "tag": "0009_remove_test_visit",
+      "breakpoints": true
     }
   ]
 }
