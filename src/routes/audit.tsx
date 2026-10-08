@@ -1,3 +1,4 @@
+import { getEventContext } from "@/lib/utm-session";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { useEffect, useMemo, useRef, useState } from "react";
