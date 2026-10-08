@@ -237,13 +237,8 @@ function AuthPage() {
   }, [listingId]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    setUtmParams({
-      source: params.get("utm_source") ?? undefined,
-      medium: params.get("utm_medium") ?? undefined,
-      campaign: params.get("utm_campaign") ?? undefined,
-    });
+    const ctx = getEventContext();
+    setUtmParams({ source: ctx.source, medium: ctx.medium, campaign: ctx.campaign });
   }, []);
 
   useEffect(() => {

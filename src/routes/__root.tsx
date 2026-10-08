@@ -127,6 +127,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
+    captureUtmFromUrl();
     initPostHog();
   }, []);
 
