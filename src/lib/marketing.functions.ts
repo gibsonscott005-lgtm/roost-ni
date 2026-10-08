@@ -137,7 +137,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       angle: string;
       persona: string;
       status: string;
-      results: { score?: number; audits?: number; alerts?: number; signups?: number } | null;
+      results: { score?: number; visits?: number; audits?: number; alerts?: number; signups?: number } | null;
     }>;
     const insights = (insightsRes.data ?? []) as Array<{ kind: string; insight: string }>;
 
@@ -385,7 +385,7 @@ export const refreshMarketingResults = createServerFn({ method: "POST" })
     let updated = 0;
     for (const post of posts) {
       const campaign = post.utm_campaign;
-      const [auditsRes, alertsRes] = await Promise.all([
+      const [auditsRes, alertsRes, visitsRes] = await Promise.all([
         supabaseAdmin
           .from("compliance_audits")
           .select("id", { count: "exact", head: true })
@@ -394,7 +394,12 @@ export const refreshMarketingResults = createServerFn({ method: "POST" })
           .from("listing_alert_subscribers")
           .select("id", { count: "exact", head: true })
           .eq("utm->>campaign", campaign),
+        supabaseAdmin
+          .from("marketing_visits")
+          .select("id", { count: "exact", head: true })
+          .eq("utm_campaign", campaign),
       ]);
+      const visits = visitsRes.count ?? 0;
       const audits = auditsRes.count ?? 0;
       const alerts = alertsRes.count ?? 0;
       const signups = users.filter(
@@ -402,12 +407,13 @@ export const refreshMarketingResults = createServerFn({ method: "POST" })
           (u.user_metadata as Record<string, unknown> | undefined)?.utm_campaign ===
           campaign,
       ).length;
-      const score = audits * 5 + alerts * 3 + signups * 10;
+      const score = visits + audits * 5 + alerts * 3 + signups * 10;
 
       const { error } = await supabaseAdmin
         .from("marketing_posts")
         .update({
           results: {
+            visits,
             audits,
             alerts,
             signups,
@@ -444,7 +450,7 @@ export const distillMarketingInsights = createServerFn({ method: "POST" })
       angle: string;
       topic: string;
       posted_at: string | null;
-      results: { score?: number; audits?: number; alerts?: number; signups?: number } | null;
+      results: { score?: number; visits?: number; audits?: number; alerts?: number; signups?: number } | null;
     }>).filter((p) => p.results && typeof p.results.score === "number");
 
     if (scored.length < 2) {
@@ -456,7 +462,7 @@ export const distillMarketingInsights = createServerFn({ method: "POST" })
     const evidence = scored
       .map(
         (p) =>
-          `- [${p.persona}] "${p.topic}" (angle: ${p.angle}, posted ${p.posted_at?.slice(0, 10) ?? "?"}) → score ${p.results?.score ?? 0} (audits ${p.results?.audits ?? 0}, alerts ${p.results?.alerts ?? 0}, sign-ups ${p.results?.signups ?? 0})`,
+          `- [${p.persona}] "${p.topic}" (angle: ${p.angle}, posted ${p.posted_at?.slice(0, 10) ?? "?"}) → score ${p.results?.score ?? 0} (visits ${p.results?.visits ?? 0}, audits ${p.results?.audits ?? 0}, alerts ${p.results?.alerts ?? 0}, sign-ups ${p.results?.signups ?? 0})`,
       )
       .join("\n");
 

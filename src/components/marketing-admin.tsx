@@ -422,7 +422,7 @@ export function MarketingAdminPanel() {
                       {dateFmt(post.scheduled_for)} · {post.persona} · {post.status}
                       {post.status === "posted" ? (
                         <>
-                          {" "}· audits {post.results?.audits ?? 0} · alerts{" "}
+                          {" "}· visits {post.results?.visits ?? 0} · audits {post.results?.audits ?? 0} · alerts{" "}
                           {post.results?.alerts ?? 0} · sign-ups {post.results?.signups ?? 0}
                         </>
                       ) : null}
