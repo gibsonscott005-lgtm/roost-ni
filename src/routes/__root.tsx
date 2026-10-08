@@ -1,3 +1,4 @@
+import { captureUtmFromUrl } from "@/lib/utm-session";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -127,6 +128,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
+    captureUtmFromUrl();
     initPostHog();
   }, []);
 

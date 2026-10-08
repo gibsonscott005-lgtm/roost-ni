@@ -72,8 +72,16 @@ export function MarketingAdminPanel() {
   }, [fetchEngine]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    // Recount conversions quietly on open so scores are never stale.
+    void (async () => {
+      try {
+        await refreshFn({ data: undefined } as never);
+      } catch {
+        /* fall back to stored scores */
+      }
+      await load();
+    })();
+  }, [load, refreshFn]);
 
   const generate = async () => {
     setGenerating(true);

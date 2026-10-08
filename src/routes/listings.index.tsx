@@ -1,3 +1,4 @@
+import { getEventContext } from "@/lib/utm-session";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { useMemo, useState, type FormEvent } from "react";
@@ -459,12 +460,7 @@ function ListingAlertSignup() {
     }
     setState("saving");
     try {
-      const utm: Record<string, string> = {};
-      const params = new URLSearchParams(window.location.search);
-      for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_content"]) {
-        const value = params.get(key);
-        if (value) utm[key.replace("utm_", "")] = value;
-      }
+      const utm = getEventContext() as Record<string, string>;
       await subscribe({ data: { email: trimmed, utm } });
       posthog.capture("listing_alert_signup", { page: "/listings", ...utm });
       setState("done");

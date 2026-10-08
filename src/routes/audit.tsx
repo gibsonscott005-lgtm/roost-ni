@@ -1,3 +1,4 @@
+import { getEventContext } from "@/lib/utm-session";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -68,14 +69,7 @@ function AuditPage() {
   const save = useServerFn(saveAuditResult);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const collected: Record<string, string> = {};
-    for (const key of ["utm_source", "utm_medium", "utm_campaign", "utm_content"]) {
-      const value = params.get(key);
-      if (value) collected[key.replace("utm_", "")] = value;
-    }
-    setUtm(collected);
+    setUtm(getEventContext() as Record<string, string>);
   }, []);
 
   const area = AUDIT_AREAS[step]!;
