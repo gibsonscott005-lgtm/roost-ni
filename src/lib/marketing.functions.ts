@@ -23,6 +23,7 @@ export interface MarketingPost {
   posted_at: string | null;
   notes: string | null;
   results: {
+    visits?: number;
     audits?: number;
     alerts?: number;
     signups?: number;
