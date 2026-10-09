@@ -43,7 +43,7 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const [side, setSide] = useState<"tenant" | "landlord">("tenant");
+  const [side, setSide] = useState<"tenant" | "landlord">("landlord");
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
@@ -62,6 +62,15 @@ function HomePage() {
               <Home className="h-3.5 w-3.5" />
               <span className="sm:hidden">Browse</span>
               <span className="hidden sm:inline">Browse properties</span>
+            </Link>
+            <Link
+              to="/auth"
+              onClick={() => posthog.capture("home_cta_click", { target: "header_list" })}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+            >
+              <Building2 className="h-3.5 w-3.5" />
+              <span className="sm:hidden">List</span>
+              <span className="hidden sm:inline">For landlords</span>
             </Link>
             <Link
               to="/help"
@@ -204,23 +213,22 @@ function HomePage() {
                     <ul className="space-y-2.5 text-sm text-foreground">
                       <li className="flex items-start gap-2.5">
                         <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
-                        Free 14-question NI compliance check — registration, deposit scheme,
-                        certificates, vetting.
+                        No tenant-find fee or monthly management cut — you stay in control.
                       </li>
                       <li className="flex items-start gap-2.5">
                         <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
-                        Instant score with a plain-English list of gaps.
+                        Applicants arrive with an organised, self-certified Tenant Passport — you make your own checks and decide.
                       </li>
                       <li className="flex items-start gap-2.5">
                         <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
-                        No account, no email — results on screen in two minutes.
+                        28-day notice, deposit, rent receipts and certificates tracked under NI law.
                       </li>
                     </ul>
                     <Link
                       to="/audit"
                       className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground underline-offset-2 hover:underline"
                     >
-                      Run the free audit
+                      Run the free 5-question check
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>
@@ -323,9 +331,9 @@ function HomePage() {
             <PathCard
               title="For landlords"
               steps={[
-                "Run the free 14-question NI compliance audit.",
+                "Run the free 5-question NI compliance check.",
                 "List your property with your NI registration number.",
-                "Receive pre-screened passport applications.",
+                "Receive organised, self-certified passport applications — the decision stays yours.",
                 "Manage rent, repairs and certificates in one place.",
               ]}
               cta={{ to: "/audit", label: "Run the free audit" }}
