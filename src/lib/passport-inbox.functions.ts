@@ -23,6 +23,9 @@ const SCREENING_COLUMNS = [
   "id_verified_at",
   "issuing_country",
   "id_document_path",
+  "reference_document_path",
+  "is_first_time_renter",
+  "guarantor_name",
 ].join(", ");
 
 /**
@@ -63,5 +66,14 @@ export const getApplicantPassports = createServerFn({ method: "POST" })
       .in("user_id", tenantIds);
     if (passErr) throw new Error(passErr.message);
 
-    return { passports: rows ?? [] };
+    // Expose only whether reference evidence exists, never its storage path.
+    const passports = ((rows ?? []) as unknown as Record<string, unknown>[]).map((r) => {
+      const { reference_document_path, is_first_time_renter, guarantor_name, ...rest } = r;
+      return {
+        ...rest,
+        income_provided: !!r.income_document_path,
+        reference_provided: !!reference_document_path || (!!is_first_time_renter && !!guarantor_name),
+      };
+    });
+    return { passports };
   });
