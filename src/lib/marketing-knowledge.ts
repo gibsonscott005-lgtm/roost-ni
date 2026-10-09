@@ -120,8 +120,15 @@ specifically for private tenancies in Northern Ireland.
   (• bullets), one clear CTA with the URL on its own line, then 4–7 hashtags
   (mix of #NorthernIreland #NIRentals #BelfastProperty #LandlordsNI
   #PropertyNI #BelfastRentals #RoostNI #PrivateTenanciesNI as relevant).
-- Facebook throttles reach on some external links; end with the plain URL
-  anyway (the poster can move it to the first comment).
+- Facebook GROUP compliance (most reach comes from local groups, whose
+  Admin Assist filters hold posts with links or promotional tone):
+  • NEVER put any URL, web address or "roostni.co.uk" in the body — the
+    tracked link is posted separately as the first comment.
+  • Write as a helpful peer sharing information, not an advert: no "sign up
+    now", no prices-as-sales-pitch, no ALL CAPS, no excessive emojis (max 2).
+  • End with one genuine discussion question to invite comments, then the
+    line "(Link in the first comment 👇)" before the hashtags.
+  • Max 4 hashtags in group posts.
 `.trim();
 
 /**
