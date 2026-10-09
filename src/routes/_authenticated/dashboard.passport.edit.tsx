@@ -1048,7 +1048,6 @@ function IncomeStep({
             income_breakdown: breakdown as unknown as Record<string, number>,
             willing_direct_payment_apa: apa,
             income_document_path: path,
-            income_verified: true,
           },
           { onConflict: "user_id" },
         )
@@ -1295,7 +1294,6 @@ function ReferencesStep({
 
       const base = {
         reference_document_path: path,
-        reference_verified: true,
         is_first_time_renter: firstTime,
       };
 

@@ -57,6 +57,8 @@ interface Passport {
   identity_verified: boolean;
   income_verified: boolean;
   reference_verified: boolean;
+  income_provided?: boolean;
+  reference_provided?: boolean;
   monthly_income_net: number | null;
   annual_income: number | null;
   employment_status: string | null;
@@ -290,7 +292,7 @@ function ApplicationsPage() {
               {shares.map((s, i) => {
                 const p = passports[s.tenant_id];
                 const declaredCount = p
-                  ? [p.identity_verified, p.income_verified, p.reference_verified].filter(Boolean).length
+                  ? [p.identity_verified, p.income_verified || p.income_provided, p.reference_verified || p.reference_provided].filter(Boolean).length
                   : 0;
                 return (
                   <li
@@ -308,8 +310,8 @@ function ApplicationsPage() {
                       </p>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
                         <IdBadge passport={p ?? null} />
-                        <VerifyBadge label="Income" ok={!!p?.income_verified} />
-                        <VerifyBadge label="References" ok={!!p?.reference_verified} />
+                        <VerifyBadge label="Income" ok={!!p?.income_verified} provided={!!p?.income_provided} />
+                        <VerifyBadge label="References" ok={!!p?.reference_verified} provided={!!p?.reference_provided} />
                         <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                           {declaredCount}/3 declared
                         </span>
@@ -442,10 +444,21 @@ function ApplicationsPage() {
   );
 }
 
-function VerifyBadge({ label, ok }: { label: string; ok: boolean }) {
+function VerifyBadge({ label, ok, provided = false }: { label: string; ok: boolean; provided?: boolean }) {
+  if (!ok && provided) {
+    return (
+      <span
+        title={`${label}: evidence provided by the applicant. Not independently checked by RoostNI.`}
+        className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-foreground/80"
+      >
+        <Check className="h-3 w-3" strokeWidth={3} />
+        {label} provided
+      </span>
+    );
+  }
   return (
     <span
-      title={ok ? `${label}: declared by the applicant with evidence attached. Not independently checked by RoostNI.` : `${label}: not yet declared by the applicant.`}
+      title={ok ? `${label}: independently verified.` : `${label}: not yet provided by the applicant.`}
       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
         ok ? "bg-verified-soft text-verified" : "bg-surface-muted text-muted-foreground"
       }`}
@@ -959,8 +972,8 @@ function PassportModal({
         <div className="space-y-4 p-5">
           <div className="flex flex-wrap gap-2">
             <IdBadge passport={passport} />
-            <VerifyBadge label="Income" ok={!!passport?.income_verified} />
-            <VerifyBadge label="References" ok={!!passport?.reference_verified} />
+            <VerifyBadge label="Income" ok={!!passport?.income_verified} provided={!!passport?.income_provided} />
+            <VerifyBadge label="References" ok={!!passport?.reference_verified} provided={!!passport?.reference_provided} />
             <AffordabilityBadge
               passport={passport}
               monthlyRent={share.listing?.monthly_rent ?? null}
