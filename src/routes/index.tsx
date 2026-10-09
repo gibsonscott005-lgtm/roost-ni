@@ -94,30 +94,39 @@ function HomePage() {
                 <BadgeCheck className="h-3.5 w-3.5 text-verified" /> Free early beta
               </span>
               <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-5xl lg:text-[3.25rem]">
-                Renting in Northern Ireland, done direct.
+                Northern Ireland renting, managed direct.
               </h1>
               <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-                RoostNI lists houses and flats to rent across Northern Ireland, direct from
-                landlords — with self-certified tenant passports, compliant listings, digital
-                leases, deposit tracking and maintenance, all in one place.
+                For self-managing landlords: list, let and manage your property without letting
+                agent fees, with NI tenancy law built in. For renters: one reusable Tenant
+                Passport to apply direct to landlords across Northern Ireland.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                <Link
+                  to="/auth"
+                  onClick={() => posthog.capture("home_cta_click", { target: "list_property" })}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
+                >
+                  <Building2 className="h-4 w-4" />
+                  List a property free
+                </Link>
                 <Link
                   to="/listings"
                   onClick={() => posthog.capture("home_cta_click", { target: "listings" })}
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
                 >
                   <Home className="h-4 w-4" />
-                  Browse rentals in NI
+                  Find a home
                 </Link>
-                <Link
-                  to="/audit"
-                  onClick={() => posthog.capture("home_cta_click", { target: "audit" })}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-verified/40 bg-verified-soft/60 px-6 py-3.5 font-display text-sm font-semibold text-foreground shadow-resting transition hover:bg-verified-soft"
-                >
-                  <ClipboardCheck className="h-4 w-4 text-verified" />
-                  Free 2-min landlord audit
-                </Link>
+              </div>
+              <Link
+                to="/audit"
+                onClick={() => posthog.capture("home_cta_click", { target: "audit" })}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 py-3 font-display text-sm font-semibold text-foreground shadow-resting transition hover:bg-secondary sm:w-auto"
+              >
+                <ClipboardCheck className="h-4 w-4 text-verified" />
+                Landlords: free 5-question NI compliance check
+              </Link>
               </div>
               <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
                 No account needed to browse or run the audit.{" "}
