@@ -23,6 +23,8 @@ import {
   setMarketingInsightActive,
   updateMarketingPost,
   buildShareText,
+  buildGroupPostText,
+  buildFirstCommentText,
   type MarketingEngineData,
   type MarketingPost,
 } from "@/lib/marketing.functions";
@@ -149,16 +151,18 @@ export function MarketingAdminPanel() {
     setBusyId(null);
   };
 
-  const copyPost = (post: MarketingPost) => {
+  const copyText = (text: string, title: string, description: string) => {
     void navigator.clipboard
-      .writeText(buildShareText(post))
-      .then(() =>
-        toast.success("Post copied", {
-          description: "Paste it into Facebook, then come back and mark it posted.",
-        }),
-      )
+      .writeText(text)
+      .then(() => toast.success(title, { description }))
       .catch(() => toast.error("Couldn't copy — select the text manually."));
   };
+  const copyPost = (post: MarketingPost) =>
+    copyText(buildShareText(post), "Page post copied", "Includes the tracked link — for your RoostNI Page.");
+  const copyGroupPost = (post: MarketingPost) =>
+    copyText(buildGroupPostText(post), "Group post copied", "No links inside — post it directly in the group, then add the first comment.");
+  const copyFirstComment = (post: MarketingPost) =>
+    copyText(buildFirstCommentText(post), "First comment copied", "Paste this as the first comment straight after posting.");
 
   const toggleInsight = async (id: string, active: boolean) => {
     setBusyId(id);
@@ -251,9 +255,10 @@ export function MarketingAdminPanel() {
 
       <p className="text-xs text-muted-foreground">
         The engine drafts posts around Northern Ireland rental law and RoostNI's
-        free tools. Copy a post into Facebook, mark it posted, and each CTA link
-        carries its own tracking tag — audits, alerts and sign-ups it drives are
-        scored back here automatically.
+        free tools. For groups: copy the group post (no links, so admin filters
+        don't hold it), post it directly in the group — not via "Share" — then
+        paste the first comment with the tracked link. Visits, audits, alerts
+        and sign-ups are scored back here automatically.
       </p>
 
       {insights.length > 0 ? (
@@ -358,10 +363,26 @@ export function MarketingAdminPanel() {
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => copyPost(post)}
+                    onClick={() => copyGroupPost(post)}
                     className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-[var(--color-primary-foreground)] transition hover:bg-foreground/90"
                   >
-                    <Copy className="h-3 w-3" /> Copy post
+                    <Copy className="h-3 w-3" /> 1. Copy group post
+                  </button>
+                  {post.link_url ? (
+                    <button
+                      type="button"
+                      onClick={() => copyFirstComment(post)}
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-semibold text-foreground transition hover:bg-secondary"
+                    >
+                      <Copy className="h-3 w-3" /> 2. Copy first comment
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => copyPost(post)}
+                    className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition hover:bg-secondary"
+                  >
+                    <Copy className="h-3 w-3" /> Page version
                   </button>
                   <button
                     type="button"
