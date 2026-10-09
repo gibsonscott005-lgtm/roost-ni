@@ -129,6 +129,29 @@ specifically for private tenancies in Northern Ireland.
   • End with one genuine discussion question to invite comments, then the
     line "(Link in the first comment 👇)" before the hashtags.
   • Max 4 hashtags in group posts.
+
+## Group distribution playbook (learned 9 October 2026 from live results)
+- Post NATIVELY into each group — fresh text typed in the group, image
+  uploaded directly. NEVER cross-post/share an existing post into groups:
+  cross-posted copies showed 0–1 views across every group while native
+  posts in the proven group reached 33–75 views. Facebook suppresses
+  cross-posts and group admins deprioritise them.
+- Proven channel: Newtownards & Ards Peninsula group consistently delivers
+  33–75 views per native post. Treat it as the anchor group and keep it
+  fed with the best content first.
+- Large Belfast groups (HOUSES FOR RENT IN BELFAST, Belfast - Rent
+  Apartments, Property To Rent in Belfast) hold most posts in "Pending"
+  admin queues that may never clear. A Pending post is invisible — 0 views
+  there means not shown, not rejected content.
+- To get approved in gated groups: participate as a person first (helpful
+  comments on others' posts), check each group's rules for promo days, and
+  message the admin before posting. Admin outreach message to offer:
+  "Hi — I run a free NI-built tool that helps local landlords stay on top
+  of the 2022 tenancy rules. Would a short, non-promotional info post be
+  welcome in the group? Happy to follow whatever format you prefer."
+- Read results per group, not per post: the same content can score 0 in a
+  gated group and 50+ in an open one. Judge content only on groups where
+  it was actually published.
 `.trim();
 
 /**
