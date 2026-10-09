@@ -136,7 +136,6 @@ function HomePage() {
                 <ClipboardCheck className="h-4 w-4 text-verified" />
                 Landlords: free 5-question NI compliance check
               </Link>
-              </div>
               <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
                 No account needed to browse or run the audit.{" "}
                 <Link
