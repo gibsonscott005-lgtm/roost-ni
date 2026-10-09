@@ -563,3 +563,24 @@ export function buildShareText(post: MarketingPost): string {
   }
   return `${post.body}\n\n${tracked}`;
 }
+
+/** Strips any URLs/web addresses so group Admin Assist filters don't hold the post. */
+export function buildGroupPostText(post: MarketingPost): string {
+  let body = post.body
+    .replace(/https?:\/\/\S+/gi, "")
+    .replace(/\b(www\.)?roostni\.co\.uk\S*/gi, "RoostNI")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  if (post.link_url && !/first comment/i.test(body)) {
+    body = `${body}\n\n(Link in the first comment 👇)`;
+  }
+  return body;
+}
+
+/** The first comment carrying the campaign-tracked link. */
+export function buildFirstCommentText(post: MarketingPost): string {
+  if (!post.link_url) return "";
+  const full = buildShareText({ ...post, body: "" }).trim();
+  return `Here's the link mentioned above: ${full}`;
+}
