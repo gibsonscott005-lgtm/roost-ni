@@ -78,6 +78,13 @@
       "when": 1791532295248,
       "tag": "0010_lock_passport_verified_flags_and_visit_check",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791585263854,
+      "tag": "0011_clamp_signup_account_type",
+      "breakpoints": true
     }
   ]
 }
