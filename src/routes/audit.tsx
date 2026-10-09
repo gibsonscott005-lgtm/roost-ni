@@ -18,7 +18,6 @@ import {
   Users,
 } from "lucide-react";
 import {
-  AUDIT_AREAS,
   AUDIT_QUESTIONS,
   PROPERTY_COUNT_OPTIONS,
   scoreAudit,
@@ -57,7 +56,6 @@ type Stage = "intro" | "questions" | "result";
 
 function AuditPage() {
   const [stage, setStage] = useState<Stage>("intro");
-  const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<AuditAnswers>({});
   const [email, setEmail] = useState("");
   const [contactName, setContactName] = useState("");
@@ -529,7 +527,7 @@ function AuditPage() {
                 type="button"
                 onClick={() => {
                   setAnswers({});
-                  setStep(0);
+                  
                   setStage("intro");
                   setSaved(false);
                   scrollTop();
