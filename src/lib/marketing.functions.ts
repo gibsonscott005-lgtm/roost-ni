@@ -231,7 +231,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
         ? "- Northern Ireland law only; follow the jurisdiction rules above."
         : "- Vary the angle across the batch (compliance risk, money saved, time saved, tenant readiness, community trust, legislation explainer).",
       "- Each post needs exactly one CTA URL from the approved list in the system prompt.",
-      "- Do NOT paste the CTA URL inside the body text — the posting tool appends the tracked link automatically. Write the body and hashtags only.",
+      "- Do NOT paste the CTA URL or any web address inside the body text — the tracked link goes in the first comment. Follow the Facebook GROUP compliance rules: peer tone, end with a discussion question, then \"(Link in the first comment 👇)\", then max 4 hashtags.",
       "- Return ONLY a JSON array, no markdown fences, each item:",
       '  {"persona":"landlord"|"tenant"|"community","angle":"short-kebab-label","topic":"5-10 word summary","body":"full post text with \\n newlines","link_url":"the CTA URL used"}',
     ].join("\n");
@@ -562,4 +562,25 @@ export function buildShareText(post: MarketingPost): string {
     return post.body.replace(urlPattern, tracked);
   }
   return `${post.body}\n\n${tracked}`;
+}
+
+/** Strips any URLs/web addresses so group Admin Assist filters don't hold the post. */
+export function buildGroupPostText(post: MarketingPost): string {
+  let body = post.body
+    .replace(/https?:\/\/\S+/gi, "")
+    .replace(/\b(www\.)?roostni\.co\.uk\S*/gi, "RoostNI")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  if (post.link_url && !/first comment/i.test(body)) {
+    body = `${body}\n\n(Link in the first comment 👇)`;
+  }
+  return body;
+}
+
+/** The first comment carrying the campaign-tracked link. */
+export function buildFirstCommentText(post: MarketingPost): string {
+  if (!post.link_url) return "";
+  const full = buildShareText({ ...post, body: "" }).trim();
+  return `Here's the link mentioned above: ${full}`;
 }
