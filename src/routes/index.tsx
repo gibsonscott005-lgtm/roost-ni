@@ -21,17 +21,17 @@ export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Rent Houses & Flats Direct in Northern Ireland | RoostNI" },
+      { title: "Let & Rent Direct in Northern Ireland — No Agent Fees | RoostNI" },
       {
         name: "description",
         content:
-          "Houses and flats to rent across Northern Ireland — apply direct to landlords. Free tenant passports, digital leases and deposit tracking, free in beta.",
+          "Self-managing NI landlords: list and manage rentals without agent fees, with NI tenancy law built in. Renters: one Tenant Passport to apply direct. Free in beta.",
       },
-      { property: "og:title", content: "Rent Houses & Flats Direct in Northern Ireland | RoostNI" },
+      { property: "og:title", content: "Let & Rent Direct in Northern Ireland — No Agent Fees | RoostNI" },
       {
         property: "og:description",
         content:
-          "Houses and flats to rent across Northern Ireland — apply direct to landlords. Free tenant passports, digital leases and deposit tracking, free in beta.",
+          "Self-managing NI landlords: list and manage rentals without agent fees, with NI tenancy law built in. Renters: one Tenant Passport to apply direct. Free in beta.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk/" },
@@ -255,6 +255,34 @@ function HomePage() {
                 <p className="text-sm font-medium text-foreground">Apply to any listing in one tap</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">No more re-typing your details.</p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Landlord value */}
+        <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 sm:pb-16">
+          <div className="rounded-[2rem] border border-border bg-surface p-6 shadow-floating sm:p-10">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              For self-managing landlords
+            </p>
+            <h2 className="mt-2 max-w-2xl font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+              Everything an agent does for you, without handing over a cut of your rent.
+            </h2>
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
+              <FeatureCard icon={Wallet} title="Keep your rent" body="No tenant-find fee and no monthly management percentage while RoostNI is in free beta." />
+              <FeatureCard icon={ShieldCheck} title="NI law built in" body="Private Tenancies Act (NI) 2022 steps — 28-day notice, deposit protection, rent receipts, notice to quit — prompted as you go." />
+              <FeatureCard icon={IdCard} title="Organised applications" body="Renters apply with a reusable, self-certified Tenant Passport. RoostNI never scores or recommends — the decision is always yours." />
+            </div>
+            <p className="mt-6 text-xs text-muted-foreground">
+              Renters benefit too: one passport, no re-typing, and clear listings with certificates up front.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link to="/auth" onClick={() => posthog.capture("home_cta_click", { target: "landlord_section_list" })} className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:bg-foreground/92">
+                List a property free <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link to="/audit" onClick={() => posthog.capture("home_cta_click", { target: "landlord_section_audit" })} className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 py-3 font-display text-sm font-semibold text-foreground transition hover:bg-secondary">
+                Run the free 5-question check
+              </Link>
             </div>
           </div>
         </section>
