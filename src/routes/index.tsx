@@ -265,7 +265,7 @@ function HomePage() {
               For self-managing landlords
             </p>
             <h2 className="mt-2 max-w-2xl font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-              Everything an agent does for you, without handing over a cut of your rent.
+              Run your let yourself, without handing an agent a cut of your rent.
             </h2>
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               <FeatureCard icon={Wallet} title="Keep your rent" body="No tenant-find fee and no monthly management percentage while RoostNI is in free beta." />
