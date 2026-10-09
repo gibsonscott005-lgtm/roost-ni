@@ -53,7 +53,7 @@ specifically for private tenancies in Northern Ireland.
 ## What RoostNI offers (pick the relevant one per post)
 - Free Tenant Passport: ID, income proof and rental history organised once,
   ready to share with any landlord.
-- Free anonymous Landlord Compliance Audit at /audit: 14 questions, 2 minutes,
+- Free anonymous Landlord Compliance Audit at /audit: 5 questions, under a minute,
   scored against the NI rules above, no sign-up needed.
 - Browse NI listings at /listings with free listing alerts by email the moment
   a new home is published.

@@ -3,12 +3,11 @@
 // landlord's own paperwork and habits, and names gaps in plain language.
 
 export type AuditArea =
-  | "Registration & notices"
+  | "Registration"
+  | "Tenancy notice"
   | "Deposit"
-  | "Safety certificates"
-  | "Rent & records"
-  | "Tenant vetting & turnover"
-  | "Ending a tenancy";
+  | "Rent receipts"
+  | "Safety";
 
 export interface AuditOption {
   /** Stable value stored with the submission. */
@@ -39,195 +38,61 @@ const YES_PARTLY_NO = (yes: string, partly: string, no: string): AuditOption[] =
 export const AUDIT_QUESTIONS: AuditQuestion[] = [
   {
     id: "landlord_registration",
-    area: "Registration & notices",
-    question: "Are you registered with the NI Landlord Registration Scheme, with the number to hand?",
-    help: "Registration is required for every private landlord in Northern Ireland and must be renewed every three years.",
-    options: YES_PARTLY_NO(
-      "Yes — registered and I know my number",
-      "Registered, but I'd have to go looking for the number",
-      "No, or I'm not sure it's still current",
-    ),
-    gap: "Your landlord registration number isn't immediately to hand.",
-    fix: "RoostNI stores it against each property and puts it on every listing and lease.",
+    area: "Registration",
+    question: "Are you registered with the NI Landlord Registration Scheme?",
+    help: "Every private landlord in Northern Ireland must register, and renew every three years. Failing to register can mean a £500 fixed penalty.",
+    options: YES_PARTLY_NO("Yes — registered and current", "Not sure / may have lapsed", "No"),
+    gap: "Landlord registration isn't confirmed as current.",
+    fix: "RoostNI stores your registration number against each property and reminds you before renewal.",
   },
   {
     id: "tenancy_notice",
-    area: "Registration & notices",
-    question: "Did your current tenant receive a written Tenancy Information Notice?",
-    help: "Since April 2023 a landlord must give the tenant written tenancy terms within 28 days of the tenancy starting.",
-    options: YES_PARTLY_NO(
-      "Yes — written notice given, and I have a copy",
-      "They got a tenancy agreement, but not the statutory notice",
-      "No, or I'm not sure what that is",
-    ),
+    area: "Tenancy notice",
+    question: "Did your tenant get a written Tenancy Information Notice within 28 days of moving in?",
+    help: "Required for private tenancies in Northern Ireland since April 2023.",
+    options: YES_PARTLY_NO("Yes — and I kept a copy", "Not sure", "No"),
     gap: "No statutory Tenancy Information Notice on file.",
     fix: "RoostNI generates the notice from the tenancy details and keeps a dated copy for both sides.",
   },
   {
-    id: "written_agreement",
-    area: "Registration & notices",
-    question: "Is there a signed written tenancy agreement for the current let?",
-    options: YES_PARTLY_NO(
-      "Yes — signed by both of us, stored safely",
-      "There's an agreement, but it's unsigned or I can't find it",
-      "No written agreement",
-    ),
-    gap: "No signed agreement you can produce on demand.",
-    fix: "RoostNI issues an NI agreement (or your own PDF), the tenant signs, you counter-sign, and both keep it.",
-  },
-  {
     id: "deposit_scheme",
     area: "Deposit",
-    question: "Is the deposit lodged with an approved tenancy deposit scheme?",
-    help: "A deposit must be protected within 28 days of receipt, and the tenant told which scheme holds it.",
-    options: YES_PARTLY_NO(
-      "Yes — lodged, and I have the certificate",
-      "Lodged, but I couldn't find the certificate quickly",
-      "No, I'm holding it myself or I'm not sure",
-    ),
-    gap: "Deposit protection can't be evidenced with a certificate.",
-    fix: "RoostNI runs the 28-day countdown, records the scheme and number, and stores the certificate for the tenant to see.",
-  },
-  {
-    id: "deposit_timing",
-    area: "Deposit",
-    question: "Could you prove the deposit was protected inside the 28-day window?",
-    options: YES_PARTLY_NO(
-      "Yes — I have the dates in writing",
-      "Probably, but I'd be reconstructing it from memory",
-      "No",
-    ),
-    gap: "The 28-day protection timeline isn't evidenced.",
-    fix: "RoostNI timestamps when the deposit was received and when it was protected.",
-  },
-  {
-    id: "inventory",
-    area: "Deposit",
-    question: "Was a dated inventory with photographs agreed at move-in?",
-    help: "Without one, deposit deductions at the end are very hard to sustain.",
-    options: YES_PARTLY_NO(
-      "Yes — room by room, photographed, tenant agreed it",
-      "Some notes or photos, but nothing the tenant signed off",
-      "No inventory",
-    ),
-    gap: "No agreed move-in inventory to compare against at the end.",
-    fix: "RoostNI builds the inventory room by room, the tenant signs it off or flags a disagreement, and check-out compares against it.",
-  },
-  {
-    id: "gas_safety",
-    area: "Safety certificates",
-    question: "If there's a gas appliance, is the annual Gas Safety Record in date?",
+    question: "Was the deposit protected with TDS NI or MyDeposits NI within 28 days?",
+    help: "The tenant must also receive the scheme's prescribed information within 35 days of the deposit being paid.",
     options: [
-      { value: "yes", label: "Yes — in date, copy given to the tenant", points: 2 },
-      { value: "na", label: "No gas appliances at the property", points: 2 },
-      { value: "partly", label: "In date, but the tenant hasn't been given a copy", points: 1 },
-      { value: "no", label: "Out of date, or I'd need to check", points: 0 },
+      { value: "yes", label: "Yes — protected, and the tenant was told", points: 2 },
+      { value: "na", label: "No deposit was taken", points: 2 },
+      { value: "partly", label: "Not sure about the dates", points: 1 },
+      { value: "no", label: "No", points: 0 },
     ],
-    gap: "Gas safety evidence is out of date or hasn't reached the tenant.",
-    fix: "RoostNI's certificate vault tracks the expiry date, reminds you before it lapses, and shows the tenant their copy.",
-  },
-  {
-    id: "epc",
-    area: "Safety certificates",
-    question: "Do you have a valid Energy Performance Certificate for the property?",
-    help: "An EPC is required before marketing a property to let and is valid for ten years.",
-    options: YES_PARTLY_NO(
-      "Yes — valid and I know where it is",
-      "There is one, but I'm not certain it's still valid",
-      "No, or I've never had one done",
-    ),
-    gap: "EPC missing or of uncertain validity.",
-    fix: "RoostNI stores the EPC against the property with its expiry, and attaches it to the listing.",
-  },
-  {
-    id: "electrical_alarms",
-    area: "Safety certificates",
-    question: "Are smoke and carbon monoxide alarms fitted, tested and the test recorded?",
-    options: YES_PARTLY_NO(
-      "Yes — fitted, tested, and the test is written down",
-      "Fitted, but testing isn't recorded anywhere",
-      "Not fitted, or I don't know",
-    ),
-    gap: "Alarm testing isn't recorded.",
-    fix: "RoostNI keeps alarm and electrical checks alongside the other certificates, with reminders.",
+    gap: "Deposit protection within the 28-day window can't be evidenced.",
+    fix: "RoostNI runs the 28-day countdown, records the scheme and number, and stores the certificate.",
   },
   {
     id: "rent_records",
-    area: "Rent & records",
-    question: "Do you keep a rent record showing every payment received?",
-    help: "A landlord must provide a rent receipt or statement where rent is paid in cash.",
-    options: YES_PARTLY_NO(
-      "Yes — a running record, payment by payment",
-      "Bank statements only, nothing itemised",
-      "No real record",
-    ),
-    gap: "No itemised rent record you could hand over or use at year end.",
-    fix: "RoostNI keeps a rent schedule and ledger, flags arrears, and issues receipts.",
+    area: "Rent receipts",
+    question: "Do you give written receipts or keep a record of every rent payment?",
+    help: "A written receipt is required for rent paid in cash.",
+    options: YES_PARTLY_NO("Yes — every payment recorded", "Bank statements only", "No"),
+    gap: "No itemised rent record or receipts you could hand over.",
+    fix: "RoostNI keeps a rent ledger, flags arrears and issues receipts.",
   },
   {
-    id: "repairs_log",
-    area: "Rent & records",
-    question: "Are repair requests and what you did about them written down?",
-    options: YES_PARTLY_NO(
-      "Yes — dated requests and dated responses",
-      "It's all in texts and WhatsApp somewhere",
-      "No record",
-    ),
-    gap: "Repair history lives in messages rather than a record.",
-    fix: "RoostNI logs each repair with urgency, photos, your notes and the date it was resolved.",
-  },
-  {
-    id: "applicant_pack",
-    area: "Tenant vetting & turnover",
-    question:
-      "When someone applies, do you get photo ID, proof of income and previous landlord references in one organised pack?",
-    help: "Applicants provide these themselves. This is about whether they arrive together, or in pieces across messages.",
-    options: YES_PARTLY_NO(
-      "Yes — a consistent set of documents I keep on file",
-      "Bits and pieces over WhatsApp, email or on paper",
-      "Mostly a conversation and a gut feel",
-    ),
-    gap: "Applicant documents arrive scattered rather than as one pack.",
-    fix: "Applicants apply with a Tenant Passport — ID, income and references in one structured pack, shown as what they provided versus what you still need to check yourself.",
-  },
-  {
-    id: "turnover_cost",
-    area: "Tenant vetting & turnover",
-    question: "When the property becomes vacant, what does finding a new tenant cost you?",
-    options: [
-      { value: "direct", label: "Nothing — I advertise and screen it myself", points: 2 },
-      { value: "mixed", label: "It varies, or the property rarely comes vacant", points: 1 },
-      {
-        value: "agent",
-        label: "A letting agent's finder fee, or hours sifting social media messages",
-        points: 0,
-      },
-    ],
-    gap: "Re-letting currently costs you a finder fee or a lot of your own time.",
-    fix: "Advertise direct on RoostNI at no cost and take applications with a Tenant Passport attached — no agent finder fee, no message sifting.",
-  },
-  {
-    id: "notice_periods",
-    area: "Ending a tenancy",
-    question: "Do you know the notice period you'd have to give your current tenant?",
-    help: "In Northern Ireland the notice a landlord must give depends on how long the tenancy has run.",
-    options: YES_PARTLY_NO(
-      "Yes — and I know it depends on the length of the tenancy",
-      "Roughly, I'd have to look it up",
-      "No",
-    ),
-    gap: "Notice periods would need looking up under pressure.",
-    fix: "RoostNI works the period out from the tenancy start date and produces a dated notice.",
+    id: "epc_alarms",
+    area: "Safety",
+    question: "Do you have a valid EPC, and are smoke, heat and carbon monoxide alarms fitted?",
+    options: YES_PARTLY_NO("Yes — both in place", "One or the other / not sure", "No"),
+    gap: "EPC or alarms not confirmed as in place.",
+    fix: "RoostNI's certificate vault tracks expiry dates and reminds you before anything lapses.",
   },
 ];
 
 export const AUDIT_AREAS: AuditArea[] = [
-  "Registration & notices",
+  "Registration",
+  "Tenancy notice",
   "Deposit",
-  "Safety certificates",
-  "Rent & records",
-  "Tenant vetting & turnover",
-  "Ending a tenancy",
+  "Rent receipts",
+  "Safety",
 ];
 
 export type AuditAnswers = Record<string, string>;

@@ -18,7 +18,6 @@ import {
   Users,
 } from "lucide-react";
 import {
-  AUDIT_AREAS,
   AUDIT_QUESTIONS,
   PROPERTY_COUNT_OPTIONS,
   scoreAudit,
@@ -35,7 +34,7 @@ export const Route = createFileRoute("/audit")({
       {
         name: "description",
         content:
-          "A free two-minute check for Northern Ireland landlords: registration, tenancy notice, deposit protection, safety certificates, rent records and notice periods. See your score and your gaps.",
+          "A free one-minute check for Northern Ireland landlords: registration, tenancy notice, deposit protection, rent receipts, EPC and alarms. See your score and your gaps.",
       },
       {
         property: "og:title",
@@ -44,7 +43,7 @@ export const Route = createFileRoute("/audit")({
       {
         property: "og:description",
         content:
-          "Fourteen questions, two minutes, no account needed. Get a plain-English list of what's missing from your NI tenancy records.",
+          "Five questions, under a minute, no account needed. Get a plain-English list of what's missing from your NI tenancy records.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -57,7 +56,6 @@ type Stage = "intro" | "questions" | "result";
 
 function AuditPage() {
   const [stage, setStage] = useState<Stage>("intro");
-  const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<AuditAnswers>({});
   const [email, setEmail] = useState("");
   const [contactName, setContactName] = useState("");
@@ -72,11 +70,7 @@ function AuditPage() {
     setUtm(getEventContext() as Record<string, string>);
   }, []);
 
-  const area = AUDIT_AREAS[step]!;
-  const areaQuestions = useMemo(
-    () => AUDIT_QUESTIONS.filter((q) => q.area === area),
-    [area],
-  );
+  const areaQuestions = AUDIT_QUESTIONS;
   const areaComplete = areaQuestions.every((q) => answers[q.id]);
   const answeredCount = AUDIT_QUESTIONS.filter((q) => answers[q.id]).length;
   const result = useMemo(() => scoreAudit(answers), [answers]);
@@ -91,11 +85,6 @@ function AuditPage() {
   };
 
   const next = () => {
-    if (step < AUDIT_AREAS.length - 1) {
-      setStep(step + 1);
-      scrollTop();
-      return;
-    }
     const final = scoreAudit(answers);
     setStage("result");
     scrollTop();
@@ -108,12 +97,7 @@ function AuditPage() {
   };
 
   const back = () => {
-    if (step === 0) {
-      setStage("intro");
-      return;
-    }
-    setStep(step - 1);
-    scrollTop();
+    setStage("intro");
   };
 
   const onSave = async (e: React.FormEvent) => {
@@ -176,15 +160,14 @@ function AuditPage() {
               Is your Northern Ireland tenancy paperwork in order?
             </h1>
             <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-              Fourteen questions about the documents, records and habits an NI tenancy relies
-              on — registration, the statutory tenancy notice, deposit protection, safety
-              certificates, rent records, how applicants' documents reach you, and notice
-              periods. You'll get a score and a plain-English list of what's missing.
+              Five quick questions on the rules NI landlords are most often caught out by —
+              registration, the 28-day tenancy notice, deposit protection, rent receipts, and
+              EPC and alarms. You'll get a score and a plain-English list of what's missing.
             </p>
             <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
               <li className="flex gap-2">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
-                Takes about two minutes. No account, no email needed to see your result.
+                Takes under a minute. No account, no email needed to see your result.
               </li>
               <li className="flex gap-2">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
@@ -215,9 +198,7 @@ function AuditPage() {
         {stage === "questions" ? (
           <section>
             <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
-              <span>
-                Section {step + 1} of {AUDIT_AREAS.length}
-              </span>
+              <span>Quick check</span>
               <span>
                 {answeredCount} of {AUDIT_QUESTIONS.length} answered
               </span>
@@ -230,7 +211,7 @@ function AuditPage() {
             </div>
 
             <h1 className="mt-6 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-              {area}
+              Five quick questions
             </h1>
 
             <div className="mt-6 space-y-4">
@@ -295,13 +276,13 @@ function AuditPage() {
                 disabled={!areaComplete}
                 className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92 disabled:cursor-not-allowed disabled:opacity-45"
               >
-                {step === AUDIT_AREAS.length - 1 ? "See my result" : "Next section"}
+                "See my result"
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
             {!areaComplete ? (
               <p className="mt-2.5 text-right text-xs text-muted-foreground">
-                Answer every question in this section to continue.
+                Answer all five to see your result.
               </p>
             ) : null}
           </section>
@@ -450,11 +431,11 @@ function AuditPage() {
               ) : (
                 <form onSubmit={onSave}>
                   <h2 className="font-display text-lg font-semibold tracking-tight">
-                    Want this result kept for you?
+                    Email me my NI compliance checklist
                   </h2>
                   <p className="mt-1.5 text-sm text-muted-foreground">
-                    Leave your email and we'll hold your score and gap list, so you can pick
-                    it up later. No newsletter, and nothing shared with anyone else.
+                    Get your score, your gaps and the deadlines that apply, kept in one place
+                    to refer back to. No newsletter, and nothing shared with anyone else.
                   </p>
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
                     <label className="block">
@@ -546,7 +527,7 @@ function AuditPage() {
                 type="button"
                 onClick={() => {
                   setAnswers({});
-                  setStep(0);
+                  
                   setStage("intro");
                   setSaved(false);
                   scrollTop();
