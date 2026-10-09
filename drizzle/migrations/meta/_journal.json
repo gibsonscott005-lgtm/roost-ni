@@ -71,6 +71,13 @@
       "when": 1791497404298,
       "tag": "0009_remove_test_visit",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791532295248,
+      "tag": "0010_lock_passport_verified_flags_and_visit_check",
+      "breakpoints": true
     }
   ]
 }
