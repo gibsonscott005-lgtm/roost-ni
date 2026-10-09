@@ -66,7 +66,7 @@ export function MarketingAdminPanel() {
     try {
       setData(await fetchEngine({ data: undefined } as never));
     } catch (error) {
-      toast.error("Couldn't load the marketing engine", {
+      toast.error("Couldn't load Robin", {
         description: error instanceof Error ? error.message : undefined,
       });
     }
@@ -89,7 +89,7 @@ export function MarketingAdminPanel() {
     setGenerating(true);
     try {
       const { created } = await generateFn({ data: { focus, count: 4 } });
-      toast.success(`${created.length} posts drafted`, {
+      toast.success(`Robin drafted ${created.length} posts`, {
         description: "They sit in the queue below, one per evening from tomorrow.",
       });
       await load();
@@ -200,6 +200,15 @@ export function MarketingAdminPanel() {
 
   return (
     <div className="mt-6 space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-verified text-[var(--color-verified-foreground)]">
+          <Sparkles className="h-5 w-5" />
+        </div>
+        <div>
+          <p className="font-display text-base font-semibold text-foreground">Robin</p>
+          <p className="text-xs text-muted-foreground">RoostNI's marketing assistant</p>
+        </div>
+      </div>
       <div className="flex flex-wrap items-center gap-2">
         <select
           value={focus}
@@ -222,7 +231,7 @@ export function MarketingAdminPanel() {
           ) : (
             <Sparkles className="h-3.5 w-3.5" />
           )}
-          {generating ? "Drafting…" : "Draft 4 posts"}
+          {generating ? "Robin is drafting…" : "Ask Robin for 4 posts"}
         </button>
         <button
           type="button"
@@ -254,17 +263,17 @@ export function MarketingAdminPanel() {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        The engine drafts posts around Northern Ireland rental law and RoostNI's
+        Robin drafts posts around Northern Ireland rental law and RoostNI's
         free tools. For groups: copy the group post (no links, so admin filters
         don't hold it), post it directly in the group — not via "Share" — then
         paste the first comment with the tracked link. Visits, audits, alerts
-        and sign-ups are scored back here automatically.
+        and sign-ups are scored back here automatically, so Robin learns what works.
       </p>
 
       {insights.length > 0 ? (
         <div className="rounded-2xl border border-border bg-surface-muted/50 p-4">
           <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            What the engine has learned
+            What Robin has learned
           </p>
           <ul className="mt-2 space-y-1.5">
             {insights.map((i) => (

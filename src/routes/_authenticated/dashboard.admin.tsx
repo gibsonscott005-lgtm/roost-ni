@@ -226,7 +226,7 @@ function AdminDashboard() {
               active={tab === "marketing"}
               onClick={() => setTab("marketing")}
               icon={Megaphone}
-              label="Marketing engine"
+              label="Robin (Marketing)"
             />
           </div>
 
