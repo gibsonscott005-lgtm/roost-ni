@@ -591,7 +591,7 @@ function Header() {
             <Bell className="h-4 w-4" />
           </button>
           <Link
-            to="/auth"
+            to="/auth" search={{ mode: "login" }}
             className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary sm:text-sm"
           >
             Sign in
