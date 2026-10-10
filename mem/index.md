@@ -25,3 +25,4 @@ Every milestone mutation must fanout via `emitNotification` to the counterparty;
 - [Palette & elevation](mem://design/palette-and-elevation) — Warm Porcelain tokens, emerald-reserved rule, elevation scale, form field styling
 - [Tenant listing alerts](mem://features/listing-alerts) — /listings email capture, owner heads-up per publish, manual BCC follow-up; no bulk sends
 - [NI statutory verification](mem://compliance/ni-statutory-verification) — verify all tenancy copy against NI legislation only; LPS NI deposit scheme is defunct; English law frameworks excluded
+- [Property118 sentiment Q3 2026](mem://reference/property118-sentiment-q3-2026) — GB landlord exodus is driven by English law (Renters' Rights Act, S21); NI framing rules for Robin, never quote as NI data
