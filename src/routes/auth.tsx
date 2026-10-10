@@ -199,9 +199,10 @@ function AuthPage() {
     next: nextFromSearch,
     email: emailFromSearch,
     listingId,
+    mode: modeFromSearch,
   } = Route.useSearch();
   const [role, setRole] = useState<Role>(roleFromSearch ?? "tenant");
-  const [mode, setMode] = useState<Mode>("signup");
+  const [mode, setMode] = useState<Mode>(modeFromSearch ?? "signup");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState(emailFromSearch ?? "");
 
