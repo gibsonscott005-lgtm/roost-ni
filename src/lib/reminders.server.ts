@@ -27,7 +27,7 @@ const CERTIFICATE_LABELS: Record<string, string> = {
   epc: "Energy Performance Certificate",
   gas: "Gas Safety Certificate",
   eicr: "Electrical Installation Condition Report",
-  alarms: "Smoke and carbon monoxide alarm confirmation",
+  alarms: "Smoke, heat and carbon monoxide alarm confirmation",
 };
 
 function todayUtc() {

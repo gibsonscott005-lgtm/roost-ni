@@ -75,7 +75,7 @@ const OTHER_DUTIES = [
   },
   {
     title: "Deposit protection within 28 days",
-    body: "Any tenancy deposit must go into an approved scheme — TDS NI, MyDeposits NI or Letting Protection Service NI — within 28 days of receiving it, with the prescribed information given to the tenant.",
+    body: "Any tenancy deposit must go into an approved scheme — TDS Northern Ireland or MyDeposits Northern Ireland — within 28 days of receiving it, with the prescribed information given to the tenant. Deposits are capped at one month's rent.",
   },
   {
     title: "Energy Performance Certificate",

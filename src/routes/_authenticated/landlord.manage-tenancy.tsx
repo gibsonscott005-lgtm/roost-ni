@@ -151,7 +151,7 @@ const OIL_LEVELS: { value: OilLevel; label: string; pct: number }[] = [
   { value: "empty", label: "Empty", pct: 0 },
 ];
 
-const DEPOSIT_SCHEMES = ["TDS NI", "MyDeposits NI", "LPS NI"];
+const DEPOSIT_SCHEMES = ["TDS Northern Ireland", "MyDeposits Northern Ireland"];
 
 function ManageTenancyPage() {
   const { user, profile } = useAuth();

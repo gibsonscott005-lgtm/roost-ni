@@ -44,8 +44,10 @@ specifically for private tenancies in Northern Ireland.
 - Northern Ireland pays rates (via LPS) — not Council Tax. Whether rates are
   included in the rent must be stated clearly in the tenancy terms.
 - Fitness standard & smoke/heat/CO alarms: private tenancies must meet the
-  statutory fitness standard; working smoke and carbon monoxide alarms are
-  expected (CO alarms required where combustion appliances exist).
+  statutory fitness standard; under the Smoke, Heat and Carbon Monoxide Alarms
+  for Private Tenancies Regulations (NI) 2024, interlinked smoke alarms are
+  required in the living room and circulation spaces, a heat alarm in the
+  kitchen, and a CO alarm where combustion appliances exist.
 - Disputes over deposit deductions go through the approved schemes' free
   adjudication or the courts; district councils enforce the landlord
   offences (e.g. failing to protect a deposit or issue required notices).
@@ -205,7 +207,7 @@ export const NI_LEGAL_TOPICS: NiLegalTopic[] = [
   { key: "council-fitness-repairs", body: "District council Environmental Health", title: "Fitness standard, damp and repairs", facts: "District council Environmental Health officers can inspect private rentals for fitness (e.g. serious damp, disrepair, lack of heating) and require works. Tenants should report problems to the landlord in writing first, then contact their council.", cta: "https://roostni.co.uk/audit" },
   { key: "council-hmo", body: "NI HMO Unit (Belfast City Council)", title: "HMO licensing", facts: "Houses in Multiple Occupation Act (NI) 2016: a property let to 3 or more people from more than 2 households generally needs an HMO licence from the NI HMO Unit, hosted by Belfast City Council. Letting an unlicensed HMO is an offence.", cta: "https://roostni.co.uk/audit" },
   { key: "courts-illegal-eviction", body: "NI Courts & Enforcement of Judgments Office", title: "Illegal eviction and harassment", facts: "Rent (NI) Order 1978: changing locks, cutting off utilities or removing belongings to force a tenant out is a criminal offence, even after a notice to quit expires. Possession requires a court order, enforced through the Enforcement of Judgments Office.", cta: "https://roostni.co.uk/audit" },
-  { key: "tds-14-28-deadlines", body: "Approved NI deposit schemes", title: "Deposit protection deadlines", facts: "Tenancy Deposit Schemes Regulations (NI) 2012: deposits must be protected in an approved scheme (TDS Northern Ireland, mydeposits Northern Ireland or Letting Protection Service NI) within 28 days of receipt, and prescribed information given to the tenant within 28 days. Councils can fine landlords who fail.", cta: "https://roostni.co.uk/audit" },
+  { key: "tds-14-28-deadlines", body: "Approved NI deposit schemes", title: "Deposit protection deadlines", facts: "Tenancy Deposit Schemes Regulations (NI) 2012: deposits must be protected in an approved scheme (TDS Northern Ireland or MyDeposits Northern Ireland) within 28 days of receipt, and prescribed information given to the tenant within 28 days. Deposits are capped at one month's rent under the Private Tenancies Act (NI) 2022. Councils can fine landlords who fail.", cta: "https://roostni.co.uk/audit" },
   { key: "tds-wear-and-tear", body: "Approved NI deposit schemes", title: "Fair wear and tear vs damage", facts: "In NI deposit scheme adjudication, landlords cannot charge tenants for fair wear and tear or 'betterment' (ending up better off than at the start); deductions must be evidenced and proportionate to the item's age.", cta: "https://roostni.co.uk/listings" },
   { key: "tds-inventory", body: "Approved NI deposit schemes", title: "Why check-in inventories decide disputes", facts: "NI deposit scheme adjudicators rely on evidence. A dated, photographic check-in inventory signed by both sides is the strongest evidence in any deposit dispute; without one, landlords struggle to justify deductions.", cta: "https://roostni.co.uk/audit" },
   { key: "oil-heating-levels", body: "Good practice (NI deposit schemes)", title: "Heating oil levels at check-in and check-out", facts: "Many NI homes use heating oil. There is no statutory rule on oil levels; record the tank level (with a photo) at check-in and check-out and state in the tenancy terms how oil is handled to avoid deposit disputes.", cta: "https://roostni.co.uk/listings" },
