@@ -24,3 +24,4 @@ Every milestone mutation must fanout via `emitNotification` to the counterparty;
 - [Positioning & vetting boundary](mem://positioning-boundary) — agent-replacement positioning, both-sides pricing, the never-do list, language rules, landlord acceptance confirmation, agent-task roadmap
 - [Palette & elevation](mem://design/palette-and-elevation) — Warm Porcelain tokens, emerald-reserved rule, elevation scale, form field styling
 - [Tenant listing alerts](mem://features/listing-alerts) — /listings email capture, owner heads-up per publish, manual BCC follow-up; no bulk sends
+- [NI statutory verification](mem://compliance/ni-statutory-verification) — verify all tenancy copy against NI legislation only; LPS NI deposit scheme is defunct; English law frameworks excluded
