@@ -1444,9 +1444,6 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
                 <option value="">Not recorded yet</option>
                 <option value="TDS Northern Ireland">TDS Northern Ireland</option>
                 <option value="MyDeposits Northern Ireland">MyDeposits Northern Ireland</option>
-                <option value="Letting Protection Service NI">
-                  Letting Protection Service NI
-                </option>
               </select>
             </Field>
             <Field label="Deposit reference (optional)">

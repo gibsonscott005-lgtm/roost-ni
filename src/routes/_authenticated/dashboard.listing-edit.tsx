@@ -423,6 +423,9 @@ function EditListingPage() {
                     className={`${inputCx} pl-9`}
                   />
                 </div>
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  In Northern Ireland, deposits are legally capped at one month's rent.
+                </p>
               </Field>
             </div>
           </Card>
