@@ -12,11 +12,12 @@ export const Route = createFileRoute("/auth")({
   staticData: { sitemap: false },
   validateSearch: (
     search: Record<string, unknown>,
-  ): { role?: "tenant" | "landlord"; next?: string; email?: string; listingId?: string } => {
+  ): { role?: "tenant" | "landlord"; next?: string; email?: string; listingId?: string; mode?: "login" } => {
     const role = search['role'];
     const rawNext = search['next'];
     const rawEmail = search['email'];
     const rawListingId = search['listingId'];
+    const rawMode = search['mode'];
     // Same-origin paths only: a leading "//" is a scheme-relative external
     // URL, and a backslash anywhere (e.g. "/\evil.example") is normalised by
     // browsers into one — reject both.
@@ -40,6 +41,7 @@ export const Route = createFileRoute("/auth")({
       ...(next ? { next } : {}),
       ...(email ? { email } : {}),
       ...(listingId ? { listingId } : {}),
+      ...(rawMode === "login" ? { mode: "login" as const } : {}),
     };
   },
 
