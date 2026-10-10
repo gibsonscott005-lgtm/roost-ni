@@ -18,6 +18,7 @@ import { Route as HelpRouteImport } from './routes/help'
 import { Route as LandlordRegistrationNiRouteImport } from './routes/landlord-registration-ni'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as NoticeToQuitNiRouteImport } from './routes/notice-to-quit-ni'
+import { Route as RentReceiptsNiRouteImport } from './routes/rent-receipts-ni'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TenancyInformationNoticeNiRouteImport } from './routes/tenancy-information-notice-ni'
@@ -87,6 +88,11 @@ const McpRoute = McpRouteImport.update({
 const NoticeToQuitNiRoute = NoticeToQuitNiRouteImport.update({
   id: '/notice-to-quit-ni',
   path: '/notice-to-quit-ni',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RentReceiptsNiRoute = RentReceiptsNiRouteImport.update({
+  id: '/rent-receipts-ni',
+  path: '/rent-receipts-ni',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -246,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
   '/mcp': typeof McpRoute
   '/notice-to-quit-ni': typeof NoticeToQuitNiRoute
+  '/rent-receipts-ni': typeof RentReceiptsNiRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tenancy-information-notice-ni': typeof TenancyInformationNoticeNiRoute
@@ -282,6 +289,7 @@ export interface FileRoutesByTo {
   '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
   '/mcp': typeof McpRoute
   '/notice-to-quit-ni': typeof NoticeToQuitNiRoute
+  '/rent-receipts-ni': typeof RentReceiptsNiRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tenancy-information-notice-ni': typeof TenancyInformationNoticeNiRoute
@@ -319,6 +327,7 @@ export interface FileRoutesById {
   '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
   '/mcp': typeof McpRoute
   '/notice-to-quit-ni': typeof NoticeToQuitNiRoute
+  '/rent-receipts-ni': typeof RentReceiptsNiRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tenancy-information-notice-ni': typeof TenancyInformationNoticeNiRoute
@@ -357,6 +366,7 @@ export interface FileRouteTypes {
     | '/landlord-registration-ni'
     | '/mcp'
     | '/notice-to-quit-ni'
+    | '/rent-receipts-ni'
     | '/reset-password'
     | '/sitemap.xml'
     | '/tenancy-information-notice-ni'
@@ -393,6 +403,7 @@ export interface FileRouteTypes {
     | '/landlord-registration-ni'
     | '/mcp'
     | '/notice-to-quit-ni'
+    | '/rent-receipts-ni'
     | '/reset-password'
     | '/sitemap.xml'
     | '/tenancy-information-notice-ni'
@@ -429,6 +440,7 @@ export interface FileRouteTypes {
     | '/landlord-registration-ni'
     | '/mcp'
     | '/notice-to-quit-ni'
+    | '/rent-receipts-ni'
     | '/reset-password'
     | '/sitemap.xml'
     | '/tenancy-information-notice-ni'
@@ -467,6 +479,7 @@ export interface RootRouteChildren {
   LandlordRegistrationNiRoute: typeof LandlordRegistrationNiRoute
   McpRoute: typeof McpRoute
   NoticeToQuitNiRoute: typeof NoticeToQuitNiRoute
+  RentReceiptsNiRoute: typeof RentReceiptsNiRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TenancyInformationNoticeNiRoute: typeof TenancyInformationNoticeNiRoute
@@ -546,6 +559,13 @@ declare module '@tanstack/react-router' {
       path: '/notice-to-quit-ni'
       fullPath: '/notice-to-quit-ni'
       preLoaderRoute: typeof NoticeToQuitNiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rent-receipts-ni': {
+      id: '/rent-receipts-ni'
+      path: '/rent-receipts-ni'
+      fullPath: '/rent-receipts-ni'
+      preLoaderRoute: typeof RentReceiptsNiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -793,6 +813,7 @@ const rootRouteChildren: RootRouteChildren = {
   LandlordRegistrationNiRoute: LandlordRegistrationNiRoute,
   McpRoute: McpRoute,
   NoticeToQuitNiRoute: NoticeToQuitNiRoute,
+  RentReceiptsNiRoute: RentReceiptsNiRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TenancyInformationNoticeNiRoute: TenancyInformationNoticeNiRoute,

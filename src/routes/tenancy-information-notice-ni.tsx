@@ -285,7 +285,8 @@ function TenancyInformationNoticeGuide() {
             the Department for Communities guidance
           </a>{" "}
           and nidirect.gov.uk, or speak to a solicitor. See also our{" "}
-          <Link to="/notice-to-quit-ni" className="underline underline-offset-4">notice to quit guide</Link> and{" "}
+          <Link to="/notice-to-quit-ni" className="underline underline-offset-4">notice to quit guide</Link>,{" "}
+          <Link to="/rent-receipts-ni" className="underline underline-offset-4">rent receipts guide</Link> and{" "}
           <Link to="/landlord-registration-ni" className="underline underline-offset-4">landlord registration guide</Link>.
         </p>
       </main>
