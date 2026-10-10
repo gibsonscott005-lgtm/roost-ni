@@ -19,8 +19,10 @@ export const Route = createFileRoute("/help")({
           "Getting started guides and answers for tenants and landlords using RoostNI in Northern Ireland.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://roostni.co.uk/help" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://roostni.co.uk/help" }],
   }),
   component: HelpPage,
 });

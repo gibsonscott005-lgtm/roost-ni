@@ -27,8 +27,10 @@ export const Route = createFileRoute("/beta")({
           "Test RoostNI before launch: tenant passports for renters, compliant listings and tenancy management for landlords across Northern Ireland.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://roostni.co.uk/beta" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://roostni.co.uk/beta" }],
   }),
   component: BetaPage,
 });
