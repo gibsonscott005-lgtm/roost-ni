@@ -1,4 +1,5 @@
 import { createServerFn } from '@tanstack/react-start'
+import { getRequestHeader } from '@tanstack/react-start/server'
 import { z } from 'zod'
 import { sendTemplateEmail } from '@/lib/email-templates/send-email'
 
@@ -9,15 +10,27 @@ const WELCOME_WINDOW_MS = 15 * 60 * 1000
  *
  * Public by necessity (no session exists yet when email confirmation is on),
  * so it only sends when the account genuinely exists and was created within
- * the last 15 minutes. The per-user idempotency key means retries and repeat
- * calls can never produce a second welcome email. Never throws — a failed
- * email must not affect sign-up.
+ * the last 15 minutes. When the caller does carry a session, it must belong
+ * to the same user — a signed-in caller can never trigger emails for another
+ * account. The per-user idempotency key means retries and repeat calls can
+ * never produce a second welcome email. Never throws — a failed email must
+ * not affect sign-up.
  */
 export const sendWelcomeEmail = createServerFn({ method: 'POST' })
   .inputValidator((data) => z.object({ userId: z.string().uuid() }).parse(data))
   .handler(async ({ data }) => {
     try {
       const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
+
+      // If the caller presents a session, it must be for the same user.
+      const authHeader = getRequestHeader('authorization')
+      const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+      if (token) {
+        const { data: callerRes, error: callerErr } = await supabaseAdmin.auth.getUser(token)
+        if (callerErr || !callerRes?.user || callerRes.user.id !== data.userId) {
+          return { sent: false }
+        }
+      }
 
       const { data: userRes } = await supabaseAdmin.auth.admin.getUserById(data.userId)
       const user = userRes?.user
