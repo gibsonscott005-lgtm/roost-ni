@@ -171,7 +171,7 @@ function NoticeToQuitGuide() {
               Roost<span className="text-verified">NI</span>
             </span>
           </Link>
-          <Link to="/auth" className="rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-medium transition hover:bg-secondary">
+          <Link to="/auth" search={{ mode: "login" }} className="rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-medium transition hover:bg-secondary">
             Sign in
           </Link>
         </div>

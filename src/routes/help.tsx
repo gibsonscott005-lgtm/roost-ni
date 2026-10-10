@@ -111,7 +111,7 @@ function HelpPage() {
               About the beta
             </Link>
             <Link
-              to="/auth"
+              to="/auth" search={{ mode: "login" }}
               className="rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
             >
               Sign in
@@ -168,7 +168,7 @@ function HelpPage() {
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              to="/auth"
+              to="/auth" search={{ mode: "login" }}
               className="inline-flex items-center justify-center rounded-full bg-foreground px-5 py-2.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
             >
               Sign in to RoostNI

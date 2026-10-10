@@ -86,6 +86,7 @@ function HomePage() {
             </Link>
             <Link
               to="/auth"
+              search={{ mode: "login" }}
               className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-foreground px-3 py-1.5 text-xs font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/90 sm:px-4"
             >
               Sign in
@@ -140,6 +141,7 @@ function HomePage() {
                 No account needed to browse or run the audit.{" "}
                 <Link
                   to="/auth"
+                  search={{ mode: "login" }}
                   className="font-medium text-foreground underline-offset-2 hover:underline"
                 >
                   Sign in
@@ -412,7 +414,7 @@ function HomePage() {
             <Link to="/beta" className="transition hover:text-foreground">
               Beta
             </Link>
-            <Link to="/auth" className="transition hover:text-foreground">
+            <Link to="/auth" search={{ mode: "login" }} className="transition hover:text-foreground">
               Sign in
             </Link>
           </div>

@@ -54,7 +54,7 @@ function BetaPage() {
               Help & FAQ
             </Link>
             <Link
-              to="/auth"
+              to="/auth" search={{ mode: "login" }}
               className="rounded-full border border-border bg-surface px-4 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
             >
               Sign in
