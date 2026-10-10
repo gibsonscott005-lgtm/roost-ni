@@ -72,7 +72,7 @@ export function leaseDocumentHtml(opts: LeaseDocOptions) {
   return `<!doctype html><html><head><meta charset="utf-8"><title>RoostNI Tenancy Agreement — ${esc(address)}</title>
     <style>${BASE_STYLE}</style></head><body>
     <h1>Private Residential Tenancy Agreement</h1>
-    <p class="muted">Made under the Private Tenancies Act (Northern Ireland) 2022</p>
+    <p class="muted">Made under the Private Tenancies (Northern Ireland) Order 2006 (as amended by the Private Tenancies Act (Northern Ireland) 2022)</p>
     <p>Between <strong>${esc(landlordName)}</strong> ("Landlord") and <strong>${esc(tenantName)}</strong> ("Tenant") in respect of the property at <strong>${esc(address)}</strong>.</p>
     <h2>Clauses</h2>
     <div class="clause"><h3>1. Rent</h3><p>£${rent.toLocaleString()} per calendar month, payable in advance on the 1st of each month.</p></div>

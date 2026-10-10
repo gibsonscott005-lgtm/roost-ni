@@ -626,7 +626,7 @@ function TenantTenancyPage() {
                   </p>
                 </div>
                 <p className="rounded-full bg-surface-muted px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
-                  Approved NI schemes: TDS NI · MyDeposits NI · LPS NI
+                  Approved NI schemes: TDS Northern Ireland · MyDeposits Northern Ireland
                 </p>
               </div>
             )}
