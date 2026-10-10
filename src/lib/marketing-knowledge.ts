@@ -114,6 +114,7 @@ specifically for private tenancies in Northern Ireland.
 - https://roostni.co.uk/audit — free anonymous landlord compliance check
 - https://roostni.co.uk/beta — join the free beta
 - https://roostni.co.uk/landlord-registration-ni — landlord registration guide
+- https://roostni.co.uk/notice-to-quit-ni — NI notice to quit guide and notice period calculator
 
 ## Post format
 - 80–220 words of body copy, short paragraphs, an optional short bullet list
