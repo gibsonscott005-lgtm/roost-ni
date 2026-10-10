@@ -17,6 +17,7 @@ import { Route as BetaRouteImport } from './routes/beta'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as LandlordRegistrationNiRouteImport } from './routes/landlord-registration-ni'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as NoticeToQuitNiRouteImport } from './routes/notice-to-quit-ni'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
@@ -80,6 +81,11 @@ const LandlordRegistrationNiRoute = LandlordRegistrationNiRouteImport.update({
 const McpRoute = McpRouteImport.update({
   id: '/mcp',
   path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NoticeToQuitNiRoute = NoticeToQuitNiRouteImport.update({
+  id: '/notice-to-quit-ni',
+  path: '/notice-to-quit-ni',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -232,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
   '/mcp': typeof McpRoute
+  '/notice-to-quit-ni': typeof NoticeToQuitNiRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -266,6 +273,7 @@ export interface FileRoutesByTo {
   '/help': typeof HelpRoute
   '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
   '/mcp': typeof McpRoute
+  '/notice-to-quit-ni': typeof NoticeToQuitNiRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -301,6 +309,7 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
   '/mcp': typeof McpRoute
+  '/notice-to-quit-ni': typeof NoticeToQuitNiRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
@@ -337,6 +346,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/landlord-registration-ni'
     | '/mcp'
+    | '/notice-to-quit-ni'
     | '/reset-password'
     | '/sitemap.xml'
     | '/.mcp/list-tools'
@@ -371,6 +381,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/landlord-registration-ni'
     | '/mcp'
+    | '/notice-to-quit-ni'
     | '/reset-password'
     | '/sitemap.xml'
     | '/.mcp/list-tools'
@@ -405,6 +416,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/landlord-registration-ni'
     | '/mcp'
+    | '/notice-to-quit-ni'
     | '/reset-password'
     | '/sitemap.xml'
     | '/.mcp/list-tools'
@@ -441,6 +453,7 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   LandlordRegistrationNiRoute: typeof LandlordRegistrationNiRoute
   McpRoute: typeof McpRoute
+  NoticeToQuitNiRoute: typeof NoticeToQuitNiRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
@@ -512,6 +525,13 @@ declare module '@tanstack/react-router' {
       path: '/mcp'
       fullPath: '/mcp'
       preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notice-to-quit-ni': {
+      id: '/notice-to-quit-ni'
+      path: '/notice-to-quit-ni'
+      fullPath: '/notice-to-quit-ni'
+      preLoaderRoute: typeof NoticeToQuitNiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -751,6 +771,7 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   LandlordRegistrationNiRoute: LandlordRegistrationNiRoute,
   McpRoute: McpRoute,
+  NoticeToQuitNiRoute: NoticeToQuitNiRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
