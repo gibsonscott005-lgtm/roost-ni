@@ -275,6 +275,7 @@ function NoticeToQuitGuide() {
             the Department for Communities guidance
           </a>{" "}
           and nidirect.gov.uk, or speak to a solicitor before serving notice. See also our{" "}
+          <Link to="/tenancy-information-notice-ni" className="underline underline-offset-4">Tenancy Information Notice guide</Link> and{" "}
           <Link to="/landlord-registration-ni" className="underline underline-offset-4">landlord registration guide</Link>.
         </p>
       </main>

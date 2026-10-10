@@ -20,6 +20,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as NoticeToQuitNiRouteImport } from './routes/notice-to-quit-ni'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TenancyInformationNoticeNiRouteImport } from './routes/tenancy-information-notice-ni'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -98,6 +99,12 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TenancyInformationNoticeNiRoute =
+  TenancyInformationNoticeNiRouteImport.update({
+    id: '/tenancy-information-notice-ni',
+    path: '/tenancy-information-notice-ni',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const Char91DotmcpChar93ListToolsRoute =
   Char91DotmcpChar93ListToolsRouteImport.update({
     id: '/.mcp/list-tools',
@@ -241,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/notice-to-quit-ni': typeof NoticeToQuitNiRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/tenancy-information-notice-ni': typeof TenancyInformationNoticeNiRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
@@ -276,6 +284,7 @@ export interface FileRoutesByTo {
   '/notice-to-quit-ni': typeof NoticeToQuitNiRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/tenancy-information-notice-ni': typeof TenancyInformationNoticeNiRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/listings/$id': typeof ListingsIdRoute
@@ -312,6 +321,7 @@ export interface FileRoutesById {
   '/notice-to-quit-ni': typeof NoticeToQuitNiRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/tenancy-information-notice-ni': typeof TenancyInformationNoticeNiRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
@@ -349,6 +359,7 @@ export interface FileRouteTypes {
     | '/notice-to-quit-ni'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/tenancy-information-notice-ni'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/dashboard'
@@ -384,6 +395,7 @@ export interface FileRouteTypes {
     | '/notice-to-quit-ni'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/tenancy-information-notice-ni'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/listings/$id'
@@ -419,6 +431,7 @@ export interface FileRouteTypes {
     | '/notice-to-quit-ni'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/tenancy-information-notice-ni'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/dashboard'
@@ -456,6 +469,7 @@ export interface RootRouteChildren {
   NoticeToQuitNiRoute: typeof NoticeToQuitNiRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TenancyInformationNoticeNiRoute: typeof TenancyInformationNoticeNiRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ListingsIdRoute: typeof ListingsIdRoute
@@ -546,6 +560,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tenancy-information-notice-ni': {
+      id: '/tenancy-information-notice-ni'
+      path: '/tenancy-information-notice-ni'
+      fullPath: '/tenancy-information-notice-ni'
+      preLoaderRoute: typeof TenancyInformationNoticeNiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.mcp/list-tools': {
@@ -774,6 +795,7 @@ const rootRouteChildren: RootRouteChildren = {
   NoticeToQuitNiRoute: NoticeToQuitNiRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TenancyInformationNoticeNiRoute: TenancyInformationNoticeNiRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
