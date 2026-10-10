@@ -275,10 +275,13 @@ function Stepper({
   stepIndex: number;
   onJump: (i: number) => void;
 }) {
+  const p = passport;
   const flags = [
-    !!passport?.identity_verified,
-    !!passport?.income_verified,
-    !!passport?.reference_verified,
+    !!p?.identity_verified || (!!p?.id_document_path && !!p?.id_document_type),
+    !!p?.income_verified ||
+      (!!p?.employment_status && !!p?.annual_income && !!p?.income_document_path),
+    !!p?.reference_verified ||
+      (p?.is_first_time_renter ? !!p?.guarantor_name : !!p?.previous_landlord_name),
   ];
   return (
     <ol className="grid grid-cols-3 gap-2 sm:gap-3">
