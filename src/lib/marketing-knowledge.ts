@@ -44,8 +44,10 @@ specifically for private tenancies in Northern Ireland.
 - Northern Ireland pays rates (via LPS) — not Council Tax. Whether rates are
   included in the rent must be stated clearly in the tenancy terms.
 - Fitness standard & smoke/heat/CO alarms: private tenancies must meet the
-  statutory fitness standard; working smoke and carbon monoxide alarms are
-  expected (CO alarms required where combustion appliances exist).
+  statutory fitness standard; under the Smoke, Heat and Carbon Monoxide Alarms
+  for Private Tenancies Regulations (NI) 2024, interlinked smoke alarms are
+  required in the living room and circulation spaces, a heat alarm in the
+  kitchen, and a CO alarm where combustion appliances exist.
 - Disputes over deposit deductions go through the approved schemes' free
   adjudication or the courts; district councils enforce the landlord
   offences (e.g. failing to protect a deposit or issue required notices).
