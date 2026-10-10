@@ -17,7 +17,7 @@ const FAQ = [
   },
   {
     q: "How much notice must a landlord give?",
-    a: "For notices served on or after 1 November 2024: 4 weeks if the tenancy has lasted 12 months or less, 8 weeks if it has lasted more than 12 months but not more than 10 years, and 12 weeks if it has lasted more than 10 years.",
+    a: "Since 5 May 2022: 4 weeks if the tenancy has lasted 12 months or less, 8 weeks if it has lasted more than 12 months but not more than 10 years, and 12 weeks if it has lasted more than 10 years.",
   },
   {
     q: "How much notice must a tenant give?",
@@ -146,7 +146,7 @@ function Calculator() {
               Earliest end date (calculation): <strong className="text-foreground">{fmt(result.end)}</strong>
             </p>
             <p className="mt-3 text-xs text-muted-foreground">
-              A calculation based on notices given on or after 1 November 2024. It doesn't account for any
+              A calculation based on the notice periods in force since 5 May 2022. The 2022 Act allows for longer landlord notice periods in future, but these are not yet in force. It doesn't account for any
               longer period in your tenancy agreement or for how the notice is delivered — allow extra days if posting.
             </p>
           </>
@@ -271,10 +271,10 @@ function NoticeToQuitGuide() {
         <p className="mt-8 text-xs leading-relaxed text-muted-foreground">
           General information only, not legal advice. Rules can change and individual circumstances differ —
           check the current position on{" "}
-          <a href="https://www.nidirect.gov.uk/articles/ending-private-tenancy" target="_blank" rel="noreferrer" className="underline underline-offset-4">
-            nidirect.gov.uk
+          <a href="https://www.communities-ni.gov.uk/articles/section-11-private-tenancies-northern-ireland-act-2022" target="_blank" rel="noreferrer" className="underline underline-offset-4">
+            the Department for Communities guidance
           </a>{" "}
-          or speak to a solicitor before serving notice. See also our{" "}
+          and nidirect.gov.uk, or speak to a solicitor before serving notice. See also our{" "}
           <Link to="/landlord-registration-ni" className="underline underline-offset-4">landlord registration guide</Link>.
         </p>
       </main>
