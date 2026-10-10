@@ -187,7 +187,7 @@ function NoticeToQuitGuide() {
         </h1>
         <p className="mt-4 text-base text-muted-foreground">
           Most notice-to-quit advice online is written for England. Northern Ireland has its own rules, and
-          they changed for notices given from 1 November 2024. Here's what applies here, with a calculator to
+          the current notice periods have applied since 5 May 2022. Here's what applies here, with a calculator to
           work out the dates.
         </p>
 
