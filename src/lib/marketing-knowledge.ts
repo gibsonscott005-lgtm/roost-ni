@@ -115,6 +115,8 @@ specifically for private tenancies in Northern Ireland.
 - https://roostni.co.uk/beta — join the free beta
 - https://roostni.co.uk/landlord-registration-ni — landlord registration guide
 - https://roostni.co.uk/notice-to-quit-ni — NI notice to quit guide and notice period calculator
+- https://roostni.co.uk/tenancy-information-notice-ni — Tenancy Information Notice guide and 28-day deadline calculator
+- https://roostni.co.uk/rent-receipts-ni — rent receipt rules and free printable receipt generator
 
 ## Post format
 - 80–220 words of body copy, short paragraphs, an optional short bullet list
