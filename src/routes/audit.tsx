@@ -46,8 +46,10 @@ export const Route = createFileRoute("/audit")({
           "Five questions, under a minute, no account needed. Get a plain-English list of what's missing from your NI tenancy records.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://roostni.co.uk/audit" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://roostni.co.uk/audit" }],
   }),
   component: AuditPage,
 });
