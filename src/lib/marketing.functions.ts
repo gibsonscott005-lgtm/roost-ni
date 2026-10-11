@@ -617,18 +617,26 @@ async function generateRedditBatch(
     '{"persona":"landlord"|"tenant"|"community","angle":"short-kebab-label","title":"Reddit post title, max 200 chars, no clickbait","body":"markdown body with \\n newlines","link_url":"approved RoostNI URL or null"}',
   ].join("\n");
 
-  const { createOpenAICompatible } = await import("@ai-sdk/openai-compatible");
+  const { createOpenAI } = await import("@ai-sdk/openai");
   const { streamText } = await import("ai");
-  const gateway = createOpenAICompatible({
-    name: "lovable",
+  const openai = createOpenAI({
     baseURL: "https://ai.gateway.lovable.dev/v1",
     apiKey: process.env["LOVABLE_API_KEY"]!,
+    headers: { "Lovable-API-Key": process.env["LOVABLE_API_KEY"]!, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
   });
   const result = streamText({
-    model: gateway("google/gemini-2.5-flash"),
+    model: openai.responses("openai/gpt-6-astra"),
     system: `${MARKETING_KNOWLEDGE}\n\n${REDDIT_RULES}`,
     prompt,
-    temperature: 0.8,
+    providerOptions: {
+      openai: {
+        forceReasoning: true,
+        reasoningEffort: "low",
+        reasoningSummary: "auto",
+        store: false,
+        include: ["reasoning.encrypted_content"],
+      },
+    },
   });
   const text = await result.text;
   const start = text.indexOf("[");
