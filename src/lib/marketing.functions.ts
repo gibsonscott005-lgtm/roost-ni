@@ -122,6 +122,13 @@ interface GeneratedPost {
 // Leave it as an empty string to fall back to the master strategy.
 // ============================================================================
 const DAILY_STRATEGY_OVERRIDE = `
+DATE: 12 October 2026
+THEME: Invalid English notice templates and the Private Tenancies Act (NI) 2022 notice trap.
+AUDIENCE: Self-managing landlords in Newtownards, Bangor and the Ards Peninsula (suburban family lets and coastal rentals, no agent).
+PAIN POINT: Landlords download off-the-shelf English notice templates. In NI, a generic 4-week notice served on a tenant of over 12 months is invalid; possession proceedings can fail and the landlord must re-serve a valid notice and start the clock again, losing months of rent.
+LAW: Landlord notice to quit under the 2022 Act must be in writing: 4 weeks where the tenancy has lasted under 12 months; 8 weeks for 12 months to 10 years; 12 weeks for over 10 years. Mention the written rent receipt duty for cash payments and the Tenancy Information Notice due within 28 days of the tenancy starting. Possession still requires a court order.
+HARD BAN: Never use Section 21, Section 8, AST, Council Tax, or a 5-week deposit cap except to state that English terms do not apply in NI. Do not quote invented cost figures.
+CTA (Facebook first comment / Reddit footer): run the free 5-question compliance check at https://roostni.co.uk/audit?utm_source=facebook&utm_medium=social&utm_campaign=fb_2026-10-12_ards-ntq-audit&utm_content=comment_link
 `.trim();
 
 function withDailyOverride(prompt: string): string {
