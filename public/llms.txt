@@ -1,0 +1,31 @@
+# RoostNI
+
+> RoostNI is a Northern Ireland-only platform for private landlords and tenants who let and rent directly, without a letting agent. Landlords can list properties and manage tenancies with Northern Ireland tenancy law built in. Tenants keep a reusable Tenant Passport of self-certified evidence to apply directly. Free during the open beta.
+
+RoostNI follows Northern Ireland law only: the Private Tenancies (Northern Ireland) Order 2006, as amended by the Private Tenancies Act (Northern Ireland) 2022, and the 2024 smoke, heat and carbon monoxide alarm regulations. English rules such as Section 21, Section 8, Assured Shorthold Tenancies, Right to Rent checks and the five-week deposit cap do not apply in Northern Ireland.
+
+Important boundaries:
+- RoostNI is self-service software. It is not an estate agent or letting agent.
+- RoostNI does not vet, credit-score or verify applicants. Tenant Passport evidence is provided and self-certified by the applicant.
+- Guides give general information, not legal advice. Official sources: nidirect.gov.uk and the Department for Communities.
+
+## Guides for Northern Ireland landlords
+
+- [Notice to Quit in Northern Ireland](https://roostni.co.uk/notice-to-quit-ni): Notice periods since 5 May 2022 (4, 8 or 12 weeks for landlords depending on tenancy length) and a free calculator.
+- [Tenancy Information Notice](https://roostni.co.uk/tenancy-information-notice-ni): What the notice must contain and the 28-day deadline after a tenancy starts.
+- [Rent receipts in Northern Ireland](https://roostni.co.uk/rent-receipts-ni): When landlords must give receipts for cash rent, with a free printable receipt generator.
+- [Landlord registration in Northern Ireland](https://roostni.co.uk/landlord-registration-ni): Who must register and how.
+- [Landlord compliance check](https://roostni.co.uk/audit): A free five-question health check against Northern Ireland rules.
+
+## The platform
+
+- [Home](https://roostni.co.uk/): What RoostNI does for landlords and tenants.
+- [Property listings](https://roostni.co.uk/listings): Homes to rent directly from Northern Ireland landlords.
+- [Open beta](https://roostni.co.uk/beta): How to join the free beta.
+- [Help](https://roostni.co.uk/help): Answers to common questions.
+
+## Key facts
+
+- Deposits in Northern Ireland are capped at one month's rent and must be protected with TDS Northern Ireland or MyDeposits Northern Ireland.
+- A notice to quit must be in writing. If a tenant does not leave, the landlord must get a court possession order.
+- Coverage: all 11 Northern Ireland council areas.
