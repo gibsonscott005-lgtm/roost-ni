@@ -81,6 +81,9 @@
   --color-verified: var(--verified);
   --color-verified-foreground: var(--verified-foreground);
   --color-verified-soft: var(--verified-soft);
+  --color-reddit: var(--reddit);
+  --color-reddit-foreground: var(--reddit-foreground);
+  --color-reddit-soft: var(--reddit-soft);
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
   --shadow-resting: var(--elevation-resting);
@@ -116,6 +119,10 @@
   --verified: oklch(0.62 0.145 163);
   --verified-foreground: oklch(0.99 0.003 247);
   --verified-soft: oklch(0.945 0.045 165);
+  /* Reddit brand red — used only to flag Reddit-format posts in Command Centre */
+  --reddit: oklch(0.66 0.229 35.4);
+  --reddit-foreground: oklch(0.99 0.003 247);
+  --reddit-soft: oklch(0.965 0.018 43.2);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -166,6 +173,9 @@
   --verified: oklch(0.72 0.15 163);
   --verified-foreground: oklch(0.16 0.03 265);
   --verified-soft: oklch(0.3 0.06 165);
+  --reddit: oklch(0.71 0.2 36);
+  --reddit-foreground: oklch(0.16 0.03 265);
+  --reddit-soft: oklch(0.3 0.07 36);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);

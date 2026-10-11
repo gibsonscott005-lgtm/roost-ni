@@ -416,7 +416,7 @@ export function MarketingAdminPanel() {
                   </div>
                 ) : (
                   <p className="mt-1 line-clamp-4 whitespace-pre-wrap text-xs text-muted-foreground">
-                    {post.platform === "reddit" ? <span className="mr-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold text-foreground">Reddit</span> : null}
+                    {post.platform === "reddit" ? <span className="mr-1 rounded-full bg-reddit px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-reddit-foreground">Reddit</span> : null}
                     {post.body}
                   </p>
                 )}
