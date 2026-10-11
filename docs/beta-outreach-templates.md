@@ -35,22 +35,18 @@ Use these UTM-tagged links so PostHog shows which group each tester came from.
 
 Replace `facebook` with the actual group name or platform if you post elsewhere (e.g. `reddit_ni`, `property118`).
 
-## Post template 1 — landlord audit (primary, rewritten after week one)
+## Post template 1 — landlord audit (primary)
 
-Short lines, one question hook, no sign-up ask. Written for reading on a phone.
+The 3-second rule: the first line must say exactly what RoostNI is and who it's for, before the "See more" cut-off. Value first, story later. Short lines, one link, no sign-up ask.
 
 ```text
-Self-managing landlords — quick question.
+RoostNI is a free renting platform for Northern Ireland — landlords list directly, tenants apply with one ready-made passport.
 
-If a tenant or a deposit scheme adjudicator asked for your tenancy paperwork tomorrow, could you put your hands on all of it?
-
-Deposit protected within 28 days. Tenancy Information Notice. Gas cert. EPC. Rent receipts. Correct notice periods.
-
-I built a free 2-minute self-check for NI landlords. Fourteen questions, covers the main statutory duties (including tenant vetting and agent fees), and you get your score straight away — no email, no account, nothing to sign up for.
+I'm the local developer building it, and I've put a free 2-minute self-check on the site for self-managing landlords: fourteen questions on the main statutory duties (deposit, Tenancy Information Notice, gas cert, EPC, receipts, notice periods), score straight away — no email, no account.
 
 https://roostni.co.uk/audit?utm_source=facebook&utm_medium=community&utm_campaign=audit_launch
 
-I'm a local developer building tools for NI landlords and I'd genuinely like to know what score people get and what's missing. Comments welcome.
+Genuinely curious what score people get and what's missing. Comments welcome.
 ```
 
 ## Post template 2b — audit + "it's much more than an audit"
