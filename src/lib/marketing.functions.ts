@@ -272,7 +272,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
     const result = streamText({
       model: gateway("google/gemini-2.5-flash"),
       system: MARKETING_KNOWLEDGE,
-      prompt,
+      prompt: withDailyOverride(prompt),
       temperature: 0.9,
     });
     const text = await result.text;
@@ -647,7 +647,7 @@ async function generateRedditBatch(
   const result = streamText({
     model: openai.responses("openai/gpt-6-astra"),
     system: `${MARKETING_KNOWLEDGE}\n\n${REDDIT_RULES}`,
-    prompt,
+    prompt: withDailyOverride(prompt),
     providerOptions: {
       openai: {
         forceReasoning: true,
