@@ -25,6 +25,7 @@ import {
   buildShareText,
   buildGroupPostText,
   buildFirstCommentText,
+  buildRedditBody,
   type MarketingEngineData,
   type MarketingPost,
 } from "@/lib/marketing.functions";
@@ -54,7 +55,7 @@ export function MarketingAdminPanel() {
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<MarketingEngineData | null>(null);
-  const [focus, setFocus] = useState<"mixed" | "landlord" | "tenant" | "ni_legal">("mixed");
+  const [focus, setFocus] = useState<"mixed" | "landlord" | "tenant" | "ni_legal" | "reddit">("mixed");
   const [generating, setGenerating] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [distilling, setDistilling] = useState(false);
@@ -226,6 +227,7 @@ export function MarketingAdminPanel() {
           <option value="landlord">Landlords only</option>
           <option value="tenant">Tenants only</option>
           <option value="ni_legal">NI Legal Series (Mon / Wed / Fri)</option>
+          <option value="reddit">Reddit — r/nirenting (daily, 7 posts)</option>
         </select>
         <button
           type="button"
@@ -238,7 +240,7 @@ export function MarketingAdminPanel() {
           ) : (
             <Sparkles className="h-3.5 w-3.5" />
           )}
-          {generating ? "Robin is drafting…" : "Ask Robin for 4 posts"}
+          {generating ? "Robin is drafting…" : focus === "reddit" ? "Ask Robin for a week of Reddit posts" : "Ask Robin for 4 posts"}
         </button>
         <button
           type="button"

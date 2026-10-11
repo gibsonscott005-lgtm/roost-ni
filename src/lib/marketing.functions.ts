@@ -12,6 +12,7 @@ import type { Database } from "@/integrations/supabase/types";
 
 export interface MarketingPost {
   id: string;
+  platform: string;
   persona: string;
   angle: string;
   topic: string;
@@ -69,7 +70,7 @@ export const getMarketingEngine = createServerFn({ method: "POST" })
       supabaseAdmin
         .from("marketing_posts")
         .select(
-          "id, persona, angle, topic, body, link_url, utm_campaign, scheduled_for, status, posted_at, notes, results, created_at",
+          "id, platform, persona, angle, topic, body, link_url, utm_campaign, scheduled_for, status, posted_at, notes, results, created_at",
         )
         .order("scheduled_for", { ascending: false })
         .limit(80),
@@ -87,7 +88,7 @@ export const getMarketingEngine = createServerFn({ method: "POST" })
   });
 
 const generateSchema = z.object({
-  focus: z.enum(["mixed", "landlord", "tenant", "ni_legal"]).default("mixed"),
+  focus: z.enum(["mixed", "landlord", "tenant", "ni_legal", "reddit"]).default("mixed"),
   count: z.number().int().min(1).max(5).default(4),
 });
 
@@ -158,6 +159,10 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
     const insightSummary = insights.length
       ? insights.map((i) => `- (${i.kind}) ${i.insight}`).join("\n")
       : "- none learned yet";
+
+    if (data.focus === "reddit") {
+      return generateRedditBatch(supabaseAdmin, context.userId, recent);
+    }
 
     const isLegal = data.focus === "ni_legal";
     let legalPicks: NiLegalTopic[] = [];
@@ -309,7 +314,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       .from("marketing_posts")
       .insert(rows)
       .select(
-        "id, persona, angle, topic, body, link_url, utm_campaign, scheduled_for, status, posted_at, notes, results, created_at",
+        "id, platform, persona, angle, topic, body, link_url, utm_campaign, scheduled_for, status, posted_at, notes, results, created_at",
       );
     if (error) throw new Error(error.message);
 
@@ -583,4 +588,97 @@ export function buildFirstCommentText(post: MarketingPost): string {
   if (!post.link_url) return "";
   const full = buildShareText({ ...post, body: "" }).trim();
   return `Here's the link mentioned above: ${full}`;
+}
+
+const REDDIT_RULES = [
+  "You are drafting posts for r/nirenting, a Reddit community about renting in Northern Ireland, owned and moderated by the RoostNI founder.",
+  "Reddit rules: long-form, genuinely useful, plain-spoken British English. No hashtags, no emojis, no marketing hype, no 'game-changer'.",
+  "Use Reddit Markdown: short intro, ## headings or **bold** labels, bullet lists, a short 'TL;DR' line at the end.",
+  "Northern Ireland law only. Never cite English frameworks (ASTs, Section 21/8, Right to Rent, Renters' Rights Act, five-week deposit cap). Deposits: TDS Northern Ireland or MyDeposits Northern Ireland only.",
+  "Include the line: 'General information only, not legal advice — check nidirect.gov.uk for the current rules.'",
+  "Mix formats across the batch: practical guides, myth-busters (NI vs England), discussion questions that invite people to share experiences, and scenario questions.",
+  "Mention RoostNI at most once, humbly, at the very end (e.g. 'I help run RoostNI, a free NI renting tool — the [checklist](LINK) might help.'), and use the literal placeholder LINK for the URL. Discussion-only posts may omit RoostNI entirely and set link_url to null.",
+  "Never say 'vetting'. RoostNI organises self-certified applicant evidence; it is not an agent or a legal service. It is free during the open beta.",
+].join("\n");
+
+async function generateRedditBatch(
+  supabaseAdmin: any,
+  userId: string,
+  recent: Array<{ topic: string; angle: string }>,
+) {
+  const count = 7;
+  const prompt = [
+    `Draft ${count} Reddit posts, one per day for the coming week.`,
+    "",
+    "Recent topics — do NOT repeat:",
+    recent.map((r) => `- ${r.topic} (${r.angle})`).join("\n") || "- none",
+    "",
+    "Return ONLY a JSON array, no fences, each item:",
+    '{"persona":"landlord"|"tenant"|"community","angle":"short-kebab-label","title":"Reddit post title, max 200 chars, no clickbait","body":"markdown body with \\n newlines","link_url":"approved RoostNI URL or null"}',
+  ].join("\n");
+
+  const { createOpenAICompatible } = await import("@ai-sdk/openai-compatible");
+  const { streamText } = await import("ai");
+  const gateway = createOpenAICompatible({
+    name: "lovable",
+    baseURL: "https://ai.gateway.lovable.dev/v1",
+    apiKey: process.env["LOVABLE_API_KEY"]!,
+  });
+  const result = streamText({
+    model: gateway("google/gemini-2.5-flash"),
+    system: `${MARKETING_KNOWLEDGE}\n\n${REDDIT_RULES}`,
+    prompt,
+    temperature: 0.8,
+  });
+  const text = await result.text;
+  const start = text.indexOf("[");
+  const end = text.lastIndexOf("]");
+  if (start === -1 || end <= start) throw new Error("The AI returned an unexpected format — try again.");
+  const parsed = JSON.parse(text.slice(start, end + 1)) as Array<{
+    persona?: string; angle?: string; title?: string; body?: string; link_url?: string | null;
+  }>;
+  const cleaned = parsed
+    .filter((p) => p && typeof p.body === "string" && p.body.trim().length > 80 && typeof p.title === "string")
+    .slice(0, count);
+  if (cleaned.length === 0) throw new Error("The AI returned no usable posts — try again.");
+
+  const base = new Date();
+  base.setUTCDate(base.getUTCDate() + 1);
+  base.setUTCHours(18, 0, 0, 0);
+  const rows = cleaned.map((p, i) => {
+    const when = new Date(base.getTime() + i * 86400000);
+    const slug = String(p.angle ?? p.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32);
+    return {
+      created_by: userId,
+      platform: "reddit",
+      persona: ["landlord", "tenant", "community"].includes(p.persona ?? "") ? p.persona! : "community",
+      angle: String(p.angle ?? "reddit").slice(0, 60),
+      topic: p.title!.trim().slice(0, 140),
+      body: p.body!.trim().slice(0, 4000),
+      link_url: typeof p.link_url === "string" && p.link_url.startsWith("http") ? p.link_url.slice(0, 300) : null,
+      utm_campaign: `rd_${when.toISOString().slice(0, 10)}_${slug || "post"}_${i}`.slice(0, 90),
+      scheduled_for: when.toISOString(),
+      status: "scheduled",
+    };
+  });
+  const { data: inserted, error } = await supabaseAdmin
+    .from("marketing_posts")
+    .insert(rows)
+    .select("id, platform, persona, angle, topic, body, link_url, utm_campaign, scheduled_for, status, posted_at, notes, results, created_at");
+  if (error) throw new Error(error.message);
+  return { created: (inserted ?? []) as unknown as MarketingPost[] };
+}
+
+/** Reddit body with the LINK placeholder (or a trailing line) swapped for the tracked URL. */
+export function buildRedditBody(post: MarketingPost): string {
+  if (!post.link_url) return post.body.replace(/\(LINK\)/g, "").replace(/\bLINK\b/g, "");
+  let clean = post.link_url;
+  try {
+    const u = new URL(post.link_url);
+    ["utm_source", "utm_medium", "utm_campaign"].forEach((k) => u.searchParams.delete(k));
+    clean = u.toString();
+  } catch { /* use as-is */ }
+  const tracked = `${clean}${clean.includes("?") ? "&" : "?"}utm_source=reddit&utm_medium=post&utm_campaign=${post.utm_campaign}`;
+  if (/\bLINK\b/.test(post.body)) return post.body.replace(/\bLINK\b/g, tracked);
+  return `${post.body}\n\n[Free NI tool on RoostNI](${tracked})`;
 }
