@@ -89,7 +89,8 @@ export const getMarketingEngine = createServerFn({ method: "POST" })
 
 const generateSchema = z.object({
   focus: z.enum(["mixed", "landlord", "tenant", "ni_legal", "reddit"]).default("mixed"),
-  count: z.number().int().min(1).max(5).default(4),
+  count: z.number().int().min(1).max(1).default(1),
+  brief: z.string().max(6000).optional(),
 });
 
 /** Next `n` Monday/Wednesday/Friday dates at 18:00 UTC (19:00 UK), starting today when today's slot is still ahead. */
@@ -103,6 +104,14 @@ function nextLegalSlots(n: number): Date[] {
     if ([1, 3, 5].includes(d.getUTCDay())) out.push(new Date(d));
   }
   return out;
+}
+
+/** Today's 18:00 UTC (19:00 UK) slot if still ahead, otherwise tomorrow's. */
+function nextDailySlot(): Date {
+  const d = new Date();
+  d.setUTCHours(18, 0, 0, 0);
+  if (d.getTime() <= Date.now()) d.setUTCDate(d.getUTCDate() + 1);
+  return d;
 }
 
 interface GeneratedPost {
@@ -141,11 +150,12 @@ STRATEGY PARAMETERS:
 4. CALL TO ACTION: Direct the single audience segment to the exact relevant conversion link (roostni.co.uk/audit or roostni.co.uk/dashboard/passport) using clean tracked UTM parameters.
 `.trim();
 
-function withDailyOverride(prompt: string): string {
-  if (!DAILY_STRATEGY_OVERRIDE) return prompt;
+function withDailyOverride(prompt: string, brief?: string): string {
+  const today = brief?.trim() || DAILY_STRATEGY_OVERRIDE;
+  if (!today) return prompt;
   return [
     "## TODAY'S STRATEGY OVERRIDE (highest priority — follow exactly, within NI law and the hard bans)",
-    DAILY_STRATEGY_OVERRIDE,
+    today,
     "",
     prompt,
   ].join("\n");
@@ -198,7 +208,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       : "- none learned yet";
 
     if (data.focus === "reddit") {
-      return generateRedditBatch(supabaseAdmin, context.userId, recent);
+      return generateRedditBatch(supabaseAdmin, context.userId, recent, data.brief);
     }
 
     const isLegal = data.focus === "ni_legal";
@@ -225,7 +235,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       // Keep one "upcoming change" slot (Friday) when available.
       const upcoming = eligible.filter((t) => t.upcoming);
       const current = eligible.filter((t) => !t.upcoming);
-      legalPicks = [current[0], current[1], upcoming[0] ?? current[2]].filter(
+      legalPicks = [current[0] ?? upcoming[0]].filter(
         (t): t is NiLegalTopic => Boolean(t),
       );
       if (legalPicks.length === 0) {
@@ -259,7 +269,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       : [];
 
     const prompt = [
-      `Draft ${isLegal ? legalPicks.length : data.count} Facebook posts for RoostNI. ${focusLine}`,
+      `Draft exactly ONE Facebook post for RoostNI, on a single focused topic. ${focusLine}`,
       ...legalBlock,
       "",
       "Learned lessons from past performance (obey these):",
@@ -271,7 +281,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       "Rules:",
       isLegal
         ? "- Northern Ireland law only; follow the jurisdiction rules above."
-        : "- Vary the angle across the batch (compliance risk, money saved, time saved, tenant readiness, community trust, legislation explainer).",
+        : "- One topic only; never bundle several legal duties into one post.",
       "- Each post needs exactly one CTA URL from the approved list in the system prompt.",
       "- Do NOT paste the CTA URL or any web address inside the body text — the tracked link goes in the first comment. Follow the Facebook GROUP compliance rules: peer tone, end with a discussion question, then \"(Link in the first comment 👇)\", then max 4 hashtags.",
       "- Return ONLY a JSON array, no markdown fences, each item:",
@@ -289,7 +299,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
     const result = streamText({
       model: gateway("google/gemini-2.5-flash"),
       system: MARKETING_KNOWLEDGE,
-      prompt: withDailyOverride(prompt),
+      prompt: withDailyOverride(prompt, data.brief),
       temperature: 0.9,
     });
     const text = await result.text;
@@ -309,14 +319,11 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
     }
 
     // Legal series: Mon/Wed/Fri. Otherwise one post per day. 18:00 UTC.
-    const base = new Date();
-    base.setUTCDate(base.getUTCDate() + 1);
-    base.setUTCHours(18, 0, 0, 0);
-    const legalSlots = isLegal ? nextLegalSlots(cleaned.length) : [];
+    const base = nextDailySlot();
 
     const rows = cleaned.map((p, i) => {
       const when = isLegal
-        ? legalSlots[i]
+        ? base
         : new Date(base.getTime() + i * 24 * 60 * 60 * 1000);
       const dateSlug = when.toISOString().slice(0, 10);
       // Force the topic key from our own pick so the cooldown is reliable.
@@ -642,10 +649,11 @@ async function generateRedditBatch(
   supabaseAdmin: any,
   userId: string,
   recent: Array<{ topic: string; angle: string }>,
+  brief?: string,
 ) {
-  const count = 7;
+  const count = 1;
   const prompt = [
-    `Draft ${count} Reddit posts, one per day for the coming week.`,
+    `Draft exactly ONE Reddit post for today, on a single focused topic.`,
     "",
     "Recent topics — do NOT repeat:",
     recent.map((r) => `- ${r.topic} (${r.angle})`).join("\n") || "- none",
@@ -664,7 +672,7 @@ async function generateRedditBatch(
   const result = streamText({
     model: openai.responses("openai/gpt-6-astra"),
     system: `${MARKETING_KNOWLEDGE}\n\n${REDDIT_RULES}`,
-    prompt: withDailyOverride(prompt),
+    prompt: withDailyOverride(prompt, brief),
     providerOptions: {
       openai: {
         forceReasoning: true,
@@ -687,9 +695,7 @@ async function generateRedditBatch(
     .slice(0, count);
   if (cleaned.length === 0) throw new Error("The AI returned no usable posts — try again.");
 
-  const base = new Date();
-  base.setUTCDate(base.getUTCDate() + 1);
-  base.setUTCHours(18, 0, 0, 0);
+  const base = nextDailySlot();
   const rows = cleaned.map((p, i) => {
     const when = new Date(base.getTime() + i * 86400000);
     const slug = String(p.angle ?? p.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32);

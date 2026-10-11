@@ -57,6 +57,7 @@ export function MarketingAdminPanel() {
   const [data, setData] = useState<MarketingEngineData | null>(null);
   const [focus, setFocus] = useState<"mixed" | "landlord" | "tenant" | "ni_legal" | "reddit">("mixed");
   const [generating, setGenerating] = useState(false);
+  const [brief, setBrief] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [distilling, setDistilling] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -93,9 +94,9 @@ export function MarketingAdminPanel() {
   const generate = async () => {
     setGenerating(true);
     try {
-      const { created } = await generateFn({ data: { focus, count: 4 } });
-      toast.success(`Robin drafted ${created.length} posts`, {
-        description: "They sit in the queue below, one per evening from tomorrow.",
+      const { created } = await generateFn({ data: { focus, count: 1, brief: brief.trim() || undefined } });
+      toast.success(created.length ? "Robin drafted today's post" : "No post drafted", {
+        description: "It sits in the queue below for the next 7pm slot.",
       });
       await load();
     } catch (error) {
@@ -217,6 +218,13 @@ export function MarketingAdminPanel() {
           <p className="text-xs text-muted-foreground">RoostNI's marketing assistant</p>
         </div>
       </div>
+      <textarea
+        value={brief}
+        onChange={(e) => setBrief(e.target.value)}
+        rows={4}
+        placeholder="Today's brief (optional) — paste your data or strategy for today's post. Leave blank to use Robin's standing strategy."
+        className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
+      />
       <div className="flex flex-wrap items-center gap-2">
         <select
           value={focus}
@@ -226,8 +234,8 @@ export function MarketingAdminPanel() {
           <option value="mixed">Mixed audience</option>
           <option value="landlord">Landlords only</option>
           <option value="tenant">Tenants only</option>
-          <option value="ni_legal">NI Legal Series (Mon / Wed / Fri)</option>
-          <option value="reddit">Reddit — r/nirenting (daily, 7 posts)</option>
+          <option value="ni_legal">NI Legal Series</option>
+          <option value="reddit">Reddit</option>
         </select>
         <button
           type="button"
@@ -240,7 +248,7 @@ export function MarketingAdminPanel() {
           ) : (
             <Sparkles className="h-3.5 w-3.5" />
           )}
-          {generating ? "Robin is drafting…" : focus === "reddit" ? "Ask Robin for a week of Reddit posts" : "Ask Robin for 4 posts"}
+          {generating ? "Robin is drafting…" : focus === "reddit" ? "Draft today's Reddit post" : "Draft today's post"}
         </button>
         <button
           type="button"
