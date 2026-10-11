@@ -11,12 +11,19 @@ import {
 } from "@/lib/admin-overview.functions";
 import { MarketingAdminPanel } from "@/components/marketing-admin";
 import {
+  isAnalyticsOptedOut,
+  optInToAnalytics,
+  optOutOfAnalytics,
+} from "@/integrations/posthog/client";
+import {
   BarChart3,
   BellRing,
   Check,
   ClipboardCheck,
   Copy,
   ExternalLink,
+  Eye,
+  EyeOff,
   Loader2,
   Megaphone,
   MessageSquare,
@@ -51,6 +58,11 @@ function AdminDashboard() {
   const [data, setData] = useState<AdminOverview | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [tab, setTab] = useState<"signups" | "audits" | "feedback" | "alerts" | "marketing">("signups");
+  const [deviceExcluded, setDeviceExcluded] = useState(false);
+
+  useEffect(() => {
+    setDeviceExcluded(isAnalyticsOptedOut());
+  }, []);
 
   const isAdmin = profile?.account_type === "admin";
 
@@ -153,7 +165,32 @@ function AdminDashboard() {
                 Everything happening inside RoostNI, in one place.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (deviceExcluded) {
+                    optInToAnalytics();
+                    setDeviceExcluded(false);
+                    toast.success("This device is included in analytics again");
+                  } else {
+                    optOutOfAnalytics();
+                    setDeviceExcluded(true);
+                    toast.success("This device is now excluded from analytics", {
+                      description: "Your browsing on this device won't appear in visitor traffic.",
+                    });
+                  }
+                }}
+                title="Exclude this device from visitor analytics"
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                  deviceExcluded
+                    ? "border-verified bg-verified/10 text-verified"
+                    : "border-border bg-surface text-foreground hover:bg-secondary"
+                }`}
+              >
+                {deviceExcluded ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                {deviceExcluded ? "Device excluded" : "Exclude this device"}
+              </button>
               <button
                 type="button"
                 onClick={() => load(true)}
