@@ -41,7 +41,11 @@ export function useAuth() {
             .select("id, full_name, phone, account_type, hear_about_us")
             .eq("id", s.user.id)
             .maybeSingle()
-            .then(({ data }) => setProfile(data as Profile | null));
+            .then(({ data }) => {
+              const p = data as Profile | null;
+              setProfile(p);
+              if (p?.account_type === "admin") tagAsInternalUser();
+            });
         }, 0);
       }
     });
@@ -57,7 +61,9 @@ export function useAuth() {
           .eq("id", data.session.user.id)
           .maybeSingle()
           .then(({ data: p }) => {
-            setProfile(p as Profile | null);
+            const prof = p as Profile | null;
+            setProfile(prof);
+            if (prof?.account_type === "admin") tagAsInternalUser();
             setLoading(false);
           });
       } else {
