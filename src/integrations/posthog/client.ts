@@ -25,3 +25,29 @@ export function initPostHog() {
 }
 
 export { posthog };
+
+/**
+ * Mark the current visitor as an internal/test user so the PostHog
+ * "Internal / Test users" cohort filters them out of every insight.
+ * Used automatically for admin accounts on sign-in.
+ */
+export function tagAsInternalUser() {
+  if (typeof window === "undefined" || !POSTHOG_API_KEY) return;
+  posthog.register({ $internal_or_test_user: true });
+}
+
+/** True when this device has been opted out of analytics capture. */
+export function isAnalyticsOptedOut() {
+  if (typeof window === "undefined" || !POSTHOG_API_KEY) return false;
+  return posthog.has_opted_out_capturing();
+}
+
+export function optOutOfAnalytics() {
+  if (typeof window === "undefined" || !POSTHOG_API_KEY) return;
+  posthog.opt_out_capturing();
+}
+
+export function optInToAnalytics() {
+  if (typeof window === "undefined" || !POSTHOG_API_KEY) return;
+  posthog.opt_in_capturing();
+}
