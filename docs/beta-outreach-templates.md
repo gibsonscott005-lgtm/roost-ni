@@ -2,6 +2,8 @@
 
 Use these for organic, low-friction recruitment in Northern Ireland landlord and tenant Facebook groups or community forums. Keep posts honest, short and local. Do not buy ads, bulk-message strangers, or invent user numbers.
 
+**The 3-second rule (applies to every post):** the first line must say exactly what RoostNI is and who it's for, before Facebook's "See more" cut-off — value first, story later. Approved first line: *"RoostNI is a free renting platform for Northern Ireland — landlords list directly, tenants apply with one ready-made passport."* Never open with a question, a story, or "I'm a local developer" — that comes after the hook.
+
 ## Where to post
 
 Aim for 3–5 groups that are clearly based in Northern Ireland and allow property or renting discussion. Good signals: local area names, landlord/tenant questions, or NI-specific rules.
@@ -35,22 +37,18 @@ Use these UTM-tagged links so PostHog shows which group each tester came from.
 
 Replace `facebook` with the actual group name or platform if you post elsewhere (e.g. `reddit_ni`, `property118`).
 
-## Post template 1 — landlord audit (primary, rewritten after week one)
+## Post template 1 — landlord audit (primary)
 
-Short lines, one question hook, no sign-up ask. Written for reading on a phone.
+The 3-second rule: the first line must say exactly what RoostNI is and who it's for, before the "See more" cut-off. Value first, story later. Short lines, one link, no sign-up ask.
 
 ```text
-Self-managing landlords — quick question.
+RoostNI is a free renting platform for Northern Ireland — landlords list directly, tenants apply with one ready-made passport.
 
-If a tenant or a deposit scheme adjudicator asked for your tenancy paperwork tomorrow, could you put your hands on all of it?
-
-Deposit protected within 28 days. Tenancy Information Notice. Gas cert. EPC. Rent receipts. Correct notice periods.
-
-I built a free 2-minute self-check for NI landlords. Fourteen questions, covers the main statutory duties (including tenant vetting and agent fees), and you get your score straight away — no email, no account, nothing to sign up for.
+I'm the local developer building it, and I've put a free 2-minute self-check on the site for self-managing landlords: fourteen questions on the main statutory duties (deposit, Tenancy Information Notice, gas cert, EPC, receipts, notice periods), score straight away — no email, no account.
 
 https://roostni.co.uk/audit?utm_source=facebook&utm_medium=community&utm_campaign=audit_launch
 
-I'm a local developer building tools for NI landlords and I'd genuinely like to know what score people get and what's missing. Comments welcome.
+Genuinely curious what score people get and what's missing. Comments welcome.
 ```
 
 ## Post template 2b — audit + "it's much more than an audit"
@@ -58,11 +56,11 @@ I'm a local developer building tools for NI landlords and I'd genuinely like to 
 Use this once the audit post has had its run in a group. The audit earns the attention; this shows landlords RoostNI is a full toolkit, not just a quiz. Leads with listing their property, because that's the outcome landlords care about.
 
 ```text
-A couple of weeks ago I shared a free 2-minute self-check for NI landlords here — thanks to everyone who tried it and commented.
+RoostNI lets NI landlords list a property free and manage the whole tenancy in one place — agreements, deposit tracking, rent ledger, certificates, notice to quit.
 
-A few people asked "ok, so what is it exactly?", so here's the honest answer: it's the front door to something much bigger.
+A couple of weeks ago I shared the free 2-minute landlord self-check here — thanks to everyone who tried it. A few people asked "ok, so what is it exactly?", so here's the honest answer: the audit is the front door to the full platform.
 
-RoostNI is a Northern Ireland renting platform I'm building. If you're a self-managing landlord you can:
+If you're a self-managing landlord you can:
 
 • List your property to tenants who apply with a ready-made Tenant Passport — identity, income and references organised in one pack instead of scattered over WhatsApp
 • Keep an existing tenancy in order even if you don't advertise — tenancy details, deposit tracking, rent ledger, safety certificates with expiry reminders, maintenance records
@@ -82,18 +80,18 @@ Local developer, building this for NI landlords — feedback genuinely shapes wh
 
 ## Post template 2 — landlord audit (shorter variant)
 
-For groups with stricter promo rules — more question, less pitch.
+For groups with stricter promo rules — more question, less pitch. First line still names what it is.
 
 ```text
-Landlords here — how many of these could you evidence tonight if asked?
+Free 2-minute compliance self-check for NI landlords — no sign-up, score straight away.
+
+How many of these could you evidence tonight if asked?
 
 • Deposit protected within 28 days
 • Tenancy Information Notice issued
 • Valid gas safety cert and EPC
 • Rent book or receipts
 • Correct notice-to-quit period for your tenancy length
-
-I put together a free 2-minute self-check that scores you on the lot. Anonymous, no sign-up:
 
 https://roostni.co.uk/audit?utm_source=facebook&utm_medium=community&utm_campaign=audit_launch
 
@@ -103,7 +101,7 @@ Curious what the most common gaps are — happy to share what comes back.
 ## Post template 3 — tenant-focused
 
 ```text
-Hi everyone — I'm helping test a new NI renting tool called RoostNI. It's built for tenants in Northern Ireland: a single passport you can share with landlords, instead of re-sending payslips, references and ID over WhatsApp every time.
+RoostNI is a free renting platform for Northern Ireland — tenants fill in one passport (ID, income, references) and share it with landlords, instead of re-sending everything over WhatsApp for every place.
 
 It's in free early beta — anyone can join, no fees and no card required. Just use test documents, not real ones.
 
@@ -115,12 +113,12 @@ Happy to answer questions in the comments.
 
 ## Post template 4 — landlord: real tenant demand (weekend refresh)
 
-Lead with the proof: real renters are signing up and asking about listings. Truthful and general — no invented numbers.
+Lead with what it is, then the proof: real renters are signing up and asking about listings. Truthful and general — no invented numbers.
 
 ```text
-Self-managing landlords — something has changed this month.
+RoostNI is a free NI renting platform where tenants apply with a ready-made passport — ID, income and references organised in one pack.
 
-I'm building RoostNI, a renting platform for Northern Ireland. Over the past couple of weeks real renters have started signing up and building their Tenant Passport — ID, income and references organised in one pack. One messaged about a listing within hours of it going up.
+And it's starting to work: over the past couple of weeks real renters have signed up and built their Tenant Passport. One messaged about a listing within hours of it going up.
 
 That's the point: when you list a property here, enquiries come from tenants who've already got their paperwork together — no chasing payslips over WhatsApp.
 
@@ -135,16 +133,14 @@ https://roostni.co.uk/audit?utm_source=facebook&utm_medium=community&utm_campaig
 
 ## Post template 5 — weekend conversation starter (vacancy pain point)
 
-Question-first, works on a Saturday morning or evening when people have time to comment.
+Question-first, works on a Saturday morning or evening when people have time to comment. RoostNI is still named and explained in the first two lines.
 
 ```text
-Self-managing landlords — a question for the weekend.
+RoostNI is a free NI renting platform I'm building — tenants apply with a ready-made passport, landlords get the paperwork side organised.
 
-When a property comes vacant, what's the biggest pain point right now? Finding tenants, sorting the paperwork, or the turnaround work in between?
+A question for the weekend, self-managing landlords: when a property comes vacant, what's the biggest pain point right now? Finding tenants, sorting the paperwork, or the turnaround work in between?
 
-Asking because I'm building RoostNI — a NI renting platform where tenants apply with a ready-made passport (ID, income and references already organised) and landlords get a compliance-friendly workspace for the paperwork side. Free during early beta.
-
-Curious what the biggest pain point is when a property comes vacant right now.
+Free during early beta — curious what matters most before I build the next bit.
 ```
 
 ## One-to-one reply script
@@ -152,9 +148,9 @@ Curious what the biggest pain point is when a property comes vacant right now.
 Use this when someone comments or messages asking for more detail.
 
 ```text
-Thanks for the interest. RoostNI is in free early beta for NI renting — tenant passports for renters and a compliance-friendly workspace for self-managing landlords.
+Thanks for the interest. RoostNI is a free renting platform for Northern Ireland — tenants build one passport (ID, income, references) and share it with landlords, and self-managing landlords get listings plus the whole tenancy paperwork side in one place.
 
-Right now we're after honest feedback on what's confusing, what's missing and what you'd actually use. No cost, and we only ask people to use test data (not real passports or payslips).
+It's in free early beta — no fees, no card. Right now we're after honest feedback on what's confusing, what's missing and what you'd actually use. We only ask people to use test data (not real passports or payslips).
 
 If you'd like to try it: https://roostni.co.uk/beta?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
 
