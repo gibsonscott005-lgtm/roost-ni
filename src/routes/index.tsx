@@ -38,6 +38,36 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary" },
     ],
     links: [{ rel: "canonical", href: "https://roostni.co.uk/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://roostni.co.uk/#organization",
+              name: "RoostNI",
+              url: "https://roostni.co.uk/",
+              logo: "https://roostni.co.uk/favicon.png",
+              areaServed: { "@type": "AdministrativeArea", name: "Northern Ireland" },
+            },
+            {
+              "@type": "SoftwareApplication",
+              name: "RoostNI",
+              url: "https://roostni.co.uk/",
+              applicationCategory: "BusinessApplication",
+              operatingSystem: "Web",
+              description:
+                "Self-service platform for Northern Ireland private landlords and tenants: direct property listings, tenancy management with NI tenancy law built in, and a reusable self-certified Tenant Passport. Free during beta.",
+              areaServed: { "@type": "AdministrativeArea", name: "Northern Ireland" },
+              offers: { "@type": "Offer", price: "0", priceCurrency: "GBP", description: "Free during the open beta" },
+              publisher: { "@id": "https://roostni.co.uk/#organization" },
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: HomePage,
 });
