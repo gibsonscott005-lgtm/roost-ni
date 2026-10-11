@@ -114,6 +114,26 @@ interface GeneratedPost {
 }
 
 /** Admin-only: drafts a fresh batch of scheduled posts via the AI gateway. */
+// ============================================================================
+// DAILY_STRATEGY_OVERRIDE
+// Paste today's CMO brief between the backticks below. When non-empty it is
+// injected at the top of every Facebook and Reddit generation prompt and takes
+// priority over the standing strategy (NI law and brand rules still apply).
+// Leave it as an empty string to fall back to the master strategy.
+// ============================================================================
+const DAILY_STRATEGY_OVERRIDE = `
+`.trim();
+
+function withDailyOverride(prompt: string): string {
+  if (!DAILY_STRATEGY_OVERRIDE) return prompt;
+  return [
+    "## TODAY'S STRATEGY OVERRIDE (highest priority — follow exactly, within NI law and the hard bans)",
+    DAILY_STRATEGY_OVERRIDE,
+    "",
+    prompt,
+  ].join("\n");
+}
+
 export const generateMarketingPlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => generateSchema.parse(data ?? {}))
@@ -252,7 +272,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
     const result = streamText({
       model: gateway("google/gemini-2.5-flash"),
       system: MARKETING_KNOWLEDGE,
-      prompt,
+      prompt: withDailyOverride(prompt),
       temperature: 0.9,
     });
     const text = await result.text;
@@ -627,7 +647,7 @@ async function generateRedditBatch(
   const result = streamText({
     model: openai.responses("openai/gpt-6-astra"),
     system: `${MARKETING_KNOWLEDGE}\n\n${REDDIT_RULES}`,
-    prompt,
+    prompt: withDailyOverride(prompt),
     providerOptions: {
       openai: {
         forceReasoning: true,
