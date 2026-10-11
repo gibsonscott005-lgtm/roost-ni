@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { tagAsInternalUser } from "@/integrations/posthog/client";
 
 export type AccountType = "tenant" | "landlord" | "admin";
 
