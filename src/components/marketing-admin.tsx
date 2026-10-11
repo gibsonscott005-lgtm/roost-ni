@@ -61,6 +61,10 @@ export function MarketingAdminPanel() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editBody, setEditBody] = useState("");
+  const [lastCopiedId, setLastCopiedId] = useState<string | null>(null);
+  useEffect(() => {
+    try { setLastCopiedId(localStorage.getItem("roost_last_copied_post")); } catch { /* ignore */ }
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -159,8 +163,11 @@ export function MarketingAdminPanel() {
   };
   const copyPost = (post: MarketingPost) =>
     copyText(buildShareText(post), "Page post copied", "Includes the tracked link — for your RoostNI Page.");
-  const copyGroupPost = (post: MarketingPost) =>
+  const copyGroupPost = (post: MarketingPost) => {
+    setLastCopiedId(post.id);
+    try { localStorage.setItem("roost_last_copied_post", post.id); } catch { /* ignore */ }
     copyText(buildGroupPostText(post), "Group post copied", "No links inside — post it directly in the group, then add the first comment.");
+  };
   const copyFirstComment = (post: MarketingPost) =>
     copyText(buildFirstCommentText(post), "First comment copied", "Paste this as the first comment straight after posting.");
 
@@ -300,6 +307,48 @@ export function MarketingAdminPanel() {
           </ul>
         </div>
       ) : null}
+
+      {(() => {
+        const last = posts.find((p) => p.id === lastCopiedId && p.status !== "posted" && p.status !== "skipped");
+        if (!last) return null;
+        return (
+          <div className="rounded-2xl border-2 border-verified bg-surface p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-verified">
+              Back from Facebook? Finish this post
+            </p>
+            <p className="mt-1 text-sm font-medium text-foreground">{last.topic}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {last.link_url ? (
+                <button
+                  type="button"
+                  onClick={() => copyFirstComment(last)}
+                  className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-xs font-semibold text-[var(--color-primary-foreground)]"
+                >
+                  <Copy className="h-3.5 w-3.5" /> 2. Copy first comment
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => updatePost(last.id, { status: "posted" }, "Marked as posted — scoring starts now")}
+                disabled={busyId === last.id}
+                className="inline-flex items-center gap-1 rounded-full bg-verified px-3 py-1.5 text-xs font-semibold text-[var(--color-verified-foreground)] disabled:opacity-60"
+              >
+                <Check className="h-3.5 w-3.5" /> Mark posted
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLastCopiedId(null);
+                  try { localStorage.removeItem("roost_last_copied_post"); } catch { /* ignore */ }
+                }}
+                className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-muted-foreground"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">

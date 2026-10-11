@@ -57,7 +57,16 @@ function AdminDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [data, setData] = useState<AdminOverview | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [tab, setTab] = useState<"signups" | "audits" | "feedback" | "alerts" | "marketing">("signups");
+  type AdminTab = "signups" | "audits" | "feedback" | "alerts" | "marketing";
+  const [tab, setTabState] = useState<AdminTab>("signups");
+  useEffect(() => {
+    const saved = sessionStorage.getItem("roost_admin_tab") as AdminTab | null;
+    if (saved) setTabState(saved);
+  }, []);
+  const setTab = (t: AdminTab) => {
+    setTabState(t);
+    try { sessionStorage.setItem("roost_admin_tab", t); } catch { /* ignore */ }
+  };
   const [deviceExcluded, setDeviceExcluded] = useState(false);
 
   useEffect(() => {
