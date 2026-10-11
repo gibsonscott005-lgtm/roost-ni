@@ -224,6 +224,7 @@ export type Database = {
           link_url: string | null
           notes: string | null
           persona: string
+          platform: string
           posted_at: string | null
           results: Json
           scheduled_for: string
@@ -241,6 +242,7 @@ export type Database = {
           link_url?: string | null
           notes?: string | null
           persona: string
+          platform?: string
           posted_at?: string | null
           results?: Json
           scheduled_for: string
@@ -258,6 +260,7 @@ export type Database = {
           link_url?: string | null
           notes?: string | null
           persona?: string
+          platform?: string
           posted_at?: string | null
           results?: Json
           scheduled_for?: string

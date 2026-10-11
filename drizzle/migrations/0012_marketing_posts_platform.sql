@@ -1,0 +1,1 @@
+ALTER TABLE public.marketing_posts ADD COLUMN IF NOT EXISTS platform text NOT NULL DEFAULT 'facebook' CHECK (platform IN ('facebook','reddit'));
