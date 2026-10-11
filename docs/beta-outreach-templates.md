@@ -99,7 +99,7 @@ Curious what the most common gaps are — happy to share what comes back.
 ## Post template 3 — tenant-focused
 
 ```text
-Hi everyone — I'm helping test a new NI renting tool called RoostNI. It's built for tenants in Northern Ireland: a single passport you can share with landlords, instead of re-sending payslips, references and ID over WhatsApp every time.
+RoostNI is a free renting platform for Northern Ireland — tenants fill in one passport (ID, income, references) and share it with landlords, instead of re-sending everything over WhatsApp for every place.
 
 It's in free early beta — anyone can join, no fees and no card required. Just use test documents, not real ones.
 
@@ -111,12 +111,12 @@ Happy to answer questions in the comments.
 
 ## Post template 4 — landlord: real tenant demand (weekend refresh)
 
-Lead with the proof: real renters are signing up and asking about listings. Truthful and general — no invented numbers.
+Lead with what it is, then the proof: real renters are signing up and asking about listings. Truthful and general — no invented numbers.
 
 ```text
-Self-managing landlords — something has changed this month.
+RoostNI is a free NI renting platform where tenants apply with a ready-made passport — ID, income and references organised in one pack.
 
-I'm building RoostNI, a renting platform for Northern Ireland. Over the past couple of weeks real renters have started signing up and building their Tenant Passport — ID, income and references organised in one pack. One messaged about a listing within hours of it going up.
+And it's starting to work: over the past couple of weeks real renters have signed up and built their Tenant Passport. One messaged about a listing within hours of it going up.
 
 That's the point: when you list a property here, enquiries come from tenants who've already got their paperwork together — no chasing payslips over WhatsApp.
 
@@ -131,16 +131,14 @@ https://roostni.co.uk/audit?utm_source=facebook&utm_medium=community&utm_campaig
 
 ## Post template 5 — weekend conversation starter (vacancy pain point)
 
-Question-first, works on a Saturday morning or evening when people have time to comment.
+Question-first, works on a Saturday morning or evening when people have time to comment. RoostNI is still named and explained in the first two lines.
 
 ```text
-Self-managing landlords — a question for the weekend.
+RoostNI is a free NI renting platform I'm building — tenants apply with a ready-made passport, landlords get the paperwork side organised.
 
-When a property comes vacant, what's the biggest pain point right now? Finding tenants, sorting the paperwork, or the turnaround work in between?
+A question for the weekend, self-managing landlords: when a property comes vacant, what's the biggest pain point right now? Finding tenants, sorting the paperwork, or the turnaround work in between?
 
-Asking because I'm building RoostNI — a NI renting platform where tenants apply with a ready-made passport (ID, income and references already organised) and landlords get a compliance-friendly workspace for the paperwork side. Free during early beta.
-
-Curious what the biggest pain point is when a property comes vacant right now.
+Free during early beta — curious what matters most before I build the next bit.
 ```
 
 ## One-to-one reply script
