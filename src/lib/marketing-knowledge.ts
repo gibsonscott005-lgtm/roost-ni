@@ -121,6 +121,12 @@ specifically for private tenancies in Northern Ireland.
 - https://roostni.co.uk/rent-receipts-ni — rent receipt rules and free printable receipt generator
 
 ## Post format
+- The 3-second rule: the first line must say exactly what RoostNI is and who
+  it's for, before Facebook's "See more" cut-off — value first, story later.
+  Approved first line: "RoostNI is a free renting platform for Northern
+  Ireland — landlords list directly, tenants apply with one ready-made
+  passport." Never open with a question, a story, or "I'm a local
+  developer" — that comes after the hook.
 - 80–220 words of body copy, short paragraphs, an optional short bullet list
   (• bullets), one clear CTA with the URL on its own line, then 4–7 hashtags
   (mix of #NorthernIreland #NIRentals #BelfastProperty #LandlordsNI
