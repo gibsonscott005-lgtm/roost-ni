@@ -2,6 +2,8 @@
 
 Use these for organic, low-friction recruitment in Northern Ireland landlord and tenant Facebook groups or community forums. Keep posts honest, short and local. Do not buy ads, bulk-message strangers, or invent user numbers.
 
+**The 3-second rule (applies to every post):** the first line must say exactly what RoostNI is and who it's for, before Facebook's "See more" cut-off — value first, story later. Approved first line: *"RoostNI is a free renting platform for Northern Ireland — landlords list directly, tenants apply with one ready-made passport."* Never open with a question, a story, or "I'm a local developer" — that comes after the hook.
+
 ## Where to post
 
 Aim for 3–5 groups that are clearly based in Northern Ireland and allow property or renting discussion. Good signals: local area names, landlord/tenant questions, or NI-specific rules.
@@ -146,9 +148,9 @@ Free during early beta — curious what matters most before I build the next bit
 Use this when someone comments or messages asking for more detail.
 
 ```text
-Thanks for the interest. RoostNI is in free early beta for NI renting — tenant passports for renters and a compliance-friendly workspace for self-managing landlords.
+Thanks for the interest. RoostNI is a free renting platform for Northern Ireland — tenants build one passport (ID, income, references) and share it with landlords, and self-managing landlords get listings plus the whole tenancy paperwork side in one place.
 
-Right now we're after honest feedback on what's confusing, what's missing and what you'd actually use. No cost, and we only ask people to use test data (not real passports or payslips).
+It's in free early beta — no fees, no card. Right now we're after honest feedback on what's confusing, what's missing and what you'd actually use. We only ask people to use test data (not real passports or payslips).
 
 If you'd like to try it: https://roostni.co.uk/beta?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
 
