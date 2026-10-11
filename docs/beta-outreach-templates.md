@@ -54,11 +54,11 @@ Genuinely curious what score people get and what's missing. Comments welcome.
 Use this once the audit post has had its run in a group. The audit earns the attention; this shows landlords RoostNI is a full toolkit, not just a quiz. Leads with listing their property, because that's the outcome landlords care about.
 
 ```text
-A couple of weeks ago I shared a free 2-minute self-check for NI landlords here — thanks to everyone who tried it and commented.
+RoostNI lets NI landlords list a property free and manage the whole tenancy in one place — agreements, deposit tracking, rent ledger, certificates, notice to quit.
 
-A few people asked "ok, so what is it exactly?", so here's the honest answer: it's the front door to something much bigger.
+A couple of weeks ago I shared the free 2-minute landlord self-check here — thanks to everyone who tried it. A few people asked "ok, so what is it exactly?", so here's the honest answer: the audit is the front door to the full platform.
 
-RoostNI is a Northern Ireland renting platform I'm building. If you're a self-managing landlord you can:
+If you're a self-managing landlord you can:
 
 • List your property to tenants who apply with a ready-made Tenant Passport — identity, income and references organised in one pack instead of scattered over WhatsApp
 • Keep an existing tenancy in order even if you don't advertise — tenancy details, deposit tracking, rent ledger, safety certificates with expiry reminders, maintenance records
@@ -78,18 +78,18 @@ Local developer, building this for NI landlords — feedback genuinely shapes wh
 
 ## Post template 2 — landlord audit (shorter variant)
 
-For groups with stricter promo rules — more question, less pitch.
+For groups with stricter promo rules — more question, less pitch. First line still names what it is.
 
 ```text
-Landlords here — how many of these could you evidence tonight if asked?
+Free 2-minute compliance self-check for NI landlords — no sign-up, score straight away.
+
+How many of these could you evidence tonight if asked?
 
 • Deposit protected within 28 days
 • Tenancy Information Notice issued
 • Valid gas safety cert and EPC
 • Rent book or receipts
 • Correct notice-to-quit period for your tenancy length
-
-I put together a free 2-minute self-check that scores you on the lot. Anonymous, no sign-up:
 
 https://roostni.co.uk/audit?utm_source=facebook&utm_medium=community&utm_campaign=audit_launch
 
