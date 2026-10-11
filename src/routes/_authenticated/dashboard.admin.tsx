@@ -11,6 +11,11 @@ import {
 } from "@/lib/admin-overview.functions";
 import { MarketingAdminPanel } from "@/components/marketing-admin";
 import {
+  isAnalyticsOptedOut,
+  optInToAnalytics,
+  optOutOfAnalytics,
+} from "@/integrations/posthog/client";
+import {
   BarChart3,
   BellRing,
   Check,
@@ -51,6 +56,11 @@ function AdminDashboard() {
   const [data, setData] = useState<AdminOverview | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [tab, setTab] = useState<"signups" | "audits" | "feedback" | "alerts" | "marketing">("signups");
+  const [deviceExcluded, setDeviceExcluded] = useState(false);
+
+  useEffect(() => {
+    setDeviceExcluded(isAnalyticsOptedOut());
+  }, []);
 
   const isAdmin = profile?.account_type === "admin";
 
