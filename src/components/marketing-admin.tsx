@@ -61,6 +61,10 @@ export function MarketingAdminPanel() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editBody, setEditBody] = useState("");
+  const [lastCopiedId, setLastCopiedId] = useState<string | null>(null);
+  useEffect(() => {
+    try { setLastCopiedId(localStorage.getItem("roost_last_copied_post")); } catch { /* ignore */ }
+  }, []);
 
   const load = useCallback(async () => {
     try {
@@ -159,8 +163,11 @@ export function MarketingAdminPanel() {
   };
   const copyPost = (post: MarketingPost) =>
     copyText(buildShareText(post), "Page post copied", "Includes the tracked link — for your RoostNI Page.");
-  const copyGroupPost = (post: MarketingPost) =>
+  const copyGroupPost = (post: MarketingPost) => {
+    setLastCopiedId(post.id);
+    try { localStorage.setItem("roost_last_copied_post", post.id); } catch { /* ignore */ }
     copyText(buildGroupPostText(post), "Group post copied", "No links inside — post it directly in the group, then add the first comment.");
+  };
   const copyFirstComment = (post: MarketingPost) =>
     copyText(buildFirstCommentText(post), "First comment copied", "Paste this as the first comment straight after posting.");
 
