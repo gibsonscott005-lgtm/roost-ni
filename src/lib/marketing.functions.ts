@@ -320,7 +320,6 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
 
     // Legal series: Mon/Wed/Fri. Otherwise one post per day. 18:00 UTC.
     const base = nextDailySlot();
-    const legalSlots = isLegal ? nextLegalSlots(cleaned.length) : [];
 
     const rows = cleaned.map((p, i) => {
       const when = isLegal
