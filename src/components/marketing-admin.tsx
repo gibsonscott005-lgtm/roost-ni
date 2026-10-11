@@ -25,6 +25,7 @@ import {
   buildShareText,
   buildGroupPostText,
   buildFirstCommentText,
+  buildRedditBody,
   type MarketingEngineData,
   type MarketingPost,
 } from "@/lib/marketing.functions";
@@ -54,7 +55,7 @@ export function MarketingAdminPanel() {
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<MarketingEngineData | null>(null);
-  const [focus, setFocus] = useState<"mixed" | "landlord" | "tenant" | "ni_legal">("mixed");
+  const [focus, setFocus] = useState<"mixed" | "landlord" | "tenant" | "ni_legal" | "reddit">("mixed");
   const [generating, setGenerating] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [distilling, setDistilling] = useState(false);
@@ -226,6 +227,7 @@ export function MarketingAdminPanel() {
           <option value="landlord">Landlords only</option>
           <option value="tenant">Tenants only</option>
           <option value="ni_legal">NI Legal Series (Mon / Wed / Fri)</option>
+          <option value="reddit">Reddit — r/nirenting (daily, 7 posts)</option>
         </select>
         <button
           type="button"
@@ -238,7 +240,7 @@ export function MarketingAdminPanel() {
           ) : (
             <Sparkles className="h-3.5 w-3.5" />
           )}
-          {generating ? "Robin is drafting…" : "Ask Robin for 4 posts"}
+          {generating ? "Robin is drafting…" : focus === "reddit" ? "Ask Robin for a week of Reddit posts" : "Ask Robin for 4 posts"}
         </button>
         <button
           type="button"
@@ -414,11 +416,31 @@ export function MarketingAdminPanel() {
                   </div>
                 ) : (
                   <p className="mt-1 line-clamp-4 whitespace-pre-wrap text-xs text-muted-foreground">
+                    {post.platform === "reddit" ? <span className="mr-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold text-foreground">Reddit</span> : null}
                     {post.body}
                   </p>
                 )}
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {post.platform === "reddit" ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => copyText(post.topic, "Reddit title copied", "Paste it into the Title box on r/nirenting.")}
+                        className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-[var(--color-primary-foreground)] transition hover:bg-foreground/90"
+                      >
+                        <Copy className="h-3 w-3" /> 1. Copy title
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => copyText(buildRedditBody(post), "Reddit post copied", "Paste into the body (Markdown editor). The tracked link is already inside.")}
+                        className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-semibold text-foreground transition hover:bg-secondary"
+                      >
+                        <Copy className="h-3 w-3" /> 2. Copy post body
+                      </button>
+                    </>
+                  ) : (
+                    <>
                   <button
                     type="button"
                     onClick={() => copyGroupPost(post)}
@@ -442,6 +464,8 @@ export function MarketingAdminPanel() {
                   >
                     <Copy className="h-3 w-3" /> Page version
                   </button>
+                    </>
+                  )}
                   <button
                     type="button"
                     onClick={() => updatePost(post.id, { status: "posted" }, "Marked as posted — scoring starts now")}

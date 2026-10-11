@@ -85,6 +85,13 @@
       "when": 1791585263854,
       "tag": "0011_clamp_signup_account_type",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791744796630,
+      "tag": "0012_marketing_posts_platform",
+      "breakpoints": true
     }
   ]
 }
