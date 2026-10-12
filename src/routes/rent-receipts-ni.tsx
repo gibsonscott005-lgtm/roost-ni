@@ -42,8 +42,12 @@ export const Route = createFileRoute("/rent-receipts-ni")({
       { property: "og:title", content: "Rent receipts in Northern Ireland — landlord rules and free generator" },
       { property: "og:description", content: DESC },
       { property: "og:type", content: "article" },
+      { property: "og:image", content: "https://roostni.co.uk/og/rent-receipts-ni.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://roostni.co.uk/og/rent-receipts-ni.jpg" },
       { property: "og:url", content: PAGE_URL },
-      { name: "twitter:card", content: "summary" },
     ],
     links: [{ rel: "canonical", href: PAGE_URL }],
     scripts: [
@@ -52,6 +56,7 @@ export const Route = createFileRoute("/rent-receipts-ni")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Article",
+          image: "https://roostni.co.uk/og/rent-receipts-ni.jpg",
           headline: "Rent receipts in Northern Ireland: what landlords must provide",
           description: DESC,
           author: { "@type": "Organization", name: "RoostNI" },
