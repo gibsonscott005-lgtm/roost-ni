@@ -33,6 +33,11 @@ export const Route = createFileRoute("/landlord-registration-ni")({
           "Who must register, what it costs, what you need to hand, renewals every three years, and what happens if you don't. A clear guide for NI landlords.",
       },
       { property: "og:type", content: "article" },
+      { property: "og:image", content: "https://roostni.co.uk/og/landlord-registration-ni.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://roostni.co.uk/og/landlord-registration-ni.jpg" },
       { property: "og:url", content: PAGE_URL },
       { name: "twitter:card", content: "summary" },
     ],
@@ -43,6 +48,7 @@ export const Route = createFileRoute("/landlord-registration-ni")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Article",
+          image: "https://roostni.co.uk/og/landlord-registration-ni.jpg",
           headline: "Landlord registration in Northern Ireland: the plain-English guide",
           description:
             "Who must register with the NI Landlord Registration Scheme, what it costs, what you need, renewals and penalties.",
