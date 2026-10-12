@@ -39,7 +39,6 @@ export const Route = createFileRoute("/landlord-registration-ni")({
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: "https://roostni.co.uk/og/landlord-registration-ni.jpg" },
       { property: "og:url", content: PAGE_URL },
-      { name: "twitter:card", content: "summary" },
     ],
     links: [{ rel: "canonical", href: PAGE_URL }],
     scripts: [
