@@ -134,9 +134,10 @@ function HomePage() {
                 <span className="inline-flex items-center gap-2 rounded-full border border-verified/30 bg-verified-soft/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
                   <BadgeCheck className="h-3.5 w-3.5 text-verified" /> Free early beta
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-verified/25 bg-verified-soft/40 px-3 py-1 text-xs font-medium text-muted-foreground shadow-resting">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-verified/25 bg-verified-soft/40 px-3 py-1 text-left text-xs font-medium leading-snug text-muted-foreground shadow-resting">
                   <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-verified" />
-                  Built strictly for Northern Ireland legislation · Free during Beta
+                  Built strictly for Northern Ireland legislation
+                  <span className="hidden sm:inline"> · Free during Beta</span>
                 </span>
               </div>
               <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-5xl lg:text-[3.25rem]">
