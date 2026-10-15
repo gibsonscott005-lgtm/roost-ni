@@ -944,6 +944,173 @@ function StatCard({
   );
 }
 
+const AUDIT_DONE_KEY = "roostni_audit_last";
+
+function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: () => void }) {
+  const [audit, setAudit] = useState<{ score: number; band: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(AUDIT_DONE_KEY);
+      if (raw) setAudit(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const first = listings[0];
+  const stepDone = [!!audit, listings.length > 0, listings.some((l) => l.is_published)];
+  const doneCount = stepDone.filter(Boolean).length;
+  if (doneCount === 3) return null;
+  const link = first ? `https://roostni.co.uk/listings/${first.id}` : "";
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      toast.success("Link copied");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Could not copy — press and hold the link instead");
+    }
+  };
+
+  const btn =
+    "group inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition hover:-translate-y-0.5 active:translate-y-0";
+
+  const Step = ({
+    n,
+    title,
+    body,
+    done,
+    locked,
+    children,
+  }: {
+    n: number;
+    title: string;
+    body: string;
+    done: boolean;
+    locked?: boolean;
+    children?: React.ReactNode;
+  }) => (
+    <li
+      className={`flex flex-col gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between ${
+        done ? "border-verified/30 bg-verified-soft/40" : "border-border bg-surface"
+      } ${locked ? "opacity-60" : ""}`}
+    >
+      <div className="flex min-w-0 items-start gap-3">
+        <span
+          className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm font-semibold ${
+            done
+              ? "bg-verified text-[var(--color-verified-foreground)]"
+              : "bg-surface-muted text-foreground"
+          }`}
+        >
+          {done ? <Check className="h-4 w-4" strokeWidth={3} /> : n}
+        </span>
+        <div className="min-w-0">
+          <p className="font-display text-sm font-semibold tracking-tight">{title}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{body}</p>
+        </div>
+      </div>
+      {children ? <div className="shrink-0">{children}</div> : null}
+    </li>
+  );
+
+  return (
+    <div className="mb-6 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-verified">
+            Getting started
+          </p>
+          <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
+            Get Your First NI Property Live
+          </h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Free during Public Beta • No agent fees or commissions
+          </p>
+        </div>
+        <span className="rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold">
+          {doneCount} of 3 done
+        </span>
+      </div>
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-surface-muted" aria-hidden>
+        <div
+          className="h-full rounded-full bg-verified transition-all duration-500"
+          style={{ width: `${(doneCount / 3) * 100}%` }}
+        />
+      </div>
+      <ol className="mt-5 space-y-3">
+        <Step
+          n={1}
+          title="Check Tenancy Compliance"
+          body={
+            audit
+              ? `Last score: ${audit.score}% — ${audit.band}`
+              : "Five quick questions on registration, deposits, notices and safety."
+          }
+          done={stepDone[0]}
+        >
+          <Link
+            to="/audit"
+            className={`${btn} ${audit ? "border border-border bg-surface text-foreground" : "bg-foreground text-background shadow-raised hover:shadow-floating"}`}
+          >
+            {audit ? "Retake check" : "Start check"}
+            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+          </Link>
+        </Step>
+        <Step
+          n={2}
+          title="Add Your First Property"
+          body="Deposits are capped at one month's rent under the Private Tenancies Act (NI) 2022 — we check this for you."
+          done={stepDone[1]}
+        >
+          {!stepDone[1] ? (
+            <button
+              type="button"
+              onClick={onAdd}
+              className={`${btn} bg-verified text-[var(--color-verified-foreground)] shadow-raised hover:shadow-floating`}
+            >
+              <Plus className="h-4 w-4" />
+              Add property
+            </button>
+          ) : null}
+        </Step>
+        <Step
+          n={3}
+          title="Share Your Direct Link"
+          body={
+            first
+              ? first.is_published
+                ? "Send this link to WhatsApp, Facebook or anyone looking."
+                : "Publish your property to make this link live for tenants."
+              : "Unlocks once you've added a property."
+          }
+          done={stepDone[2]}
+          locked={!first}
+        >
+          {first ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <code className="max-w-[220px] truncate rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs">
+                roostni.co.uk/listings/{first.id.slice(0, 8)}…
+              </code>
+              <button
+                type="button"
+                onClick={copy}
+                className={`${btn} border border-border bg-surface text-foreground`}
+              >
+                {copied ? <Check className="h-4 w-4" /> : <ExternalLink className="h-4 w-4" />}
+                {copied ? "Copied" : "Copy link"}
+              </button>
+            </div>
+          ) : null}
+        </Step>
+      </ol>
+    </div>
+  );
+}
+
 function MyProperties({
   listings,
   loading,
@@ -985,6 +1152,7 @@ function MyProperties({
 
   return (
     <div>
+      {!loading ? <LandlordOnboarding listings={listings} onAdd={onAdd} /> : null}
       <div className="mb-5 flex items-end justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -1009,23 +1177,9 @@ function MyProperties({
           Loading listings…
         </div>
       ) : listings.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-border bg-surface p-10 text-center">
-          <Building2 className="mx-auto h-8 w-8 text-muted-foreground" />
-          <p className="mt-3 font-display text-base font-semibold tracking-tight">
-            No properties yet
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Publish your first compliant NI listing in under two minutes.
-          </p>
-          <button
-            type="button"
-            onClick={onAdd}
-            className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Add new property
-          </button>
-        </div>
+        <p className="rounded-2xl border border-dashed border-border bg-surface p-5 text-center text-sm text-muted-foreground">
+          Your properties will appear here once you add the first one.
+        </p>
       ) : (
         <ul className="overflow-hidden rounded-2xl border border-border bg-surface shadow-floating">
           {listings.map((l, i) => (
@@ -1252,6 +1406,17 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
     const detailError = validateListingDetails(details);
     if (detailError) {
       toast.error("Check the property details", { description: detailError });
+      return;
+    }
+    const rentNum = Number(rent);
+    const depositNum = Number(deposit);
+    if (rentNum > 0 && depositNum > rentNum) {
+      toast.error("Deposit is above one month's rent", {
+        description:
+          "Under the Private Tenancies Act (NI) 2022 a deposit cannot exceed one month's rent. Please lower it to £" +
+          rentNum.toLocaleString() +
+          " or less.",
+      });
       return;
     }
     if (isTenanted && !tenantName.trim()) {
