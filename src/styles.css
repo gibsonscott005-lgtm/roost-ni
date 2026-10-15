@@ -8,14 +8,17 @@
   font-family: "Manrope";
   font-style: normal;
   font-weight: 200 800;
-  font-display: swap;
+   /* Keep the first-painted font on slow connections instead of reflowing
+    * the page when the branded font eventually arrives. Preloads still
+    * allow the branded font on fast connections and subsequent visits. */
+   font-display: optional;
   src: url("/fonts/manrope-var.woff2") format("woff2");
 }
 @font-face {
   font-family: "Sora";
   font-style: normal;
   font-weight: 100 800;
-  font-display: swap;
+   font-display: optional;
   src: url("/fonts/sora-var.woff2") format("woff2");
 }
 
@@ -208,6 +211,9 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+  }
+  html {
+    scrollbar-gutter: stable;
   }
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
