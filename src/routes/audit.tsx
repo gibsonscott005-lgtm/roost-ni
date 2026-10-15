@@ -88,6 +88,14 @@ function AuditPage() {
 
   const next = () => {
     const final = scoreAudit(answers);
+    try {
+      window.localStorage.setItem(
+        "roostni_audit_last",
+        JSON.stringify({ score: final.score, band: final.band }),
+      );
+    } catch {
+      /* ignore */
+    }
     setStage("result");
     scrollTop();
     posthog.capture("audit_completed", {
