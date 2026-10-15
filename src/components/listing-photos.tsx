@@ -154,10 +154,12 @@ export function ListingCover({
       <img
         src={src}
         alt={alt}
+        width={400}
+        height={250}
         loading="lazy"
         draggable={false}
         onError={() => setBroken(true)}
-        className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+        className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
       />
       {showCount && photoCount > 1 ? (
         <span className="absolute bottom-2 right-2 rounded-full bg-foreground/70 px-2 py-0.5 text-[10px] font-semibold text-background backdrop-blur">
@@ -420,7 +422,17 @@ export function ListingGallery({
     return () => window.removeEventListener("keydown", onKey);
   }, [fullscreen]);
 
-  if (urls.length === 0) return <PhotoPlaceholder className="aspect-[16/9]" />;
+  // Reserve the thumbnail rail before signed URLs arrive too, so the
+  // property details below never jump when the gallery becomes available.
+  const hasThumbnailRail = Math.max(paths?.length ?? 0, urls.length) > 1;
+  if (urls.length === 0) {
+    return (
+      <div className="w-full">
+        <PhotoPlaceholder className="aspect-[16/9]" />
+        {hasThumbnailRail ? <div className="h-20" aria-hidden="true" /> : null}
+      </div>
+    );
+  }
 
   const safeIndex = Math.min(index, urls.length - 1);
   const go = (delta: number) =>
@@ -455,7 +467,7 @@ export function ListingGallery({
         <GalleryPhoto
           src={urls[safeIndex]}
           alt={alt}
-          className="h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
         />
         {urls.length > 1 ? (
           <>
@@ -495,8 +507,8 @@ export function ListingGallery({
           Tap to enlarge
         </button>
       </div>
-      {urls.length > 1 ? (
-        <div className="flex gap-2 overflow-x-auto px-4 py-3">
+      {hasThumbnailRail ? (
+        <div className="flex h-20 gap-2 overflow-x-auto px-4 py-3">
           {urls.map((u, i) => (
             <button
               key={u}

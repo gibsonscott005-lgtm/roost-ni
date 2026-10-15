@@ -215,8 +215,12 @@ function HomePage() {
                     Self-managing a rental?
                   </button>
                 </div>
-                {side === "tenant" ? (
-                  <div className="p-4">
+                <div className="grid">
+                  <div
+                    className={`col-start-1 row-start-1 p-4 ${side === "tenant" ? "" : "invisible"}`}
+                    aria-hidden={side !== "tenant"}
+                    inert={side !== "tenant"}
+                  >
                     <ul className="space-y-2.5 text-sm text-foreground">
                       <li className="flex items-start gap-2.5">
                         <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
@@ -239,8 +243,11 @@ function HomePage() {
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>
-                ) : (
-                  <div className="p-4">
+                  <div
+                    className={`col-start-1 row-start-1 p-4 ${side === "landlord" ? "" : "invisible"}`}
+                    aria-hidden={side !== "landlord"}
+                    inert={side !== "landlord"}
+                  >
                     <ul className="space-y-2.5 text-sm text-foreground">
                       <li className="flex items-start gap-2.5">
                         <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
@@ -263,7 +270,7 @@ function HomePage() {
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>
-                )}
+                </div>
               </div>
             </div>
 

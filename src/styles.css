@@ -8,14 +8,17 @@
   font-family: "Manrope";
   font-style: normal;
   font-weight: 200 800;
-  font-display: swap;
+   /* Keep the first-painted font on slow connections instead of reflowing
+    * the page when the branded font eventually arrives. Preloads still
+    * allow the branded font on fast connections and subsequent visits. */
+   font-display: optional;
   src: url("/fonts/manrope-var.woff2") format("woff2");
 }
 @font-face {
   font-family: "Sora";
   font-style: normal;
   font-weight: 100 800;
-  font-display: swap;
+   font-display: optional;
   src: url("/fonts/sora-var.woff2") format("woff2");
 }
 
@@ -227,5 +230,13 @@
     box-shadow: var(--elevation-resting),
       0 0 0 3px color-mix(in oklab, var(--ring) 22%, transparent);
     border-color: var(--color-ring);
+  }
+}
+
+/* Classic desktop scrollbars must not change the available page width;
+ * touch devices keep their full width and use overlay scrolling. */
+@media (hover: hover) and (pointer: fine) {
+  html {
+    scrollbar-gutter: stable;
   }
 }
