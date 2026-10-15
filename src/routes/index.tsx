@@ -174,7 +174,8 @@ function HomePage() {
                 className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-4 py-3 font-display text-[13px] font-semibold text-foreground shadow-resting transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-secondary hover:shadow-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:translate-y-0 active:shadow-resting motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:w-auto sm:px-6 sm:text-sm"
               >
                 <ClipboardCheck className="h-4 w-4 shrink-0 text-verified" />
-                <span className="hidden sm:inline">Landlords: </span>Free 5-question NI compliance check
+                <span className="hidden sm:inline">Landlords: free </span>
+                <span className="sm:hidden">Free </span>5-question NI compliance check
               </Link>
               <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
                 No account needed to browse or run the audit.{" "}
