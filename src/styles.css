@@ -212,9 +212,6 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  html {
-    scrollbar-gutter: stable;
-  }
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
@@ -233,5 +230,13 @@
     box-shadow: var(--elevation-resting),
       0 0 0 3px color-mix(in oklab, var(--ring) 22%, transparent);
     border-color: var(--color-ring);
+  }
+}
+
+/* Classic desktop scrollbars must not change the available page width;
+ * touch devices keep their full width and use overlay scrolling. */
+@media (hover: hover) and (pointer: fine) {
+  html {
+    scrollbar-gutter: stable;
   }
 }
