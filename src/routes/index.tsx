@@ -130,9 +130,15 @@ function HomePage() {
         <section className="mx-auto max-w-6xl px-4 pb-12 pt-10 sm:px-6 sm:pb-20 sm:pt-16">
           <div className="grid gap-10 lg:grid-cols-[1fr_420px] lg:items-center">
             <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-verified/30 bg-verified-soft/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
-                <BadgeCheck className="h-3.5 w-3.5 text-verified" /> Free early beta
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-2 rounded-full border border-verified/30 bg-verified-soft/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
+                  <BadgeCheck className="h-3.5 w-3.5 text-verified" /> Free early beta
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-verified/25 bg-verified-soft/40 px-3 py-1 text-xs font-medium text-muted-foreground shadow-resting">
+                  <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-verified" />
+                  Built strictly for Northern Ireland legislation · Free during Beta
+                </span>
+              </div>
               <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-5xl lg:text-[3.25rem]">
                 Northern Ireland renting, managed direct.
               </h1>
@@ -145,26 +151,28 @@ function HomePage() {
                 <Link
                   to="/auth"
                   onClick={() => posthog.capture("home_cta_click", { target: "list_property" })}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
+                  className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-foreground/92 hover:shadow-floating focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:translate-y-0 active:shadow-resting motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:px-6"
                 >
-                  <Building2 className="h-4 w-4" />
+                  <Building2 className="h-4 w-4 shrink-0" />
                   List a property free
+                  <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-200 ease-out group-hover:translate-x-1 motion-reduce:transition-none" />
                 </Link>
                 <Link
                   to="/listings"
                   onClick={() => posthog.capture("home_cta_click", { target: "listings" })}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
+                  className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-foreground/92 hover:shadow-floating focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:translate-y-0 active:shadow-resting motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:px-6"
                 >
-                  <Home className="h-4 w-4" />
+                  <Home className="h-4 w-4 shrink-0" />
                   Find a home
+                  <ArrowRight className="h-4 w-4 shrink-0 transition-transform duration-200 ease-out group-hover:translate-x-1 motion-reduce:transition-none" />
                 </Link>
               </div>
               <Link
                 to="/audit"
                 onClick={() => posthog.capture("home_cta_click", { target: "audit" })}
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 py-3 font-display text-sm font-semibold text-foreground shadow-resting transition hover:bg-secondary sm:w-auto"
+                className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-3 font-display text-sm font-semibold text-foreground shadow-resting transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-secondary hover:shadow-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:translate-y-0 active:shadow-resting motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:w-auto sm:px-6"
               >
-                <ClipboardCheck className="h-4 w-4 text-verified" />
+                <ClipboardCheck className="h-4 w-4 shrink-0 text-verified" />
                 Landlords: free 5-question NI compliance check
               </Link>
               <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
@@ -237,10 +245,10 @@ function HomePage() {
                     </ul>
                     <Link
                       to="/listings"
-                      className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground underline-offset-2 hover:underline"
+                      className="group mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground underline-offset-2 hover:underline"
                     >
                       Browse rentals now
-                      <ArrowRight className="h-4 w-4" />
+                      <ArrowRight className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-1 motion-reduce:transition-none" />
                     </Link>
                   </div>
                   <div
@@ -264,10 +272,10 @@ function HomePage() {
                     </ul>
                     <Link
                       to="/audit"
-                      className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground underline-offset-2 hover:underline"
+                      className="group mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground underline-offset-2 hover:underline"
                     >
                       Run the free 5-question check
-                      <ArrowRight className="h-4 w-4" />
+                      <ArrowRight className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-1 motion-reduce:transition-none" />
                     </Link>
                   </div>
                 </div>
