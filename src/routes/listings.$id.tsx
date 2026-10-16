@@ -83,27 +83,31 @@ export const Route = createFileRoute("/listings/$id")({
         : [];
     return { ...listing, photoUrls };
   },
-  head: ({ loaderData }) => {
-    if (!loaderData) return { meta: [{ title: "Listing — RoostNI" }] };
-    const t = `${loaderData.title} — RoostNI`;
-    const d = `${loaderData.address}${loaderData.location ? ` · ${loaderData.location}` : ""} · £${Number(loaderData.monthly_rent).toLocaleString()} pcm · Heating: ${loaderData.heating_type}.`;
-    const meta = [
-      { title: t },
-      { name: "description", content: d },
-      { property: "og:title", content: t },
-      { property: "og:description", content: d },
-      { property: "og:type", content: "website" },
-    ];
-    if (loaderData.photoUrls[0]) {
-      meta.push(
-        { property: "og:image", content: loaderData.photoUrls[0] },
+  head: ({ loaderData, params }) => {
+    if (!loaderData) return { meta: [{ title: "Listing | RoostNI" }] };
+    const t = `${loaderData.title} | RoostNI`;
+    const area = loaderData.location || loaderData.address?.split(",").slice(-2, -1)[0]?.trim() || "Northern Ireland";
+    const beds = loaderData.bedrooms;
+    const bedText = beds === 0 ? "Studio" : beds ? `${beds}-Bed property` : "Property";
+    const d = `£${Number(loaderData.monthly_rent).toLocaleString("en-GB")} pcm • ${bedText} in ${area}, Northern Ireland. Direct rental with zero agent fees.`;
+    const url = `https://roostni.co.uk/listings/${params.id}`;
+    const image = loaderData.photoUrls[0] || "https://roostni.co.uk/og/roostni-preview.jpg";
+    return {
+      meta: [
+        { title: t },
+        { name: "description", content: d },
+        { property: "og:title", content: t },
+        { property: "og:description", content: d },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+        { property: "og:image", content: image },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:image", content: loaderData.photoUrls[0] },
-      );
-    } else {
-      meta.push({ name: "twitter:card", content: "summary" });
-    }
-    return { meta };
+        { name: "twitter:title", content: t },
+        { name: "twitter:description", content: d },
+        { name: "twitter:image", content: image },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
   },
   errorComponent: ({ error }) => {
     const router = useRouter();

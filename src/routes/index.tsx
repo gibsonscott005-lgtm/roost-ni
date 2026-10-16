@@ -27,15 +27,25 @@ export const Route = createFileRoute("/")({
         content:
           "Self-managing NI landlords: list and manage rentals without agent fees, with NI tenancy law built in. Renters: one Tenant Passport to apply direct. Free in beta.",
       },
-      { property: "og:title", content: "Let & Rent Direct in Northern Ireland — No Agent Fees | RoostNI" },
+      { property: "og:title", content: "RoostNI | Renting in Northern Ireland, done direct" },
       {
         property: "og:description",
         content:
-          "Self-managing NI landlords: list and manage rentals without agent fees, with NI tenancy law built in. Renters: one Tenant Passport to apply direct. Free in beta.",
+          "Replace chaotic social media listings with Northern Ireland's direct rental platform. Free digital tenant passports, compliant property listings, and local tenancy tools.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://roostni.co.uk/" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://roostni.co.uk" },
+      { property: "og:image", content: "https://roostni.co.uk/og/roostni-preview.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "RoostNI — Renting in Northern Ireland, done direct" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "RoostNI | Renting in Northern Ireland, done direct" },
+      {
+        name: "twitter:description",
+        content: "Direct rental platform built exclusively for Northern Ireland. Zero agent fees during public beta.",
+      },
+      { name: "twitter:image", content: "https://roostni.co.uk/og/roostni-preview.jpg" },
     ],
     links: [{ rel: "canonical", href: "https://roostni.co.uk/" }],
     scripts: [
