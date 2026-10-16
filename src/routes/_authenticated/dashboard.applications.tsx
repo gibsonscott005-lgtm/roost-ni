@@ -931,146 +931,392 @@ function timeAgo(iso: string) {
   return `${d}d ago`;
 }
 
-function PassportModal({
+const INFO_OPTIONS: Array<{ key: InfoItem; label: string }> = [
+  { key: "updated_payslip", label: "Updated payslip" },
+  { key: "bank_statement", label: "Recent bank statement" },
+  { key: "guarantor_details", label: "Guarantor details" },
+  { key: "previous_landlord_contact", label: "Previous landlord contact" },
+  { key: "employer_contact", label: "Employer contact details" },
+  { key: "viewing_availability", label: "Availability for a viewing" },
+];
+
+function PassportSheet({
   share,
   passport,
   onAccept,
+  accepting,
+  onChanged,
   onClose,
 }: {
-  share: Share;
+  share: Share | null;
   passport: Passport | null;
-  onAccept: () => void;
+  onAccept: (s: Share) => void;
+  accepting: boolean;
+  onChanged: () => void;
   onClose: () => void;
 }) {
   const navigate = useNavigate();
   const [ownChecksDone, setOwnChecksDone] = useState(false);
+  const [declineOpen, setDeclineOpen] = useState(false);
+  const [declineReason, setDeclineReason] = useState("");
+  const [infoOpen, setInfoOpen] = useState(false);
+  const [infoItems, setInfoItems] = useState<InfoItem[]>([]);
+  const [infoMessage, setInfoMessage] = useState("");
+
+  const declineMutation = useMutation({
+    mutationFn: (s: Share) =>
+      declineApplication({ data: { shareId: s.id, reason: declineReason || undefined } }),
+    onSuccess: (res) => {
+      toast.success("Application declined", {
+        description: `The applicant has been notified and your document access has ended.${res.relisted ? " Listing is available again." : ""}`,
+      });
+      setDeclineOpen(false);
+      setDeclineReason("");
+      onChanged();
+      onClose();
+    },
+    onError: (err: unknown) =>
+      toast.error("Could not decline", {
+        description: err instanceof Error ? err.message : "Please try again",
+      }),
+  });
+
+  const infoMutation = useMutation({
+    mutationFn: (s: Share) =>
+      requestApplicantInfo({
+        data: { shareId: s.id, items: infoItems, message: infoMessage || undefined },
+      }),
+    onSuccess: () => {
+      toast.success("Request sent", { description: "The applicant has been asked for the extra information." });
+      setInfoOpen(false);
+      setInfoItems([]);
+      setInfoMessage("");
+      onChanged();
+    },
+    onError: (err: unknown) =>
+      toast.error("Could not send request", {
+        description: err instanceof Error ? err.message : "Please try again",
+      }),
+  });
+
+  const rent = Number(share?.listing?.monthly_rent ?? 0);
+  const deposit = Number(share?.listing?.deposit ?? 0);
+  const depositOverCap = rent > 0 && deposit > rent;
+  const open = share !== null;
+  const isOpenApp = share ? share.status === "pending" || share.status === "reviewed" : false;
+
   return (
-    <div className="fixed inset-0 z-50 grid place-items-end bg-foreground/30 px-4 py-6 backdrop-blur-sm sm:place-items-center">
-      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-border bg-surface shadow-floating">
-        <div className="flex items-start justify-between gap-3 border-b border-border p-5">
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Tenant Passport
-            </p>
-            <h3 className="mt-1 truncate font-display text-lg font-semibold tracking-tight">
-              {share.tenant?.full_name || "Applicant"}
-            </h3>
-            <p className="mt-0.5 truncate text-xs text-muted-foreground">
-              For {share.listing?.title ?? "your listing"}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close"
-            className="grid h-8 w-8 place-items-center rounded-full border border-border bg-surface text-foreground/70 transition hover:bg-secondary"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="space-y-4 p-5">
-          <div className="flex flex-wrap gap-2">
-            <IdBadge passport={passport} />
-            <VerifyBadge label="Income" ok={!!passport?.income_verified} provided={!!passport?.income_provided} />
-            <VerifyBadge label="References" ok={!!passport?.reference_verified} provided={!!passport?.reference_provided} />
-            <AffordabilityBadge
-              passport={passport}
-              monthlyRent={share.listing?.monthly_rent ?? null}
-            />
-            {passport?.willing_direct_payment_apa ? <ApaPill /> : null}
-          </div>
-
-          <IncomeSummaryRow
-            shareId={share.id}
-            employmentStatus={passport?.employment_status ?? null}
-            hasIncomeDoc={!!passport?.income_document_path}
-          />
-
-          <IncomeBreakdownBlock passport={passport} monthlyRent={share.listing?.monthly_rent ?? null} />
-
-          <ChecksSplit idVerified={passport?.id_status === "verified"} />
-
-          {passport?.id_document_path ? (
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 px-3.5 py-2.5">
-              <div className="min-w-0 text-xs text-emerald-800">
-                <p className="font-semibold">Identity document on file</p>
-                <p className="text-emerald-700/80">
-                  Supplied by the applicant · check it against the person yourself
-                </p>
+    <Sheet
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) {
+          setOwnChecksDone(false);
+          onClose();
+        }
+      }}
+    >
+      <SheetContent side="right" className="flex w-full flex-col gap-0 overflow-hidden p-0 sm:max-w-xl">
+        {share ? (
+          <>
+            <SheetHeader className="border-b border-border p-5 text-left">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Tenant Passport · read-only
+              </p>
+              <div className="flex items-center gap-3">
+                <Initials name={share.tenant?.full_name} />
+                <div className="min-w-0">
+                  <SheetTitle className="truncate font-display text-lg tracking-tight">
+                    {share.tenant?.full_name || "Applicant"}
+                  </SheetTitle>
+                  <SheetDescription className="truncate text-xs">
+                    For {share.listing?.title ?? "your listing"} · applied {formatDate(share.shared_at)}
+                  </SheetDescription>
+                </div>
               </div>
-              <ViewIdDocButton shareId={share.id} />
+              <div className="pt-1">
+                <EvidenceBadge passport={passport} />
+              </div>
+            </SheetHeader>
+
+            <div className="flex-1 space-y-4 overflow-y-auto p-5">
+              {share.info_requested_at ? (
+                <div className="rounded-2xl border border-border bg-surface-muted/60 p-3 text-xs text-muted-foreground">
+                  <p className="font-semibold text-foreground">
+                    More information requested {timeAgo(share.info_requested_at)}
+                  </p>
+                  <p className="mt-0.5">
+                    {share.info_requested_items
+                      .map((k) => INFO_OPTIONS.find((o) => o.key === k)?.label ?? k)
+                      .join(" · ")}
+                  </p>
+                </div>
+              ) : null}
+
+              <Section title="Identity & contact">
+                <div className="flex flex-wrap items-center gap-2">
+                  <IdBadge passport={passport} />
+                  {passport?.id_document_path && share.status !== "declined" ? (
+                    <ViewIdDocButton shareId={share.id} />
+                  ) : null}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Contact details and full references are released once you accept — keeping
+                  applicant data private until there is a genuine offer.
+                </p>
+              </Section>
+
+              <Section title="Employment & income">
+                <div className="flex flex-wrap items-center gap-2">
+                  <VerifyBadge label="Income" ok={!!passport?.income_verified} provided={!!passport?.income_provided} />
+                  <AffordabilityBadge passport={passport} monthlyRent={share.listing?.monthly_rent ?? null} />
+                  {passport?.willing_direct_payment_apa ? <ApaPill /> : null}
+                </div>
+                <IncomeSummaryRow
+                  shareId={share.id}
+                  employmentStatus={passport?.employment_status ?? null}
+                  hasIncomeDoc={!!passport?.income_document_path && share.status !== "declined"}
+                />
+                <div className="mt-3">
+                  <IncomeBreakdownBlock passport={passport} monthlyRent={share.listing?.monthly_rent ?? null} />
+                </div>
+                <dl className="mt-3 divide-y divide-border rounded-2xl border border-border bg-surface-muted/50 text-sm">
+                  <Row
+                    k="Monthly net income (declared)"
+                    v={passport?.monthly_income_net ? `£${Number(passport.monthly_income_net).toLocaleString()}` : "—"}
+                  />
+                </dl>
+              </Section>
+
+              <Section title="Previous landlord references">
+                <VerifyBadge label="References" ok={!!passport?.reference_verified} provided={!!passport?.reference_provided} />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {passport?.reference_provided
+                    ? "Reference evidence is attached. Take up the reference with the previous landlord yourself."
+                    : "No reference evidence attached yet. You can request it below."}
+                </p>
+              </Section>
+
+              <ChecksSplit idVerified={passport?.id_status === "verified"} />
             </div>
-          ) : null}
 
-          <dl className="divide-y divide-border rounded-2xl border border-border bg-surface-muted/50 text-sm">
-            <Row k="Monthly net income (declared)" v={passport?.monthly_income_net ? `£${Number(passport.monthly_income_net).toLocaleString()}` : "—"} />
-            {passport?.id_verified_at ? (
-              <Row
-                k="Declared true on"
-                v={new Date(passport.id_verified_at).toLocaleString("en-GB", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              />
-            ) : null}
-            <Row k="Shared" v={timeAgo(share.shared_at)} />
-          </dl>
-        </div>
+            <div className="border-t border-border bg-surface-muted/40 p-4">
+              {isOpenApp ? (
+                <>
+                  {depositOverCap ? (
+                    <p className="mb-3 rounded-2xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                      This listing's deposit (£{deposit.toLocaleString()}) is more than one month's rent
+                      (£{rent.toLocaleString()}). Under the Private Tenancies Act (NI) 2022 the deposit
+                      cannot exceed one month's rent — edit the listing before accepting.
+                    </p>
+                  ) : null}
+                  <label className="mb-3 flex cursor-pointer items-start gap-2.5 rounded-2xl border border-border bg-surface p-3 text-xs text-foreground">
+                    <input
+                      type="checkbox"
+                      checked={ownChecksDone}
+                      onChange={(e) => setOwnChecksDone(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-verified)]"
+                    />
+                    <span>
+                      I have carried out my own checks on this applicant and I understand RoostNI has not
+                      vetted, referenced or recommended them. This letting decision is mine.
+                    </span>
+                  </label>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    <button
+                      type="button"
+                      onClick={() => setDeclineOpen(true)}
+                      className="min-h-11 rounded-full border border-border bg-surface px-4 py-2 text-xs font-medium text-destructive transition hover:bg-destructive/10"
+                    >
+                      Decline
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setInfoOpen(true)}
+                      className="min-h-11 rounded-full border border-border bg-surface px-4 py-2 text-xs font-medium text-foreground transition hover:bg-secondary"
+                    >
+                      Request more info
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onAccept(share)}
+                      disabled={!ownChecksDone || depositOverCap || accepting}
+                      title={!ownChecksDone ? "Confirm your own checks first" : undefined}
+                      className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-verified px-4 py-2 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {accepting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+                      Accept application
+                    </button>
+                  </div>
+                </>
+              ) : share.status === "accepted" ? (
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  {!share.lease_status ? (
+                    <button
+                      type="button"
+                      onClick={() => setDeclineOpen(true)}
+                      className="min-h-11 rounded-full border border-border bg-surface px-4 py-2 text-xs font-medium text-destructive transition hover:bg-destructive/10"
+                    >
+                      Withdraw offer & decline
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      navigate({ to: "/landlord/issue-lease", search: { share: share.id } });
+                    }}
+                    className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
+                  >
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                    Prepare &amp; issue lease
+                  </button>
+                </div>
+              ) : (
+                <p className="text-center text-xs text-muted-foreground">
+                  This application is {share.status}. Document access has ended.
+                </p>
+              )}
+            </div>
 
-        <div className="border-t border-border bg-surface-muted/40 p-4">
-          {share.status !== "accepted" ? (
-            <label className="mb-3 flex cursor-pointer items-start gap-2.5 rounded-2xl border border-amber-200 bg-amber-50/70 p-3 text-xs text-amber-900">
-              <input
-                type="checkbox"
-                checked={ownChecksDone}
-                onChange={(e) => setOwnChecksDone(e.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-amber-600"
-              />
-              <span>
-                I have carried out my own checks on this applicant and I understand RoostNI has not
-                vetted, referenced or recommended them. This letting decision is mine.
-              </span>
-            </label>
-          ) : null}
-          <div className="flex items-center justify-end gap-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-border bg-surface px-4 py-2 text-xs font-medium text-foreground transition hover:bg-secondary"
-          >
-            Close
-          </button>
-          {share.status === "accepted" ? (
-            <button
-              type="button"
-              onClick={() => {
-                onClose();
-                navigate({ to: "/landlord/issue-lease", search: { share: share.id } });
-              }}
-              className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background transition hover:brightness-110"
-            >
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Prepare &amp; Issue Lease
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={onAccept}
-              disabled={!ownChecksDone}
-              title={ownChecksDone ? undefined : "Confirm your own checks first"}
-              className="inline-flex items-center gap-1.5 rounded-full bg-verified px-4 py-2 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Check className="h-3.5 w-3.5" strokeWidth={3} />
-              Accept applicant
-            </button>
-          )}
-          </div>
-        </div>
-      </div>
-    </div>
+            <AlertDialog open={declineOpen} onOpenChange={setDeclineOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Decline this application?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {share.tenant?.full_name || "The applicant"} will be told their application isn't
+                    progressing, and your access to their passport documents ends straight away. This
+                    can't be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <textarea
+                  value={declineReason}
+                  onChange={(e) => setDeclineReason(e.target.value.slice(0, 300))}
+                  placeholder="Private note for your records (optional, not shown to the applicant)"
+                  className="min-h-20 w-full rounded-xl border border-border bg-surface p-3 text-sm"
+                />
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep application</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => {
+                      e.preventDefault();
+                      declineMutation.mutate(share);
+                    }}
+                    disabled={declineMutation.isPending}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {declineMutation.isPending ? "Declining…" : "Decline application"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Request more information</DialogTitle>
+                  <DialogDescription>
+                    Choose what you need. The applicant gets an in-app prompt; their application stays open.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-2">
+                  {INFO_OPTIONS.map((o) => {
+                    const checked = infoItems.includes(o.key);
+                    return (
+                      <label
+                        key={o.key}
+                        className="flex min-h-11 cursor-pointer items-center gap-2.5 rounded-xl border border-border bg-surface px-3 text-sm"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() =>
+                            setInfoItems((cur) =>
+                              checked ? cur.filter((k) => k !== o.key) : [...cur, o.key],
+                            )
+                          }
+                          className="h-4 w-4 accent-[var(--color-verified)]"
+                        />
+                        {o.label}
+                      </label>
+                    );
+                  })}
+                </div>
+                <textarea
+                  value={infoMessage}
+                  onChange={(e) => setInfoMessage(e.target.value.slice(0, 400))}
+                  placeholder="Optional short note to the applicant"
+                  className="min-h-20 w-full rounded-xl border border-border bg-surface p-3 text-sm"
+                />
+                <DialogFooter>
+                  <button
+                    type="button"
+                    onClick={() => infoMutation.mutate(share)}
+                    disabled={infoItems.length === 0 || infoMutation.isPending}
+                    className="min-h-11 rounded-full bg-verified px-5 py-2 text-sm font-semibold text-[var(--color-verified-foreground)] disabled:opacity-50"
+                  >
+                    {infoMutation.isPending ? "Sending…" : "Send request"}
+                  </button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </>
+        ) : null}
+      </SheetContent>
+    </Sheet>
   );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-border bg-surface p-4">
+      <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{title}</p>
+      {children}
+    </section>
+  );
+}
+
+function Initials({ name }: { name: string | null | undefined }) {
+  const initials =
+    (name ?? "")
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase())
+      .join("") || "?";
+  return (
+    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-verified-soft font-display text-sm font-semibold text-verified">
+      {initials}
+    </span>
+  );
+}
+
+function evidenceCount(p: Passport | null | undefined) {
+  if (!p) return 0;
+  return [
+    !!p.id_document_path || p.identity_verified,
+    p.income_verified || p.income_provided,
+    p.reference_verified || p.reference_provided,
+  ].filter(Boolean).length;
+}
+
+function EvidenceBadge({ passport }: { passport: Passport | null | undefined }) {
+  const n = evidenceCount(passport);
+  const complete = n === 3;
+  return (
+    <span
+      title="Evidence supplied by the applicant. RoostNI does not vet tenants — your own checks still apply."
+      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${
+        complete ? "bg-verified-soft text-verified" : "bg-surface-muted text-muted-foreground"
+      }`}
+    >
+      <BadgeCheck className="h-3 w-3" />
+      {complete ? "Self-Certified • Complete (3/3 evidence attached)" : `Self-Certified • ${n}/3 evidence attached`}
+    </span>
+  );
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
 function Row({ k, v }: { k: string; v: string }) {
