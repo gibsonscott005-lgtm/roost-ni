@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification } from "@/lib/notifications.functions";
 import { fuelLabel, fuelTankLabel } from "@/lib/listing-details";
+import { formatLeaseDate } from "@/lib/tenancy-docs";
 
 export const Route = createFileRoute("/_authenticated/landlord/issue-lease")({
   staticData: { sitemap: false },
@@ -34,6 +35,8 @@ function IssueLeasePage() {
   const [customFile, setCustomFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [startDate, setStartDate] = useState("");
+  const todayIso = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   const ctxQuery = useQuery({
     enabled: !!shareId,
@@ -72,6 +75,11 @@ function IssueLeasePage() {
   };
 
   const issue = async () => {
+    if (!startDate) {
+      toast.error("Choose a tenancy start date first");
+      document.getElementById("tenancy-start")?.focus();
+      return;
+    }
     if (choice === "custom" && !customFile) {
       toast.error("Upload a lease PDF first");
       return;
@@ -107,6 +115,7 @@ function IssueLeasePage() {
         lease_sent_at: new Date().toISOString(),
         lease_kind: choice === "custom" ? "custom" : "standard",
         lease_document_path: documentPath,
+        tenancy_start_date: startDate,
       })
       .eq("id", shareId);
     if (error) {
@@ -178,6 +187,28 @@ function IssueLeasePage() {
         </div>
       ) : (
       <>
+      {/* Tenancy start date — mandatory */}
+      <div className="mb-4 rounded-3xl border border-border bg-surface p-5 sm:p-6">
+        <label htmlFor="tenancy-start" className="block">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Tenancy start date <span className="text-rose-600">*</span>
+          </span>
+          <span className="mt-1 block text-xs text-muted-foreground">
+            Written into Clause 3 and used to build the rent schedule and start the 28-day Tenancy
+            Information Notice countdown (Private Tenancies Act (NI) 2022).
+          </span>
+        </label>
+        <input
+          id="tenancy-start"
+          type="date"
+          required
+          value={startDate}
+          min={todayIso}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="mt-3 h-12 w-full rounded-xl border border-border bg-surface px-3 text-base text-foreground sm:max-w-xs"
+        />
+      </div>
+
 
       {/* Layout choice cards */}
       <div className="grid gap-3 sm:grid-cols-2">
@@ -252,11 +283,15 @@ function IssueLeasePage() {
               </Clause>
               <Clause n="2" title="Deposit & Protection">
                 A tenancy deposit of <strong>£{Number(deposit).toLocaleString()}</strong> shall be lodged
-                with an approved tenancy deposit scheme within 14 days of receipt, in accordance with the
-                Tenancy Deposit Schemes Regulations (NI) 2012.
+                with an approved tenancy deposit scheme within 28 days of receipt, in accordance with the
+                Tenancy Deposit Schemes Regulations (NI) 2012 (as amended).
               </Clause>
               <Clause n="3" title="Term">
-                The tenancy shall commence on a date to be agreed in writing and continue for an initial
+                The tenancy shall commence on{" "}
+                <strong className={startDate ? "" : "text-amber-700 dark:text-amber-400"}>
+                  {startDate ? formatLeaseDate(startDate) : "[select a start date above]"}
+                </strong>{" "}
+                and continue for an initial
                 term of 12 months, thereafter rolling on a monthly basis subject to statutory notice.
               </Clause>
               <Clause n="4" title="Property Condition">
