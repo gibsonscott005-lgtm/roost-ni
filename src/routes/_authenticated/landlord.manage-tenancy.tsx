@@ -400,27 +400,48 @@ function ManageTenancyPage() {
     });
   };
 
+  const printReceipt = (r: Pick<ReceiptRow, "id" | "amount" | "method" | "period_label" | "issued_at">) => {
+    const ok = openPrintable(
+      rentReceiptHtml({
+        receiptId: r.id,
+        tenantName,
+        landlordName: profile?.full_name || "Landlord",
+        address,
+        amount: Number(r.amount),
+        method: r.method,
+        periodLabel: r.period_label,
+        issuedAt: r.issued_at,
+      }),
+    );
+    if (!ok) toast.error("Allow pop-ups to open the receipt");
+  };
+
   const logRentPayment = async (month: RentMonth, method: PaymentMethod, amount: number) => {
     const isCash = method === "cash";
-    const { error } = await supabase.from("tenancy_receipts").insert({
-      share_id: shareId!,
-      kind: "rent",
-      amount,
-      method,
-      statutory_cash: isCash,
-      due_date: month.dueDate,
-      period_label: month.periodLabel,
-      notes: isCash ? "Statutory cash receipt issued under Private Tenancies Act NI 2022" : null,
-    } as never);
+    const { data: inserted, error } = await supabase
+      .from("tenancy_receipts")
+      .insert({
+        share_id: shareId!,
+        kind: "rent",
+        amount,
+        method,
+        statutory_cash: isCash,
+        due_date: month.dueDate,
+        period_label: month.periodLabel,
+        notes: isCash ? "Statutory cash receipt issued under Private Tenancies Act NI 2022" : null,
+      } as never)
+      .select("id, amount, method, period_label, issued_at")
+      .single();
     if (error) {
       toast.error("Could not log payment", { description: error.message });
       return;
     }
     toast.success(`${month.periodLabel} rent recorded`, {
       description: isCash
-        ? "A statutory cash receipt has been issued to your tenant."
+        ? "Your statutory cash receipt is ready to print or save."
         : `£${amount.toLocaleString()} marked as received.`,
     });
+    if (isCash && inserted) printReceipt(inserted as unknown as ReceiptRow);
     invalidate();
     if (share?.tenant_id && shareId) {
       emitNotification({
@@ -558,6 +579,12 @@ function ManageTenancyPage() {
       ) : !share ? (
         <EmptyState onBack={() => navigate({ to: "/dashboard" })} />
       ) : (
+        <>
+        <ComplianceHealthBar
+          propertyId={share.listing_id}
+          startDate={share.tenancy_start_date}
+          tinAcknowledgedAt={share.lease_signed_at}
+        />
         <Tabs defaultValue={searchTab || "overview"} className="w-full">
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-surface-muted p-1">
             <TabsTrigger value="overview" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
@@ -648,7 +675,7 @@ function ManageTenancyPage() {
                       <span className="capitalize text-muted-foreground">
                         {r.method.replace(/_/g, " ")}
                       </span>
-                      <span>
+                      <span className="flex flex-wrap items-center gap-2">
                         {r.statutory_cash ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-verified-soft px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-verified">
                             <ShieldCheck className="h-3 w-3" />
@@ -659,6 +686,13 @@ function ManageTenancyPage() {
                             <Check className="h-3 w-3" /> Verified
                           </span>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => printReceipt(r)}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-foreground underline-offset-2 hover:underline"
+                        >
+                          <Download className="h-3 w-3" /> Receipt
+                        </button>
                       </span>
                     </li>
                   ))}
