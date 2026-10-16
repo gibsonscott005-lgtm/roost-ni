@@ -627,31 +627,6 @@ function TenantDashboard() {
         </Link>
       </div>
 
-      {!isComplete ? (
-        <div className="mt-5 rounded-3xl border border-border bg-surface p-5 sm:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Passport progress
-              </p>
-              <p className="mt-1 font-display text-base font-semibold tracking-tight">
-                {doneCount} of 3 steps complete
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/dashboard/passport/edit" })}
-              className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-2 text-xs font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
-            >
-              {doneCount === 0 ? "Start now" : "Continue"}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-          <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-secondary">
-            <div className="h-full rounded-full bg-verified transition-all" style={{ width: `${pct}%` }} />
-          </div>
-        </div>
-      ) : null}
 
       <div id="applications" className="mt-5 rounded-3xl border border-border bg-surface p-6 shadow-floating sm:p-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
