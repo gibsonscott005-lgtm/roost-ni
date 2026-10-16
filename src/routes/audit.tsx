@@ -25,6 +25,7 @@ import {
 } from "@/lib/audit";
 import { saveAuditResult } from "@/lib/audit.functions";
 import { posthog } from "@/integrations/posthog/client";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/audit")({
   staticData: { sitemap: true },
@@ -57,6 +58,7 @@ export const Route = createFileRoute("/audit")({
 type Stage = "intro" | "questions" | "result";
 
 function AuditPage() {
+  const { user } = useAuth();
   const [stage, setStage] = useState<Stage>("intro");
   const [answers, setAnswers] = useState<AuditAnswers>({});
   const [email, setEmail] = useState("");
@@ -102,8 +104,25 @@ function AuditPage() {
       score: final.score,
       band: final.band,
       gap_count: final.gaps.length,
+      signed_in: !!user,
       ...utm,
     });
+    // Signed-in landlords: record the result against their account email
+    // automatically so they never need to re-enter details.
+    if (user?.email) {
+      void save({
+        data: {
+          email: user.email.toLowerCase(),
+          score: final.score,
+          band: final.band,
+          answers,
+          gaps: final.gaps.map((g) => g.gap),
+          utm,
+        },
+      })
+        .then(() => setSaved(true))
+        .catch(() => {});
+    }
   };
 
   const back = () => {
