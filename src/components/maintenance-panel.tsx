@@ -31,6 +31,7 @@ interface Ticket {
   landlord_notes: string | null;
   resolved_at: string | null;
   created_at: string;
+  updated_at?: string | null;
 }
 
 const BUCKET = "tenant-documents";
@@ -68,15 +69,42 @@ function statusPill(status: Status) {
   );
 }
 
+const URGENCY_TAG: Record<Urgency, string> = {
+  emergency: "Emergency",
+  high: "Urgent",
+  medium: "Standard",
+  low: "Cosmetic",
+};
+
+const URGENCY_RANK: Record<Urgency, number> = { emergency: 0, high: 1, medium: 2, low: 3 };
+
+/** Open tickets first, most urgent first, then newest. */
+function sortTickets(list: Ticket[]) {
+  const closed = (s: Status) => s === "resolved" || s === "cancelled";
+  return [...list].sort(
+    (a, b) =>
+      Number(closed(a.status)) - Number(closed(b.status)) ||
+      URGENCY_RANK[a.urgency] - URGENCY_RANK[b.urgency] ||
+      b.created_at.localeCompare(a.created_at),
+  );
+}
+
+function fmtStamp(iso: string) {
+  return new Date(iso).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+}
+
 function urgencyPill(urgency: Urgency) {
-  const critical = urgency === "high" || urgency === "emergency";
+  const cls =
+    urgency === "emergency"
+      ? "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200"
+      : urgency === "high"
+        ? "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200"
+        : "bg-surface-muted text-muted-foreground";
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-        critical ? "bg-rose-100 text-rose-800" : "bg-surface-muted text-muted-foreground"
-      }`}
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${cls}`}
     >
-      {urgency}
+      {URGENCY_TAG[urgency]}
     </span>
   );
 }
@@ -170,7 +198,7 @@ function useTickets(propertyId: string | undefined, queryKey: string) {
       const { data, error } = await supabase
         .from("maintenance_tickets")
         .select(
-          "id, property_id, tenant_id, title, description, urgency, status, photo_urls, landlord_notes, resolved_at, created_at",
+          "id, property_id, tenant_id, title, description, urgency, status, photo_urls, landlord_notes, resolved_at, created_at, updated_at",
         )
         .eq("property_id", propertyId!)
         .order("created_at", { ascending: false });
@@ -482,15 +510,17 @@ export function LandlordMaintenanceTab({
   }, [selected?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const save = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (override: Status | undefined) => {
       if (!selected) return;
-      const isResolved = status === "resolved";
+      const next = override ?? status;
+      if (override) setStatus(override);
+      const isResolved = next === "resolved";
       const { error } = await supabase
         .from("maintenance_tickets")
         .update({
-          status,
+          status: next,
           landlord_notes: notes.trim() || null,
-          resolved_at: isResolved ? new Date().toISOString() : null,
+          resolved_at: isResolved ? (selected.resolved_at ?? new Date().toISOString()) : null,
         } as never)
         .eq("id", selected.id);
       if (error) throw error;
@@ -502,12 +532,12 @@ export function LandlordMaintenanceTab({
           entity_id: selected.id,
           title: isResolved
             ? "Maintenance resolved"
-            : `Maintenance updated — ${STATUS_LABEL[status]}`,
+            : `Maintenance updated — ${STATUS_LABEL[next]}`,
           body: isResolved
             ? `Your landlord marked "${selected.title}" as resolved at ${address}.`
             : notes.trim()
               ? `Landlord update on "${selected.title}": ${notes.trim().slice(0, 140)}`
-              : `Status changed to ${STATUS_LABEL[status]} on "${selected.title}".`,
+              : `Status changed to ${STATUS_LABEL[next]} on "${selected.title}".`,
           link_path: `/tenant/tenancy?tab=maintenance`,
         },
       }).catch((err) => console.error("[notify]", err));
@@ -542,7 +572,7 @@ export function LandlordMaintenanceTab({
         <div className="grid gap-4 md:grid-cols-5">
           {/* List */}
           <div className="md:col-span-2 space-y-2">
-            {tickets.map((t) => {
+            {sortTickets(tickets).map((t) => {
               const active = selectedId === t.id;
               return (
                 <button
@@ -621,19 +651,22 @@ export function LandlordMaintenanceTab({
                   />
                 </div>
 
-                <div className="flex items-center justify-between gap-3">
-                  {selected.resolved_at ? (
-                    <p className="text-[11px] text-muted-foreground">
-                      Resolved {new Date(selected.resolved_at).toLocaleDateString("en-GB")}
-                    </p>
-                  ) : (
-                    <span />
-                  )}
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  {selected.status !== "resolved" ? (
+                    <button
+                      type="button"
+                      onClick={() => save.mutate("resolved")}
+                      disabled={save.isPending}
+                      className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-verified bg-verified-soft px-4 py-2 text-xs font-semibold text-verified transition hover:brightness-95 disabled:opacity-60"
+                    >
+                      <Check className="h-3.5 w-3.5" strokeWidth={3} /> Mark resolved
+                    </button>
+                  ) : null}
                   <button
                     type="button"
-                    onClick={() => save.mutate()}
+                    onClick={() => save.mutate(undefined)}
                     disabled={save.isPending}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background shadow-sm transition hover:brightness-110 disabled:opacity-60"
+                    className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs font-semibold text-background shadow-sm transition hover:brightness-110 disabled:opacity-60"
                   >
                     {save.isPending ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -642,6 +675,34 @@ export function LandlordMaintenanceTab({
                     )}
                     Save & notify tenant
                   </button>
+                </div>
+
+                <div className="border-t border-border pt-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Audit log
+                  </p>
+                  <ol className="mt-2 space-y-1.5 border-l border-border pl-3 text-xs">
+                    <li>
+                      <span className="font-medium text-foreground">Reported by tenant</span>{" "}
+                      <span className="text-muted-foreground">{fmtStamp(selected.created_at)}</span>
+                    </li>
+                    {selected.updated_at &&
+                    selected.updated_at !== selected.created_at &&
+                    selected.updated_at !== selected.resolved_at ? (
+                      <li>
+                        <span className="font-medium text-foreground">
+                          Last updated · {STATUS_LABEL[selected.status]}
+                        </span>{" "}
+                        <span className="text-muted-foreground">{fmtStamp(selected.updated_at)}</span>
+                      </li>
+                    ) : null}
+                    {selected.resolved_at ? (
+                      <li>
+                        <span className="font-medium text-verified">Marked resolved</span>{" "}
+                        <span className="text-muted-foreground">{fmtStamp(selected.resolved_at)}</span>
+                      </li>
+                    ) : null}
+                  </ol>
                 </div>
               </div>
             ) : (
