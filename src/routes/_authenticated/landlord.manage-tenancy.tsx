@@ -1273,39 +1273,65 @@ function LogPaymentRow({
   onSubmit: (method: PaymentMethod, amount: number) => void;
   onCancel: () => void;
 }) {
-  const [method, setMethod] = useState<PaymentMethod>("bank_transfer");
+  const [isCash, setIsCash] = useState(false);
+  const [otherMethod, setOtherMethod] = useState<PaymentMethod>("bank_transfer");
   const [amount, setAmount] = useState(String(defaultAmount));
+  const method: PaymentMethod = isCash ? "cash" : otherMethod;
 
   return (
-    <div className="mt-3 rounded-2xl bg-surface-muted/60 p-3">
+    <div className="mt-3 space-y-3 rounded-2xl bg-surface-muted/60 p-3">
+      <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-xl border border-border bg-surface px-3 py-2 shadow-resting">
+        <span>
+          <span className="block text-sm font-semibold">Cash payment</span>
+          <span className="block text-[11px] text-muted-foreground">
+            Generates a printable statutory cash receipt
+          </span>
+        </span>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={isCash}
+          aria-label="Cash payment"
+          onClick={() => setIsCash((v) => !v)}
+          className={`relative h-6 w-11 shrink-0 rounded-full transition ${isCash ? "bg-verified" : "bg-border"}`}
+        >
+          <span
+            className={`absolute top-0.5 h-5 w-5 rounded-full bg-surface shadow-resting transition-all ${isCash ? "left-[22px]" : "left-0.5"}`}
+          />
+        </button>
+      </label>
       <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs text-muted-foreground">£</span>
         <input
           type="number"
           min={0}
           value={amount}
+          aria-label="Amount received"
           onChange={(e) => setAmount(e.target.value)}
-          className="w-28 rounded-xl border border-border bg-surface px-3 py-1.5 text-sm outline-none focus:border-verified"
+          className="w-28 rounded-xl border border-border bg-surface px-3 py-1.5 text-sm shadow-resting outline-none focus:border-verified"
         />
-        {(["bank_transfer", "standing_order", "cash"] as PaymentMethod[]).map((m) => (
-          <button
-            key={m}
-            type="button"
-            onClick={() => setMethod(m)}
-            className={`rounded-full border px-3 py-1.5 text-xs font-medium capitalize transition ${
-              method === m
-                ? "border-verified bg-verified text-[var(--color-verified-foreground)]"
-                : "border-border bg-surface hover:bg-secondary"
-            }`}
-          >
-            {m.replace(/_/g, " ")}
-          </button>
-        ))}
+        {!isCash
+          ? (["bank_transfer", "standing_order"] as PaymentMethod[]).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setOtherMethod(m)}
+                className={`rounded-full border px-3 py-1.5 text-xs font-medium capitalize transition ${
+                  otherMethod === m
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border bg-surface hover:bg-secondary"
+                }`}
+              >
+                {m.replace(/_/g, " ")}
+              </button>
+            ))
+          : null}
         <button
           type="button"
           onClick={() => onSubmit(method, Number(amount) || defaultAmount)}
-          className="inline-flex items-center gap-1.5 rounded-full bg-verified px-3 py-1.5 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95"
+          className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3 py-1.5 text-xs font-semibold text-background transition hover:brightness-110"
         >
-          <Check className="h-3.5 w-3.5" strokeWidth={3} /> Record
+          <Check className="h-3.5 w-3.5" strokeWidth={3} /> {isCash ? "Record & issue receipt" : "Record"}
         </button>
         <button
           type="button"
@@ -1315,10 +1341,11 @@ function LogPaymentRow({
           Cancel
         </button>
       </div>
-      {method === "cash" ? (
-        <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <Info className="h-3.5 w-3.5" /> A statutory cash receipt will be issued automatically
-          under the Private Tenancies Act (NI) 2022.
+      {isCash ? (
+        <p className="flex items-start gap-1.5 text-[11px] text-muted-foreground">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" /> NI law requires a written receipt for
+          every cash rent payment. It will open ready to print or save as PDF, and your tenant is
+          notified.
         </p>
       ) : null}
     </div>
