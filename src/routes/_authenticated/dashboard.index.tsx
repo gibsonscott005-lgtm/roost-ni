@@ -81,6 +81,13 @@ interface Listing {
   occupancy_status: string;
   existing_tenant_name: string | null;
   existing_tenancy_start: string | null;
+  ni_landlord_reg_number: string | null;
+}
+
+/** LRN not yet supplied (quick-add saves "Pending"). */
+function lrnPending(v: string | null | undefined) {
+  const s = (v ?? "").trim();
+  return !s || s.toLowerCase() === "pending";
 }
 
 const TENANT_PREFS = [
@@ -107,7 +114,7 @@ function Dashboard() {
     const { data } = await supabase
       .from("property_listings")
       .select(
-        "id, title, address, location, monthly_rent, heating_type, is_published, created_at, photo_urls, occupancy_status, existing_tenant_name, existing_tenancy_start",
+        "id, title, address, location, monthly_rent, heating_type, is_published, created_at, photo_urls, occupancy_status, existing_tenant_name, existing_tenancy_start, ni_landlord_reg_number",
       )
       .eq("landlord_id", user.id)
       .order("created_at", { ascending: false });
@@ -177,6 +184,7 @@ function Dashboard() {
 
       ) : (
         <AddPropertyForm
+          onCancel={() => setTab("properties")}
           onCreated={async () => {
             await loadListings();
             setTab("properties");
