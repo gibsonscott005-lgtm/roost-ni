@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification } from "@/lib/notifications.functions";
-import { leaseDocumentHtml, openPrintable } from "@/lib/tenancy-docs";
+import { leaseDocumentHtml, openPrintable, formatLeaseDate } from "@/lib/tenancy-docs";
 import { fuelLabel, fuelTankLabel } from "@/lib/listing-details";
 
 export const Route = createFileRoute("/_authenticated/tenant/review-lease")({
@@ -38,7 +38,7 @@ function ReviewLeasePage() {
       const { data, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, lease_status, lease_oil_clause, lease_signed_name, lease_signed_at, lease_kind, lease_document_path, listing:property_listings!listing_id(title, address, location, monthly_rent, deposit, heating_type)",
+          "id, lease_status, lease_oil_clause, lease_signed_name, lease_signed_at, lease_kind, lease_document_path, tenancy_start_date, listing:property_listings!listing_id(title, address, location, monthly_rent, deposit, heating_type)",
         )
         .eq("id", shareId!)
         .maybeSingle();
@@ -51,6 +51,7 @@ function ReviewLeasePage() {
         lease_signed_at: string | null;
         lease_kind: string | null;
         lease_document_path: string | null;
+        tenancy_start_date: string | null;
         listing: { title: string; address: string | null; location: string | null; monthly_rent: number | null; deposit: number | null; heating_type: string | null } | null;
       } | null;
     },
@@ -87,6 +88,7 @@ function ReviewLeasePage() {
       deposit: Number(deposit) || 0,
       tenantSignature: ctx?.lease_signed_name || tenantName,
       tenantSignedAt: ctx?.lease_signed_at ?? null,
+      tenancyStartDate: ctx?.tenancy_start_date ?? null,
       oilClause,
       heatingType,
       counterSigned: ctx?.lease_status === "counter_signed",
@@ -257,11 +259,11 @@ function ReviewLeasePage() {
                 </Clause>
                 <Clause n="2" title="Deposit & Protection">
                   A tenancy deposit of <strong>£{Number(deposit).toLocaleString()}</strong> shall be lodged
-                  with an approved tenancy deposit scheme within 14 days of receipt, in accordance with the
-                  Tenancy Deposit Schemes Regulations (NI) 2012.
+                  with an approved tenancy deposit scheme within 28 days of receipt, in accordance with the
+                  Tenancy Deposit Schemes Regulations (NI) 2012 (as amended).
                 </Clause>
                 <Clause n="3" title="Term">
-                  The tenancy shall commence on a date to be agreed in writing and continue for an initial
+                  The tenancy shall commence on <strong>{formatLeaseDate(ctx?.tenancy_start_date)}</strong> and continue for an initial
                   term of 12 months, thereafter rolling on a monthly basis subject to statutory notice.
                 </Clause>
                 <Clause n="4" title="Property Condition">
