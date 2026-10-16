@@ -1053,29 +1053,11 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
       <ol className="mt-5 space-y-3">
         <Step
           n={1}
-          title="Check Tenancy Compliance"
-          body={
-            audit
-              ? `Last score: ${audit.score}% — ${audit.band}`
-              : "Five quick questions on registration, deposits, notices and safety."
-          }
+          title="Add Your First Rental Property"
+          body="Just address, postcode, rent and deposit — about 30 seconds. Deposits are capped at one month's rent under the Private Tenancies Act (NI) 2022; we check this for you."
           done={stepDone[0]}
         >
-          <Link
-            to="/audit"
-            className={`${btn} ${audit ? "border border-border bg-surface text-foreground" : "bg-foreground text-background shadow-raised hover:shadow-floating"}`}
-          >
-            {audit ? "Retake check" : "Start check"}
-            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-          </Link>
-        </Step>
-        <Step
-          n={2}
-          title="Add Your First Property"
-          body="Deposits are capped at one month's rent under the Private Tenancies Act (NI) 2022 — we check this for you."
-          done={stepDone[1]}
-        >
-          {!stepDone[1] ? (
+          {!stepDone[0] ? (
             <button
               type="button"
               onClick={onAdd}
@@ -1087,19 +1069,19 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
           ) : null}
         </Step>
         <Step
-          n={3}
-          title="Share Your Direct Link"
+          n={2}
+          title="Share Your Direct Listing Link"
           body={
             first
               ? first.is_published
                 ? "Send this link to WhatsApp, Facebook or anyone looking."
-                : "Publish your property to make this link live for tenants."
-              : "Unlocks once you've added a property."
+                : "Your property is saved privately. Choose “Advertise” on it below to make this link live for tenants."
+              : "Unlocks as soon as you've added a property."
           }
-          done={stepDone[2]}
+          done={stepDone[1]}
           locked={!first}
         >
-          {first ? (
+          {first && first.is_published ? (
             <div className="flex flex-wrap items-center gap-2">
               <code className="max-w-[220px] truncate rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs">
                 roostni.co.uk/listings/{first.id.slice(0, 8)}…
@@ -1112,8 +1094,33 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
                 {copied ? <Check className="h-4 w-4" /> : <ExternalLink className="h-4 w-4" />}
                 {copied ? "Copied" : "Copy link"}
               </button>
+              <Link
+                to="/listings/$id"
+                params={{ id: first.id }}
+                className="text-xs font-medium text-foreground underline-offset-2 hover:underline"
+              >
+                Preview
+              </Link>
             </div>
           ) : null}
+        </Step>
+        <Step
+          n={3}
+          title="Run Tenancy Compliance Check & Certificates"
+          body={
+            audit
+              ? `Last score: ${audit.score}% — ${audit.band}`
+              : "Five quick questions on registration, deposits, notices and safety — then log your EPC, gas and electrical certificates."
+          }
+          done={stepDone[2]}
+        >
+          <Link
+            to="/audit"
+            className={`${btn} ${audit ? "border border-border bg-surface text-foreground" : "bg-foreground text-background shadow-raised hover:shadow-floating"}`}
+          >
+            {audit ? "Retake check" : "Start check"}
+            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+          </Link>
         </Step>
       </ol>
     </div>
