@@ -2207,3 +2207,12 @@ function TenantOnboardingChecklist({
     </section>
   );
 }
+
+const INFO_ITEM_LABELS: Record<string, string> = {
+  updated_payslip: "Updated payslip",
+  bank_statement: "Bank statement",
+  guarantor_details: "Guarantor details",
+  previous_landlord_contact: "Previous landlord contact",
+  employer_contact: "Employer contact",
+  viewing_availability: "Viewing availability",
+};
