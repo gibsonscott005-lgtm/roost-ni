@@ -433,7 +433,31 @@ function AuditPage() {
             </p>
 
             <div className="mt-10 rounded-3xl border border-border bg-surface-muted/60 p-6 shadow-resting sm:p-8">
-              {saved ? (
+              {user ? (
+                <div>
+                  <p className="inline-flex items-center gap-2 font-display text-lg font-semibold tracking-tight">
+                    <CheckCircle2 className="h-5 w-5 text-verified" />
+                    Result saved to your account
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Your score now shows on your dashboard checklist. Head back to add your
+                    property and log the certificates this check asked about.
+                  </p>
+                  <Link
+                    to="/dashboard"
+                    onClick={() =>
+                      posthog.capture("audit_cta_clicked", {
+                        source: "audit_result_signed_in",
+                        ...utm,
+                      })
+                    }
+                    className="group mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:-translate-y-0.5 hover:bg-foreground/92"
+                  >
+                    Return to Dashboard &amp; Add Property
+                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                  </Link>
+                </div>
+              ) : saved ? (
                 <div>
                   <p className="inline-flex items-center gap-2 font-display text-lg font-semibold tracking-tight">
                     <CheckCircle2 className="h-5 w-5 text-verified" />
@@ -529,7 +553,7 @@ function AuditPage() {
               )}
             </div>
 
-            {!saved ? (
+            {!saved && !user ? (
               <div className="mt-6">
                 <Link
                   to="/auth"
