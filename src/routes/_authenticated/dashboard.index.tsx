@@ -514,9 +514,23 @@ function TenantDashboard() {
     </div>
   ) : null;
 
+  const showTenantOnboarding = !isComplete || applicationCounts.sent === 0;
+
   return (
     <>
       {acceptedBanner}
+
+      {showTenantOnboarding ? (
+        <TenantOnboardingChecklist
+          identityIncomeDone={steps[0].done && steps[1].done}
+          identityDone={steps[0].done}
+          referencesDone={steps[2].done}
+          firstTimeRenter={!!passport?.is_first_time_renter}
+          hasApplied={applicationCounts.sent > 0}
+          onOpenWizard={() => navigate({ to: "/dashboard/passport/edit" })}
+        />
+      ) : null}
+
 
       <div className="rounded-3xl border border-border bg-surface p-6 shadow-floating sm:p-8">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">

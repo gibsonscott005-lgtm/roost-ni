@@ -377,7 +377,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
     },
     onSuccess: (res) => {
       toast.success("Passport shared successfully", {
-        description: "The landlord has received your verified compliance data.",
+        description: "The landlord has received your self-certified passport.",
         className:
           "border border-verified/30 bg-verified-soft text-verified-foreground",
       });
@@ -533,8 +533,8 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
         </p>
         <p className="mt-0.5 text-sm text-muted-foreground">
           {sent
-            ? "The landlord has your verified compliance data. You'll be notified when they respond."
-            : "Share your verified ID, income, references and right-to-rent in one tap."}
+            ? "The landlord has your self-certified passport. You'll be notified when they respond."
+            : "Share your identity (government photo ID), income and references in one tap."}
         </p>
         {sent ? (
           leaseIssued ? (
