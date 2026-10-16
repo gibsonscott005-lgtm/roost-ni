@@ -273,7 +273,16 @@ function ListingDetailPage() {
           ) : null}
         </section>
 
-        <ApplyCard listingId={listing.id} listingStatus={listing.status} />
+        {listing.title.startsWith("[TEST") ? (
+          <section className="mt-8 rounded-xl border border-border bg-muted p-6 text-center">
+            <p className="font-semibold text-foreground">Test listing — not available to rent</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              This is a fictitious example used to demonstrate RoostNI. Applications are switched off.
+            </p>
+          </section>
+        ) : (
+          <ApplyCard listingId={listing.id} listingStatus={listing.status} />
+        )}
       </main>
     </div>
   );
