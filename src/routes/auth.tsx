@@ -279,6 +279,8 @@ function AuthPage() {
       if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session?.user) {
         // Defer to avoid deadlocking the auth callback
         setTimeout(() => {
+          // Signed-in only, deduped server-side — never blocks sign-in.
+          sendWelcomeEmail().catch(() => {});
           void routeByAccountType(session.user.id);
         }, 0);
       }
@@ -347,9 +349,8 @@ function AuthPage() {
         });
         if (error) throw error;
         // Fire-and-forget welcome email — never blocks or breaks sign-up.
-        if (signUpResult.user?.id) {
-          sendWelcomeEmail({ data: { userId: signUpResult.user.id } }).catch(() => {});
-        }
+        // Welcome email is sent once the user has a session (see onAuthStateChange).
+        void signUpResult;
         toast.success("Account created", {
           description:
             role === "landlord"
