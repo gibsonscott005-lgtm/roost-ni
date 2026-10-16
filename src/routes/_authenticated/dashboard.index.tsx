@@ -215,6 +215,8 @@ function TenantDashboard() {
       lease_status: string | null;
       lease_signed_name: string | null;
       tenancy_status: string | null;
+      info_requested_at?: string | null;
+      info_requested_items: string[];
       listing: { id: string; title: string; address: string; location: string | null; monthly_rent: number | null } | null;
     }[]
   >([]);
@@ -308,7 +310,7 @@ function TenantDashboard() {
         // by a join/RLS issue on property_listings.
         const { data: sharesRaw, error: sharesErr } = await supabase
           .from("passport_shares")
-          .select("id, status, shared_at, listing_id, lease_status, lease_signed_name, tenancy_status")
+          .select("id, status, shared_at, listing_id, lease_status, lease_signed_name, tenancy_status, info_requested_at, info_requested_items")
           .eq("tenant_id", user.id)
           .order("shared_at", { ascending: false });
         if (cancelled) return;
@@ -318,13 +320,13 @@ function TenantDashboard() {
           });
           return;
         }
-        const shareRows = (sharesRaw as { id: string; status: string; shared_at: string; listing_id: string; lease_status: string | null; lease_signed_name: string | null; tenancy_status: string | null }[] | null) ?? [];
+        const shareRows = (sharesRaw as { id: string; status: string; shared_at: string; listing_id: string; lease_status: string | null; lease_signed_name: string | null; tenancy_status: string | null; info_requested_at: string | null; info_requested_items: string[] | null }[] | null) ?? [];
         // Counts depend ONLY on Step A — never on the listing join.
         setApplicationCounts({
           sent: shareRows.length,
           accepted: shareRows.filter((r) => r.status === "accepted").length,
           pending: shareRows.filter(
-            (r) => r.status !== "accepted" && r.status !== "rejected" && r.status !== "withdrawn",
+            (r) => r.status !== "accepted" && r.status !== "rejected" && r.status !== "declined" && r.status !== "withdrawn",
           ).length,
         });
 
@@ -356,6 +358,8 @@ function TenantDashboard() {
           lease_status: s.lease_status,
           lease_signed_name: s.lease_signed_name,
           tenancy_status: s.tenancy_status,
+          info_requested_at: s.info_requested_at,
+          info_requested_items: s.info_requested_items ?? [],
           listing: listingMap.get(s.listing_id) ?? null,
         }));
         setAllShares(merged);
@@ -678,21 +682,29 @@ function TenantDashboard() {
         ) : (
           <ul className="mt-4 space-y-2">
             {allShares.map((s) => {
+              const isDeclined = s.status === "declined" || s.status === "rejected";
+              const isClosed = isDeclined || s.status === "withdrawn";
               const tone =
                 s.status === "accepted"
                   ? "bg-verified text-[var(--color-verified-foreground)]"
-                  : s.status === "rejected"
-                  ? "bg-rose-100 text-rose-700"
+                  : isDeclined
+                  ? "border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-400"
                   : s.status === "withdrawn"
                   ? "bg-surface-muted text-muted-foreground"
+                  : s.info_requested_at
+                  ? "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300"
                   : "bg-secondary text-foreground";
               const label =
                 s.status === "accepted"
                   ? "Accepted"
-                  : s.status === "rejected"
+                  : isDeclined
                   ? "Not selected"
                   : s.status === "withdrawn"
                   ? "Withdrawn"
+                  : s.info_requested_at
+                  ? "Info requested"
+                  : s.status === "reviewed"
+                  ? "Being reviewed"
                   : "Awaiting reply";
               const leaseLabel =
                 s.lease_status === "counter_signed"
@@ -725,6 +737,19 @@ function TenantDashboard() {
                         {s.listing.location ? ` · ${s.listing.location}` : ""}
                         {s.listing.monthly_rent ? ` · £${Number(s.listing.monthly_rent).toLocaleString()}/mo` : ""}
                       </p>
+                    ) : null}
+                    {s.info_requested_at && s.info_requested_items.length > 0 && !isClosed ? (
+                      <Link
+                        to="/dashboard/passport/edit"
+                        className="mt-2.5 flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900 transition hover:bg-amber-100 dark:border-amber-800/60 dark:bg-amber-950/30 dark:text-amber-200 dark:hover:bg-amber-950/50"
+                      >
+                        <span className="mt-0.5 h-2 w-2 shrink-0 animate-pulse rounded-full bg-amber-500" />
+                        <span>
+                          <span className="font-semibold">Landlord requested information:</span>{" "}
+                          {s.info_requested_items.map((i) => INFO_ITEM_LABELS[i] ?? i.replace(/_/g, " ")).join(", ")}
+                          <span className="font-semibold"> · Tap to update passport</span>
+                        </span>
+                      </Link>
                     ) : null}
                   </div>
                   <div className="flex items-center gap-2">
