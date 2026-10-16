@@ -8,6 +8,7 @@ export const NOTIFICATION_TYPES = [
   "application_declined",
   "application_withdrawn",
   "application_reapplied",
+  "application_info_requested",
   "lease_issued",
   "lease_signed_by_tenant",
   "lease_counter_signed",
