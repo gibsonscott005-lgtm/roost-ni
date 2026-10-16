@@ -966,8 +966,9 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
     }
   }, []);
 
-  const first = listings[0];
-  const stepDone = [!!audit, listings.length > 0, listings.some((l) => l.is_published)];
+  // Value first: add → share → compliance check.
+  const first = listings.find((l) => l.is_published) ?? listings[0];
+  const stepDone = [listings.length > 0, listings.some((l) => l.is_published), !!audit];
   const doneCount = stepDone.filter(Boolean).length;
   if (doneCount === 3) return null;
   const link = first ? `https://roostni.co.uk/listings/${first.id}` : "";
