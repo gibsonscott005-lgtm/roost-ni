@@ -47,10 +47,20 @@ export interface LeaseDocOptions {
   deposit: number;
   tenantSignature: string;
   tenantSignedAt: string | null;
+  /** ISO date (YYYY-MM-DD) the tenancy commences. */
+  tenancyStartDate?: string | null;
   oilClause: boolean;
   counterSigned?: boolean;
   /** Property heating type ("Oil" / "LPG"), used to name the fuel in the clause. */
   heatingType?: string | null;
+}
+
+/** Formats a YYYY-MM-DD tenancy date in long UK form, e.g. "1 November 2026". */
+export function formatLeaseDate(iso: string | null | undefined): string {
+  if (!iso) return "the date stated in Schedule A";
+  const d = new Date(`${iso.slice(0, 10)}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return "the date stated in Schedule A";
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
 export function leaseDocumentHtml(opts: LeaseDocOptions) {
@@ -62,6 +72,7 @@ export function leaseDocumentHtml(opts: LeaseDocOptions) {
     deposit,
     tenantSignature,
     tenantSignedAt,
+    tenancyStartDate,
     oilClause,
     counterSigned = true,
     heatingType,
@@ -77,7 +88,7 @@ export function leaseDocumentHtml(opts: LeaseDocOptions) {
     <h2>Clauses</h2>
     <div class="clause"><h3>1. Rent</h3><p>£${rent.toLocaleString()} per calendar month, payable in advance on the 1st of each month.</p></div>
     <div class="clause"><h3>2. Deposit &amp; Protection</h3><p>£${deposit.toLocaleString()} lodged with an approved NI scheme within 28 days of receipt.</p></div>
-    <div class="clause"><h3>3. Term</h3><p>12 months initial term, thereafter rolling monthly subject to statutory notice.</p></div>
+    <div class="clause"><h3>3. Term</h3><p>Commencing on <strong>${esc(formatLeaseDate(tenancyStartDate))}</strong> for a 12 month initial term, thereafter rolling monthly subject to statutory notice.</p></div>
     <div class="clause"><h3>4. Property Condition</h3><p>Property provided in clean, safe condition with required certificates supplied on or before commencement.</p></div>
     ${oilClause ? `<div class="clause"><h3>5. ${esc(fuelTankLabel(heatingType))} — Fair Fuel, same level out</h3><p>The ${esc(fuelLabel(heatingType))} tank shall be returned at the end of the tenancy at the level recorded at handover. Full in, full out; if the tank was empty at handover, an empty tank is accepted at the end. Any shortfall against the recorded handover level may be reimbursed at prevailing rates.</p></div>` : ""}
     <div class="clause"><h3>${oilClause ? "6" : "5"}. Repairs &amp; Maintenance</h3><p>Landlord responsible for structural repairs and supply installations as required by statute.</p></div>
