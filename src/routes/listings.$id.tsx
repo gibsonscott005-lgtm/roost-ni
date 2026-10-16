@@ -230,7 +230,16 @@ function ListingDetailPage() {
           </h2>
 
           <dl className="mt-5 divide-y divide-border rounded-2xl border border-border bg-surface-muted/50 text-sm">
-            <DetailRow k="Landlord registration" v={listing.ni_landlord_reg_number} icon={Building2} />
+            <DetailRow
+              k="Landlord registration"
+              v={
+                !listing.ni_landlord_reg_number?.trim() ||
+                listing.ni_landlord_reg_number.trim().toLowerCase() === "pending"
+                  ? "Pending before tenancy"
+                  : listing.ni_landlord_reg_number
+              }
+              icon={Building2}
+            />
             <DetailRow k="Heating & utility" v={listing.heating_type} icon={Flame} />
             <DetailRow
               k="Fair Fuel — same level out"

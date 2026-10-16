@@ -81,6 +81,13 @@ interface Listing {
   occupancy_status: string;
   existing_tenant_name: string | null;
   existing_tenancy_start: string | null;
+  ni_landlord_reg_number: string | null;
+}
+
+/** LRN not yet supplied (quick-add saves "Pending"). */
+function lrnPending(v: string | null | undefined) {
+  const s = (v ?? "").trim();
+  return !s || s.toLowerCase() === "pending";
 }
 
 const TENANT_PREFS = [
@@ -107,7 +114,7 @@ function Dashboard() {
     const { data } = await supabase
       .from("property_listings")
       .select(
-        "id, title, address, location, monthly_rent, heating_type, is_published, created_at, photo_urls, occupancy_status, existing_tenant_name, existing_tenancy_start",
+        "id, title, address, location, monthly_rent, heating_type, is_published, created_at, photo_urls, occupancy_status, existing_tenant_name, existing_tenancy_start, ni_landlord_reg_number",
       )
       .eq("landlord_id", user.id)
       .order("created_at", { ascending: false });
@@ -177,6 +184,7 @@ function Dashboard() {
 
       ) : (
         <AddPropertyForm
+          onCancel={() => setTab("properties")}
           onCreated={async () => {
             await loadListings();
             setTab("properties");
@@ -958,8 +966,9 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
     }
   }, []);
 
-  const first = listings[0];
-  const stepDone = [!!audit, listings.length > 0, listings.some((l) => l.is_published)];
+  // Value first: add → share → compliance check.
+  const first = listings.find((l) => l.is_published) ?? listings[0];
+  const stepDone = [listings.length > 0, listings.some((l) => l.is_published), !!audit];
   const doneCount = stepDone.filter(Boolean).length;
   if (doneCount === 3) return null;
   const link = first ? `https://roostni.co.uk/listings/${first.id}` : "";
@@ -1044,29 +1053,11 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
       <ol className="mt-5 space-y-3">
         <Step
           n={1}
-          title="Check Tenancy Compliance"
-          body={
-            audit
-              ? `Last score: ${audit.score}% — ${audit.band}`
-              : "Five quick questions on registration, deposits, notices and safety."
-          }
+          title="Add Your First Rental Property"
+          body="Just address, postcode, rent and deposit — about 30 seconds. Deposits are capped at one month's rent under the Private Tenancies Act (NI) 2022; we check this for you."
           done={stepDone[0]}
         >
-          <Link
-            to="/audit"
-            className={`${btn} ${audit ? "border border-border bg-surface text-foreground" : "bg-foreground text-background shadow-raised hover:shadow-floating"}`}
-          >
-            {audit ? "Retake check" : "Start check"}
-            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-          </Link>
-        </Step>
-        <Step
-          n={2}
-          title="Add Your First Property"
-          body="Deposits are capped at one month's rent under the Private Tenancies Act (NI) 2022 — we check this for you."
-          done={stepDone[1]}
-        >
-          {!stepDone[1] ? (
+          {!stepDone[0] ? (
             <button
               type="button"
               onClick={onAdd}
@@ -1078,19 +1069,19 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
           ) : null}
         </Step>
         <Step
-          n={3}
-          title="Share Your Direct Link"
+          n={2}
+          title="Share Your Direct Listing Link"
           body={
             first
               ? first.is_published
                 ? "Send this link to WhatsApp, Facebook or anyone looking."
-                : "Publish your property to make this link live for tenants."
-              : "Unlocks once you've added a property."
+                : "Your property is saved privately. Choose “Advertise” on it below to make this link live for tenants."
+              : "Unlocks as soon as you've added a property."
           }
-          done={stepDone[2]}
+          done={stepDone[1]}
           locked={!first}
         >
-          {first ? (
+          {first && first.is_published ? (
             <div className="flex flex-wrap items-center gap-2">
               <code className="max-w-[220px] truncate rounded-lg bg-surface-muted px-2.5 py-1.5 text-xs">
                 roostni.co.uk/listings/{first.id.slice(0, 8)}…
@@ -1103,8 +1094,33 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
                 {copied ? <Check className="h-4 w-4" /> : <ExternalLink className="h-4 w-4" />}
                 {copied ? "Copied" : "Copy link"}
               </button>
+              <Link
+                to="/listings/$id"
+                params={{ id: first.id }}
+                className="text-xs font-medium text-foreground underline-offset-2 hover:underline"
+              >
+                Preview
+              </Link>
             </div>
           ) : null}
+        </Step>
+        <Step
+          n={3}
+          title="Run Tenancy Compliance Check & Certificates"
+          body={
+            audit
+              ? `Last score: ${audit.score}% — ${audit.band}`
+              : "Five quick questions on registration, deposits, notices and safety — then log your EPC, gas and electrical certificates."
+          }
+          done={stepDone[2]}
+        >
+          <Link
+            to="/audit"
+            className={`${btn} ${audit ? "border border-border bg-surface text-foreground" : "bg-foreground text-background shadow-raised hover:shadow-floating"}`}
+          >
+            {audit ? "Retake check" : "Start check"}
+            <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+          </Link>
         </Step>
       </ol>
     </div>
@@ -1261,6 +1277,17 @@ function MyProperties({
                           {l.existing_tenant_name}
                         </span>
                       ) : null}
+                      {lrnPending(l.ni_landlord_reg_number) ? (
+                        <Link
+                          to="/dashboard/listing-edit"
+                          search={{ id: l.id }}
+                          title="Add your NI Landlord Registration Number before tenant move-in"
+                          className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-800 hover:brightness-95"
+                        >
+                          <Info className="h-3 w-3 shrink-0" />
+                          LRN pending
+                        </Link>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -1372,7 +1399,13 @@ function MyProperties({
   );
 }
 
-function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void }) {
+function AddPropertyForm({
+  onCreated,
+  onCancel,
+}: {
+  onCreated: () => Promise<void> | void;
+  onCancel: () => void;
+}) {
   const { user } = useAuth();
   const notifyPublished = useServerFn(notifyListingPublished);
   const [title, setTitle] = useState("");
@@ -1389,7 +1422,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
   const [submitting, setSubmitting] = useState<false | "private" | "publish">(false);
   const [photos, setPhotos] = useState<File[]>([]);
   const [details, setDetails] = useState<ListingDetailInput>(emptyListingDetails);
-  const [occupancy, setOccupancy] = useState<"tenanted" | "vacant">("tenanted");
+  const [occupancy, setOccupancy] = useState<"tenanted" | "vacant">("vacant");
   const [tenantName, setTenantName] = useState("");
   const [tenantEmail, setTenantEmail] = useState("");
   const [tenancyStart, setTenancyStart] = useState("");
@@ -1403,11 +1436,26 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
 
   const save = async (mode: "private" | "publish") => {
     if (!user || submitting) return;
-    const detailError = validateListingDetails(details);
+    // Optional details are only validated once the landlord starts filling them.
+    const detailsTouched =
+      !!details.propertyType || !!details.furnished || details.bedrooms !== "";
+    const detailError = detailsTouched ? validateListingDetails(details) : null;
     if (detailError) {
       toast.error("Check the property details", { description: detailError });
       return;
     }
+    if (!/^BT\d/i.test(postcode.trim())) {
+      toast.error("Enter a Northern Ireland postcode", {
+        description: "RoostNI is for NI properties only — postcodes start with BT.",
+      });
+      return;
+    }
+    const street =
+      address
+        .split(",")[0]
+        .replace(/^\s*(flat|apt|apartment|unit)?\s*[\d\w/-]*\d[\w/-]*\s+/i, "")
+        .trim() || address.trim();
+    const finalTitle = title.trim() || `Property on ${street}`;
     const rentNum = Number(rent);
     const depositNum = Number(deposit);
     if (rentNum > 0 && depositNum > rentNum) {
@@ -1443,12 +1491,12 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         .from("property_listings")
         .insert({
           landlord_id: user.id,
-          title,
+          title: finalTitle,
           address,
           location: [location, postcode].filter(Boolean).join(" · ") || null,
           monthly_rent: Number(rent),
           deposit: Number(deposit),
-          ni_landlord_reg_number: regNumber,
+          ni_landlord_reg_number: regNumber.trim() || "Pending",
           heating_type: heating,
           enforce_empty_in_full_out: usesFuelTank(heating) ? fuelPolicy : false,
           tenant_preferences: prefs,
@@ -1517,6 +1565,14 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
 
   return (
     <form onSubmit={onSubmit}>
+      <button
+        type="button"
+        onClick={onCancel}
+        className="mb-4 inline-flex min-h-11 items-center gap-1.5 rounded-full px-1 text-sm font-medium text-muted-foreground transition hover:text-foreground"
+      >
+        <ArrowRight className="h-4 w-4 rotate-180" />
+        Back to properties
+      </button>
       <div className="mb-5">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           New property
@@ -1630,9 +1686,12 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
 
       <FormCard eyebrow="Step 02" title="Basic info">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Property title" className="sm:col-span-2">
+          <Field
+            label="Property title (optional)"
+            hint="Leave blank and we'll use “Property on [street]”."
+            className="sm:col-span-2"
+          >
             <input
-              required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Bright 2-bed terrace near Ormeau Park"
@@ -1675,7 +1734,15 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
                 required
                 inputMode="numeric"
                 value={rent}
-                onChange={(e) => setRent(e.target.value.replace(/[^0-9.]/g, ""))}
+                onChange={(e) => {
+                  const next = e.target.value.replace(/[^0-9.]/g, "");
+                  // Auto-match deposit to one month's rent (PTA (NI) 2022 cap)
+                  // unless the landlord has set a lower figure themselves.
+                  if (!deposit || deposit === rent || Number(deposit) > Number(next)) {
+                    setDeposit(next);
+                  }
+                  setRent(next);
+                }}
                 placeholder="895"
                 className={`${inputCx} pl-9`}
               />
@@ -1694,10 +1761,36 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
               />
             </div>
           </Field>
+          <Field
+            label="NI Landlord Registration Number (optional)"
+            hint="You can add your LRN later before tenant move-in. We'll flag it as pending on your property."
+            className="sm:col-span-2"
+          >
+            <div className="relative">
+              <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={regNumber}
+                onChange={(e) => setRegNumber(e.target.value.toUpperCase())}
+                placeholder="Leave blank if pending"
+                className={`${inputCx} pl-9 uppercase tracking-wider`}
+              />
+            </div>
+          </Field>
         </div>
       </FormCard>
 
-      <FormCard eyebrow="Step 03" title="Property basics">
+      <details className="group/more mt-5 rounded-3xl border border-dashed border-border bg-surface-muted/40 px-5 py-4 sm:px-7 [&[open]]:pb-1">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-display text-sm font-semibold">
+          <span>
+            Add more details (optional)
+            <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+              Bedrooms, photos, heating, description and tenant preferences — add now or later.
+            </span>
+          </span>
+          <ChevronDown className="h-4 w-4 shrink-0 transition group-open/more:rotate-180" />
+        </summary>
+
+      <FormCard eyebrow="Details" title="Property basics">
         <PropertyBasicsFields value={details} onChange={setDetails} />
       </FormCard>
 
@@ -1717,23 +1810,6 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
         <PhotoPicker files={photos} onChange={setPhotos} />
       </FormCard>
 
-      <FormCard eyebrow="Step 08" title="NI compliance verification">
-        <Field
-          label="Northern Ireland Landlord Registration Number"
-          hint="Legally required for all private tenancies in Northern Ireland. Format: LRN-NI-XXXXXX."
-        >
-          <div className="relative">
-            <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              required
-              value={regNumber}
-              onChange={(e) => setRegNumber(e.target.value.toUpperCase())}
-              placeholder="LRN-NI-284119"
-              className={`${inputCx} pl-9 uppercase tracking-wider`}
-            />
-          </div>
-        </Field>
-      </FormCard>
 
       <FormCard eyebrow="Step 09" title="Smart infrastructure">
         <Field label="Heating & utility type">
@@ -1885,6 +1961,7 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
           </span>
         </div>
       </FormCard>
+      </details>
 
       <PricingBreakdown
         className="mt-5"
@@ -1893,6 +1970,14 @@ function AddPropertyForm({ onCreated }: { onCreated: () => Promise<void> | void 
       />
 
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={submitting !== false}
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-full px-6 py-3 font-display text-sm font-semibold text-muted-foreground transition hover:bg-secondary hover:text-foreground disabled:opacity-60 sm:mr-auto sm:w-auto"
+        >
+          Cancel
+        </button>
         {!isTenanted ? (
           <button
             type="button"
