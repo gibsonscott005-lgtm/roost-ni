@@ -31,7 +31,7 @@ const BASE_STYLE = `
 
 /** Opens a new window with printable HTML. Returns false when pop-ups are blocked. */
 export function openPrintable(html: string) {
-  const w = window.open("", "_blank", "noopener,width=900,height=1100");
+  const w = window.open("", "_blank", "width=900,height=1100");
   if (!w) return false;
   w.document.write(html);
   w.document.close();
