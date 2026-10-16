@@ -1,17 +1,33 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { useState } from "react";
+import type React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { BadgeCheck, Briefcase, Check, Clock, ExternalLink, Inbox, Loader2, RefreshCw, ShieldCheck, TrendingUp, X, Info } from "lucide-react";
+import { BadgeCheck, Briefcase, Check, Clock, ExternalLink, Inbox, Loader2, RefreshCw, ShieldCheck, TrendingUp, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification, type EmitNotificationInput } from "@/lib/notifications.functions";
 import { signIdDocumentUrl, signIncomeDocumentUrl } from "@/lib/identity-docs.functions";
 import { getApplicantPassports } from "@/lib/passport-inbox.functions";
+import { declineApplication, requestApplicantInfo, type INFO_REQUEST_ITEMS } from "@/lib/application-review.functions";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { identityTier } from "@/lib/identity-verification";
+
+type InfoItem = (typeof INFO_REQUEST_ITEMS)[number];
 
 function notify(payload: EmitNotificationInput) {
   emitNotification({ data: payload }).catch((err) =>
@@ -24,7 +40,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/applications")({
   validateSearch: z.object({ listing: z.string().optional() }),
   head: () => ({
     meta: [
-      { title: "Received Passports — RoostNI" },
+      { title: "Applications — RoostNI" },
       {
         name: "description",
         content:
@@ -35,7 +51,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/applications")({
   component: ApplicationsPage,
 });
 
-type Status = "pending" | "reviewed" | "accepted" | "withdrawn";
+type Status = "pending" | "reviewed" | "accepted" | "withdrawn" | "declined";
 
 interface Share {
   id: string;
@@ -43,13 +59,16 @@ interface Share {
   shared_at: string;
   withdrawn_at: string | null;
   withdrawn_reason: string | null;
+  declined_at: string | null;
+  info_requested_at: string | null;
+  info_requested_items: string[];
   tenant_id: string;
   listing_id: string;
   lease_status: string | null;
   lease_signed_at: string | null;
   lease_signed_name: string | null;
   tenant: { id: string; full_name: string } | null;
-  listing: { id: string; title: string; monthly_rent: number | null } | null;
+  listing: { id: string; title: string; monthly_rent: number | null; deposit: number | null } | null;
 }
 
 interface Passport {
@@ -79,10 +98,20 @@ interface Passport {
   id_document_path: string | null;
 }
 
+type FilterKey = "all" | "pending" | "reviewed" | "accepted" | "declined";
+const FILTERS: Array<{ key: FilterKey; label: string }> = [
+  { key: "all", label: "All" },
+  { key: "pending", label: "Pending" },
+  { key: "reviewed", label: "Reviewed" },
+  { key: "accepted", label: "Accepted" },
+  { key: "declined", label: "Declined" },
+];
+
 function ApplicationsPage() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const [open, setOpen] = useState<Share | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<FilterKey>("all");
   const queryClient = useQueryClient();
   const { listing: listingFilter } = Route.useSearch();
 
@@ -95,7 +124,7 @@ function ApplicationsPage() {
       const { data: rows, error: rowsErr } = await supabase
         .from("passport_shares")
         .select(
-          "id, status, shared_at, withdrawn_at, withdrawn_reason, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title, monthly_rent)",
+          "id, status, shared_at, withdrawn_at, withdrawn_reason, declined_at, info_requested_at, info_requested_items, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title, monthly_rent, deposit)",
         )
         .order("shared_at", { ascending: false });
       if (rowsErr) throw rowsErr;
@@ -121,24 +150,52 @@ function ApplicationsPage() {
   });
 
   const allShares = inboxQuery.data?.shares ?? [];
-  const filtered = listingFilter
-    ? allShares.filter((s) => s.listing_id === listingFilter)
-    : allShares;
-  const shares = filtered.filter((s) => s.status !== "withdrawn");
-  const withdrawnShares = filtered.filter((s) => s.status === "withdrawn");
+  const scoped = listingFilter ? allShares.filter((s) => s.listing_id === listingFilter) : allShares;
+  const activeShares = scoped.filter((s) => s.status !== "withdrawn");
+  const withdrawnShares = scoped.filter((s) => s.status === "withdrawn");
+  const visible = activeShares.filter((s) =>
+    filter === "all" ? s.status !== "declined" : s.status === filter,
+  );
   const passports = inboxQuery.data?.passports ?? {};
   const listingCount = inboxQuery.data?.listingCount ?? 0;
   const loading = inboxQuery.isPending && isLandlord;
+  const openShare = openId ? allShares.find((s) => s.id === openId) ?? null : null;
+
+  const groups = (() => {
+    const map = new Map<string, { title: string; items: Share[] }>();
+    for (const s of visible) {
+      const g = map.get(s.listing_id) ?? { title: s.listing?.title ?? "Your listing", items: [] };
+      g.items.push(s);
+      map.set(s.listing_id, g);
+    }
+    return Array.from(map.entries());
+  })();
+
+  const counts: Record<FilterKey, number> = {
+    all: activeShares.filter((s) => s.status !== "declined").length,
+    pending: activeShares.filter((s) => s.status === "pending").length,
+    reviewed: activeShares.filter((s) => s.status === "reviewed").length,
+    accepted: activeShares.filter((s) => s.status === "accepted").length,
+    declined: activeShares.filter((s) => s.status === "declined").length,
+  };
+
+  const refresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
+    queryClient.invalidateQueries({ queryKey: ["passport-share"] });
+  };
 
   const acceptMutation = useMutation({
     mutationFn: async (share: Share) => {
+      const rent = Number(share.listing?.monthly_rent ?? 0);
+      const deposit = Number(share.listing?.deposit ?? 0);
+      if (rent > 0 && deposit > rent) {
+        throw new Error("Deposit exceeds one month's rent (PTA NI 2022). Edit the listing first.");
+      }
       const { error } = await supabase
         .from("passport_shares")
         .update({ status: "accepted", landlord_checks_confirmed_at: new Date().toISOString() })
         .eq("id", share.id);
       if (error) throw error;
-      // Mark the property as Under Offer so it shows on public listings
-      // and disables further applications.
       const { error: listingErr } = await supabase
         .from("property_listings")
         .update({ status: "under_offer" })
@@ -147,12 +204,14 @@ function ApplicationsPage() {
       return share;
     },
     onSuccess: (share) => {
-      toast.success("Applicant accepted", {
+      toast.success("Application accepted", {
         description: `${share.tenant?.full_name ?? "Tenant"} accepted. Listing marked as Under Offer.`,
+        action: {
+          label: "Issue lease",
+          onClick: () => navigate({ to: "/landlord/issue-lease", search: { share: share.id } }),
+        },
       });
-      setOpen((o) => (o ? { ...o, status: "accepted" } : null));
-      queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
-      queryClient.invalidateQueries({ queryKey: ["passport-share"] });
+      refresh();
       notify({
         recipient_id: share.tenant_id,
         type: "application_accepted",
@@ -164,12 +223,11 @@ function ApplicationsPage() {
       });
     },
     onError: (err: unknown) => {
-      toast.error("Could not update", {
+      toast.error("Could not accept", {
         description: err instanceof Error ? err.message : "Please try again",
       });
     },
   });
-  const accept = (share: Share) => acceptMutation.mutate(share);
 
   const countersignMutation = useMutation({
     mutationFn: async (share: Share) => {
@@ -184,8 +242,7 @@ function ApplicationsPage() {
       toast.success("Lease counter-signed", {
         description: `${share.tenant?.full_name ?? "Tenant"} has been notified. Lease is fully executed.`,
       });
-      queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
-      queryClient.invalidateQueries({ queryKey: ["passport-share"] });
+      refresh();
       notify({
         recipient_id: share.tenant_id,
         type: "lease_counter_signed",
@@ -202,7 +259,6 @@ function ApplicationsPage() {
       });
     },
   });
-  const countersign = (share: Share) => countersignMutation.mutate(share);
 
   return (
     <DashboardShell
@@ -210,7 +266,7 @@ function ApplicationsPage() {
       profile={profile}
       activeKey="applications"
       listingsCount={listingCount}
-      applicationsCount={shares.length}
+      applicationsCount={counts.all}
     >
       {!isLandlord ? (
         <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground sm:p-8">
@@ -219,18 +275,14 @@ function ApplicationsPage() {
       ) : (
         <div>
           <div className="mb-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Inbox
-            </p>
-            <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-              Received passports
-            </h2>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Inbox</p>
+            <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">Applications</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Self-certified applicants who applied to your live listings.
+              Self-certified applicants who applied to your live listings, grouped by property.
             </p>
             <HowRoostWorksPanel />
             {listingFilter ? (
-              <div className="mt-3 flex flex-wrap items-center gap-2 rounded-full border border-border bg-surface-muted/60 px-3 py-1.5 text-xs text-muted-foreground w-fit">
+              <div className="mt-3 flex w-fit flex-wrap items-center gap-2 rounded-full border border-border bg-surface-muted/60 px-3 py-1.5 text-xs text-muted-foreground">
                 <span>
                   Filtered to:{" "}
                   <span className="font-medium text-foreground">
@@ -245,37 +297,37 @@ function ApplicationsPage() {
                 </Link>
               </div>
             ) : null}
+            <div role="tablist" aria-label="Filter applications" className="mt-4 flex gap-1.5 overflow-x-auto pb-1">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={filter === f.key}
+                  onClick={() => setFilter(f.key)}
+                  className={`min-h-9 shrink-0 rounded-full border px-3.5 text-xs font-medium transition ${
+                    filter === f.key
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border bg-surface text-foreground hover:bg-secondary"
+                  }`}
+                >
+                  {f.label} <span className="opacity-60">({counts[f.key]})</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {loading ? (
-            <ul
-              className="overflow-hidden rounded-2xl border border-border bg-surface"
-              aria-busy="true"
-              aria-label="Loading applicants"
-            >
+            <div className="space-y-3" aria-busy="true" aria-label="Loading applicants">
               {Array.from({ length: 3 }).map((_, i) => (
-                <li
-                  key={i}
-                  className={`flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between ${i > 0 ? "border-t border-border" : ""}`}
-                >
-                  <div className="min-w-0 flex-1 space-y-2">
-                    <Skeleton className="h-4 w-40" />
-                    <Skeleton className="h-3 w-56" />
-                    <div className="flex gap-1.5 pt-1">
-                      <Skeleton className="h-5 w-20 rounded-full" />
-                      <Skeleton className="h-5 w-16 rounded-full" />
-                      <Skeleton className="h-5 w-24 rounded-full" />
-                    </div>
-                  </div>
-                  <Skeleton className="h-8 w-28 rounded-full" />
-                </li>
+                <Skeleton key={i} className="h-28 w-full rounded-2xl" />
               ))}
-            </ul>
-          ) : shares.length === 0 && withdrawnShares.length === 0 ? (
+            </div>
+          ) : groups.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-border bg-surface p-10 text-center">
               <Inbox className="mx-auto h-8 w-8 text-muted-foreground" />
               <p className="mt-3 font-display text-base font-semibold tracking-tight">
-                No applications yet — inbox is clear
+                {filter === "all" ? "No applications yet — inbox is clear" : "Nothing in this view"}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
                 When a tenant shares their RoostNI passport with one of your listings, they'll land here with a full self-certified summary.
@@ -288,111 +340,96 @@ function ApplicationsPage() {
               </Link>
             </div>
           ) : (
-            <ul className="overflow-hidden rounded-2xl border border-border bg-surface shadow-floating">
-              {shares.map((s, i) => {
-                const p = passports[s.tenant_id];
-                const declaredCount = p
-                  ? [p.identity_verified, p.income_verified || p.income_provided, p.reference_verified || p.reference_provided].filter(Boolean).length
-                  : 0;
-                return (
-                  <li
-                    key={s.id}
-                    className={`flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 ${
-                      i > 0 ? "border-t border-border" : ""
-                    }`}
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate font-display text-base font-semibold tracking-tight">
-                        {s.tenant?.full_name || "Applicant"}
-                      </p>
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                        Applied to <span className="text-foreground/90">{s.listing?.title ?? "your listing"}</span> · {timeAgo(s.shared_at)}
-                      </p>
-                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                        <IdBadge passport={p ?? null} />
-                        <VerifyBadge label="Income" ok={!!p?.income_verified} provided={!!p?.income_provided} />
-                        <VerifyBadge label="References" ok={!!p?.reference_verified} provided={!!p?.reference_provided} />
-                        <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          {declaredCount}/3 declared
-                        </span>
-                        <AffordabilityBadge
-                          passport={p ?? null}
-                          monthlyRent={s.listing?.monthly_rent ?? null}
-                        />
-                        {p?.willing_direct_payment_apa ? <ApaPill /> : null}
-                      </div>
-                      <IncomeSummaryRow
-                        shareId={s.id}
-                        employmentStatus={p?.employment_status ?? null}
-                        hasIncomeDoc={!!p?.income_document_path}
-                      />
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      <StatusPill status={s.status} />
-                      {s.lease_status === "counter_signed" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-verified px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-verified-foreground)]">
-                          <ShieldCheck className="h-3 w-3" />
-                          Lease fully executed
-                        </span>
-                      ) : s.lease_status === "signed_pending_landlord" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-verified-soft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-verified">
-                          <ShieldCheck className="h-3 w-3" />
-                          Tenant signed
-                        </span>
-                      ) : s.lease_status === "sent_to_tenant" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          Awaiting tenant
-                        </span>
-                      ) : null}
-                      {s.status === "accepted" &&
-                      s.lease_status !== "signed_pending_landlord" &&
-                      s.lease_status !== "counter_signed" ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            navigate({ to: "/landlord/issue-lease", search: { share: s.id } })
-                          }
-                          className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-2 text-xs font-semibold text-background transition hover:brightness-110"
+            <div className="space-y-6">
+              {groups.map(([listingId, g]) => (
+                <section key={listingId} aria-label={g.title}>
+                  <div className="mb-2 flex items-center gap-2">
+                    <h3 className="truncate font-display text-base font-semibold tracking-tight">{g.title}</h3>
+                    <span className="shrink-0 rounded-full bg-verified-soft px-2 py-0.5 text-[11px] font-semibold text-verified">
+                      {g.items.length} applicant{g.items.length === 1 ? "" : "s"}
+                    </span>
+                  </div>
+                  <ul className="grid gap-3 md:grid-cols-2">
+                    {g.items.map((s) => {
+                      const p = passports[s.tenant_id];
+                      return (
+                        <li
+                          key={s.id}
+                          className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 shadow-floating"
                         >
-                          <ShieldCheck className="h-3.5 w-3.5" />
-                          {s.lease_status === "sent_to_tenant" ? "View lease" : "Issue lease"}
-                        </button>
-                      ) : null}
-                      {s.lease_status === "signed_pending_landlord" ? (
-                        <button
-                          type="button"
-                          onClick={() => countersign(s)}
-                          className="inline-flex items-center gap-1.5 rounded-full bg-verified px-3.5 py-2 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95"
-                        >
-                          <Check className="h-3.5 w-3.5" strokeWidth={3} />
-                          Counter-sign
-                        </button>
-                      ) : null}
-                      {s.lease_status === "counter_signed" ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            navigate({ to: "/landlord/manage-tenancy", search: { share: s.id } })
-                          }
-                          className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-2 text-xs font-semibold text-background transition hover:brightness-110"
-                        >
-                          <ShieldCheck className="h-3.5 w-3.5" />
-                          Manage tenancy
-                        </button>
-                      ) : null}
-                      <button
-                        type="button"
-                        onClick={() => setOpen(s)}
-                        className="rounded-full border border-border bg-surface-muted px-3.5 py-2 text-xs font-medium text-foreground transition hover:bg-secondary"
-                      >
-                        View full passport
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+                          <div className="flex items-start gap-3">
+                            <Initials name={s.tenant?.full_name} />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="truncate font-display text-base font-semibold tracking-tight">
+                                  {s.tenant?.full_name || "Applicant"}
+                                </p>
+                                <StatusPill status={s.status} />
+                              </div>
+                              <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                                <Briefcase className="h-3 w-3" />
+                                {formatEmployment(p?.employment_status ?? null)} · applied {formatDate(s.shared_at)}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <EvidenceBadge passport={p} />
+                            <AffordabilityBadge passport={p ?? null} monthlyRent={s.listing?.monthly_rent ?? null} />
+                            {p?.willing_direct_payment_apa ? <ApaPill /> : null}
+                            {s.info_requested_at && s.status === "reviewed" ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                <Clock className="h-3 w-3" /> Info requested
+                              </span>
+                            ) : null}
+                          </div>
+                          <div className="mt-auto flex flex-wrap items-center justify-end gap-2">
+                            {s.status === "accepted" &&
+                            s.lease_status !== "signed_pending_landlord" &&
+                            s.lease_status !== "counter_signed" ? (
+                              <button
+                                type="button"
+                                onClick={() => navigate({ to: "/landlord/issue-lease", search: { share: s.id } })}
+                                className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-foreground px-3.5 text-xs font-semibold text-background transition hover:brightness-110"
+                              >
+                                <ShieldCheck className="h-3.5 w-3.5" />
+                                {s.lease_status === "sent_to_tenant" ? "View lease" : "Issue lease"}
+                              </button>
+                            ) : null}
+                            {s.lease_status === "signed_pending_landlord" ? (
+                              <button
+                                type="button"
+                                onClick={() => countersignMutation.mutate(s)}
+                                className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-verified px-3.5 text-xs font-semibold text-[var(--color-verified-foreground)] transition hover:brightness-95"
+                              >
+                                <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                                Counter-sign
+                              </button>
+                            ) : null}
+                            {s.lease_status === "counter_signed" ? (
+                              <button
+                                type="button"
+                                onClick={() => navigate({ to: "/landlord/manage-tenancy", search: { share: s.id } })}
+                                className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-foreground px-3.5 text-xs font-semibold text-background transition hover:brightness-110"
+                              >
+                                <ShieldCheck className="h-3.5 w-3.5" />
+                                Manage tenancy
+                              </button>
+                            ) : null}
+                            <button
+                              type="button"
+                              onClick={() => setOpenId(s.id)}
+                              className="min-h-10 rounded-full border border-border bg-surface-muted px-3.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+                            >
+                              View passport
+                            </button>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
+              ))}
+            </div>
           )}
 
           {!loading && withdrawnShares.length > 0 ? (
@@ -404,24 +441,17 @@ function ApplicationsPage() {
                 {withdrawnShares.map((s, i) => (
                   <li
                     key={s.id}
-                    className={`flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between ${
-                      i > 0 ? "border-t border-border" : ""
-                    }`}
+                    className={`flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:justify-between ${i > 0 ? "border-t border-border" : ""}`}
                   >
                     <div className="min-w-0">
                       <p className="truncate font-display text-sm font-semibold tracking-tight text-muted-foreground">
                         {s.tenant?.full_name || "Applicant"}
                       </p>
                       <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                        {s.listing?.title ?? "Your listing"} ·{" "}
-                        {s.withdrawn_at
-                          ? `withdrawn ${timeAgo(s.withdrawn_at)}`
-                          : "withdrawn"}
+                        {s.listing?.title ?? "Your listing"} · {s.withdrawn_at ? `withdrawn ${timeAgo(s.withdrawn_at)}` : "withdrawn"}
                         {s.withdrawn_reason ? ` · "${s.withdrawn_reason}"` : ""}
                       </p>
-                      <p className="mt-1 text-[11px] text-muted-foreground">
-                        Passport access revoked by the applicant.
-                      </p>
+                      <p className="mt-1 text-[11px] text-muted-foreground">Passport access revoked by the applicant.</p>
                     </div>
                     <StatusPill status={s.status} />
                   </li>
@@ -432,14 +462,14 @@ function ApplicationsPage() {
         </div>
       )}
 
-      {open ? (
-        <PassportModal
-          share={open}
-          passport={passports[open.tenant_id] ?? null}
-          onAccept={() => accept(open)}
-          onClose={() => setOpen(null)}
-        />
-      ) : null}
+      <PassportSheet
+        share={openShare}
+        passport={openShare ? passports[openShare.tenant_id] ?? null : null}
+        onAccept={(s) => acceptMutation.mutate(s)}
+        accepting={acceptMutation.isPending}
+        onChanged={refresh}
+        onClose={() => setOpenId(null)}
+      />
     </DashboardShell>
   );
 }
@@ -905,10 +935,10 @@ function StatusPill({ status }: { status: Status }) {
       </span>
     );
   }
-  if (status === "withdrawn") {
+  if (status === "withdrawn" || status === "declined") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-rose-700">
-        Withdrawn
+      <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-destructive">
+        {status === "declined" ? "Declined" : "Withdrawn"}
       </span>
     );
   }
