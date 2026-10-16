@@ -428,7 +428,10 @@ export function ListingGallery({
   if (urls.length === 0) {
     return (
       <div className="w-full">
-        <PhotoPlaceholder className="aspect-[16/9]" />
+        <PhotoPlaceholder
+          className="aspect-[16/9]"
+          message={(paths?.length ?? 0) > 0 ? "Loading photos" : "Photos being uploaded by landlord"}
+        />
         {hasThumbnailRail ? <div className="h-20" aria-hidden="true" /> : null}
       </div>
     );
