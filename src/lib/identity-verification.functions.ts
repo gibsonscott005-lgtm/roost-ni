@@ -120,7 +120,10 @@ export const resolveSimulatedVerification = createServerFn({ method: "POST" })
     }
     const now = new Date().toISOString();
 
-    const { data: saved, error } = await supabase
+    // Only the server may record a verified outcome — the database blocks
+    // signed-in users from setting it directly.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: saved, error } = await supabaseAdmin
       .from("tenant_passports")
       .upsert(
         {

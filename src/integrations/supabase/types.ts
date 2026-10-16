@@ -592,6 +592,7 @@ export type Database = {
           id: string
           phone: string | null
           updated_at: string
+          welcome_email_sent_at: string | null
         }
         Insert: {
           account_type?: Database["public"]["Enums"]["account_type"]
@@ -601,6 +602,7 @@ export type Database = {
           id: string
           phone?: string | null
           updated_at?: string
+          welcome_email_sent_at?: string | null
         }
         Update: {
           account_type?: Database["public"]["Enums"]["account_type"]
@@ -610,6 +612,7 @@ export type Database = {
           id?: string
           phone?: string | null
           updated_at?: string
+          welcome_email_sent_at?: string | null
         }
         Relationships: []
       }
