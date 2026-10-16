@@ -498,7 +498,7 @@ export function LandlordMaintenanceTab({
 
   useEffect(() => {
     if (!selectedId && tickets.length > 0) {
-      setSelectedId(tickets[0].id);
+      setSelectedId(sortTickets(tickets)[0].id);
     }
   }, [tickets, selectedId]);
 
