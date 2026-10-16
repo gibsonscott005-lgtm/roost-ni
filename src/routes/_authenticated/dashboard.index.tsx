@@ -514,9 +514,23 @@ function TenantDashboard() {
     </div>
   ) : null;
 
+  const showTenantOnboarding = !isComplete || applicationCounts.sent === 0;
+
   return (
     <>
       {acceptedBanner}
+
+      {showTenantOnboarding ? (
+        <TenantOnboardingChecklist
+          identityIncomeDone={steps[0].done && steps[1].done}
+          identityDone={steps[0].done}
+          referencesDone={steps[2].done}
+          firstTimeRenter={!!passport?.is_first_time_renter}
+          hasApplied={applicationCounts.sent > 0}
+          onOpenWizard={() => navigate({ to: "/dashboard/passport/edit" })}
+        />
+      ) : null}
+
 
       <div className="rounded-3xl border border-border bg-surface p-6 shadow-floating sm:p-8">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -613,31 +627,6 @@ function TenantDashboard() {
         </Link>
       </div>
 
-      {!isComplete ? (
-        <div className="mt-5 rounded-3xl border border-border bg-surface p-5 sm:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Passport progress
-              </p>
-              <p className="mt-1 font-display text-base font-semibold tracking-tight">
-                {doneCount} of 3 steps complete
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/dashboard/passport/edit" })}
-              className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-2 text-xs font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
-            >
-              {doneCount === 0 ? "Start now" : "Continue"}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-          <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-secondary">
-            <div className="h-full rounded-full bg-verified transition-all" style={{ width: `${pct}%` }} />
-          </div>
-        </div>
-      ) : null}
 
       <div id="applications" className="mt-5 rounded-3xl border border-border bg-surface p-6 shadow-floating sm:p-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
@@ -2044,5 +2033,152 @@ function Field({
       {children}
       {hint ? <span className="mt-1.5 block text-xs text-muted-foreground">{hint}</span> : null}
     </label>
+  );
+}
+function TenantOnboardingChecklist({
+  identityIncomeDone,
+  identityDone,
+  referencesDone,
+  firstTimeRenter,
+  hasApplied,
+  onOpenWizard,
+}: {
+  identityIncomeDone: boolean;
+  identityDone: boolean;
+  referencesDone: boolean;
+  firstTimeRenter: boolean;
+  hasApplied: boolean;
+  onOpenWizard: () => void;
+}) {
+  const unlocked = identityIncomeDone && referencesDone;
+  const doneCount = [identityIncomeDone, referencesDone, hasApplied].filter(Boolean).length;
+  const items = [
+    {
+      key: "identity",
+      title: "Verify Identity & Income",
+      body: identityDone
+        ? "Identity verification & proof of address added. Next: employment and income evidence."
+        : "Identity Verification & Proof of Address (Government photo ID), then your income evidence.",
+      done: identityIncomeDone,
+      locked: false,
+      cta: identityIncomeDone ? "Review" : identityDone ? "Continue" : "Start",
+      action: onOpenWizard,
+    },
+    {
+      key: "references",
+      title: "Add Landlord Reference or Guarantor",
+      body: firstTimeRenter
+        ? "First-time renter? Add a guarantor's details instead of a previous landlord."
+        : "Add your previous landlord's contact details — or, if you're a first-time renter, a guarantor.",
+      done: referencesDone,
+      locked: false,
+      cta: referencesDone ? "Review" : "Add",
+      action: onOpenWizard,
+    },
+    {
+      key: "apply",
+      title: "Explore Live Properties & Apply",
+      body: unlocked
+        ? hasApplied
+          ? "Application sent — track the landlord's reply below."
+          : "Your passport is ready. Apply to any live NI listing in one click."
+        : "Unlocks once steps 1 and 2 are complete.",
+      done: hasApplied,
+      locked: !unlocked,
+      cta: "Browse properties",
+      action: null,
+    },
+  ];
+
+  return (
+    <section
+      aria-label="Tenant onboarding checklist"
+      className="mb-5 rounded-3xl border border-verified/40 bg-surface p-6 shadow-floating sm:p-8"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-verified">
+            Getting started · {doneCount} of 3 done
+          </p>
+          <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
+            Get tenancy-ready in 3 steps
+          </h2>
+        </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-verified-soft px-3 py-1.5 text-[11px] font-semibold text-verified">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          100% Free for Tenants • No Agency Application Fees • Reusable across Northern Ireland
+        </span>
+      </div>
+
+      <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-secondary">
+        <div
+          className="h-full rounded-full bg-verified transition-all"
+          style={{ width: `${Math.round((doneCount / 3) * 100)}%` }}
+        />
+      </div>
+
+      <ol className="mt-5 space-y-3">
+        {items.map((it, i) => (
+          <li
+            key={it.key}
+            className={`flex flex-col gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center ${
+              it.done ? "border-verified/40 bg-verified-soft/50" : "border-border bg-surface"
+            } ${it.locked ? "opacity-60" : ""}`}
+          >
+            <span
+              className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-semibold ${
+                it.done ? "bg-verified text-[var(--color-verified-foreground)]" : "bg-surface-muted text-foreground"
+              }`}
+            >
+              {it.done ? <Check className="h-4 w-4" strokeWidth={3} /> : i + 1}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-display text-sm font-semibold tracking-tight text-foreground">
+                  Step {i + 1}: {it.title}
+                </p>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
+                    it.done
+                      ? "bg-verified text-[var(--color-verified-foreground)]"
+                      : it.locked
+                        ? "bg-surface-muted text-muted-foreground"
+                        : "bg-secondary text-foreground"
+                  }`}
+                >
+                  {it.done ? "Complete" : it.locked ? "Locked" : "Pending"}
+                </span>
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground">{it.body}</p>
+            </div>
+            {it.action ? (
+              <button
+                type="button"
+                onClick={it.action}
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border bg-surface px-4 text-xs font-semibold text-foreground transition hover:bg-secondary"
+              >
+                {it.cta}
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            ) : it.locked ? (
+              <span className="inline-flex min-h-11 items-center justify-center rounded-full border border-border px-4 text-xs font-medium text-muted-foreground">
+                {it.cta}
+              </span>
+            ) : (
+              <Link
+                to="/listings"
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-verified px-4 text-xs font-semibold text-[var(--color-verified-foreground)] shadow-sm transition hover:brightness-110"
+              >
+                {it.cta}
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            )}
+          </li>
+        ))}
+      </ol>
+      <p className="mt-4 text-[11px] text-muted-foreground">
+        Your passport is self-certified evidence you control. RoostNI does not vet or credit-check tenants — you can withdraw any application and the landlord's access ends straight away.
+      </p>
+    </section>
   );
 }
