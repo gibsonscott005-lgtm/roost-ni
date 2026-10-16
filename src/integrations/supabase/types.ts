@@ -366,6 +366,8 @@ export type Database = {
       }
       passport_shares: {
         Row: {
+          declined_at: string | null
+          declined_reason: string | null
           deposit_cert_number: string | null
           deposit_cert_path: string | null
           deposit_payment_method: string | null
@@ -378,6 +380,8 @@ export type Database = {
           final_meter_readings: string | null
           final_oil_level: string | null
           id: string
+          info_requested_at: string | null
+          info_requested_items: string[]
           inventory_completed_at: string | null
           landlord_checks_confirmed_at: string | null
           lease_document_path: string | null
@@ -402,6 +406,8 @@ export type Database = {
           withdrawn_reason: string | null
         }
         Insert: {
+          declined_at?: string | null
+          declined_reason?: string | null
           deposit_cert_number?: string | null
           deposit_cert_path?: string | null
           deposit_payment_method?: string | null
@@ -414,6 +420,8 @@ export type Database = {
           final_meter_readings?: string | null
           final_oil_level?: string | null
           id?: string
+          info_requested_at?: string | null
+          info_requested_items?: string[]
           inventory_completed_at?: string | null
           landlord_checks_confirmed_at?: string | null
           lease_document_path?: string | null
@@ -438,6 +446,8 @@ export type Database = {
           withdrawn_reason?: string | null
         }
         Update: {
+          declined_at?: string | null
+          declined_reason?: string | null
           deposit_cert_number?: string | null
           deposit_cert_path?: string | null
           deposit_payment_method?: string | null
@@ -450,6 +460,8 @@ export type Database = {
           final_meter_readings?: string | null
           final_oil_level?: string | null
           id?: string
+          info_requested_at?: string | null
+          info_requested_items?: string[]
           inventory_completed_at?: string | null
           landlord_checks_confirmed_at?: string | null
           lease_document_path?: string | null
@@ -1258,7 +1270,13 @@ export type Database = {
         | "tenancy_completed"
         | "application_withdrawn"
         | "application_reapplied"
-      share_status: "pending" | "reviewed" | "accepted" | "withdrawn"
+        | "application_info_requested"
+      share_status:
+        | "pending"
+        | "reviewed"
+        | "accepted"
+        | "withdrawn"
+        | "declined"
       verification_status:
         | "unverified"
         | "pending"
@@ -1428,8 +1446,15 @@ export const Constants = {
         "tenancy_completed",
         "application_withdrawn",
         "application_reapplied",
+        "application_info_requested",
       ],
-      share_status: ["pending", "reviewed", "accepted", "withdrawn"],
+      share_status: [
+        "pending",
+        "reviewed",
+        "accepted",
+        "withdrawn",
+        "declined",
+      ],
       verification_status: [
         "unverified",
         "pending",
