@@ -271,3 +271,37 @@ export function depositSettlementHtml(o: SettlementDocOptions) {
     <p class="muted" style="margin-top:24px">Deposits must be returned, or deductions agreed, within 28 days of the tenancy ending. Where agreement cannot be reached, the approved scheme holding the deposit provides a free dispute resolution service. ${esc(NI_LEGAL_DISCLAIMER)}</p>
     </body></html>`;
 }
+
+export interface RentReceiptOptions {
+  receiptId: string;
+  tenantName: string;
+  landlordName: string;
+  address: string;
+  amount: number;
+  method: string;
+  periodLabel?: string | null;
+  issuedAt: string;
+}
+
+/** Printable rent receipt; cash receipts carry the statutory NI wording. */
+export function rentReceiptHtml(o: RentReceiptOptions) {
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+  const isCash = o.method === "cash";
+  const issued = new Date(o.issuedAt).toLocaleString("en-GB", { dateStyle: "long", timeStyle: "short" });
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Rent receipt ${esc(o.receiptId.slice(0, 8).toUpperCase())}</title><style>${BASE_STYLE}</style></head><body>
+<h1>${isCash ? "Statutory Cash Rent Receipt" : "Rent Receipt"}</h1>
+<p class="muted">Receipt no. ${esc(o.receiptId.slice(0, 8).toUpperCase())} · Issued ${esc(issued)}</p>
+<table>
+<tr><th>Property</th><td>${esc(o.address)}</td></tr>
+<tr><th>Tenant</th><td>${esc(o.tenantName)}</td></tr>
+<tr><th>Landlord</th><td>${esc(o.landlordName)}</td></tr>
+<tr><th>Amount received</th><td>£${Number(o.amount).toLocaleString("en-GB", { minimumFractionDigits: 2 })}</td></tr>
+<tr><th>Rent period</th><td>${esc(o.periodLabel || "First month's rent")}</td></tr>
+<tr><th>Payment method</th><td>${esc(o.method.replace(/_/g, " "))}</td></tr>
+<tr><th>Date received</th><td>${esc(issued)}</td></tr>
+</table>
+${isCash ? `<p class="clause">This receipt is provided for a rent payment made in cash, as required by the Private Tenancies (Northern Ireland) Order 2006 (as amended by the Private Tenancies Act (Northern Ireland) 2022). Keep it with your rent records.</p>` : ""}
+<div class="sig"><div>Received by (landlord)<br><br>${esc(o.landlordName)}</div><div>Generated via RoostNI</div></div>
+<p class="muted">General information only, not legal advice. See nidirect.gov.uk for guidance on private tenancies in Northern Ireland.</p>
+</body></html>`;
+}
