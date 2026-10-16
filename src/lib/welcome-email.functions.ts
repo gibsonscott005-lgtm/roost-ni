@@ -1,38 +1,20 @@
 import { createServerFn } from '@tanstack/react-start'
-import { getRequestHeader } from '@tanstack/react-start/server'
-import { z } from 'zod'
+import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
 import { sendTemplateEmail } from '@/lib/email-templates/send-email'
 
-const WELCOME_WINDOW_MS = 15 * 60 * 1000
+const WELCOME_WINDOW_MS = 30 * 24 * 60 * 60 * 1000
 
 /**
- * Sends the one-off welcome email for a brand-new sign-up.
- *
- * Public by necessity (no session exists yet when email confirmation is on),
- * so it only sends when the account genuinely exists and was created within
- * the last 15 minutes. When the caller does carry a session, it must belong
- * to the same user — a signed-in caller can never trigger emails for another
- * account. The per-user idempotency key means retries and repeat calls can
- * never produce a second welcome email. Never throws — a failed email must
- * not affect sign-up.
+ * Sends the one-off welcome email to the signed-in user only. Called after the
+ * first sign-in (including after email confirmation). Deduped via
+ * profiles.welcome_email_sent_at plus an idempotency key. Never throws.
  */
 export const sendWelcomeEmail = createServerFn({ method: 'POST' })
-  .inputValidator((data) => z.object({ userId: z.string().uuid() }).parse(data))
-  .handler(async ({ data }) => {
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
     try {
       const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
-
-      // If the caller presents a session, it must be for the same user.
-      const authHeader = getRequestHeader('authorization')
-      const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
-      if (token) {
-        const { data: callerRes, error: callerErr } = await supabaseAdmin.auth.getUser(token)
-        if (callerErr || !callerRes?.user || callerRes.user.id !== data.userId) {
-          return { sent: false }
-        }
-      }
-
-      const { data: userRes } = await supabaseAdmin.auth.admin.getUserById(data.userId)
+      const { data: userRes } = await supabaseAdmin.auth.admin.getUserById(context.userId)
       const user = userRes?.user
       if (!user?.email || !user.created_at) return { sent: false }
 
@@ -41,19 +23,27 @@ export const sendWelcomeEmail = createServerFn({ method: 'POST' })
 
       const { data: profile } = await supabaseAdmin
         .from('profiles')
-        .select('account_type, full_name')
+        .select('account_type, full_name, welcome_email_sent_at')
         .eq('id', user.id)
         .maybeSingle()
+      if (!profile || profile.welcome_email_sent_at) return { sent: false }
 
-      const firstName = profile?.full_name?.trim().split(/\s+/)[0] || undefined
+      const { data: claimed } = await supabaseAdmin
+        .from('profiles')
+        .update({ welcome_email_sent_at: new Date().toISOString() })
+        .eq('id', user.id)
+        .is('welcome_email_sent_at', null)
+        .select('id')
+      if (!claimed?.length) return { sent: false }
+
+      const firstName = profile.full_name?.trim().split(/\s+/)[0] || undefined
       const templateName =
-        profile?.account_type === 'landlord' ? 'welcome-landlord' : 'welcome-tenant'
+        profile.account_type === 'landlord' ? 'welcome-landlord' : 'welcome-tenant'
 
       const result = await sendTemplateEmail(templateName, user.email, {
         templateData: { name: firstName },
         idempotencyKey: `welcome-${user.id}`,
       })
-
       return { sent: result.sent }
     } catch (err) {
       console.error('[welcome-email] send failed', err)
