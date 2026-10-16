@@ -19,7 +19,13 @@ import {
   Trash2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { leaseDocumentHtml, openPrintable, tenancyInfoNoticeHtml } from "@/lib/tenancy-docs";
+import {
+  leaseDocumentHtml,
+  openPrintable,
+  rentReceiptHtml,
+  tenancyInfoNoticeHtml,
+} from "@/lib/tenancy-docs";
+import { ComplianceHealthBar } from "@/components/compliance-health-bar";
 import {
   arrearsSummary,
   buildRentSchedule,
@@ -789,6 +795,7 @@ function ManageTenancyPage() {
             />
           </TabsContent>
         </Tabs>
+        </>
       )}
     </DashboardShell>
   );
