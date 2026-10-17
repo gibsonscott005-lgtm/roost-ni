@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BetaRouteImport } from './routes/beta'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as LandlordRegistrationNiRouteImport } from './routes/landlord-registration-ni'
+import { Route as ListPropertyRouteImport } from './routes/list-property'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as NoticeToQuitNiRouteImport } from './routes/notice-to-quit-ni'
 import { Route as RentReceiptsNiRouteImport } from './routes/rent-receipts-ni'
@@ -78,6 +79,11 @@ const HelpRoute = HelpRouteImport.update({
 const LandlordRegistrationNiRoute = LandlordRegistrationNiRouteImport.update({
   id: '/landlord-registration-ni',
   path: '/landlord-registration-ni',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListPropertyRoute = ListPropertyRouteImport.update({
+  id: '/list-property',
+  path: '/list-property',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -250,6 +256,7 @@ export interface FileRoutesByFullPath {
   '/beta': typeof BetaRoute
   '/help': typeof HelpRoute
   '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
+  '/list-property': typeof ListPropertyRoute
   '/mcp': typeof McpRoute
   '/notice-to-quit-ni': typeof NoticeToQuitNiRoute
   '/rent-receipts-ni': typeof RentReceiptsNiRoute
@@ -287,6 +294,7 @@ export interface FileRoutesByTo {
   '/beta': typeof BetaRoute
   '/help': typeof HelpRoute
   '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
+  '/list-property': typeof ListPropertyRoute
   '/mcp': typeof McpRoute
   '/notice-to-quit-ni': typeof NoticeToQuitNiRoute
   '/rent-receipts-ni': typeof RentReceiptsNiRoute
@@ -325,6 +333,7 @@ export interface FileRoutesById {
   '/beta': typeof BetaRoute
   '/help': typeof HelpRoute
   '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
+  '/list-property': typeof ListPropertyRoute
   '/mcp': typeof McpRoute
   '/notice-to-quit-ni': typeof NoticeToQuitNiRoute
   '/rent-receipts-ni': typeof RentReceiptsNiRoute
@@ -364,6 +373,7 @@ export interface FileRouteTypes {
     | '/beta'
     | '/help'
     | '/landlord-registration-ni'
+    | '/list-property'
     | '/mcp'
     | '/notice-to-quit-ni'
     | '/rent-receipts-ni'
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/beta'
     | '/help'
     | '/landlord-registration-ni'
+    | '/list-property'
     | '/mcp'
     | '/notice-to-quit-ni'
     | '/rent-receipts-ni'
@@ -438,6 +449,7 @@ export interface FileRouteTypes {
     | '/beta'
     | '/help'
     | '/landlord-registration-ni'
+    | '/list-property'
     | '/mcp'
     | '/notice-to-quit-ni'
     | '/rent-receipts-ni'
@@ -477,6 +489,7 @@ export interface RootRouteChildren {
   BetaRoute: typeof BetaRoute
   HelpRoute: typeof HelpRoute
   LandlordRegistrationNiRoute: typeof LandlordRegistrationNiRoute
+  ListPropertyRoute: typeof ListPropertyRoute
   McpRoute: typeof McpRoute
   NoticeToQuitNiRoute: typeof NoticeToQuitNiRoute
   RentReceiptsNiRoute: typeof RentReceiptsNiRoute
@@ -545,6 +558,13 @@ declare module '@tanstack/react-router' {
       path: '/landlord-registration-ni'
       fullPath: '/landlord-registration-ni'
       preLoaderRoute: typeof LandlordRegistrationNiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/list-property': {
+      id: '/list-property'
+      path: '/list-property'
+      fullPath: '/list-property'
+      preLoaderRoute: typeof ListPropertyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -811,6 +831,7 @@ const rootRouteChildren: RootRouteChildren = {
   BetaRoute: BetaRoute,
   HelpRoute: HelpRoute,
   LandlordRegistrationNiRoute: LandlordRegistrationNiRoute,
+  ListPropertyRoute: ListPropertyRoute,
   McpRoute: McpRoute,
   NoticeToQuitNiRoute: NoticeToQuitNiRoute,
   RentReceiptsNiRoute: RentReceiptsNiRoute,
