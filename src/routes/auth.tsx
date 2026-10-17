@@ -424,6 +424,10 @@ function AuthPage() {
                   it takes about 2 minutes, and we'll bring you straight back to the
                   listing.
                 </p>
+                <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-foreground">
+                  <ShieldCheck className="h-3.5 w-3.5 text-verified" />
+                  One passport, reused for every NI property you apply for. You control who sees it.
+                </p>
                 {backToListingId ? (
                   <Link
                     to="/listings/$id"
