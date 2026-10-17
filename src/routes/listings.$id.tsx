@@ -467,6 +467,25 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
             Apply for this property
           </Link>
         </div>
+        <div className="mt-4 rounded-2xl border border-verified/25 bg-verified-soft/50 p-4">
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+            <ShieldCheck className="h-4 w-4 text-verified" />
+            Build it once. Reuse it for every NI rental.
+          </p>
+          <ul className="mt-2 grid grid-cols-1 gap-1.5 text-xs text-muted-foreground sm:grid-cols-2">
+            {[
+              "No more copying payslips into Facebook DMs",
+              "Identity, income and references in one private profile",
+              "Withdraw an application and the landlord's access ends",
+              "Free for renters — no fees, ever during beta",
+            ].map((t) => (
+              <li key={t} className="flex items-start gap-1.5">
+                <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-verified" strokeWidth={3} />
+                {t}
+              </li>
+            ))}
+          </ul>
+        </div>
         <ol className="mt-4 grid grid-cols-1 gap-2.5 border-t border-border pt-4 text-xs text-muted-foreground sm:grid-cols-3">
           <li className="flex items-start gap-2">
             <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-verified-soft text-[11px] font-semibold text-verified">
@@ -487,6 +506,16 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
             <span>Send — the landlord sees your passport instantly</span>
           </li>
         </ol>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Already have a passport?{" "}
+          <Link
+            to="/auth"
+            search={{ role: "tenant", next: `/listings/${listingId}`, listingId, mode: "login" }}
+            className="font-medium text-verified underline-offset-2 hover:underline"
+          >
+            Sign in to apply
+          </Link>
+        </p>
       </div>
     );
   }
