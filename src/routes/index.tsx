@@ -104,7 +104,7 @@ function HomePage() {
               <span className="hidden sm:inline">Browse properties</span>
             </Link>
             <Link
-              to="/auth"
+              to="/list-property"
               onClick={() => posthog.capture("home_cta_click", { target: "header_list" })}
               className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
             >
@@ -160,7 +160,7 @@ function HomePage() {
               </p>
               <div className="mt-8 grid gap-3 sm:grid-cols-2">
                 <Link
-                  to="/auth"
+                  to="/list-property"
                   onClick={() => posthog.capture("home_cta_click", { target: "list_property" })}
                   className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-foreground/92 hover:shadow-floating focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:translate-y-0 active:shadow-resting motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:px-6"
                 >
@@ -335,7 +335,7 @@ function HomePage() {
               Renters benefit too: one passport, no re-typing, and clear listings with certificates up front.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link to="/auth" onClick={() => posthog.capture("home_cta_click", { target: "landlord_section_list" })} className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:bg-foreground/92">
+              <Link to="/list-property" onClick={() => posthog.capture("home_cta_click", { target: "landlord_section_list" })} className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:bg-foreground/92">
                 List a property free <ArrowRight className="h-4 w-4" />
               </Link>
               <Link to="/audit" onClick={() => posthog.capture("home_cta_click", { target: "landlord_section_audit" })} className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 py-3 font-display text-sm font-semibold text-foreground transition hover:bg-secondary">
