@@ -804,7 +804,7 @@ function TenantDashboard() {
                       >
                         {busyShareId === s.id ? "Sending…" : "Apply again"}
                       </button>
-                    ) : !s.lease_status && !s.tenancy_status && s.status !== "rejected" ? (
+                    ) : !s.lease_status && !s.tenancy_status && !isClosed ? (
                       confirmWithdrawId === s.id ? (
                         <>
                           <button

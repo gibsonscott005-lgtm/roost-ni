@@ -541,7 +541,12 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
             : "Share your identity (government photo ID), income and references in one tap."}
         </p>
         {sent ? (
-          leaseIssued ? (
+          share?.status === "declined" || share?.status === "rejected" ? (
+            <p className="mt-2 text-xs text-muted-foreground">
+              The landlord has decided not to progress this application, and their access to your
+              passport has ended.
+            </p>
+          ) : leaseIssued ? (
             <p className="mt-2 text-xs text-muted-foreground">
               A lease has been issued — manage it from your{" "}
               <Link to="/dashboard" className="underline">

@@ -39,6 +39,9 @@ export const withdrawApplication = createServerFn({ method: "POST" })
     if (!share) throw new Error("Application not found");
     if (share.tenant_id !== userId) throw new Error("Forbidden");
     if (share.status === "withdrawn") return { ok: true, relisted: false };
+    if (share.status === "declined" || share.status === "rejected") {
+      throw new Error("This application has already been closed by the landlord.");
+    }
     if (share.lease_status) {
       throw new Error(
         "A lease has already been issued for this application — use the lease screen instead.",
