@@ -52,8 +52,8 @@ export const getApplicantPassports = createServerFn({ method: "POST" })
       .from("passport_shares")
       .select("tenant_id")
       .in("listing_id", listingIds)
-      // Withdrawn applicants revoke passport access.
-      .neq("status", "withdrawn");
+      // Withdrawn, declined or rejected applications end passport access.
+      .not("status", "in", "(withdrawn,declined,rejected)");
     if (shareErr) throw new Error(shareErr.message);
 
     const tenantIds = Array.from(new Set((shares ?? []).map((s) => s.tenant_id)));
