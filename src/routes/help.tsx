@@ -83,12 +83,12 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     a: "Only a landlord you have actively applied to, and only while that application is live. Withdraw an application and their access is revoked immediately.",
   },
   {
-    q: "Is anything charged during the beta?",
-    a: "No. Payments are switched off. Pricing is shown in the app for feedback only — nothing is taken from you and nothing is paid out.",
+    q: "Does RoostNI charge anything?",
+    a: "No. Core direct management is free, with zero agent commissions. Any optional paid features shown in the app are previews of future tools — nothing is charged today.",
   },
   {
     q: "Should I use real documents?",
-    a: "Please don't. Use test data during the beta. Never upload a real passport, payslip or anyone else's personal details.",
+    a: "Only upload your own documents. Never upload anyone else's passport, payslip or personal details. You can withdraw access at any time.",
   },
 ];
 
@@ -108,7 +108,7 @@ function HelpPage() {
               to="/beta"
               className="hidden rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground sm:inline"
             >
-              About the beta
+              About RoostNI
             </Link>
             <Link
               to="/auth" search={{ mode: "login" }}
@@ -164,7 +164,7 @@ function HelpPage() {
           </p>
           <p className="mt-4 inline-flex items-center gap-2 text-sm text-foreground">
             <MessageSquarePlus className="h-4 w-4 text-verified" />
-            We read every message during the beta.
+            We read every message.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
@@ -177,7 +177,7 @@ function HelpPage() {
               to="/beta"
               className="inline-flex items-center justify-center rounded-full border border-border bg-surface px-5 py-2.5 font-display text-sm font-semibold text-foreground transition hover:bg-secondary"
             >
-              Read the beta brief
+              Read about RoostNI
             </Link>
           </div>
         </section>

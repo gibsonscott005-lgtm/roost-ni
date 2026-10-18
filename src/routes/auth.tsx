@@ -394,7 +394,7 @@ function AuthPage() {
               to="/beta"
               className="rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground"
             >
-              About the beta
+              About RoostNI
             </Link>
             <Link
               to="/help"
@@ -683,7 +683,7 @@ function AuthPage() {
 
           <div className="mt-4 flex items-center gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5 text-verified" />
-            100% free during the beta · Encrypted at rest · GDPR compliant
+            Free · Zero agent commissions · Encrypted at rest · GDPR compliant
           </div>
 
           {mode === "reset" ? null : (
@@ -701,7 +701,7 @@ function AuthPage() {
         </section>
 
         <p className="mt-8 text-center text-xs text-muted-foreground">
-          New to the beta?{" "}
+          New to RoostNI?{" "}
           <Link to="/beta" className="font-medium text-foreground underline-offset-4 hover:underline">
             Read what we'd like you to test
           </Link>{" "}

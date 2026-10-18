@@ -477,7 +477,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
               "No more copying payslips into Facebook DMs",
               "Identity, income and references in one private profile",
               "Withdraw an application and the landlord's access ends",
-              "Free for renters — no fees, ever during beta",
+              "Free for renters — no fees",
             ].map((t) => (
               <li key={t} className="flex items-start gap-1.5">
                 <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-verified" strokeWidth={3} />

@@ -1051,7 +1051,7 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
             Get Your First NI Property Live
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            Free during Public Beta • No agent fees or commissions
+            Free direct management • Zero agent commissions
           </p>
         </div>
         <span className="rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold">

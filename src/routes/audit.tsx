@@ -182,7 +182,7 @@ function AuditPage() {
               Free self-check
             </span>
             <p className="mt-4 rounded-2xl border border-border bg-surface-muted px-4 py-3 text-xs text-muted-foreground">
-              RoostNI is currently free in early beta for Northern Ireland landlords. No fees,
+              RoostNI offers free direct management for Northern Ireland landlords. No fees,
               no card required.
             </p>
             <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -320,7 +320,7 @@ function AuditPage() {
         {stage === "result" ? (
           <section>
             <p className="mb-4 rounded-2xl border border-border bg-surface-muted px-4 py-3 text-xs text-muted-foreground">
-              RoostNI is currently free in early beta for Northern Ireland landlords. No fees, no
+              RoostNI offers free direct management for Northern Ireland landlords. No fees, no
               card required.
             </p>
             <div className="rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
@@ -464,7 +464,7 @@ function AuditPage() {
                     Saved to {email}
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Next step: join the free beta. RoostNI will hold the certificates, dates and
+                    Next step: create your free account. RoostNI will hold the certificates, dates and
                     records this check asked about — and when the property next falls vacant,
                     you can advertise it and take applications without an agent's fee.
                   </p>
@@ -474,10 +474,10 @@ function AuditPage() {
                     className="mt-5 inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
                   >
                     <ShieldCheck className="h-4 w-4" />
-                    Join the free beta — list, let and manage without agent fees
+                    Get started free — list, let and manage without agent fees
                   </Link>
                   <p className="mt-3 text-xs text-muted-foreground">
-                    Free during early beta. No fees, no card required. Keep a tenanted property
+                    Free direct management. Zero agent commissions, no card required. Keep a tenanted property
                     private, or advertise one when it's vacant.
                   </p>
                 </div>
@@ -567,10 +567,10 @@ function AuditPage() {
                   className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
                 >
                   <ShieldCheck className="h-4 w-4" />
-                  Join the free beta — list, let and manage without agent fees
+                  Get started free — list, let and manage without agent fees
                 </Link>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Free during early beta. No fees, no card required.
+                  Free direct management. Zero agent commissions, no card required.
                 </p>
               </div>
             ) : null}

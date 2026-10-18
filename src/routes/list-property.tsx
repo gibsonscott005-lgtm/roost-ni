@@ -34,7 +34,7 @@ export const Route = createFileRoute("/list-property")({
       { property: "og:title", content: "List a property free in Northern Ireland — RoostNI" },
       {
         property: "og:description",
-        content: "Fill in your listing first, sign up only when you publish. Free during public beta.",
+        content: "Fill in your listing first, sign up only when you publish. Free, with zero agent commissions.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk/list-property" },
@@ -138,7 +138,7 @@ function ListPropertyPage() {
           Fill in the basics now. We'll only ask you to sign up when you publish. Your draft is saved on this device.
         </p>
         <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-verified-soft px-3 py-1 text-xs font-medium text-verified">
-          <ShieldCheck className="h-3.5 w-3.5" /> Free during Public Beta • No agent fees or commissions
+          <ShieldCheck className="h-3.5 w-3.5" /> Free direct management • Zero agent commissions
         </p>
 
         <section className="mt-5 space-y-4 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-6">

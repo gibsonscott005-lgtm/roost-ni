@@ -302,14 +302,14 @@ function LandlordRegistrationGuide() {
               to="/beta"
               className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary-foreground)]/85 underline-offset-4 hover:underline"
             >
-              About the free early beta
+              About RoostNI
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         </section>
 
         <p className="mt-10 text-xs leading-relaxed text-muted-foreground">
-          RoostNI is currently free in early beta for Northern Ireland landlords — no fees, no card
+          RoostNI offers free direct management for Northern Ireland landlords — no fees, no card
           required. This guide is general information, not legal advice; the authoritative source is{" "}
           <a
             href="https://www.communities-ni.gov.uk/articles/landlord-registration-scheme"

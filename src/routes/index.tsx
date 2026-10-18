@@ -25,7 +25,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Self-managing NI landlords: list and manage rentals without agent fees, with NI tenancy law built in. Renters: one Tenant Passport to apply direct. Free in beta.",
+          "Self-managing NI landlords: list and manage rentals without agent fees, with NI tenancy law built in. Renters: one Tenant Passport to apply direct. Free, with zero agent commissions.",
       },
       { property: "og:title", content: "RoostNI | Renting in Northern Ireland, done direct" },
       {
@@ -43,7 +43,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:title", content: "RoostNI | Renting in Northern Ireland, done direct" },
       {
         name: "twitter:description",
-        content: "Direct rental platform built exclusively for Northern Ireland. Zero agent fees during public beta.",
+        content: "Direct rental platform built exclusively for Northern Ireland. Free direct management with zero agent commissions.",
       },
       { name: "twitter:image", content: "https://roostni.co.uk/og/roostni-preview.jpg" },
     ],
@@ -69,9 +69,9 @@ export const Route = createFileRoute("/")({
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web",
               description:
-                "Self-service platform for Northern Ireland private landlords and tenants: direct property listings, tenancy management with NI tenancy law built in, and a reusable self-certified Tenant Passport. Free during beta.",
+                "Self-service platform for Northern Ireland private landlords and tenants: direct property listings, tenancy management with NI tenancy law built in, and a reusable self-certified Tenant Passport. Free to use, with zero agent commissions.",
               areaServed: { "@type": "AdministrativeArea", name: "Northern Ireland" },
-              offers: { "@type": "Offer", price: "0", priceCurrency: "GBP", description: "Free during the open beta" },
+              offers: { "@type": "Offer", price: "0", priceCurrency: "GBP", description: "Free direct management — zero agent commissions" },
               publisher: { "@id": "https://roostni.co.uk/#organization" },
             },
           ],
@@ -122,7 +122,7 @@ function HomePage() {
               to="/beta"
               className="hidden shrink-0 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary sm:inline"
             >
-              Beta
+              About
             </Link>
             <Link
               to="/auth"
@@ -142,12 +142,12 @@ function HomePage() {
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-2 rounded-full border border-verified/30 bg-verified-soft/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
-                  <BadgeCheck className="h-3.5 w-3.5 text-verified" /> Free early beta
+                  <BadgeCheck className="h-3.5 w-3.5 text-verified" /> Free · Zero agent commissions
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-verified/25 bg-verified-soft/40 px-3 py-1 text-left text-xs font-medium leading-snug text-muted-foreground shadow-resting">
                   <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-verified" />
                   Built strictly for Northern Ireland legislation
-                  <span className="hidden sm:inline"> · Free during Beta</span>
+                  <span className="hidden sm:inline"> · No agent fees</span>
                 </span>
               </div>
               <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-5xl lg:text-[3.25rem]">
@@ -201,7 +201,7 @@ function HomePage() {
                   to="/beta"
                   className="font-medium text-foreground underline-offset-2 hover:underline"
                 >
-                  About the beta
+                  About RoostNI
                 </Link>
               </p>
               <div className="mt-6 rounded-2xl border border-border bg-surface p-2 shadow-resting">
@@ -327,7 +327,7 @@ function HomePage() {
               Run your let yourself, without handing an agent a cut of your rent.
             </h2>
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              <FeatureCard icon={Wallet} title="Keep your rent" body="No tenant-find fee and no monthly management percentage while RoostNI is in free beta." />
+              <FeatureCard icon={Wallet} title="Keep your rent" body="No tenant-find fee and no monthly management percentage — direct management is free on RoostNI." />
               <FeatureCard icon={ShieldCheck} title="NI law built in" body="Private Tenancies Act (NI) 2022 steps — 28-day notice, deposit protection, rent receipts, notice to quit — prompted as you go." />
               <FeatureCard icon={IdCard} title="Organised applications" body="Renters apply with a reusable, self-certified Tenant Passport. RoostNI never scores or recommends — the decision is always yours." />
             </div>
@@ -427,23 +427,23 @@ function HomePage() {
           </div>
         </section>
 
-        {/* Beta banner */}
+        {/* Free management banner */}
         <section className="mx-auto mb-12 max-w-6xl px-4 sm:px-6 sm:mb-16">
           <div className="rounded-[2rem] border border-border bg-surface p-6 shadow-resting sm:p-10">
             <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <p className="font-display text-lg font-semibold tracking-tight sm:text-xl">
-                  RoostNI is in free early beta
+                  Free direct management for Northern Ireland landlords
                 </p>
                 <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-                  Anyone can join now — no fees, no card required. Your feedback shapes what ships next.
+                  List, let and manage your rentals directly — zero agent commissions, no card required.
                 </p>
               </div>
               <Link
                 to="/beta"
                 className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-secondary"
               >
-                Join the beta
+                Get started
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -469,7 +469,7 @@ function HomePage() {
               Help
             </Link>
             <Link to="/beta" className="transition hover:text-foreground">
-              Beta
+              About
             </Link>
             <Link to="/auth" search={{ mode: "login" }} className="transition hover:text-foreground">
               Sign in
