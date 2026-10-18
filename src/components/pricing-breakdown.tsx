@@ -49,9 +49,9 @@ export function SimulatedBillingNotice({ className = "" }: { className?: string 
     >
       <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
       <span>
-        <strong className="font-semibold">Simulated — no payment taken.</strong> Billing is not
-        active on RoostNI yet. Prices are shown for preview only and nothing is charged or
-        restricted.
+        <strong className="font-semibold">Coming soon — nothing charged today.</strong> These optional
+        tools are part of RoostNI's future platform. Core direct management stays free, and nothing
+        is charged or restricted today.
       </span>
     </p>
   );

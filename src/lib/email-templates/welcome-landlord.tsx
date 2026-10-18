@@ -48,7 +48,7 @@ const WelcomeLandlord = ({ name }: Props) => (
             </Link>
           </Text>
           <Text style={paragraph}>
-            RoostNI is in free early beta — no fees, no card required — so if anything is unclear
+            RoostNI is free direct management with zero agent commissions — so if anything is unclear
             or doesn't work the way you'd expect, I would genuinely like to hear about it. Just
             reply to this email and it lands straight in my inbox.
           </Text>

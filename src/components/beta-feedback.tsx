@@ -79,7 +79,7 @@ export function BetaFeedbackWidget() {
       });
       if (error) throw error;
       toast.success("Thanks — feedback received", {
-        description: "Every note during the beta helps us sharpen RoostNI.",
+        description: "Every note helps us sharpen RoostNI.",
       });
       setMessage("");
       setOpen(false);
@@ -97,7 +97,7 @@ export function BetaFeedbackWidget() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Send beta feedback"
+        aria-label="Send feedback"
         className="fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-foreground px-4 py-2.5 text-xs font-semibold text-[var(--color-primary-foreground)] shadow-floating transition hover:translate-y-[-1px] sm:bottom-6 sm:right-6 sm:text-sm"
       >
         <MessageSquarePlus className="h-4 w-4 shrink-0" />
@@ -109,7 +109,7 @@ export function BetaFeedbackWidget() {
           className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 p-4 backdrop-blur-sm sm:items-center"
           role="dialog"
           aria-modal="true"
-          aria-label="Send beta feedback"
+          aria-label="Send feedback"
           onClick={(e) => {
             if (e.target === e.currentTarget) setOpen(false);
           }}
@@ -121,7 +121,7 @@ export function BetaFeedbackWidget() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                  RoostNI beta
+                  RoostNI feedback
                 </p>
                 <h2 className="mt-1 font-display text-lg font-semibold tracking-tight">
                   Tell us what you found
@@ -204,9 +204,9 @@ export function BetaBanner() {
       <div className="flex items-start gap-2.5">
         <FlaskConical className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
         <p className="text-sm text-foreground">
-          <span className="font-semibold">You're in the RoostNI beta.</span>{" "}
+          <span className="font-semibold">Welcome to RoostNI.</span>{" "}
           <span className="text-muted-foreground">
-            Use real steps but test data only — tell us anything that feels off.
+            Free direct management, zero agent commissions — tell us anything that could be better.
           </span>
         </p>
       </div>
@@ -232,7 +232,7 @@ export function BetaBanner() {
         </button>
         <button
           type="button"
-          aria-label="Dismiss beta notice"
+          aria-label="Dismiss notice"
           onClick={() => {
             window.localStorage.setItem(BANNER_KEY, "1");
             setVisible(false);

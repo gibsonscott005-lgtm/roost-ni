@@ -574,7 +574,7 @@ function Header() {
             to="/beta"
             className="hidden rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground sm:inline-block"
           >
-            About the beta
+            About RoostNI
           </Link>
 
           <Link

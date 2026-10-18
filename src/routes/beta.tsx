@@ -14,13 +14,13 @@ export const Route = createFileRoute("/beta")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Join the RoostNI Beta — Northern Ireland Renting, Direct" },
+      { title: "About RoostNI — Northern Ireland Renting, Direct" },
       {
         name: "description",
         content:
           "Help test RoostNI, Northern Ireland's direct renting platform. Tenant passports, compliant listings and full tenancy management — built around NI law.",
       },
-      { property: "og:title", content: "Join the RoostNI Beta" },
+      { property: "og:title", content: "About RoostNI — Northern Ireland Renting, Direct" },
       {
         property: "og:description",
         content:
@@ -65,7 +65,7 @@ function BetaPage() {
 
       <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
         <span className="inline-flex items-center gap-2 rounded-full border border-verified/30 bg-verified-soft/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
-          Free early beta
+          Free · Zero agent commissions
         </span>
         <h1 className="mt-5 max-w-3xl font-display text-3xl font-semibold tracking-tight sm:text-5xl">
           Renting in Northern Ireland, direct between tenant and landlord.
@@ -161,16 +161,16 @@ function BetaPage() {
 
         <section className="mt-12 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
           <h2 className="font-display text-xl font-semibold tracking-tight">
-            Ground rules for the beta
+            How RoostNI works
           </h2>
           <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
             <li>
-              <span className="font-medium text-foreground">Use test data.</span> Don't
-              upload a real passport, payslip or anyone else's personal details.
+              <span className="font-medium text-foreground">Your data, your control.</span> Only
+              upload your own documents, and withdraw access whenever you choose.
             </li>
             <li>
               <span className="font-medium text-foreground">Nothing is charged.</span>{" "}
-              Pricing is shown for feedback only — payments are switched off.
+              Core direct management is free. Optional paid tools shown in the app are previews of future features.
             </li>
             <li>
               <span className="font-medium text-foreground">RoostNI assists, it never decides.</span>{" "}
@@ -194,7 +194,7 @@ function BetaPage() {
             search={{ role: "tenant" }}
             className="inline-flex items-center justify-center rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
           >
-            Create your beta account
+            Create your free account
           </Link>
           <span className="text-sm text-muted-foreground">
             Takes about two minutes. You can switch roles later by signing up again.
@@ -204,7 +204,7 @@ function BetaPage() {
 
       <footer className="border-t border-border/70 py-8">
         <p className="mx-auto w-full max-w-5xl px-4 text-xs text-muted-foreground sm:px-6">
-          RoostNI — built for Northern Ireland. Beta software: expect rough edges.
+          RoostNI — built for Northern Ireland. Free direct management, zero agent commissions.
         </p>
       </footer>
     </div>
