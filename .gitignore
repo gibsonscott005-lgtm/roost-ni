@@ -14,6 +14,7 @@ dist-ssr
 .vinxi
 .tanstack/**
 .nitro
+.vercel
 *.local
 
 # Env / secrets
@@ -21,7 +22,7 @@ dist-ssr
 .env.*
 !.env.example
 
-# Wrangler / Cloudflare
+# Deployment output
 .wrangler/
 .dev.vars
 

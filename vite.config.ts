@@ -10,11 +10,11 @@ import { loadEnv } from "vite";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 
-// Bolt's preview expects the build output in `dist` with an index.html it can
-// serve. The Lovable config routes Nitro output to `dist` and enables its
-// prerender preview shim only when it detects a Lovable sandbox environment.
-// Force that detection on so the build produces the right output shape.
-process.env.LOVABLE_SANDBOX = "1";
+const isVercel = process.env.VERCEL === "1";
+
+if (!isVercel) {
+  process.env.LOVABLE_SANDBOX = "1";
+}
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -27,17 +27,19 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
-    // Bolt's preview serves static files and expects an index.html. SPA mode
-    // generates a static HTML shell at build time so the preview can serve it.
-    spa: { enabled: true },
+    ...(isVercel ? {} : { spa: { enabled: true } }),
   },
-  nitro: {
-    output: {
-      dir: "dist",
-      serverDir: "dist/server",
-      publicDir: "dist",
-    },
-  },
+  ...(isVercel
+    ? { nitro: { preset: "vercel" } }
+    : {
+        nitro: {
+          output: {
+            dir: "dist",
+            serverDir: "dist/server",
+            publicDir: "dist",
+          },
+        },
+      }),
   vite: {
     plugins: [mcpPlugin()],
     resolve: {
