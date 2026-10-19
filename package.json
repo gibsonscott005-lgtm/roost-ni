@@ -3,14 +3,15 @@
   "private": true,
   "sideEffects": false,
   "type": "module",
-  "scripts": {
+    "scripts": {
     "dev": "vite dev",
-    "build": "vite build && node scripts/prepare-preview.mjs",
+    "build": "vinxi build",
     "build:dev": "vite build --mode development",
-    "preview": "vite preview",
+    "preview": "vinxi preview",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
+
   "dependencies": {
     "@ai-sdk/openai": "^4.0.91",
     "@ai-sdk/openai-compatible": "^3.0.59",
