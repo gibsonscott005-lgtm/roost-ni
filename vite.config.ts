@@ -10,12 +10,6 @@ import { loadEnv } from "vite";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 
-const isVercel = process.env.VERCEL === "1";
-
-if (!isVercel) {
-  process.env.LOVABLE_SANDBOX = "1";
-}
-
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 // Load non-VITE_ env vars into process.env for server-side code only.
@@ -25,21 +19,8 @@ Object.assign(process.env, loadEnv(process.env["NODE_ENV"] ?? "development", roo
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
     server: { entry: "server" },
-    ...(isVercel ? {} : { spa: { enabled: true } }),
   },
-  ...(isVercel
-    ? { nitro: { preset: "vercel" } }
-    : {
-        nitro: {
-          output: {
-            dir: "dist",
-            serverDir: "dist/server",
-            publicDir: "dist",
-          },
-        },
-      }),
   vite: {
     plugins: [mcpPlugin()],
     resolve: {

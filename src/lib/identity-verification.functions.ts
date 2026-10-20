@@ -45,7 +45,7 @@ export const startVerification = createServerFn({ method: "POST" })
     const started = await startCheck({
       mode,
       userId,
-      email: (context.claims?.["email"] as string | undefined) ?? null,
+      email: ((context.claims as Record<string, unknown> | undefined)?.["email"] as string | undefined) ?? null,
       returnUrl: `${origin}${data.returnPath}`,
     });
 
