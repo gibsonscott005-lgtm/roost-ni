@@ -166,7 +166,12 @@ function ListPropertyPage() {
                   value={d.rent}
                   onChange={(e) => {
                     const v = e.target.value.replace(/[^0-9.]/g, "");
-                    setD((s) => ({ ...s, rent: v, deposit: s.deposit === "" || Number(s.deposit) > Number(v) ? v : s.deposit }));
+                    // Deposit follows the rent until the landlord sets their own figure.
+                    setD((s) => ({
+                      ...s,
+                      rent: v,
+                      deposit: s.deposit === "" || s.deposit === s.rent || Number(s.deposit) > Number(v) ? v : s.deposit,
+                    }));
                   }}
                   className={`${inputCx} pl-9`}
                 />
