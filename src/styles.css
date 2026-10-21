@@ -280,3 +280,32 @@
 @media (prefers-reduced-motion: reduce) {
   .brutal-ticker { animation: none; }
 }
+
+/* Site-wide brutalist frame: applies the homepage look to every page
+ * without rewriting individual screens. Unlayered so it wins over utilities. */
+h1.font-display, h2.font-display { font-weight: 800; letter-spacing: -0.035em; }
+h1.font-display { text-wrap: balance; }
+.rounded-2xl.border.bg-surface,
+.rounded-3xl.border.bg-surface,
+.rounded-xl.border.bg-surface {
+  border-color: color-mix(in oklab, var(--foreground) 28%, transparent);
+  box-shadow: var(--elevation-raised);
+}
+a.rounded-2xl.border.bg-surface:hover,
+.group.rounded-2xl.border.bg-surface:hover {
+  box-shadow: var(--elevation-floating);
+  transform: translate(-2px, -2px);
+}
+.rounded-2xl.bg-verified-soft\/50, .rounded-2xl.bg-verified-soft {
+  border-left: 4px solid var(--verified);
+}
+header.border-b { border-bottom-width: 2px; }
+.bg-surface-muted\/60, .rounded-2xl.bg-surface-muted { border-style: dashed; }
+@utility brutal-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--verified);
+}
