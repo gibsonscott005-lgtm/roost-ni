@@ -96,59 +96,54 @@
 }
 
 :root {
-  --radius: 1rem;
-  /* Warm Porcelain palette: warm off-white ground, white surfaces, ink, deep emerald */
-  --background: oklch(0.958 0.004 95);
-  --foreground: oklch(0.21 0.04 265);
-  --surface: oklch(1 0 0);
-  --surface-muted: oklch(0.974 0.004 95);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.04 265);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.04 265);
-  --primary: oklch(0.21 0.04 265);
-  --primary-foreground: oklch(0.99 0.003 247);
-  --secondary: oklch(0.952 0.005 95);
-  --secondary-foreground: oklch(0.21 0.04 265);
-  --muted: oklch(0.952 0.005 95);
-  --muted-foreground: oklch(0.52 0.015 90);
-  --accent: oklch(0.952 0.005 95);
-  --accent-foreground: oklch(0.21 0.04 265);
-  --destructive: oklch(0.6 0.22 27);
-  --destructive-foreground: oklch(0.99 0.003 247);
-  --border: oklch(0.905 0.005 95);
-  --input: oklch(0.905 0.005 95);
-  --ring: oklch(0.62 0.145 163);
-  --verified: oklch(0.62 0.145 163);
-  --verified-foreground: oklch(0.99 0.003 247);
-  --verified-soft: oklch(0.945 0.045 165);
-  /* Reddit brand red — used only to flag Reddit-format posts in Command Centre */
-  --reddit: oklch(0.66 0.229 35.4);
-  --reddit-foreground: oklch(0.99 0.003 247);
-  --reddit-soft: oklch(0.965 0.018 43.2);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  /* Brutalist Night: near-black ground (#0F141C), crisp white type, vivid emerald (#00C88C), sharp geometry */
+  --radius: 0.25rem;
+  --background: oklch(0.175 0.015 255);
+  --foreground: oklch(0.985 0.004 95);
+  --surface: oklch(0.215 0.016 255);
+  --surface-muted: oklch(0.245 0.016 255);
+  --card: oklch(0.215 0.016 255);
+  --card-foreground: oklch(0.985 0.004 95);
+  --popover: oklch(0.215 0.016 255);
+  --popover-foreground: oklch(0.985 0.004 95);
+  --primary: oklch(0.985 0.004 95);
+  --primary-foreground: oklch(0.175 0.015 255);
+  --secondary: oklch(0.27 0.016 255);
+  --secondary-foreground: oklch(0.985 0.004 95);
+  --muted: oklch(0.27 0.016 255);
+  --muted-foreground: oklch(0.76 0.015 255);
+  --accent: oklch(0.27 0.016 255);
+  --accent-foreground: oklch(0.985 0.004 95);
+  --destructive: oklch(0.68 0.2 25);
+  --destructive-foreground: oklch(0.985 0.004 95);
+  --border: oklch(0.985 0.004 95 / 22%);
+  --input: oklch(0.985 0.004 95 / 30%);
+  --ring: oklch(0.75 0.16 163);
+  --verified: oklch(0.75 0.16 163);
+  --verified-foreground: oklch(0.175 0.015 255);
+  --verified-soft: oklch(0.3 0.06 165);
+  --reddit: oklch(0.71 0.2 36);
+  --reddit-foreground: oklch(0.16 0.03 265);
+  --reddit-soft: oklch(0.3 0.07 36);
+  --chart-1: oklch(0.75 0.16 163);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.7 0.12 230);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.2 0.016 255);
+  --sidebar-foreground: oklch(0.985 0.004 95);
+  --sidebar-primary: oklch(0.75 0.16 163);
+  --sidebar-primary-foreground: oklch(0.175 0.015 255);
+  --sidebar-accent: oklch(0.27 0.016 255);
+  --sidebar-accent-foreground: oklch(0.985 0.004 95);
+  --sidebar-border: oklch(0.985 0.004 95 / 22%);
+  --sidebar-ring: oklch(0.75 0.16 163);
 
-  /* Elevation scale — themable, derived from --foreground rather than literal rgba */
-  --elevation-resting: 0 1px 2px
-    color-mix(in oklab, var(--foreground) 7%, transparent);
-  --elevation-raised: 0 1px 0 color-mix(in oklab, var(--foreground) 4%, transparent),
-    0 12px 28px -18px color-mix(in oklab, var(--foreground) 22%, transparent);
-  --elevation-floating: 0 1px 0 color-mix(in oklab, var(--foreground) 4%, transparent),
-    0 24px 48px -30px color-mix(in oklab, var(--foreground) 32%, transparent);
-  --elevation-verified: 0 12px 28px -12px
-    color-mix(in oklab, var(--verified) 42%, transparent);
+  /* Brutalist elevation: hard offset shadows, no blur */
+  --elevation-resting: 0 0 0 0 transparent;
+  --elevation-raised: 3px 3px 0 0 oklch(0 0 0 / 0.55);
+  --elevation-floating: 5px 5px 0 0 color-mix(in oklab, var(--verified) 55%, transparent);
+  --elevation-verified: 4px 4px 0 0 var(--verified);
 }
 
 .dark {
@@ -214,7 +209,14 @@
   }
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+    line-height: 1.05;
+    color: var(--color-foreground);
+  }
+  body {
+    font-size: 1rem;
+    line-height: 1.6;
   }
 
   /* Form controls: lift them off the page instead of flat outlined boxes. */

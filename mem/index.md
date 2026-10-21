@@ -7,6 +7,7 @@ RoostNI is a two-sided workspace: renter benefit and landlord benefit are stated
 "Verified" is retired from user-facing copy — use "Self-Certified", "Declared" or "Evidence attached". Missing name → "Applicant".
 Never invent social-proof numbers (applicant counts, demand stats, match counts).
 British English (UK) throughout user-facing copy (colour, organise, £).
+Design system: Brutalist Night — near-black ground, white headings, emerald (#00C88C) accents/callouts, thin sharp borders, hard offset shadows. See mem://design/palette-and-elevation.
 Design system: Warm Porcelain neutrals (warm off-white ground, white surfaces) + emerald. No purple/indigo gradients, no cool slate greys.
 Emerald is RESERVED for verified/success/active states only — never the primary button colour. Primary actions stay near-black.
 Use shadow-resting / shadow-raised / shadow-floating / shadow-verified tokens; never hand-written shadow-[...] rgba values.
