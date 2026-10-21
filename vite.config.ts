@@ -39,7 +39,7 @@ export default (env: { command: "build" | "serve"; mode: string }) => {
             VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_LjlYlhNWjxwR-LzcwaAUiA_G0CeDL7v",
             // PostHog project token is a public ingest-only key; publish builds
             // may lack connector env vars, so fall back to the literal token.
-            POSTHOG_API_KEY: "__PH_PROJECT_TOKEN__",
+            POSTHOG_API_KEY: "phc_vJpusDtntbMoMtfXU9osxJiZLfxJGmGPooPJrFvTJFYM",
             ...Object.fromEntries(Object.entries(process.env).filter(([, v]) => v)),
           }
         : process.env,
