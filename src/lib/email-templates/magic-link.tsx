@@ -10,6 +10,7 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
+import { button, card, container, dot, footer, h1, main, tag, text, wordmark } from './brutal-styles'
 
 interface MagicLinkEmailProps {
   siteName: string
@@ -33,6 +34,7 @@ export const MagicLinkEmail = ({
           Roost<span style={dot}>NI</span>
         </Text>
         <div style={card}>
+          <Text style={tag}>{'// RoostNI · Northern Ireland'}</Text>
           <Heading style={h1}>Your login link</Heading>
           <Text style={text}>
             Click the button below to sign in to RoostNI. This link will expire

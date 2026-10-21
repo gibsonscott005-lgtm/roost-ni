@@ -11,6 +11,7 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
+import { button, card, container, dot, footer, h1, link, main, tag, text, wordmark } from './brutal-styles'
 
 interface InviteEmailProps {
   siteName: string
@@ -36,6 +37,7 @@ export const InviteEmail = ({
           Roost<span style={dot}>NI</span>
         </Text>
         <div style={card}>
+          <Text style={tag}>{'// RoostNI · Northern Ireland'}</Text>
           <Heading style={h1}>You are invited</Heading>
           <Text style={text}>
             You have been invited to join{' '}

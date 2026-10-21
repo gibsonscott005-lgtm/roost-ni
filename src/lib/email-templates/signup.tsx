@@ -11,6 +11,7 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
+import { button, card, container, dot, footer, h1, link, main, tag, text, wordmark } from './brutal-styles'
 
 interface SignupEmailProps {
   siteName: string
@@ -38,6 +39,7 @@ export const SignupEmail = ({
           Roost<span style={dot}>NI</span>
         </Text>
         <div style={card}>
+          <Text style={tag}>{'// RoostNI · Northern Ireland'}</Text>
           <Heading style={h1}>Confirm your email</Heading>
           <Text style={text}>
             Thanks for signing up to{' '}

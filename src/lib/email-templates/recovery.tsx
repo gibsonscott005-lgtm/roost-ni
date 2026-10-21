@@ -10,6 +10,7 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
+import { button, card, container, dot, footer, h1, main, tag, text, wordmark } from './brutal-styles'
 
 interface RecoveryEmailProps {
   siteName: string
@@ -33,6 +34,7 @@ export const RecoveryEmail = ({
           Roost<span style={dot}>NI</span>
         </Text>
         <div style={card}>
+          <Text style={tag}>{'// RoostNI · Northern Ireland'}</Text>
           <Heading style={h1}>Reset your password</Heading>
           <Text style={text}>
             We received a request to reset your RoostNI password. Click the button

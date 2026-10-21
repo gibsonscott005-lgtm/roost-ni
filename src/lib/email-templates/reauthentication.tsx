@@ -9,6 +9,7 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
+import { card, codeStyle, container, dot, footer, h1, main, tag, text, wordmark } from './brutal-styles'
 
 interface ReauthenticationEmailProps {
   token: string
@@ -29,6 +30,7 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
           Roost<span style={dot}>NI</span>
         </Text>
         <div style={card}>
+          <Text style={tag}>{'// RoostNI · Northern Ireland'}</Text>
           <Heading style={h1}>Confirm reauthentication</Heading>
           <Text style={text}>Use the code below to confirm your identity:</Text>
           <Text style={codeStyle}>{token}</Text>

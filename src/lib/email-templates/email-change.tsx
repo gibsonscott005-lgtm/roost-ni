@@ -11,6 +11,7 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
+import { button, card, container, dot, footer, h1, link, main, tag, text, wordmark } from './brutal-styles'
 
 interface EmailChangeEmailProps {
   siteName: string
@@ -39,6 +40,7 @@ export const EmailChangeEmail = ({
           Roost<span style={dot}>NI</span>
         </Text>
         <div style={card}>
+          <Text style={tag}>{'// RoostNI · Northern Ireland'}</Text>
           <Heading style={h1}>Confirm your email change</Heading>
           <Text style={text}>
             You requested to change your RoostNI email address from{' '}
