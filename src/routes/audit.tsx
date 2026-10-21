@@ -183,7 +183,7 @@ function AuditPage() {
               <ClipboardCheck className="h-3.5 w-3.5" />
               Free self-check
             </span>
-            <p className="brutal-bubble-paper mt-5 max-w-md px-4 py-3 text-sm font-semibold">
+            <p className="brutal-bubble brutal-bubble-paper bg-paper text-paper-foreground mt-5 max-w-md px-4 py-3 text-sm font-semibold">
               RoostNI offers free direct management for Northern Ireland landlords. No fees,
               no card required.
             </p>

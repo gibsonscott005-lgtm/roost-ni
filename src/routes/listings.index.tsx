@@ -246,10 +246,10 @@ function ListingsIndexPage() {
             Direct rentals across Northern Ireland<span className="text-verified">.</span>
           </h1>
           <div className="mt-5 flex flex-wrap items-stretch gap-3">
-            <div className="brutal-bubble max-w-xs px-4 py-3 font-display text-lg font-extrabold">
+            <div className="brutal-bubble bg-verified text-verified-foreground max-w-xs px-4 py-3 font-display text-lg font-extrabold">
               {filtered.length} listings live.
             </div>
-            <div className="brutal-bubble-paper max-w-sm px-4 py-3 text-sm font-semibold">
+            <div className="brutal-bubble brutal-bubble-paper bg-paper text-paper-foreground mt-3 max-w-sm px-4 py-3 text-sm font-semibold">
               Every listing comes from a registered NI landlord. You deal with them directly.
             </div>
           </div>
