@@ -47,3 +47,17 @@ export function Callout({
 export function BrutalCard({ children, className }: { children: ReactNode; className?: string }) {
   return <div className={cn("border border-border bg-surface p-5 shadow-raised", className)}>{children}</div>;
 }
+
+const TICKER_TEXT = "NO AGENT FEES. EVER. // NO COMMISSION. NO CATCH. // BUILT FOR NORTHERN IRELAND LAW // ";
+
+/** Scrolling emerald ticker strip, matching the homepage. */
+export function SiteTicker() {
+  return (
+    <div className="overflow-hidden border-b-2 border-background bg-verified py-2 text-verified-foreground">
+      <div className="brutal-ticker flex w-max whitespace-nowrap font-mono text-sm font-bold uppercase tracking-wider">
+        <span>{TICKER_TEXT.repeat(4)}</span>
+        <span aria-hidden>{TICKER_TEXT.repeat(4)}</span>
+      </div>
+    </div>
+  );
+}
