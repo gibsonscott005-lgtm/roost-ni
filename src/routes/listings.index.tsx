@@ -1,4 +1,5 @@
 import { getEventContext } from "@/lib/utm-session";
+import { SiteTicker } from "@/components/brutal";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { useMemo, useState, type FormEvent } from "react";
@@ -232,24 +233,31 @@ function ListingsIndexPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SiteTicker />
       <Header />
       <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:px-6 sm:pt-10">
         <ViewSwitcher />
 
         <div className="mb-6">
-          <p className="brutal-label">// Browse properties</p>
-          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+          <span className="inline-block -rotate-2 border-2 border-background bg-verified px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-verified-foreground shadow-raised">
+            // Browse properties
+          </span>
+          <h1 className="mt-5 font-display text-4xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl">
             Direct rentals across Northern Ireland<span className="text-verified">.</span>
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Every listing comes from a registered NI landlord. {filtered.length} listings
-            live.
-          </p>
+          <div className="mt-5 flex flex-wrap items-stretch gap-3">
+            <div className="brutal-bubble bg-verified text-verified-foreground max-w-xs px-4 py-3 font-display text-lg font-extrabold">
+              {filtered.length} listings live.
+            </div>
+            <div className="brutal-bubble brutal-bubble-paper bg-paper text-paper-foreground mt-3 max-w-sm px-4 py-3 text-sm font-semibold">
+              Every listing comes from a registered NI landlord. You deal with them directly.
+            </div>
+          </div>
         </div>
 
         <ListingAlertSignup />
 
-        <div className="mb-6 rounded-2xl border border-border bg-surface p-2 shadow-raised">
+        <div className="mb-6 border-2 border-border bg-surface p-2 shadow-raised">
           <div className="flex items-center gap-2">
             <Search className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
             <input

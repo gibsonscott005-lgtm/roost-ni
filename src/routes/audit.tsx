@@ -1,4 +1,5 @@
 import { getEventContext } from "@/lib/utm-session";
+import { SiteTicker } from "@/components/brutal";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -157,6 +158,7 @@ function AuditPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <SiteTicker />
       <header className="border-b border-border/70 bg-surface/85 backdrop-blur">
         <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
@@ -177,16 +179,16 @@ function AuditPage() {
       <main ref={topRef} className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-14">
         {stage === "intro" ? (
           <section>
-            <span className="inline-flex items-center gap-2 rounded-full border border-verified/30 bg-verified-soft/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
+            <span className="inline-flex -rotate-2 items-center gap-2 border-2 border-background bg-verified px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-verified-foreground shadow-raised">
               <ClipboardCheck className="h-3.5 w-3.5" />
               Free self-check
             </span>
-            <p className="mt-4 rounded-2xl border border-border bg-surface-muted px-4 py-3 text-xs text-muted-foreground">
+            <p className="brutal-bubble brutal-bubble-paper bg-paper text-paper-foreground mt-5 max-w-md px-4 py-3 text-sm font-semibold">
               RoostNI offers free direct management for Northern Ireland landlords. No fees,
               no card required.
             </p>
-            <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-              Is your Northern Ireland tenancy paperwork in order?
+            <h1 className="mt-6 font-display text-4xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl">
+              Is your Northern Ireland tenancy paperwork in order<span className="text-verified">?</span>
             </h1>
             <p className="mt-4 text-base text-muted-foreground sm:text-lg">
               Five quick questions on the rules NI landlords are most often caught out by —
