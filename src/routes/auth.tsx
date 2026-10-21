@@ -408,7 +408,7 @@ function AuthPage() {
 
       <main className="mx-auto flex w-full max-w-md flex-col px-4 pb-12 pt-5 sm:px-6 sm:pt-10">
         {listingId ? (
-          <div className="mb-4 rounded-2xl border border-verified/25 bg-verified-soft/50 p-4">
+          <div className="mb-4 rounded-sm border border-verified/25 bg-verified-soft/50 p-4">
             <div className="flex items-start gap-3">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-surface text-verified shadow-resting">
                 <Home className="h-4 w-4" />
@@ -458,7 +458,7 @@ function AuthPage() {
           </p>
         </div>
 
-        <section className="rounded-3xl border border-border bg-surface p-4 shadow-floating sm:p-7">
+        <section className="rounded-sm border border-border bg-surface p-4 shadow-floating sm:p-7">
           {mode === "reset" ? null : (
           <div
             role="tablist"
@@ -495,7 +495,7 @@ function AuthPage() {
 
           {mode === "reset" && resetSent ? (
             <div className="mt-5 space-y-4">
-              <div className="rounded-2xl border border-verified/30 bg-verified-soft/60 p-4 text-sm text-foreground">
+              <div className="rounded-sm border border-verified/30 bg-verified-soft/60 p-4 text-sm text-foreground">
                 <p className="font-medium">Check your inbox</p>
                 <p className="mt-1 text-muted-foreground">
                   If an account exists for <span className="font-mono">{email}</span>, we've sent a link to reset your

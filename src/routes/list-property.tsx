@@ -141,7 +141,7 @@ function ListPropertyPage() {
           <ShieldCheck className="h-3.5 w-3.5" /> Free direct management • Zero agent commissions
         </p>
 
-        <section className="mt-5 space-y-4 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-6">
+        <section className="mt-5 space-y-4 rounded-sm border border-border bg-surface p-5 shadow-floating sm:p-6">
           <label className="block">
             <span className="text-xs font-semibold text-muted-foreground">Address</span>
             <div className="relative">
@@ -213,7 +213,7 @@ function ListPropertyPage() {
           </label>
         </section>
 
-        <div className="mt-5 rounded-3xl border border-verified/25 bg-verified-soft/50 p-5">
+        <div className="mt-5 rounded-sm border border-verified/25 bg-verified-soft/50 p-5">
           {isTenant ? (
             <p className="text-sm text-muted-foreground">
               You're signed in with a tenant account. Listing properties needs a landlord account.
