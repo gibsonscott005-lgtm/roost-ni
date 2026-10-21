@@ -119,7 +119,7 @@ function DeadlineCalculator() {
           />
         </label>
       </div>
-      <div className="mt-5 rounded-none border border-border bg-surface-muted/60 p-4 text-sm" aria-live="polite">
+      <div className="mt-5 rounded-none border-2 border-border bg-background p-4 shadow-raised text-sm" aria-live="polite">
         {result ? (
           <>
             <p className="text-muted-foreground">The Tenancy Information Notice must be with the tenant by:</p>
@@ -191,8 +191,8 @@ function TenancyInformationNoticeGuide() {
               ["Free", "The notice must be provided at no charge"],
               ["28 days", "To give a Notice of Variation after any change"],
             ].map(([w, l]) => (
-              <div key={l} className="rounded-none border border-border bg-surface-muted/60 p-4">
-                <p className="font-display text-2xl font-semibold">{w}</p>
+              <div key={l} className="rounded-none border-2 border-border bg-background p-4 shadow-raised">
+                <p className="font-display text-3xl font-extrabold text-verified">{w}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{l}</p>
               </div>
             ))}

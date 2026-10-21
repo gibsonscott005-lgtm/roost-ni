@@ -443,10 +443,10 @@ function AuthPage() {
           </div>
         ) : null}
         <div className="mb-5 text-center sm:mb-6">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            {mode === "signup" ? "Create your account" : mode === "reset" ? "Password reset" : "Welcome back"}
+          <p className="inline-block -rotate-2 border-2 border-background bg-verified px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-verified-foreground shadow-raised">
+            // {mode === "signup" ? "Create your account" : mode === "reset" ? "Password reset" : "Welcome back"}
           </p>
-          <h1 className="mt-1 font-display text-xl font-semibold tracking-tight sm:mt-1.5 sm:text-3xl">
+          <h1 className="mt-5 font-display text-3xl font-extrabold leading-[0.95] tracking-tight sm:text-5xl">
             {mode === "signup" ? "Join RoostNI" : mode === "reset" ? "Forgot your password?" : "Sign in to RoostNI"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">

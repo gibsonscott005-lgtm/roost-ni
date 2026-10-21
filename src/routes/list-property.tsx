@@ -130,14 +130,14 @@ function ListPropertyPage() {
         <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to home
         </Link>
-        <p className="mt-4 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">List a property</p>
-        <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+        <span className="mt-5 inline-block -rotate-2 border-2 border-background bg-verified px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-verified-foreground shadow-raised">// List a property</span>
+        <h1 className="mt-5 font-display text-3xl font-extrabold leading-[0.95] tracking-tight sm:text-5xl">
           Start your listing — no account needed yet
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="brutal-bubble brutal-bubble-paper mt-5 bg-paper px-4 py-3 text-sm font-semibold text-paper-foreground">
           Fill in the basics now. We'll only ask you to sign up when you publish. Your draft is saved on this device.
         </p>
-        <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-verified-soft px-3 py-1 text-xs font-medium text-verified">
+        <p className="mt-3 inline-flex items-center gap-1.5 border-2 border-background bg-verified px-3 py-1.5 text-xs font-bold text-verified-foreground shadow-raised">
           <ShieldCheck className="h-3.5 w-3.5" /> Free direct management • Zero agent commissions
         </p>
 

@@ -171,13 +171,13 @@ function LandlordRegistrationGuide() {
             <h2 className="font-display text-2xl font-extrabold tracking-tight">What it costs</h2>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-none border border-border bg-surface-muted/60 p-4">
+            <div className="rounded-none border-2 border-border bg-background p-4 shadow-raised">
               <p className="font-display text-2xl font-semibold">£70</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Online or by telephone (0300 200 7821)
               </p>
             </div>
-            <div className="rounded-none border border-border bg-surface-muted/60 p-4">
+            <div className="rounded-none border-2 border-border bg-background p-4 shadow-raised">
               <p className="font-display text-2xl font-semibold">£80</p>
               <p className="mt-1 text-xs text-muted-foreground">Paper registration form</p>
             </div>
@@ -272,7 +272,7 @@ function LandlordRegistrationGuide() {
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {OTHER_DUTIES.map((duty) => (
-              <div key={duty.title} className="rounded-none border border-border bg-surface-muted/60 p-4">
+              <div key={duty.title} className="rounded-none border-2 border-border bg-background p-4 shadow-raised">
                 <p className="text-sm font-medium text-foreground">{duty.title}</p>
                 <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{duty.body}</p>
               </div>

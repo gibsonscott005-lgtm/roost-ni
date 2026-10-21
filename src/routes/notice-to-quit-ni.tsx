@@ -137,7 +137,7 @@ function Calculator() {
           <input type="date" className={field} value={served} onChange={(e) => setServed(e.target.value)} />
         </label>
       </div>
-      <div className="mt-5 rounded-none border border-border bg-surface-muted/60 p-4 text-sm" aria-live="polite">
+      <div className="mt-5 rounded-none border-2 border-border bg-background p-4 shadow-raised text-sm" aria-live="polite">
         {result ? (
           <>
             <p className="text-muted-foreground">
@@ -209,8 +209,8 @@ function NoticeToQuitGuide() {
               ["8 weeks", "More than 12 months, up to 10 years"],
               ["12 weeks", "More than 10 years"],
             ].map(([w, l]) => (
-              <div key={w} className="rounded-none border border-border bg-surface-muted/60 p-4">
-                <p className="font-display text-2xl font-semibold">{w}</p>
+              <div key={w} className="rounded-none border-2 border-border bg-background p-4 shadow-raised">
+                <p className="font-display text-3xl font-extrabold text-verified">{w}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{l}</p>
               </div>
             ))}
