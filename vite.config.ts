@@ -9,19 +9,27 @@ import { fileURLToPath } from "node:url";
 import { loadEnv } from "vite";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
+import { resolvePublicCloudDefines } from "./public-build-env";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 // Load non-VITE_ env vars into process.env for server-side code only.
 // These are never added to the client define block.
-Object.assign(process.env, loadEnv(process.env["NODE_ENV"] ?? "development", rootDir, ""));
-
-export default defineConfig({
+export default (env: { command: "build" | "serve"; mode: string }) => {
+  const loadedEnv = loadEnv(env.mode, rootDir, "");
+  // Hosting-provided values take precedence over local files.
+  for (const [key, value] of Object.entries(loadedEnv)) {
+    process.env[key] ??= value;
+  }
+  return defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     server: { entry: "server" },
   },
   vite: {
+    envDir: rootDir,
+    // Explicit allowlist: no private credentials enter the browser bundle.
+    define: resolvePublicCloudDefines(process.env),
     plugins: [mcpPlugin()],
     resolve: {
       alias: {
@@ -31,4 +39,5 @@ export default defineConfig({
       },
     },
   },
-});
+  })(env);
+};
