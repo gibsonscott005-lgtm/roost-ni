@@ -237,11 +237,9 @@ function ListingsIndexPage() {
         <ViewSwitcher />
 
         <div className="mb-6">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            Browse properties
-          </p>
-          <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
-            Verified rentals across Northern Ireland
+          <p className="brutal-label">// Browse properties</p>
+          <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+            Direct rentals across Northern Ireland<span className="text-verified">.</span>
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Every listing comes from a registered NI landlord. {filtered.length} listings
