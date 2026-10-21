@@ -24,8 +24,13 @@ describe("public Cloud publishing configuration", () => {
       "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": '"publishable-key"',
     });
   });
-  test("rejects missing settings instead of publishing a broken browser bundle", () => {
-    expect(() => resolvePublicCloudDefines({ SUPABASE_URL: "https://cloud.example.test" })).toThrow();
-    expect(() => resolvePublicCloudDefines({ SUPABASE_PUBLISHABLE_KEY: "publishable-key" })).toThrow();
+  test("leaves absent settings available for managed preview injection", () => {
+    expect(resolvePublicCloudDefines({})).toEqual({});
+    expect(resolvePublicCloudDefines({ SUPABASE_URL: "https://cloud.example.test" })).toEqual({
+      "import.meta.env.VITE_SUPABASE_URL": '"https://cloud.example.test"',
+    });
+    expect(resolvePublicCloudDefines({ SUPABASE_PUBLISHABLE_KEY: "publishable-key" })).toEqual({
+      "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": '"publishable-key"',
+    });
   });
 });
