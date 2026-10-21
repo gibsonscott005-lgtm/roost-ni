@@ -185,7 +185,7 @@ function PassportEditPage() {
   return (
     <DashboardShell user={user} profile={profile} activeKey="passport">
       {!isTenant ? (
-        <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground sm:p-8">
+        <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground sm:p-8">
           The Tenant Passport editor is available for tenant accounts only.
         </div>
       ) : (
@@ -215,7 +215,7 @@ function PassportEditPage() {
           <Stepper passport={passport} stepIndex={stepIndex} onJump={setStepIndex} />
 
           {loading || !passport ? (
-            <div className="mt-6 rounded-3xl border border-border bg-surface p-10 text-center text-sm text-muted-foreground">
+            <div className="mt-6 rounded-sm border border-border bg-surface p-10 text-center text-sm text-muted-foreground">
               <Loader2 className="mx-auto h-5 w-5 animate-spin" />
               <p className="mt-2">Loading your passport…</p>
             </div>
@@ -293,7 +293,7 @@ function Stepper({
             <button
               type="button"
               onClick={() => onJump(i)}
-              className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition sm:p-4 ${
+              className={`flex w-full items-center gap-3 rounded-sm border p-3 text-left transition sm:p-4 ${
                 active
                   ? "border-verified/40 bg-verified-soft/50"
                   : done
@@ -342,7 +342,7 @@ function StepCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
+    <section className="rounded-sm border border-border bg-surface p-5 shadow-floating sm:p-7">
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-foreground">
           <Icon className="h-5 w-5" />
@@ -502,7 +502,7 @@ function FileDrop({
           setHover(false);
           onPick(e.dataTransfer.files?.[0] ?? null);
         }}
-        className={`mt-1.5 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-7 text-center transition ${
+        className={`mt-1.5 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-sm border-2 border-dashed px-4 py-7 text-center transition ${
           hover
             ? "border-verified/60 bg-verified-soft/40"
             : "border-border bg-surface-muted hover:border-verified/40"
@@ -745,7 +745,7 @@ function VerifyIdentityPanel({
 
   if (tier === "verified") {
     return (
-      <div className="rounded-2xl border border-verified/30 bg-verified-soft px-4 py-3.5">
+      <div className="rounded-sm border border-verified/30 bg-verified-soft px-4 py-3.5">
         <p className="flex items-center gap-2 text-sm font-semibold text-verified">
           <ShieldCheck className="h-4 w-4" strokeWidth={2.5} />
           Identity verified
@@ -765,7 +765,7 @@ function VerifyIdentityPanel({
   const simulated = config?.mode === "simulated";
 
   return (
-    <div className="rounded-2xl border border-border bg-surface-muted/50 px-4 py-3.5">
+    <div className="rounded-sm border border-border bg-surface-muted/50 px-4 py-3.5">
       <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <ShieldCheck className="h-4 w-4 text-muted-foreground" />
         Verify your identity
@@ -923,7 +923,7 @@ function IdentityStep({
         <VerifyIdentityPanel passport={passport} onSaved={onSaved} />
 
         {passport.id_status === "self_certified" && passport.id_verified_at ? (
-          <div className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-700">
+          <div className="flex items-center gap-2 rounded-sm border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-700">
             <Check className="h-4 w-4 shrink-0" strokeWidth={3} />
             <span className="min-w-0">
               <span className="font-semibold">Document attached (self-certified)</span>
@@ -1092,7 +1092,7 @@ function IncomeStep({
           </select>
         </Field>
 
-        <div className="mt-4 rounded-2xl border border-border bg-surface-muted/40 p-4">
+        <div className="mt-4 rounded-sm border border-border bg-surface-muted/40 p-4">
           <p className="font-display text-sm font-semibold tracking-tight text-foreground">
             Annual income breakdown
           </p>
@@ -1147,7 +1147,7 @@ function IncomeStep({
         </div>
 
         {benefitsTotal > 0 ? (
-          <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface px-3.5 py-3">
+          <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-sm border border-border bg-surface px-3.5 py-3">
             <input
               type="checkbox"
               checked={apa}
@@ -1396,7 +1396,7 @@ function ReferencesStep({
         </div>
 
         {firstTime ? (
-          <div className="space-y-4 rounded-2xl border border-border bg-surface-muted/40 p-4 sm:p-5">
+          <div className="space-y-4 rounded-sm border border-border bg-surface-muted/40 p-4 sm:p-5">
             <div>
               <h4 className="font-display text-base font-semibold tracking-tight text-foreground">
                 Guarantor details
@@ -1463,7 +1463,7 @@ function ReferencesStep({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="space-y-4 rounded-2xl border border-border bg-surface-muted/40 p-4 sm:p-5">
+            <div className="space-y-4 rounded-sm border border-border bg-surface-muted/40 p-4 sm:p-5">
               <h4 className="font-display text-base font-semibold tracking-tight text-foreground">
                 Most recent landlord
               </h4>
@@ -1509,7 +1509,7 @@ function ReferencesStep({
             </div>
 
             {needsSecond ? (
-              <div className="space-y-4 rounded-2xl border border-border bg-surface-muted/40 p-4 sm:p-5">
+              <div className="space-y-4 rounded-sm border border-border bg-surface-muted/40 p-4 sm:p-5">
                 <div>
                   <h4 className="font-display text-base font-semibold tracking-tight text-foreground">
                     Previous landlord reference

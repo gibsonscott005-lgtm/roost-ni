@@ -183,17 +183,17 @@ function ReviewLeasePage() {
       </div>
 
       {ctxQuery.isLoading ? (
-        <div className="rounded-3xl border border-border bg-surface p-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-10 text-center text-sm text-muted-foreground">
           <Loader2 className="mx-auto h-5 w-5 animate-spin" />
           <p className="mt-2">Loading your lease…</p>
         </div>
       ) : !ctx ? (
-        <div className="rounded-3xl border border-border bg-surface p-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-10 text-center text-sm text-muted-foreground">
           Lease not found. Please check the link from your dashboard.
         </div>
       ) : (
         <>
-          <div className="overflow-hidden rounded-3xl border border-border bg-surface">
+          <div className="overflow-hidden rounded-sm border border-border bg-surface">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-4">
               <div className="flex items-center gap-2">
               <FileText className="h-4 w-4 text-muted-foreground" />
@@ -238,7 +238,7 @@ function ReviewLeasePage() {
               </div>
             ) : (
             <div className="max-h-[520px] overflow-y-auto bg-surface-muted/30 px-6 py-6">
-              <article className="mx-auto max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-6 text-sm leading-relaxed text-foreground/90 shadow-sm">
+              <article className="mx-auto max-w-2xl space-y-4 rounded-sm border border-border bg-surface p-6 text-sm leading-relaxed text-foreground/90 shadow-sm">
                 <header className="border-b border-border pb-3">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                     Schedule A — Tenancy Particulars
@@ -290,7 +290,7 @@ function ReviewLeasePage() {
           </div>
 
           {/* Signature block */}
-          <div className="mt-5 rounded-3xl border border-border bg-surface p-6">
+          <div className="mt-5 rounded-sm border border-border bg-surface p-6">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Digital signature
             </p>
@@ -308,7 +308,7 @@ function ReviewLeasePage() {
                 onChange={(e) => setTypedName(e.target.value)}
                 disabled={alreadySigned || submitting}
                 placeholder={profile?.full_name || "Your full name"}
-                className="mt-1.5 block w-full rounded-2xl border border-border bg-surface px-4 py-2.5 font-display text-lg italic tracking-wide text-foreground placeholder:text-muted-foreground/60 focus:border-foreground focus:outline-none disabled:opacity-60"
+                className="mt-1.5 block w-full rounded-sm border border-border bg-surface px-4 py-2.5 font-display text-lg italic tracking-wide text-foreground placeholder:text-muted-foreground/60 focus:border-foreground focus:outline-none disabled:opacity-60"
               />
               {profile?.full_name ? (
                 <span className="mt-1 block text-[11px] text-muted-foreground">
@@ -317,7 +317,7 @@ function ReviewLeasePage() {
               ) : null}
             </label>
 
-            <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface-muted/40 p-3.5">
+            <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-sm border border-border bg-surface-muted/40 p-3.5">
               <input
                 type="checkbox"
                 checked={ack}

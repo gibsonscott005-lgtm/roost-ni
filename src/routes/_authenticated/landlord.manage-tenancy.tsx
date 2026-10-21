@@ -579,7 +579,7 @@ function ManageTenancyPage() {
       {!shareId ? (
         <EmptyState onBack={() => navigate({ to: "/dashboard" })} />
       ) : tenancyQuery.isPending ? (
-        <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground">
           Loading tenancy…
         </div>
       ) : !share ? (
@@ -592,7 +592,7 @@ function ManageTenancyPage() {
           tinAcknowledgedAt={share.lease_signed_at}
         />
         <Tabs defaultValue={searchTab || "overview"} className="w-full">
-          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-surface-muted p-1">
+          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-sm bg-surface-muted p-1">
             <TabsTrigger value="overview" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
               Overview &amp; Rent Ledger
             </TabsTrigger>
@@ -644,7 +644,7 @@ function ManageTenancyPage() {
               onRemind={sendRentReminder}
             />
 
-            <div className="overflow-hidden rounded-3xl border border-border bg-surface">
+            <div className="overflow-hidden rounded-sm border border-border bg-surface">
               <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -745,7 +745,7 @@ function ManageTenancyPage() {
                 address={address}
               />
             ) : (
-              <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+              <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground">
                 Maintenance tickets will appear once this tenancy is linked to a property.
               </div>
             )}
@@ -761,7 +761,7 @@ function ManageTenancyPage() {
               deposit={deposit}
             />
             {share.listing_id && user?.id ? (
-              <section className="rounded-3xl border border-border bg-surface p-5">
+              <section className="rounded-sm border border-border bg-surface p-5">
                 <CertificatesPanel propertyId={share.listing_id} landlordId={user.id} />
               </section>
             ) : null}
@@ -807,7 +807,7 @@ function ManageTenancyPage() {
 
 function EmptyState({ onBack }: { onBack: () => void }) {
   return (
-    <div className="rounded-3xl border border-border bg-surface p-8 text-center">
+    <div className="rounded-sm border border-border bg-surface p-8 text-center">
       <p className="font-display text-base font-semibold tracking-tight">No tenancy selected</p>
       <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
         Open this workspace from a let-agreed property card so we know which tenancy to manage.
@@ -863,7 +863,7 @@ function FundCard({
   const isVerified = status === "verified";
   const isPending = status === "pending_verification";
   return (
-    <div className="rounded-3xl border border-border bg-surface p-5">
+    <div className="rounded-sm border border-border bg-surface p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -878,7 +878,7 @@ function FundCard({
       </div>
 
       {isVerified ? (
-        <div className="mt-4 rounded-2xl bg-verified-soft p-3 text-xs text-verified">
+        <div className="mt-4 rounded-sm bg-verified-soft p-3 text-xs text-verified">
           Verified via{" "}
           <span className="font-semibold capitalize">{method?.replace(/_/g, " ") || "—"}</span>
           {method === "cash" ? (
@@ -910,7 +910,7 @@ function FundCard({
               <Check className="h-3.5 w-3.5" strokeWidth={3} /> Confirm Funds Received
             </button>
           ) : (
-            <div className="rounded-2xl border border-border bg-surface-muted/40 p-3">
+            <div className="rounded-sm border border-border bg-surface-muted/40 p-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Payment method
               </p>
@@ -1012,7 +1012,7 @@ function DepositProtection({
 
   return (
     <div className="grid gap-4 md:grid-cols-[260px_1fr]">
-      <div className="flex flex-col items-center justify-center rounded-3xl border border-border bg-surface p-6">
+      <div className="flex flex-col items-center justify-center rounded-sm border border-border bg-surface p-6">
         <svg width={180} height={180} viewBox="0 0 180 180" className="-rotate-90">
           <circle cx="90" cy="90" r={r} stroke="var(--color-border)" strokeWidth="12" fill="none" />
           <circle
@@ -1059,7 +1059,7 @@ function DepositProtection({
         </p>
       </div>
 
-      <div className="rounded-3xl border border-border bg-surface p-5">
+      <div className="rounded-sm border border-border bg-surface p-5">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Deposit protection
         </p>
@@ -1114,14 +1114,14 @@ function DepositProtection({
           </button>
 
           {isProtected ? (
-            <div className="rounded-2xl bg-verified-soft p-3 text-xs text-verified">
+            <div className="rounded-sm bg-verified-soft p-3 text-xs text-verified">
               Deposit registered with <span className="font-semibold">{scheme}</span> · cert{" "}
               <span className="font-semibold">{cert}</span> on{" "}
               {new Date(protectedAt!).toLocaleDateString("en-GB")}.
             </div>
           ) : null}
 
-          <div className="rounded-2xl border border-dashed border-border p-3">
+          <div className="rounded-sm border border-dashed border-border p-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               Protection certificate
             </p>
@@ -1186,7 +1186,7 @@ function RentScheduleCard({
 
   if (!startDate) {
     return (
-      <div className="rounded-3xl border border-border bg-surface p-5">
+      <div className="rounded-sm border border-border bg-surface p-5">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Monthly rent schedule
         </p>
@@ -1217,7 +1217,7 @@ function RentScheduleCard({
   }
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-border bg-surface">
+    <div className="overflow-hidden rounded-sm border border-border bg-surface">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -1320,7 +1320,7 @@ function LogPaymentRow({
   const method: PaymentMethod = isCash ? "cash" : otherMethod;
 
   return (
-    <div className="mt-3 space-y-3 rounded-2xl bg-surface-muted/60 p-3">
+    <div className="mt-3 space-y-3 rounded-sm bg-surface-muted/60 p-3">
       <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-xl border border-border bg-surface px-3 py-2 shadow-resting">
         <span>
           <span className="block text-sm font-semibold">Cash payment</span>
@@ -1413,7 +1413,7 @@ function OilGaugeCard({
   const y2 = cy + len * Math.sin((angle * Math.PI) / 180);
 
   return (
-    <div className="rounded-3xl border border-border bg-surface p-5">
+    <div className="rounded-sm border border-border bg-surface p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -1431,7 +1431,7 @@ function OilGaugeCard({
       </div>
 
       <div className="mt-5 grid gap-5 md:grid-cols-[260px_1fr] md:items-center">
-        <div className="grid place-items-center rounded-2xl bg-surface-muted/40 p-4">
+        <div className="grid place-items-center rounded-sm bg-surface-muted/40 p-4">
           <svg width={220} height={140} viewBox="0 0 220 140">
             {/* Arc background */}
             <path
@@ -1501,11 +1501,11 @@ function OilGaugeCard({
             ))}
           </div>
           {fairFuel ? (
-            <div className="mt-4 rounded-2xl bg-verified-soft p-3 text-xs text-verified">
+            <div className="mt-4 rounded-sm bg-verified-soft p-3 text-xs text-verified">
               Fair Fuel is in force on this lease — {fairFuelSentence(heatingType)}
             </div>
           ) : usesFuelTank(heatingType) ? (
-            <div className="mt-4 rounded-2xl bg-surface-muted/60 p-3 text-xs text-muted-foreground">
+            <div className="mt-4 rounded-sm bg-surface-muted/60 p-3 text-xs text-muted-foreground">
               Property has a {fuelLabel(heatingType)} tank. Recording the handover level avoids
               end-of-tenancy disputes.
             </div>
@@ -1533,7 +1533,7 @@ function InventoryList({
 }) {
   const [newRoom, setNewRoom] = useState("");
   return (
-    <div className="rounded-3xl border border-border bg-surface">
+    <div className="rounded-sm border border-border bg-surface">
       <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -1708,9 +1708,9 @@ function DocumentsTab({
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <div className="rounded-3xl border border-border bg-surface p-5">
+      <div className="rounded-sm border border-border bg-surface p-5">
         <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-verified text-[var(--color-verified-foreground)]">
+          <span className="grid h-10 w-10 place-items-center rounded-sm bg-verified text-[var(--color-verified-foreground)]">
             <FileText className="h-5 w-5" />
           </span>
           <div>
@@ -1776,9 +1776,9 @@ function DocumentsTab({
         </div>
       </div>
 
-      <div className="rounded-3xl border border-border bg-surface p-5">
+      <div className="rounded-sm border border-border bg-surface p-5">
         <div className="flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-surface-muted text-foreground">
+          <span className="grid h-10 w-10 place-items-center rounded-sm bg-surface-muted text-foreground">
             <FileText className="h-5 w-5" />
           </span>
           <div>

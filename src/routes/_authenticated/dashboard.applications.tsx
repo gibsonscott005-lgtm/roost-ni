@@ -269,7 +269,7 @@ function ApplicationsPage() {
       applicationsCount={counts.all}
     >
       {!isLandlord ? (
-        <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground sm:p-8">
+        <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground sm:p-8">
           Received passports are visible to landlord accounts only.
         </div>
       ) : (
@@ -320,11 +320,11 @@ function ApplicationsPage() {
           {loading ? (
             <div className="space-y-3" aria-busy="true" aria-label="Loading applicants">
               {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-28 w-full rounded-2xl" />
+                <Skeleton key={i} className="h-28 w-full rounded-sm" />
               ))}
             </div>
           ) : groups.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-border bg-surface p-10 text-center">
+            <div className="rounded-sm border border-dashed border-border bg-surface p-10 text-center">
               <Inbox className="mx-auto h-8 w-8 text-muted-foreground" />
               <p className="mt-3 font-display text-base font-semibold tracking-tight">
                 {filter === "all" ? "No applications yet — inbox is clear" : "Nothing in this view"}
@@ -355,7 +355,7 @@ function ApplicationsPage() {
                       return (
                         <li
                           key={s.id}
-                          className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 shadow-floating"
+                          className="flex flex-col gap-3 rounded-sm border border-border bg-surface p-4 shadow-floating"
                         >
                           <div className="flex items-start gap-3">
                             <Initials name={s.tenant?.full_name} />
@@ -437,7 +437,7 @@ function ApplicationsPage() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Withdrawn ({withdrawnShares.length})
               </p>
-              <ul className="mt-2 overflow-hidden rounded-2xl border border-dashed border-border bg-surface-muted/40">
+              <ul className="mt-2 overflow-hidden rounded-sm border border-dashed border-border bg-surface-muted/40">
                 {withdrawnShares.map((s, i) => (
                   <li
                     key={s.id}
@@ -502,7 +502,7 @@ function VerifyBadge({ label, ok, provided = false }: { label: string; ok: boole
 /** States plainly what RoostNI does and does not do, where the decision is made. */
 function HowRoostWorksPanel() {
   return (
-    <div className="mt-4 rounded-2xl border border-border bg-surface-muted/50 p-4">
+    <div className="mt-4 rounded-sm border border-border bg-surface-muted/50 p-4">
       <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         <Info className="h-3.5 w-3.5" />
         How RoostNI works
@@ -537,7 +537,7 @@ function ChecksSplit({ idVerified = false }: { idVerified?: boolean }) {
     "Credit history — RoostNI does not run credit checks",
   ];
   return (
-    <div className="grid gap-3 rounded-2xl border border-border bg-surface p-3.5 sm:grid-cols-2">
+    <div className="grid gap-3 rounded-sm border border-border bg-surface p-3.5 sm:grid-cols-2">
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-verified">
           What RoostNI checked
@@ -765,7 +765,7 @@ function IncomeBreakdownBlock({
     { label: "Other benefits", amount: Number(bd.other_benefits_annual ?? 0) || 0 },
   ].filter((r) => r.amount > 0);
   return (
-    <div className="rounded-2xl border border-border bg-surface p-3.5">
+    <div className="rounded-sm border border-border bg-surface p-3.5">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         Income breakdown
       </p>
@@ -1070,7 +1070,7 @@ function PassportSheet({
 
             <div className="flex-1 space-y-4 overflow-y-auto p-5">
               {share.info_requested_at ? (
-                <div className="rounded-2xl border border-border bg-surface-muted/60 p-3 text-xs text-muted-foreground">
+                <div className="rounded-sm border border-border bg-surface-muted/60 p-3 text-xs text-muted-foreground">
                   <p className="font-semibold text-foreground">
                     More information requested {timeAgo(share.info_requested_at)}
                   </p>
@@ -1109,7 +1109,7 @@ function PassportSheet({
                 <div className="mt-3">
                   <IncomeBreakdownBlock passport={passport} monthlyRent={share.listing?.monthly_rent ?? null} />
                 </div>
-                <dl className="mt-3 divide-y divide-border rounded-2xl border border-border bg-surface-muted/50 text-sm">
+                <dl className="mt-3 divide-y divide-border rounded-sm border border-border bg-surface-muted/50 text-sm">
                   <Row
                     k="Monthly net income (declared)"
                     v={passport?.monthly_income_net ? `£${Number(passport.monthly_income_net).toLocaleString()}` : "—"}
@@ -1133,13 +1133,13 @@ function PassportSheet({
               {isOpenApp ? (
                 <>
                   {depositOverCap ? (
-                    <p className="mb-3 rounded-2xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                    <p className="mb-3 rounded-sm border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
                       This listing's deposit (£{deposit.toLocaleString()}) is more than one month's rent
                       (£{rent.toLocaleString()}). Under the Private Tenancies Act (NI) 2022 the deposit
                       cannot exceed one month's rent — edit the listing before accepting.
                     </p>
                   ) : null}
-                  <label className="mb-3 flex cursor-pointer items-start gap-2.5 rounded-2xl border border-border bg-surface p-3 text-xs text-foreground">
+                  <label className="mb-3 flex cursor-pointer items-start gap-2.5 rounded-sm border border-border bg-surface p-3 text-xs text-foreground">
                     <input
                       type="checkbox"
                       checked={ownChecksDone}
@@ -1298,7 +1298,7 @@ function PassportSheet({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-border bg-surface p-4">
+    <section className="rounded-sm border border-border bg-surface p-4">
       <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{title}</p>
       {children}
     </section>

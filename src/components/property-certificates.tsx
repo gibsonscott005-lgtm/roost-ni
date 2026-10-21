@@ -234,7 +234,7 @@ function AddCertificateForm({
   const hint = CERTIFICATE_KINDS.find((k) => k.key === kind)?.hint;
 
   return (
-    <div className="rounded-2xl border border-border bg-surface-muted/50 p-4">
+    <div className="rounded-sm border border-border bg-surface-muted/50 p-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="block sm:col-span-2">
           <Lbl>Certificate</Lbl>
@@ -318,7 +318,7 @@ export function CertificateRow({
   onDelete?: () => void;
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface p-4">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-border bg-surface p-4">
       <div className="min-w-0">
         <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <FileText className="h-4 w-4 text-muted-foreground" />
@@ -438,11 +438,11 @@ export function CertificatesPanel({
 
       {isPending ? (
         <div className="space-y-2">
-          <div className="h-20 animate-pulse rounded-2xl bg-surface-muted" />
-          <div className="h-20 animate-pulse rounded-2xl bg-surface-muted" />
+          <div className="h-20 animate-pulse rounded-sm bg-surface-muted" />
+          <div className="h-20 animate-pulse rounded-sm bg-surface-muted" />
         </div>
       ) : certs.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-surface-muted/40 p-5 text-sm text-muted-foreground">
+        <div className="rounded-sm border border-dashed border-border bg-surface-muted/40 p-5 text-sm text-muted-foreground">
           No certificates on file yet. Add your EPC and, if the property has gas, the current Gas
           Safety Record.
         </div>
@@ -469,11 +469,11 @@ export function TenantCertificatesPanel({ propertyId }: { propertyId: string }) 
   const certs = data ?? [];
 
   if (isPending) {
-    return <div className="h-20 animate-pulse rounded-2xl bg-surface-muted" />;
+    return <div className="h-20 animate-pulse rounded-sm bg-surface-muted" />;
   }
   if (certs.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-surface-muted/40 p-5 text-sm text-muted-foreground">
+      <div className="rounded-sm border border-dashed border-border bg-surface-muted/40 p-5 text-sm text-muted-foreground">
         Your landlord hasn't uploaded any safety certificates yet. You're entitled to see the gas
         safety record and the EPC for the property.
       </div>

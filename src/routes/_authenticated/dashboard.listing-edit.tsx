@@ -91,7 +91,7 @@ function Field({
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="mb-5 rounded-3xl border border-border bg-surface p-5">
+    <section className="mb-5 rounded-sm border border-border bg-surface p-5">
       <h3 className="mb-4 font-display text-base font-semibold tracking-tight">{title}</h3>
       {children}
     </section>
@@ -271,15 +271,15 @@ function EditListingPage() {
       </div>
 
       {!id ? (
-        <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground">
           No listing selected. Pick a property from your dashboard to edit it.
         </div>
       ) : authLoading || listingQuery.isPending ? (
-        <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground">
           Loading listing…
         </div>
       ) : !listing ? (
-        <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground">
           We couldn't find that listing.
         </div>
       ) : (
@@ -487,7 +487,7 @@ function EditListingPage() {
                 type="button"
                 onClick={() => setFuelPolicy((v) => !v)}
                 aria-pressed={fuelPolicy}
-                className="mt-4 flex w-full items-center justify-between gap-4 rounded-2xl border border-verified/30 bg-verified-soft/40 px-4 py-3 text-left"
+                className="mt-4 flex w-full items-center justify-between gap-4 rounded-sm border border-verified/30 bg-verified-soft/40 px-4 py-3 text-left"
               >
                 <span>
                   <span className="block text-sm font-semibold">

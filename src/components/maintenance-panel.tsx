@@ -170,7 +170,7 @@ function TicketSkeletonList({ compact = false }: { compact?: boolean }) {
       {Array.from({ length: rows }).map((_, i) => (
         <li
           key={i}
-          className={`space-y-3 rounded-2xl border border-border bg-surface ${compact ? "p-4" : "p-5"}`}
+          className={`space-y-3 rounded-sm border border-border bg-surface ${compact ? "p-4" : "p-5"}`}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1 space-y-2">
@@ -312,7 +312,7 @@ export function TenantMaintenanceTab({
     <div className="grid gap-5 md:grid-cols-5">
       {/* Form */}
       <div className="md:col-span-2">
-        <div className="rounded-3xl border border-border bg-surface p-5">
+        <div className="rounded-sm border border-border bg-surface p-5">
           <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <Wrench className="h-4 w-4 text-verified" /> Report an issue
           </p>
@@ -429,7 +429,7 @@ export function TenantMaintenanceTab({
         {isLoading ? (
           <TicketSkeletonList compact />
         ) : tickets.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-surface p-6 text-center text-sm text-muted-foreground">
+          <div className="rounded-sm border border-dashed border-border bg-surface p-6 text-center text-sm text-muted-foreground">
             No maintenance tickets yet — you're all clear. Report an issue on the left when something needs your landlord's attention.
           </div>
         ) : (
@@ -437,7 +437,7 @@ export function TenantMaintenanceTab({
             {tickets.map((t) => (
               <li
                 key={t.id}
-                className="space-y-3 rounded-2xl border border-border bg-surface p-4"
+                className="space-y-3 rounded-sm border border-border bg-surface p-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -561,7 +561,7 @@ export function LandlordMaintenanceTab({
       {isLoading ? (
         <TicketSkeletonList />
       ) : tickets.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-border bg-surface p-8 text-center">
+        <div className="rounded-sm border border-dashed border-border bg-surface p-8 text-center">
           <Check className="mx-auto mb-2 h-5 w-5 text-verified" />
           <p className="text-sm font-semibold text-foreground">No active maintenance tickets — all clear!</p>
           <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground">
@@ -579,7 +579,7 @@ export function LandlordMaintenanceTab({
                   key={t.id}
                   type="button"
                   onClick={() => setSelectedId(t.id)}
-                  className={`w-full rounded-2xl border p-3 text-left transition ${
+                  className={`w-full rounded-sm border p-3 text-left transition ${
                     active
                       ? "border-foreground bg-surface-muted/60"
                       : "border-border bg-surface hover:border-foreground/30"
@@ -608,7 +608,7 @@ export function LandlordMaintenanceTab({
           {/* Editor */}
           <div className="md:col-span-3">
             {selected ? (
-              <div className="space-y-4 rounded-3xl border border-border bg-surface p-5">
+              <div className="space-y-4 rounded-sm border border-border bg-surface p-5">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                     {URGENCY_LABEL[selected.urgency]}
@@ -706,7 +706,7 @@ export function LandlordMaintenanceTab({
                 </div>
               </div>
             ) : (
-              <div className="rounded-3xl border border-dashed border-border bg-surface p-8 text-center text-sm text-muted-foreground">
+              <div className="rounded-sm border border-dashed border-border bg-surface p-8 text-center text-sm text-muted-foreground">
                 Select a ticket to review details, update status, or send contractor notes.
               </div>
             )}

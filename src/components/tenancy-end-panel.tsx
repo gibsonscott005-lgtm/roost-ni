@@ -112,7 +112,7 @@ export interface TenancyEndPanelProps {
   onChanged?: () => void;
 }
 
-const card = "rounded-2xl border border-border bg-surface p-5";
+const card = "rounded-sm border border-border bg-surface p-5";
 const label = "text-xs font-medium uppercase tracking-wide text-muted-foreground";
 const input =
   "mt-1 w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-verified";
@@ -250,8 +250,8 @@ export function TenancyEndPanel(props: TenancyEndPanelProps) {
   if (endQuery.isLoading) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-40 w-full rounded-2xl" />
-        <Skeleton className="h-56 w-full rounded-2xl" />
+        <Skeleton className="h-40 w-full rounded-sm" />
+        <Skeleton className="h-56 w-full rounded-sm" />
       </div>
     );
   }

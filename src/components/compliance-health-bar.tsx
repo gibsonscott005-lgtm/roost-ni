@@ -65,7 +65,7 @@ export function ComplianceHealthBar({
   return (
     <section
       aria-label="Compliance health"
-      className="mb-5 rounded-3xl border border-border bg-surface p-4 shadow-raised sm:p-5"
+      className="mb-5 rounded-sm border border-border bg-surface p-4 shadow-raised sm:p-5"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
@@ -88,7 +88,7 @@ export function ComplianceHealthBar({
         {items.map((i) => (
           <li
             key={i.key}
-            className={`flex items-start gap-2 rounded-2xl border px-3 py-2 ${
+            className={`flex items-start gap-2 rounded-sm border px-3 py-2 ${
               i.state === "ok"
                 ? "border-verified/30 bg-verified-soft"
                 : i.state === "warn"
