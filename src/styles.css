@@ -242,3 +242,41 @@
     scrollbar-gutter: stable;
   }
 }
+
+/* Brutalist homepage helpers */
+:root { --paper: oklch(0.965 0.012 90); --paper-foreground: oklch(0.175 0.015 255); }
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-foreground: var(--paper-foreground);
+  --font-mono: ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+}
+@utility brutal-bubble {
+  position: relative;
+  border: 2px solid var(--color-background);
+  box-shadow: 8px 8px 0 0 var(--color-paper);
+  &::after {
+    content: "";
+    position: absolute;
+    left: 2.5rem;
+    bottom: -14px;
+    width: 26px;
+    height: 26px;
+    background: inherit;
+    transform: rotate(45deg) skew(10deg, 10deg);
+    border-right: 2px solid var(--color-background);
+    border-bottom: 2px solid var(--color-background);
+  }
+}
+@utility brutal-bubble-paper {
+  box-shadow: 8px 8px 0 0 var(--color-verified);
+}
+@utility brutal-ticker {
+  animation: brutal-ticker 30s linear infinite;
+}
+@keyframes brutal-ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brutal-ticker { animation: none; }
+}
