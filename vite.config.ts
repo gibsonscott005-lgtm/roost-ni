@@ -5,13 +5,14 @@
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { loadEnv } from "vite";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 import { resolvePublicCloudDefines } from "./public-build-env";
 
-const rootDir = path.dirname(fileURLToPath(import.meta.url));
+// Vite bundles configuration into a temporary directory; import.meta.url is
+// therefore not a reliable project root in production or managed previews.
+const rootDir = process.cwd();
 
 // Load non-VITE_ env vars into process.env for server-side code only.
 // These are never added to the client define block.
