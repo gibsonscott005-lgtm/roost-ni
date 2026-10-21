@@ -30,7 +30,17 @@ export default (env: { command: "build" | "serve"; mode: string }) => {
   vite: {
     envDir: rootDir,
     // Explicit allowlist: no private credentials enter the browser bundle.
-    define: resolvePublicCloudDefines(process.env),
+    // Production publishes may lack env files; fall back to the project's
+    // public (non-secret) Cloud URL and publishable key so the browser can connect.
+    define: resolvePublicCloudDefines(
+      env.command === "build" && env.mode === "production"
+        ? {
+            VITE_SUPABASE_URL: "https://vstujbraaeagtreohyvq.supabase.co",
+            VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_LjlYlhNWjxwR-LzcwaAUiA_G0CeDL7v",
+            ...Object.fromEntries(Object.entries(process.env).filter(([, v]) => v)),
+          }
+        : process.env,
+    ),
     plugins: [mcpPlugin()],
     resolve: {
       alias: {
