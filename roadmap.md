@@ -1,7 +1,7 @@
 # Roadmap
 
 - [x] Repair publishing connection configuration without changing generated clients; verify public pages and landlord sign-up gateway in preview.
-- [ ] Publish the repair and repeat the public-page checks on the live domain — awaiting publication approval.
+- [ ] Confirm the scheduled deployment finishes and repeat live-page checks — publication requested 2026-10-21; live checks still serve the previous broken client bundle and fail before landlord sign-up.
 
 - [x] Favicon: user's logo adapted to a 64×64 square favicon (public/favicon.png), already linked from root route
 - [x] Titles & meta descriptions: description rewritten and mirrored to og: tags; title kept (proven search wording)
