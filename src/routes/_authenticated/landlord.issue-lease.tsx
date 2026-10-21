@@ -171,7 +171,7 @@ function IssueLeasePage() {
       </div>
 
       {!shareId ? (
-        <div className="rounded-3xl border border-border bg-surface p-8 text-center">
+        <div className="rounded-sm border border-border bg-surface p-8 text-center">
           <p className="font-display text-base font-semibold tracking-tight">No application selected</p>
           <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
             Open this page from an accepted application so we know which tenant
@@ -188,7 +188,7 @@ function IssueLeasePage() {
       ) : (
       <>
       {/* Tenancy start date — mandatory */}
-      <div className="mb-4 rounded-3xl border border-border bg-surface p-5 sm:p-6">
+      <div className="mb-4 rounded-sm border border-border bg-surface p-5 sm:p-6">
         <label htmlFor="tenancy-start" className="block">
           <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Tenancy start date <span className="text-rose-600">*</span>
@@ -232,7 +232,7 @@ function IssueLeasePage() {
 
       {/* Standard template preview */}
       {choice === "standard" ? (
-        <div className="mt-6 overflow-hidden rounded-3xl border border-border bg-surface">
+        <div className="mt-6 overflow-hidden rounded-sm border border-border bg-surface">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -262,7 +262,7 @@ function IssueLeasePage() {
           </div>
 
           <div className="max-h-[480px] overflow-y-auto bg-surface-muted/30 px-6 py-6">
-            <article className="mx-auto max-w-2xl space-y-4 rounded-2xl border border-border bg-surface p-6 text-sm leading-relaxed text-foreground/90 shadow-sm">
+            <article className="mx-auto max-w-2xl space-y-4 rounded-sm border border-border bg-surface p-6 text-sm leading-relaxed text-foreground/90 shadow-sm">
               <header className="border-b border-border pb-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                   Schedule A — Tenancy Particulars
@@ -323,7 +323,7 @@ function IssueLeasePage() {
 
       {/* Custom upload */}
       {choice === "custom" ? (
-        <div className="mt-6 rounded-3xl border border-border bg-surface p-6">
+        <div className="mt-6 rounded-sm border border-border bg-surface p-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             Upload custom lease
           </p>
@@ -343,7 +343,7 @@ function IssueLeasePage() {
             onDragLeave={() => setDragOver(false)}
             onDrop={onDrop}
             onClick={() => fileRef.current?.click()}
-            className={`mt-4 grid cursor-pointer place-items-center rounded-2xl border-2 border-dashed px-6 py-10 text-center transition ${
+            className={`mt-4 grid cursor-pointer place-items-center rounded-sm border-2 border-dashed px-6 py-10 text-center transition ${
               dragOver ? "border-verified bg-verified-soft" : "border-border bg-surface-muted/40 hover:bg-surface-muted"
             }`}
           >
@@ -369,7 +369,7 @@ function IssueLeasePage() {
       ) : null}
 
       {/* Footer actions */}
-      <div className="mt-6 flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-border bg-surface p-4">
+      <div className="mt-6 flex flex-wrap items-center justify-end gap-2 rounded-sm border border-border bg-surface p-4">
         <button
           type="button"
           onClick={() => navigate({ to: "/dashboard/applications" })}
@@ -418,7 +418,7 @@ function ChoiceCard({
     <button
       type="button"
       onClick={onClick}
-      className={`group rounded-3xl border bg-surface p-5 text-left transition ${
+      className={`group rounded-sm border bg-surface p-5 text-left transition ${
         active
           ? "border-verified ring-2 ring-verified/30"
           : "border-border hover:border-foreground/30"
@@ -426,7 +426,7 @@ function ChoiceCard({
     >
       <div className="flex items-center gap-3">
         <span
-          className={`grid h-10 w-10 place-items-center rounded-2xl ${
+          className={`grid h-10 w-10 place-items-center rounded-sm ${
             active ? "bg-verified text-[var(--color-verified-foreground)]" : "bg-surface-muted text-foreground"
           }`}
         >

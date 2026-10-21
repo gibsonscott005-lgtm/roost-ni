@@ -291,7 +291,7 @@ function SettingsPage() {
       <h3 className="mb-3 mt-8 font-display text-lg font-semibold tracking-tight">Notifications</h3>
 
       {authLoading || prefsQuery.isPending ? (
-        <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground">
           Loading your preferences…
         </div>
       ) : (
@@ -301,7 +301,7 @@ function SettingsPage() {
             onClick={toggleAll}
             disabled={saving}
             aria-pressed={enabled}
-            className="mb-5 flex w-full items-center justify-between gap-4 rounded-3xl border border-border bg-surface p-5 text-left transition hover:bg-secondary/40 disabled:opacity-60"
+            className="mb-5 flex w-full items-center justify-between gap-4 rounded-sm border border-border bg-surface p-5 text-left transition hover:bg-secondary/40 disabled:opacity-60"
           >
             <span className="flex items-start gap-3">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface-muted">
@@ -327,7 +327,7 @@ function SettingsPage() {
             {GROUPS.map((g) => (
               <section
                 key={g.title}
-                className="mb-5 rounded-3xl border border-border bg-surface p-5"
+                className="mb-5 rounded-sm border border-border bg-surface p-5"
               >
                 <h3 className="font-display text-base font-semibold tracking-tight">{g.title}</h3>
                 <p className="mt-0.5 text-xs text-muted-foreground">{g.blurb}</p>
@@ -367,7 +367,7 @@ function SettingsPage() {
           </p>
 
           {emailStatusQuery.isPending ? null : emailStatusQuery.data?.connected ? (
-            <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-verified/30 bg-verified-soft/50 p-3 text-sm text-foreground">
+            <div className="mb-4 flex items-start gap-2.5 rounded-sm border border-verified/30 bg-verified-soft/50 p-3 text-sm text-foreground">
               <Check className="mt-0.5 h-4 w-4 shrink-0 text-verified" />
               <span>
                 Email delivery is connected. Urgent alerts will be sent to the email address on your
@@ -375,7 +375,7 @@ function SettingsPage() {
               </span>
             </div>
           ) : (
-            <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-amber-400/40 bg-amber-100/50 p-3 text-sm text-foreground">
+            <div className="mb-4 flex items-start gap-2.5 rounded-sm border border-amber-400/40 bg-amber-100/50 p-3 text-sm text-foreground">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
               <span>
                 Email alerts are not sending yet. In-app notifications still work, and urgent
@@ -390,7 +390,7 @@ function SettingsPage() {
             onClick={toggleEmailAll}
             disabled={saving}
             aria-pressed={emailEnabled}
-            className="mb-5 flex w-full items-center justify-between gap-4 rounded-3xl border border-border bg-surface p-5 text-left transition hover:bg-secondary/40 disabled:opacity-60"
+            className="mb-5 flex w-full items-center justify-between gap-4 rounded-sm border border-border bg-surface p-5 text-left transition hover:bg-secondary/40 disabled:opacity-60"
           >
             <span className="flex items-start gap-3">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface-muted">
@@ -411,7 +411,7 @@ function SettingsPage() {
           </button>
 
           <section
-            className={`mb-5 rounded-3xl border border-border bg-surface p-5 ${
+            className={`mb-5 rounded-sm border border-border bg-surface p-5 ${
               emailEnabled ? "" : "pointer-events-none opacity-50"
             }`}
           >
@@ -470,7 +470,7 @@ function BillingCard() {
   const monthly = monthlyPence(tier, count);
 
   return (
-    <section className="mb-5 rounded-3xl border border-border bg-surface p-5">
+    <section className="mb-5 rounded-sm border border-border bg-surface p-5">
       <div className="flex items-start gap-3">
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface-muted">
           <ReceiptText className="h-4 w-4 text-foreground" />
@@ -490,21 +490,21 @@ function BillingCard() {
       ) : (
         <>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl bg-surface-muted p-4">
+            <div className="rounded-sm bg-surface-muted p-4">
               <p className="text-xs text-muted-foreground">Current plan</p>
               <p className="mt-1 font-display text-lg font-semibold tracking-tight">{tier.name}</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 {count} {count === 1 ? "property" : "properties"} on your account
               </p>
             </div>
-            <div className="rounded-2xl bg-surface-muted p-4">
+            <div className="rounded-sm bg-surface-muted p-4">
               <p className="text-xs text-muted-foreground">Monthly</p>
               <p className="mt-1 font-display text-lg font-semibold tabular-nums tracking-tight">
                 {formatGBP(monthly)}
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground">{monthlyLabel(tier)}</p>
             </div>
-            <div className="rounded-2xl bg-surface-muted p-4">
+            <div className="rounded-sm bg-surface-muted p-4">
               <p className="text-xs text-muted-foreground">Completion fee</p>
               <p className="mt-1 font-display text-lg font-semibold tabular-nums tracking-tight">
                 {formatGBP(completionFeePence(tier))}
@@ -515,7 +515,7 @@ function BillingCard() {
 
           <TierTable tiers={snapshot.tiers} currentKey={tier.key} propertyCount={count} />
 
-          <div className="mt-5 rounded-2xl border border-border bg-surface-muted p-4">
+          <div className="mt-5 rounded-sm border border-border bg-surface-muted p-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Simulated invoice — this month
             </p>
@@ -625,7 +625,7 @@ function AccountDetailsCard() {
   };
 
   return (
-    <section className="mb-5 rounded-3xl border border-border bg-surface p-5">
+    <section className="mb-5 rounded-sm border border-border bg-surface p-5">
       <div className="flex items-start gap-3">
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface-muted">
           <UserRound className="h-4 w-4 text-foreground" />
@@ -720,7 +720,7 @@ function PasswordCard() {
   };
 
   return (
-    <section className="mb-5 rounded-3xl border border-border bg-surface p-5">
+    <section className="mb-5 rounded-sm border border-border bg-surface p-5">
       <div className="flex items-start gap-3">
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface-muted">
           <KeyRound className="h-4 w-4 text-foreground" />
@@ -784,7 +784,7 @@ function DeleteAccountCard({ onDeleted }: { onDeleted: () => Promise<void> }) {
   };
 
   return (
-    <section className="mb-5 rounded-3xl border border-red-100 bg-red-50/50 p-5">
+    <section className="mb-5 rounded-sm border border-red-100 bg-red-50/50 p-5">
       <div className="flex items-start gap-3">
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-red-100">
           <Trash2 className="h-4 w-4 text-red-700" />

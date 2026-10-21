@@ -139,7 +139,7 @@ function AdminDashboard() {
   if (!isAdmin) {
     return (
       <DashboardShell user={user} profile={profile} activeKey="admin">
-        <div className="rounded-3xl border border-border bg-surface p-8 text-center">
+        <div className="rounded-sm border border-border bg-surface p-8 text-center">
           <Shield className="mx-auto h-8 w-8 text-muted-foreground" />
           <h2 className="mt-4 font-display text-lg font-semibold">Admin access only</h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -161,7 +161,7 @@ function AdminDashboard() {
   return (
     <DashboardShell user={user} profile={profile} activeKey="admin">
       <div className="space-y-6">
-        <div className="rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+        <div className="border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -242,7 +242,7 @@ function AdminDashboard() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+        <div className="border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
           <div className="flex flex-wrap gap-2">
             <TabButton
               active={tab === "signups"}
@@ -284,7 +284,7 @@ function AdminDashboard() {
                 {data.signUps.map((s) => (
                   <li
                     key={s.id}
-                    className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border bg-surface-muted/50 p-4"
+                    className="flex flex-wrap items-start justify-between gap-3 rounded-sm border border-border bg-surface-muted/50 p-4"
                   >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-foreground">
@@ -317,7 +317,7 @@ function AdminDashboard() {
             data && data.audits.length > 0 ? (
               <ul className="mt-6 space-y-3">
                 {data.audits.map((a) => (
-                  <li key={a.id} className="rounded-2xl border border-border bg-surface-muted/50 p-4">
+                  <li key={a.id} className="rounded-sm border border-border bg-surface-muted/50 p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground">
@@ -354,7 +354,7 @@ function AdminDashboard() {
                 {data.feedback.map((item) => (
                   <li
                     key={item.id}
-                    className="rounded-2xl border border-border bg-surface-muted/50 p-4"
+                    className="rounded-sm border border-border bg-surface-muted/50 p-4"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
@@ -465,7 +465,7 @@ function AdminDashboard() {
                   {data.alertSubscribers.map((s) => (
                     <li
                       key={s.id}
-                      className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-surface-muted/50 px-4 py-3"
+                      className="flex items-center justify-between gap-3 rounded-sm border border-border bg-surface-muted/50 px-4 py-3"
                     >
                       <span className="truncate text-sm text-foreground">{s.email}</span>
                       <span className="shrink-0 text-[11px] text-muted-foreground">
@@ -490,7 +490,7 @@ function AdminDashboard() {
 
 function Stat({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface-muted/50 p-4">
+    <div className="rounded-sm border border-border bg-surface-muted/50 p-4">
       <p className="font-display text-2xl font-semibold tracking-tight">{value}</p>
       <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
         {label}
@@ -534,7 +534,7 @@ function Empty({
   text: string;
 }) {
   return (
-    <div className="mt-6 rounded-2xl border border-dashed border-border bg-surface-muted/40 p-6 text-center">
+    <div className="mt-6 rounded-sm border border-dashed border-border bg-surface-muted/40 p-6 text-center">
       <Icon className="mx-auto h-6 w-6 text-muted-foreground" />
       <p className="mt-2 text-sm text-muted-foreground">{text}</p>
     </div>

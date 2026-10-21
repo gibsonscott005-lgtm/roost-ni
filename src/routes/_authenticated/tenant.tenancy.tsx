@@ -358,17 +358,17 @@ function TenantTenancyPage() {
       </div>
 
       {(!searchShareId && resolvedIdQuery.isFetching) || (!!shareId && tenancyQuery.isPending) ? (
-        <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground">
           Loading your tenancy…
         </div>
       ) : !share ? (
-        <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground">
           You don't have an active tenancy yet. Once your landlord counter-signs your lease it will
           appear here.
         </div>
       ) : (
         <Tabs defaultValue={searchTab || "overview"} className="w-full">
-          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-surface-muted p-1">
+          <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-sm bg-surface-muted p-1">
             <TabsTrigger value="overview" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
               Overview &amp; Ledger
             </TabsTrigger>
@@ -409,7 +409,7 @@ function TenantTenancyPage() {
             </div>
 
             {share.tenancy_start_date ? (
-              <div className="overflow-hidden rounded-3xl border border-border bg-surface">
+              <div className="overflow-hidden rounded-sm border border-border bg-surface">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
                   <div>
                     <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -479,7 +479,7 @@ function TenantTenancyPage() {
               </div>
             ) : null}
 
-            <div className="overflow-hidden rounded-3xl border border-border bg-surface">
+            <div className="overflow-hidden rounded-sm border border-border bg-surface">
               <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -533,7 +533,7 @@ function TenantTenancyPage() {
               )}
             </div>
 
-            <div className="flex gap-3 rounded-2xl border border-verified/30 bg-verified-soft/50 p-4">
+            <div className="flex gap-3 rounded-sm border border-verified/30 bg-verified-soft/50 p-4">
               <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-verified" />
               <div>
                 <p className="text-sm font-semibold text-foreground">
@@ -551,7 +551,7 @@ function TenantTenancyPage() {
           {/* Deposit protection */}
           <TabsContent value="deposit" className="mt-5 space-y-5">
             {share.deposit_cert_number && share.deposit_scheme ? (
-              <div className="flex flex-col items-center gap-4 rounded-3xl border border-verified/30 bg-verified-soft/40 p-8 text-center">
+              <div className="flex flex-col items-center gap-4 rounded-sm border border-verified/30 bg-verified-soft/40 p-8 text-center">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-verified text-[var(--color-verified-foreground)]">
                   <ShieldCheck className="h-7 w-7" />
                 </div>
@@ -586,7 +586,7 @@ function TenantTenancyPage() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-6 rounded-3xl border border-border bg-surface p-8 text-center">
+              <div className="flex flex-col items-center gap-6 rounded-sm border border-border bg-surface p-8 text-center">
                 <div className="relative h-32 w-32">
                   <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
                     <circle
@@ -635,7 +635,7 @@ function TenantTenancyPage() {
           {/* Inventory & utilities */}
           <TabsContent value="inventory" className="mt-5 space-y-5">
             {usesFuelTank(listing?.heating_type) ? (
-              <div className="rounded-3xl border border-border bg-surface p-5">
+              <div className="rounded-sm border border-border bg-surface p-5">
                 <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
                   <Droplet className="h-4 w-4 text-verified" /> Fair Fuel tracker —{" "}
                   {fuelTankLabel(listing?.heating_type)}
@@ -667,7 +667,7 @@ function TenantTenancyPage() {
               </div>
             ) : null}
 
-            <div className="overflow-hidden rounded-3xl border border-border bg-surface">
+            <div className="overflow-hidden rounded-sm border border-border bg-surface">
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
                 <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
                   <ClipboardCheck className="h-4 w-4 text-muted-foreground" /> Handover inventory
@@ -705,7 +705,7 @@ function TenantTenancyPage() {
               )}
             </div>
 
-            <div className="rounded-3xl border border-border bg-surface p-5">
+            <div className="rounded-sm border border-border bg-surface p-5">
               {share.inventory_completed_at ? (
                 <p className="flex items-center gap-2 text-sm text-foreground">
                   <BadgeCheck className="h-5 w-5 text-verified" />
@@ -760,7 +760,7 @@ function TenantTenancyPage() {
                 shareId={shareId}
               />
             ) : (
-              <div className="rounded-3xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+              <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground">
                 Maintenance reporting will unlock once your tenancy is fully linked to a property.
               </div>
             )}
@@ -769,7 +769,7 @@ function TenantTenancyPage() {
           {/* Documents */}
           <TabsContent value="documents" className="mt-5 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex flex-col justify-between rounded-3xl border border-border bg-surface p-5 transition hover:border-foreground/20">
+              <div className="flex flex-col justify-between rounded-sm border border-border bg-surface p-5 transition hover:border-foreground/20">
                 <div>
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-surface-muted">
                     <FileText className="h-5 w-5 text-foreground" />
@@ -837,7 +837,7 @@ function TenantTenancyPage() {
                   )}
                 </div>
               </div>
-              <div className="flex flex-col justify-between rounded-3xl border border-border bg-surface p-5 transition hover:border-foreground/20">
+              <div className="flex flex-col justify-between rounded-sm border border-border bg-surface p-5 transition hover:border-foreground/20">
                 <div>
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-verified-soft">
                     <ShieldCheck className="h-5 w-5 text-verified" />
@@ -877,7 +877,7 @@ function TenantTenancyPage() {
               </div>
             </div>
             {share.listing_id ? (
-              <section className="rounded-3xl border border-border bg-surface p-5">
+              <section className="rounded-sm border border-border bg-surface p-5">
                 <p className="flex items-center gap-2 text-sm font-semibold">
                   <ShieldCheck className="h-4 w-4 text-verified" /> Safety certificates
                 </p>
@@ -950,7 +950,7 @@ function TenantFundCard({
       </span>
     );
   return (
-    <div className="rounded-3xl border border-border bg-surface p-5">
+    <div className="rounded-sm border border-border bg-surface p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">

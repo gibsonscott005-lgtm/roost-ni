@@ -154,7 +154,7 @@ function Dashboard() {
   if (authLoading) {
     return (
       <DashboardShell user={user} profile={profile} activeKey={tab}>
-        <div className="rounded-3xl border border-border bg-surface p-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-10 text-center text-sm text-muted-foreground">
           <Loader2 className="mx-auto h-5 w-5 animate-spin" />
           <p className="mt-2">Checking your session…</p>
         </div>
@@ -423,7 +423,7 @@ function TenantDashboard() {
 
   if (loading) {
     return (
-      <div className="rounded-3xl border border-border bg-surface p-10 text-center text-sm text-muted-foreground shadow-floating">
+      <div className="rounded-sm border border-border bg-surface p-10 text-center text-sm text-muted-foreground shadow-floating">
         <Loader2 className="mx-auto h-5 w-5 animate-spin" />
         <p className="mt-2">Loading your dashboard…</p>
       </div>
@@ -431,7 +431,7 @@ function TenantDashboard() {
   }
 
   const acceptedBanner = acceptedShares.length > 0 ? (
-    <div className="mb-5 overflow-hidden rounded-3xl border border-verified/40 bg-verified-soft/70 p-6 shadow-floating sm:p-8">
+    <div className="mb-5 overflow-hidden rounded-sm border border-verified/40 bg-verified-soft/70 p-6 shadow-floating sm:p-8">
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-verified text-[var(--color-verified-foreground)]">
           <BadgeCheck className="h-5 w-5" />
@@ -447,7 +447,7 @@ function TenantDashboard() {
           </h2>
           <ul className="mt-3 space-y-2">
             {acceptedShares.map((s) => (
-              <li key={s.id} className="rounded-2xl border border-verified/30 bg-surface/80 p-3.5">
+              <li key={s.id} className="rounded-sm border border-verified/30 bg-surface/80 p-3.5">
                 <p className="font-display text-sm font-semibold tracking-tight text-foreground">
                   {s.listing?.title ?? "Your accepted property"}
                 </p>
@@ -536,7 +536,7 @@ function TenantDashboard() {
       ) : null}
 
 
-      <div className="rounded-3xl border border-border bg-surface p-6 shadow-floating sm:p-8">
+      <div className="rounded-sm border border-border bg-surface p-6 shadow-floating sm:p-8">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Dashboard overview
         </p>
@@ -594,9 +594,9 @@ function TenantDashboard() {
           onClick={() =>
             navigate({ to: isComplete ? "/dashboard/passport" : "/dashboard/passport/edit" })
           }
-          className="group flex items-start gap-3 rounded-3xl border border-border bg-surface p-5 text-left transition hover:border-foreground/30"
+          className="group flex items-start gap-3 rounded-sm border border-border bg-surface p-5 text-left transition hover:border-foreground/30"
         >
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-verified-soft text-verified">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-verified-soft text-verified">
             <IdCard className="h-5 w-5" />
           </span>
           <div className="min-w-0 flex-1">
@@ -614,9 +614,9 @@ function TenantDashboard() {
 
         <Link
           to="/listings"
-          className="group flex items-start gap-3 rounded-3xl border border-border bg-surface p-5 text-left transition hover:border-foreground/30"
+          className="group flex items-start gap-3 rounded-sm border border-border bg-surface p-5 text-left transition hover:border-foreground/30"
         >
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-surface-muted text-foreground">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-surface-muted text-foreground">
             <Building2 className="h-5 w-5" />
           </span>
           <div className="min-w-0 flex-1">
@@ -632,7 +632,7 @@ function TenantDashboard() {
       </div>
 
 
-      <div id="applications" className="mt-5 rounded-3xl border border-border bg-surface p-6 shadow-floating sm:p-8">
+      <div id="applications" className="mt-5 rounded-sm border border-border bg-surface p-6 shadow-floating sm:p-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -654,7 +654,7 @@ function TenantDashboard() {
         </div>
 
         {allShares.length === 0 ? (
-          <div className="mt-4 rounded-2xl border border-dashed border-border bg-surface-muted/40 p-5">
+          <div className="mt-4 rounded-sm border border-dashed border-border bg-surface-muted/40 p-5">
             <p className="text-sm text-foreground">
               No applications on <span className="font-mono text-[12px]">{user?.email}</span> yet.
             </p>
@@ -725,7 +725,7 @@ function TenantDashboard() {
               return (
                 <li
                   key={s.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface-muted/50 p-3.5"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-border bg-surface-muted/50 p-3.5"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-display text-sm font-semibold tracking-tight text-foreground">
@@ -865,7 +865,7 @@ function PastTenanciesSection({
   if (past.length === 0) return null;
 
   return (
-    <div className="mt-5 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+    <div className="mt-5 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -882,7 +882,7 @@ function PastTenanciesSection({
           return (
             <li
               key={s.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface-muted/50 p-3.5"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-border bg-surface-muted/50 p-3.5"
             >
               <div className="min-w-0 flex-1">
                 <p className="truncate font-display text-sm font-semibold tracking-tight text-foreground">
@@ -941,9 +941,9 @@ function StatCard({
     ? {
         href,
         className:
-          "block rounded-2xl border border-border bg-surface-muted/60 p-4 transition hover:border-foreground/30 hover:bg-surface-muted",
+          "block rounded-sm border border-border bg-surface-muted/60 p-4 transition hover:border-foreground/30 hover:bg-surface-muted",
       }
-    : { className: "rounded-2xl border border-border bg-surface-muted/60 p-4" };
+    : { className: "rounded-sm border border-border bg-surface-muted/60 p-4" };
   return (
     <Wrapper {...wrapperProps}>
       <div className="flex items-center justify-between">
@@ -1017,7 +1017,7 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
     children?: React.ReactNode;
   }) => (
     <li
-      className={`flex flex-col gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center sm:justify-between ${
+      className={`flex flex-col gap-3 rounded-sm border p-4 sm:flex-row sm:items-center sm:justify-between ${
         done ? "border-verified/30 bg-verified-soft/40" : "border-border bg-surface"
       } ${locked ? "opacity-60" : ""}`}
     >
@@ -1041,7 +1041,7 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
   );
 
   return (
-    <div className="mb-6 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
+    <div className="mb-6 rounded-sm border border-border bg-surface p-5 shadow-floating sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-verified">
@@ -1203,15 +1203,15 @@ function MyProperties({
       </div>
 
       {loading ? (
-        <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground">
           Loading listings…
         </div>
       ) : listings.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border bg-surface p-5 text-center text-sm text-muted-foreground">
+        <p className="rounded-sm border border-dashed border-border bg-surface p-5 text-center text-sm text-muted-foreground">
           Your properties will appear here once you add the first one.
         </p>
       ) : (
-        <ul className="overflow-hidden rounded-2xl border border-border bg-surface shadow-floating">
+        <ul className="overflow-hidden rounded-sm border border-border bg-surface shadow-floating">
           {listings.map((l, i) => (
             <li
               key={l.id}
@@ -1619,7 +1619,7 @@ function AddPropertyForm({
                 type="button"
                 onClick={() => setOccupancy(opt.key)}
                 aria-pressed={active}
-                className={`flex items-start gap-3 rounded-2xl border p-3.5 text-left transition ${
+                className={`flex items-start gap-3 rounded-sm border p-3.5 text-left transition ${
                   active
                     ? "border-foreground/20 bg-surface shadow-raised"
                     : "border-border bg-surface-muted hover:bg-secondary"
@@ -1793,7 +1793,7 @@ function AddPropertyForm({
         </div>
       </FormCard>
 
-      <details className="group/more mt-5 rounded-3xl border border-dashed border-border bg-surface-muted/40 px-5 py-4 sm:px-7 [&[open]]:pb-1">
+      <details className="group/more mt-5 rounded-sm border border-dashed border-border bg-surface-muted/40 px-5 py-4 sm:px-7 [&[open]]:pb-1">
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-display text-sm font-semibold">
           <span>
             Add more details (optional)
@@ -1878,7 +1878,7 @@ function AddPropertyForm({
         </Field>
 
         {usesFuelTank(heating) ? (
-          <div className="mt-5 overflow-hidden rounded-2xl border border-verified/30 bg-verified-soft/40">
+          <div className="mt-5 overflow-hidden rounded-sm border border-verified/30 bg-verified-soft/40">
             <div className="flex items-start gap-3 p-5">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-verified text-[var(--color-verified-foreground)]">
                 <Flame className="h-4 w-4" />
@@ -1943,7 +1943,7 @@ function AddPropertyForm({
                 type="button"
                 onClick={() => togglePref(label)}
                 aria-pressed={active}
-                className={`group flex items-start gap-3 rounded-2xl border p-3.5 text-left transition ${
+                className={`group flex items-start gap-3 rounded-sm border p-3.5 text-left transition ${
                   active
                     ? "border-foreground/20 bg-surface shadow-raised"
                     : "border-border bg-surface-muted hover:bg-secondary"
@@ -2031,7 +2031,7 @@ function FormCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-5 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
+    <section className="mt-5 rounded-sm border border-border bg-surface p-5 shadow-floating sm:p-7">
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         {eyebrow}
       </p>
@@ -2118,7 +2118,7 @@ function TenantOnboardingChecklist({
   return (
     <section
       aria-label="Tenant onboarding checklist"
-      className="mb-5 rounded-3xl border border-verified/40 bg-surface p-6 shadow-floating sm:p-8"
+      className="mb-5 rounded-sm border border-verified/40 bg-surface p-6 shadow-floating sm:p-8"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -2146,7 +2146,7 @@ function TenantOnboardingChecklist({
         {items.map((it, i) => (
           <li
             key={it.key}
-            className={`flex flex-col gap-3 rounded-2xl border p-4 sm:flex-row sm:items-center ${
+            className={`flex flex-col gap-3 rounded-sm border p-4 sm:flex-row sm:items-center ${
               it.done ? "border-verified/40 bg-verified-soft/50" : "border-border bg-surface"
             } ${it.locked ? "opacity-60" : ""}`}
           >

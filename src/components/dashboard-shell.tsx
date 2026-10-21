@@ -60,7 +60,7 @@ export function DashboardShell({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
+      <header className="sticky top-0 z-30 border-b-2 border-border bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
         <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-2 px-4 sm:px-6">
           <a
             href="/dashboard"
@@ -122,15 +122,15 @@ export function DashboardShell({
       <main className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">
         <aside className="lg:sticky lg:top-20 lg:self-start">
           <div className="mb-4">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Welcome back
+            <p className="inline-block -rotate-2 border-2 border-background bg-verified px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-widest text-verified-foreground shadow-raised">
+              // Welcome back
             </p>
-            <p className="mt-1 truncate font-display text-lg font-semibold tracking-tight">
+            <p className="mt-3 truncate font-display text-xl font-extrabold tracking-tight">
               {profile?.full_name || user?.email}
             </p>
           </div>
           {isLandlord ? (
-            <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-border bg-surface p-2 lg:flex-col lg:overflow-visible">
+            <nav className="flex gap-2 overflow-x-auto border-2 border-border bg-surface p-2 shadow-raised lg:flex-col lg:overflow-visible">
               <NavButton
                 active={activeKey === "properties"}
                 onClick={() =>
@@ -176,7 +176,7 @@ export function DashboardShell({
               <NavLink to="/help" active={false} icon={LifeBuoy} label="Help & FAQ" />
             </nav>
           ) : (
-            <nav className="flex gap-2 overflow-x-auto rounded-2xl border border-border bg-surface p-2 lg:flex-col lg:overflow-visible">
+            <nav className="flex gap-2 overflow-x-auto border-2 border-border bg-surface p-2 shadow-raised lg:flex-col lg:overflow-visible">
               <TenantNavLink
                 to="/dashboard"
                 active={pathname === "/dashboard"}
@@ -299,9 +299,9 @@ function Badge({ value }: { value: number }) {
 }
 
 function itemCx(active: boolean) {
-  return `flex w-auto shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm transition lg:w-full ${
+  return `flex w-auto shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-sm px-3 py-2.5 text-sm transition lg:w-full ${
     active
-      ? "bg-secondary font-medium text-foreground"
+      ? "bg-verified font-bold text-verified-foreground"
       : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
   }`;
 }

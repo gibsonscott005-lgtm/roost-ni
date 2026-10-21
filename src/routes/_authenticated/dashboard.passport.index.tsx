@@ -130,7 +130,7 @@ function MyPassportPage() {
   if (authLoading || loading) {
     return (
       <DashboardShell user={user} profile={profile} activeKey="passport">
-        <div className="rounded-3xl border border-border bg-surface p-10 text-center text-sm text-muted-foreground">
+        <div className="rounded-sm border border-border bg-surface p-10 text-center text-sm text-muted-foreground">
           <Loader2 className="mx-auto h-5 w-5 animate-spin" />
           <p className="mt-2">Loading your passport…</p>
         </div>
@@ -142,7 +142,7 @@ function MyPassportPage() {
     const pct = Math.round((doneCount / 3) * 100);
     return (
       <DashboardShell user={user} profile={profile} activeKey="passport">
-        <div className="rounded-3xl border border-border bg-surface p-6 shadow-floating sm:p-8">
+        <div className="rounded-sm border border-border bg-surface p-6 shadow-floating sm:p-8">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             My passport
           </p>
@@ -196,7 +196,7 @@ function MyPassportPage() {
 
   return (
     <DashboardShell user={user} profile={profile} activeKey="passport">
-      <div className="rounded-3xl border border-border bg-surface p-6 shadow-floating sm:p-8">
+      <div className="rounded-sm border border-border bg-surface p-6 shadow-floating sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -220,7 +220,7 @@ function MyPassportPage() {
           {badges.map((b) => (
             <div
               key={b.label}
-              className="flex items-center gap-2 rounded-2xl border border-verified/30 bg-verified-soft/50 px-3 py-2.5"
+              className="flex items-center gap-2 rounded-sm border border-verified/30 bg-verified-soft/50 px-3 py-2.5"
             >
               <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-verified text-[var(--color-verified-foreground)]">
                 <b.icon className="h-3.5 w-3.5" />
@@ -237,7 +237,7 @@ function MyPassportPage() {
           ))}
         </div>
 
-        <dl className="mt-5 grid grid-cols-1 gap-2 rounded-2xl border border-border bg-surface-muted/60 p-4 sm:grid-cols-2">
+        <dl className="mt-5 grid grid-cols-1 gap-2 rounded-sm border border-border bg-surface-muted/60 p-4 sm:grid-cols-2">
           <div>
             <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               Employment
@@ -256,7 +256,7 @@ function MyPassportPage() {
           </div>
         </dl>
 
-        <div className="mt-3 rounded-2xl border border-border bg-surface-muted/60 p-4">
+        <div className="mt-3 rounded-sm border border-border bg-surface-muted/60 p-4">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Documents on file
           </p>
