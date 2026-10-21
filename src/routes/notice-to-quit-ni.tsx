@@ -110,15 +110,15 @@ function Calculator() {
     return { months, weeks, end };
   }, [who, start, served]);
 
-  const field = "mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm";
+  const field = "mt-1 w-full rounded-sm border border-input bg-background px-3 py-2 text-sm";
 
   return (
-    <section className="mt-10 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+    <section className="mt-10 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
       <div className="flex items-center gap-3">
-        <span className="grid h-10 w-10 place-items-center rounded-2xl bg-surface-muted">
+        <span className="grid h-10 w-10 place-items-center rounded-none bg-surface-muted">
           <CalendarClock className="h-5 w-5 text-foreground" />
         </span>
-        <h2 className="font-display text-xl font-semibold tracking-tight">Notice period calculator</h2>
+        <h2 className="font-display text-2xl font-extrabold tracking-tight">Notice period calculator</h2>
       </div>
       <div className="mt-5 grid gap-4 sm:grid-cols-3">
         <label className="text-sm font-medium">
@@ -137,7 +137,7 @@ function Calculator() {
           <input type="date" className={field} value={served} onChange={(e) => setServed(e.target.value)} />
         </label>
       </div>
-      <div className="mt-5 rounded-2xl border border-border bg-surface-muted/60 p-4 text-sm" aria-live="polite">
+      <div className="mt-5 rounded-none border border-border bg-surface-muted/60 p-4 text-sm" aria-live="polite">
         {result ? (
           <>
             <p className="text-muted-foreground">
@@ -183,25 +183,25 @@ function NoticeToQuitGuide() {
       </header>
 
       <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
-        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-muted px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <span className="inline-flex -rotate-2 items-center gap-2 border-2 border-background bg-verified px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-verified-foreground shadow-raised">
           <FileText className="h-3.5 w-3.5" />
-          Guide · Northern Ireland
+          // Guide · Northern Ireland
         </span>
-        <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="mt-6 font-display text-4xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl">
           Notice to quit in Northern Ireland: how much notice, and how to give it
         </h1>
-        <p className="mt-4 text-base text-muted-foreground">
+        <p className="brutal-bubble brutal-bubble-paper mt-6 bg-paper px-4 py-3 text-base font-medium text-paper-foreground">
           Most notice-to-quit advice online is written for England. Northern Ireland has its own rules, and
           the current notice periods have applied since 5 May 2022. Here's what applies here, with a calculator to
           work out the dates.
         </p>
 
-        <section className="mt-10 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+        <section className="mt-10 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-surface-muted">
+            <span className="grid h-10 w-10 place-items-center rounded-none bg-surface-muted">
               <Scale className="h-5 w-5 text-foreground" />
             </span>
-            <h2 className="font-display text-xl font-semibold tracking-tight">Landlord notice periods</h2>
+            <h2 className="font-display text-2xl font-extrabold tracking-tight">Landlord notice periods</h2>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             {[
@@ -209,7 +209,7 @@ function NoticeToQuitGuide() {
               ["8 weeks", "More than 12 months, up to 10 years"],
               ["12 weeks", "More than 10 years"],
             ].map(([w, l]) => (
-              <div key={w} className="rounded-2xl border border-border bg-surface-muted/60 p-4">
+              <div key={w} className="rounded-none border border-border bg-surface-muted/60 p-4">
                 <p className="font-display text-2xl font-semibold">{w}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{l}</p>
               </div>
@@ -223,12 +223,12 @@ function NoticeToQuitGuide() {
 
         <Calculator />
 
-        <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+        <section className="mt-6 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-surface-muted">
+            <span className="grid h-10 w-10 place-items-center rounded-none bg-surface-muted">
               <ShieldAlert className="h-5 w-5 text-foreground" />
             </span>
-            <h2 className="font-display text-xl font-semibold tracking-tight">Common mistakes</h2>
+            <h2 className="font-display text-2xl font-extrabold tracking-tight">Common mistakes</h2>
           </div>
           <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
             {[
@@ -245,8 +245,8 @@ function NoticeToQuitGuide() {
           </ul>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
-          <h2 className="font-display text-xl font-semibold tracking-tight">Questions landlords ask</h2>
+        <section className="mt-6 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
+          <h2 className="font-display text-2xl font-extrabold tracking-tight">Questions landlords ask</h2>
           <div className="mt-4 space-y-4">
             {FAQ.map((f) => (
               <div key={f.q}>
@@ -257,8 +257,8 @@ function NoticeToQuitGuide() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-verified/30 bg-surface p-6 shadow-resting sm:p-8">
-          <h2 className="font-display text-xl font-semibold tracking-tight">Are the rest of your tenancies in order?</h2>
+        <section className="mt-6 border-2 border-verified/30 bg-surface p-6 shadow-resting sm:p-8">
+          <h2 className="font-display text-2xl font-extrabold tracking-tight">Are the rest of your tenancies in order?</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Take the free five-question NI compliance check, or keep your tenancy records, notices and rent
             receipts in one place with RoostNI — free, with zero agent commissions.

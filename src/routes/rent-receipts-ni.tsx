@@ -100,12 +100,12 @@ function ReceiptGenerator() {
     new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
   return (
-    <section className="mt-10 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+    <section className="mt-10 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
       <div className="flex items-center gap-3">
-        <span className="grid h-10 w-10 place-items-center rounded-2xl bg-surface-muted">
+        <span className="grid h-10 w-10 place-items-center rounded-none bg-surface-muted">
           <ReceiptText className="h-5 w-5 text-foreground" />
         </span>
-        <h2 className="font-display text-xl font-semibold tracking-tight">Free rent receipt generator</h2>
+        <h2 className="font-display text-2xl font-extrabold tracking-tight">Free rent receipt generator</h2>
       </div>
       <p className="mt-3 text-sm text-muted-foreground">
         Fill in the details, then print or save the receipt as a PDF. Nothing is uploaded — it all
@@ -115,35 +115,35 @@ function ReceiptGenerator() {
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <label className="text-sm font-medium">
           Landlord name
-          <input className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm" value={landlord} onChange={(e) => setLandlord(e.target.value)} />
+          <input className="mt-1 w-full rounded-sm border border-input bg-background px-3 py-2 text-sm" value={landlord} onChange={(e) => setLandlord(e.target.value)} />
         </label>
         <label className="text-sm font-medium">
           Tenant name
-          <input className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm" value={tenant} onChange={(e) => setTenant(e.target.value)} />
+          <input className="mt-1 w-full rounded-sm border border-input bg-background px-3 py-2 text-sm" value={tenant} onChange={(e) => setTenant(e.target.value)} />
         </label>
         <label className="text-sm font-medium sm:col-span-2">
           Property address
-          <input className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm" value={property} onChange={(e) => setProperty(e.target.value)} />
+          <input className="mt-1 w-full rounded-sm border border-input bg-background px-3 py-2 text-sm" value={property} onChange={(e) => setProperty(e.target.value)} />
         </label>
         <label className="text-sm font-medium">
           Amount paid (£)
-          <input type="number" min="0" step="0.01" className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          <input type="number" min="0" step="0.01" className="mt-1 w-full rounded-sm border border-input bg-background px-3 py-2 text-sm" value={amount} onChange={(e) => setAmount(e.target.value)} />
         </label>
         <label className="text-sm font-medium">
           Date paid
-          <input type="date" className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} />
+          <input type="date" className="mt-1 w-full rounded-sm border border-input bg-background px-3 py-2 text-sm" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} />
         </label>
         <label className="text-sm font-medium">
           Period from
-          <input type="date" className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm" value={periodFrom} onChange={(e) => setPeriodFrom(e.target.value)} />
+          <input type="date" className="mt-1 w-full rounded-sm border border-input bg-background px-3 py-2 text-sm" value={periodFrom} onChange={(e) => setPeriodFrom(e.target.value)} />
         </label>
         <label className="text-sm font-medium">
           Period to
-          <input type="date" className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm" value={periodTo} onChange={(e) => setPeriodTo(e.target.value)} />
+          <input type="date" className="mt-1 w-full rounded-sm border border-input bg-background px-3 py-2 text-sm" value={periodTo} onChange={(e) => setPeriodTo(e.target.value)} />
         </label>
         <label className="text-sm font-medium sm:col-span-2">
           Payment method
-          <select className="mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm" value={method} onChange={(e) => setMethod(e.target.value)}>
+          <select className="mt-1 w-full rounded-sm border border-input bg-background px-3 py-2 text-sm" value={method} onChange={(e) => setMethod(e.target.value)}>
             <option>Cash</option>
             <option>Bank transfer</option>
             <option>Standing order</option>
@@ -154,7 +154,7 @@ function ReceiptGenerator() {
       </div>
 
       {ready && (
-        <div className="mt-6 rounded-2xl border border-border bg-surface-muted/60 p-5" aria-live="polite">
+        <div className="mt-6 rounded-none border border-border bg-surface-muted/60 p-5" aria-live="polite">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Rent receipt</p>
           <p className="mt-3 text-sm leading-relaxed">
             Received from <strong>{tenant}</strong> the sum of <strong>£{Number(amount).toFixed(2)}</strong>,
@@ -207,25 +207,25 @@ function RentReceiptsGuide() {
       </header>
 
       <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
-        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-muted px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <span className="inline-flex -rotate-2 items-center gap-2 border-2 border-background bg-verified px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-verified-foreground shadow-raised">
           <ReceiptText className="h-3.5 w-3.5" />
-          Guide · Northern Ireland
+          // Guide · Northern Ireland
         </span>
-        <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="mt-6 font-display text-4xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl">
           Rent receipts in Northern Ireland: the rules every landlord should know
         </h1>
-        <p className="mt-4 text-base text-muted-foreground">
+        <p className="brutal-bubble brutal-bubble-paper mt-6 bg-paper px-4 py-3 text-base font-medium text-paper-foreground">
           Under the Private Tenancies Act (Northern Ireland) 2022, landlords must give a written
           receipt for any rent paid in cash — free of charge. Here's what the law requires, what a
           good receipt contains, and a free generator to make one in seconds.
         </p>
 
-        <section className="mt-10 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+        <section className="mt-10 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-surface-muted">
+            <span className="grid h-10 w-10 place-items-center rounded-none bg-surface-muted">
               <Scale className="h-5 w-5 text-foreground" />
             </span>
-            <h2 className="font-display text-xl font-semibold tracking-tight">The rules in short</h2>
+            <h2 className="font-display text-2xl font-extrabold tracking-tight">The rules in short</h2>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             {[
@@ -233,7 +233,7 @@ function RentReceiptsGuide() {
               ["Free", "The receipt must be provided at no charge"],
               ["Offence", "Refusing or failing to give one can bring council enforcement"],
             ].map(([w, l]) => (
-              <div key={l} className="rounded-2xl border border-border bg-surface-muted/60 p-4">
+              <div key={l} className="rounded-none border border-border bg-surface-muted/60 p-4">
                 <p className="font-display text-2xl font-semibold">{w}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{l}</p>
               </div>
@@ -248,12 +248,12 @@ function RentReceiptsGuide() {
 
         <ReceiptGenerator />
 
-        <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+        <section className="mt-6 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-surface-muted">
+            <span className="grid h-10 w-10 place-items-center rounded-none bg-surface-muted">
               <ShieldAlert className="h-5 w-5 text-foreground" />
             </span>
-            <h2 className="font-display text-xl font-semibold tracking-tight">Common mistakes</h2>
+            <h2 className="font-display text-2xl font-extrabold tracking-tight">Common mistakes</h2>
           </div>
           <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
             {[
@@ -270,8 +270,8 @@ function RentReceiptsGuide() {
           </ul>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
-          <h2 className="font-display text-xl font-semibold tracking-tight">Questions landlords ask</h2>
+        <section className="mt-6 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
+          <h2 className="font-display text-2xl font-extrabold tracking-tight">Questions landlords ask</h2>
           <div className="mt-4 space-y-4">
             {FAQ.map((f) => (
               <div key={f.q}>
@@ -282,8 +282,8 @@ function RentReceiptsGuide() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-verified/30 bg-surface p-6 shadow-resting sm:p-8">
-          <h2 className="font-display text-xl font-semibold tracking-tight">Never chase a paper trail again</h2>
+        <section className="mt-6 border-2 border-verified/30 bg-surface p-6 shadow-resting sm:p-8">
+          <h2 className="font-display text-2xl font-extrabold tracking-tight">Never chase a paper trail again</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             RoostNI's Rent Ledger records every payment against the tenancy automatically — amounts,
             dates and periods covered — so a complete, dated receipt history is always one tap away.
