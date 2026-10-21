@@ -160,7 +160,7 @@ function ListingDetailPage() {
             <span className="inline-block -rotate-2 border-2 border-background bg-verified px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-verified-foreground shadow-raised">
               // NI listing
             </span>
-            <h1 className="mt-5 font-display text-3xl font-extrabold leading-[0.95] tracking-tight sm:text-5xl">
+            <h1 className="mt-5 font-display text-2xl font-extrabold leading-tight tracking-tight sm:text-4xl">
               {listing.title}
             </h1>
             <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
