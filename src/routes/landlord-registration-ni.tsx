@@ -121,25 +121,25 @@ function LandlordRegistrationGuide() {
       </header>
 
       <main className="mx-auto w-full max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
-        <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-muted px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <span className="inline-flex -rotate-2 items-center gap-2 border-2 border-background bg-verified px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-verified-foreground shadow-raised">
           <FileText className="h-3.5 w-3.5" />
-          Guide · Northern Ireland
+          // Guide · Northern Ireland
         </span>
-        <h1 className="mt-5 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+        <h1 className="mt-6 font-display text-4xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl">
           Landlord registration in Northern Ireland: the plain-English guide
         </h1>
-        <p className="mt-4 text-base text-muted-foreground">
+        <p className="brutal-bubble brutal-bubble-paper mt-6 bg-paper px-4 py-3 text-base font-medium text-paper-foreground">
           If you let a property in Northern Ireland, registering as a landlord isn't optional — it's
           one of the first legal duties of the job. Here's what the Landlord Registration Scheme is,
           what it costs, and how to stay on the right side of it.
         </p>
 
-        <section className="mt-10 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+        <section className="mt-10 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-surface-muted">
+            <span className="grid h-10 w-10 place-items-center rounded-none bg-surface-muted">
               <UserCheck className="h-5 w-5 text-foreground" />
             </span>
-            <h2 className="font-display text-xl font-semibold tracking-tight">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight">
               Do I need to register?
             </h2>
           </div>
@@ -163,21 +163,21 @@ function LandlordRegistrationGuide() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+        <section className="mt-6 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-surface-muted">
+            <span className="grid h-10 w-10 place-items-center rounded-none bg-surface-muted">
               <BadgePoundSterling className="h-5 w-5 text-foreground" />
             </span>
-            <h2 className="font-display text-xl font-semibold tracking-tight">What it costs</h2>
+            <h2 className="font-display text-2xl font-extrabold tracking-tight">What it costs</h2>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-border bg-surface-muted/60 p-4">
+            <div className="rounded-none border-2 border-border bg-background p-4 shadow-raised">
               <p className="font-display text-2xl font-semibold">£70</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Online or by telephone (0300 200 7821)
               </p>
             </div>
-            <div className="rounded-2xl border border-border bg-surface-muted/60 p-4">
+            <div className="rounded-none border-2 border-border bg-background p-4 shadow-raised">
               <p className="font-display text-2xl font-semibold">£80</p>
               <p className="mt-1 text-xs text-muted-foreground">Paper registration form</p>
             </div>
@@ -189,12 +189,12 @@ function LandlordRegistrationGuide() {
           </p>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+        <section className="mt-6 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-surface-muted">
+            <span className="grid h-10 w-10 place-items-center rounded-none bg-surface-muted">
               <ClipboardCheck className="h-5 w-5 text-foreground" />
             </span>
-            <h2 className="font-display text-xl font-semibold tracking-tight">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight">
               What you'll need to hand
             </h2>
           </div>
@@ -220,12 +220,12 @@ function LandlordRegistrationGuide() {
           </p>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
+        <section className="mt-6 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-surface-muted">
+            <span className="grid h-10 w-10 place-items-center rounded-none bg-surface-muted">
               <RefreshCcw className="h-5 w-5 text-foreground" />
             </span>
-            <h2 className="font-display text-xl font-semibold tracking-tight">Renewals</h2>
+            <h2 className="font-display text-2xl font-extrabold tracking-tight">Renewals</h2>
           </div>
           <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
             <p>
@@ -240,12 +240,12 @@ function LandlordRegistrationGuide() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-destructive/25 bg-surface p-6 shadow-resting sm:p-8">
+        <section className="mt-6 border-2 border-destructive/25 bg-surface p-6 shadow-resting sm:p-8">
           <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-destructive/10">
+            <span className="grid h-10 w-10 place-items-center rounded-none bg-destructive/10">
               <ShieldAlert className="h-5 w-5 text-destructive" />
             </span>
-            <h2 className="font-display text-xl font-semibold tracking-tight">
+            <h2 className="font-display text-2xl font-extrabold tracking-tight">
               If you don't register
             </h2>
           </div>
@@ -262,8 +262,8 @@ function LandlordRegistrationGuide() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
-          <h2 className="font-display text-xl font-semibold tracking-tight">
+        <section className="mt-6 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
+          <h2 className="font-display text-2xl font-extrabold tracking-tight">
             Registration is only the start
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -272,7 +272,7 @@ function LandlordRegistrationGuide() {
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {OTHER_DUTIES.map((duty) => (
-              <div key={duty.title} className="rounded-2xl border border-border bg-surface-muted/60 p-4">
+              <div key={duty.title} className="rounded-none border-2 border-border bg-background p-4 shadow-raised">
                 <p className="text-sm font-medium text-foreground">{duty.title}</p>
                 <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{duty.body}</p>
               </div>
@@ -280,8 +280,8 @@ function LandlordRegistrationGuide() {
           </div>
         </section>
 
-        <section className="mt-10 rounded-3xl border border-border bg-foreground p-6 text-[var(--color-primary-foreground)] shadow-floating sm:p-8">
-          <h2 className="font-display text-xl font-semibold tracking-tight">
+        <section className="mt-10 border-2 border-border bg-foreground p-6 text-[var(--color-primary-foreground)] shadow-floating sm:p-8">
+          <h2 className="font-display text-2xl font-extrabold tracking-tight">
             How does the rest of your paperwork shape up?
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-[var(--color-primary-foreground)]/80">

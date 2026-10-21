@@ -157,10 +157,10 @@ function ListingDetailPage() {
 
         <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              NI listing
-            </p>
-            <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+            <span className="inline-block -rotate-2 border-2 border-background bg-verified px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-verified-foreground shadow-raised">
+              // NI listing
+            </span>
+            <h1 className="mt-5 font-display text-2xl font-extrabold leading-tight tracking-tight sm:text-4xl">
               {listing.title}
             </h1>
             <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -184,7 +184,7 @@ function ListingDetailPage() {
           </div>
         </div>
 
-        <section className="mt-6 overflow-hidden rounded-3xl border border-border bg-surface shadow-resting">
+        <section className="mt-6 overflow-hidden rounded-sm border border-border bg-surface shadow-resting">
           <ListingGallery
             paths={listing.photo_urls}
             photoUrls={listing.photoUrls}
@@ -225,7 +225,7 @@ function ListingDetailPage() {
 
         <PropertyDetailsSection listing={listing} />
 
-        <section className="mt-5 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
+        <section className="mt-5 rounded-sm border border-border bg-surface p-5 shadow-floating sm:p-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             NI compliance
           </p>
@@ -233,7 +233,7 @@ function ListingDetailPage() {
             Utility & registration details
           </h2>
 
-          <dl className="mt-5 divide-y divide-border rounded-2xl border border-border bg-surface-muted/50 text-sm">
+          <dl className="mt-5 divide-y divide-border rounded-sm border border-border bg-surface-muted/50 text-sm">
             <DetailRow
               k="Landlord registration"
               v={
@@ -424,7 +424,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
 
   if (underOffer) {
     return (
-      <div className="mt-6 flex flex-col items-start gap-3 rounded-3xl border border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <div className="mt-6 flex flex-col items-start gap-3 rounded-sm border border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div>
           <p className="font-display text-base font-semibold tracking-tight text-amber-900">
             This property is currently Under Offer
@@ -446,7 +446,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
 
   if (!user) {
     return (
-      <div className="mt-6 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-6">
+      <div className="mt-6 rounded-sm border border-border bg-surface p-5 shadow-floating sm:p-6">
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="font-display text-base font-semibold tracking-tight">
@@ -467,7 +467,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
             Apply for this property
           </Link>
         </div>
-        <div className="mt-4 rounded-2xl border border-verified/25 bg-verified-soft/50 p-4">
+        <div className="mt-4 rounded-sm border border-verified/25 bg-verified-soft/50 p-4">
           <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
             <ShieldCheck className="h-4 w-4 text-verified" />
             Build it once. Reuse it for every NI rental.
@@ -522,7 +522,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
 
   if (profile?.account_type === "landlord") {
     return (
-      <div className="mt-6 rounded-3xl border border-dashed border-border bg-surface-muted/40 p-5 text-sm text-muted-foreground sm:p-6">
+      <div className="mt-6 rounded-sm border border-dashed border-border bg-surface-muted/40 p-5 text-sm text-muted-foreground sm:p-6">
         You're viewing as a landlord. Tenants will see an "Apply with Tenant Passport" button here.
       </div>
     );
@@ -530,7 +530,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
 
   if (isWithdrawn) {
     return (
-      <div className="mt-6 rounded-3xl border border-border bg-surface p-5 sm:p-6">
+      <div className="mt-6 rounded-sm border border-border bg-surface p-5 sm:p-6">
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-display text-base font-semibold tracking-tight">
@@ -559,7 +559,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
   }
 
   return (
-    <div className="mt-6 flex flex-col items-start gap-3 rounded-3xl border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+    <div className="mt-6 flex flex-col items-start gap-3 rounded-sm border border-border bg-surface p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
       <div>
         <p className="font-display text-base font-semibold tracking-tight">
           {sent ? "Passport shared" : "Apply with your Tenant Passport"}
@@ -652,7 +652,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
 
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4 shadow-resting">
+    <div className="rounded-sm border border-border bg-surface p-4 shadow-resting">
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         {label}
       </p>
@@ -704,7 +704,7 @@ function PropertyDetailsSection({ listing }: { listing: ListingDetail }) {
   if (!hasAnything) return null;
 
   return (
-    <section className="mt-5 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-7">
+    <section className="mt-5 rounded-sm border border-border bg-surface p-5 shadow-floating sm:p-7">
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         The property
       </p>
@@ -715,7 +715,7 @@ function PropertyDetailsSection({ listing }: { listing: ListingDetail }) {
       {spec.length ? (
         <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {spec.map((s) => (
-            <div key={s.k} className="rounded-2xl border border-border bg-surface-muted/50 p-3.5">
+            <div key={s.k} className="rounded-sm border border-border bg-surface-muted/50 p-3.5">
               <dt className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                 {s.k}
               </dt>

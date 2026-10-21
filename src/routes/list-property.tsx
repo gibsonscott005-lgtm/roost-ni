@@ -130,18 +130,18 @@ function ListPropertyPage() {
         <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to home
         </Link>
-        <p className="mt-4 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">List a property</p>
-        <h1 className="mt-1.5 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+        <span className="mt-5 inline-block -rotate-2 border-2 border-background bg-verified px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-verified-foreground shadow-raised">// List a property</span>
+        <h1 className="mt-5 font-display text-3xl font-extrabold leading-[0.95] tracking-tight sm:text-5xl">
           Start your listing — no account needed yet
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="brutal-bubble brutal-bubble-paper mt-5 bg-paper px-4 py-3 text-sm font-semibold text-paper-foreground">
           Fill in the basics now. We'll only ask you to sign up when you publish. Your draft is saved on this device.
         </p>
-        <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-verified-soft px-3 py-1 text-xs font-medium text-verified">
+        <p className="mt-3 inline-flex items-center gap-1.5 border-2 border-background bg-verified px-3 py-1.5 text-xs font-bold text-verified-foreground shadow-raised">
           <ShieldCheck className="h-3.5 w-3.5" /> Free direct management • Zero agent commissions
         </p>
 
-        <section className="mt-5 space-y-4 rounded-3xl border border-border bg-surface p-5 shadow-floating sm:p-6">
+        <section className="mt-5 space-y-4 rounded-sm border border-border bg-surface p-5 shadow-floating sm:p-6">
           <label className="block">
             <span className="text-xs font-semibold text-muted-foreground">Address</span>
             <div className="relative">
@@ -213,7 +213,7 @@ function ListPropertyPage() {
           </label>
         </section>
 
-        <div className="mt-5 rounded-3xl border border-verified/25 bg-verified-soft/50 p-5">
+        <div className="mt-5 rounded-sm border border-verified/25 bg-verified-soft/50 p-5">
           {isTenant ? (
             <p className="text-sm text-muted-foreground">
               You're signed in with a tenant account. Listing properties needs a landlord account.

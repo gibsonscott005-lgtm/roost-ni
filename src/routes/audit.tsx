@@ -1,5 +1,5 @@
 import { getEventContext } from "@/lib/utm-session";
-import { SiteTicker } from "@/components/brutal";
+
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -158,7 +158,6 @@ function AuditPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SiteTicker />
       <header className="border-b border-border/70 bg-surface/85 backdrop-blur">
         <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">

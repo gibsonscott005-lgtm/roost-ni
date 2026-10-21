@@ -1,5 +1,5 @@
 import { getEventContext } from "@/lib/utm-session";
-import { SiteTicker } from "@/components/brutal";
+
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { useMemo, useState, type FormEvent } from "react";
@@ -233,7 +233,6 @@ function ListingsIndexPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SiteTicker />
       <Header />
       <main className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:px-6 sm:pt-10">
         <ViewSwitcher />
