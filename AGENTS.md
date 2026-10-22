@@ -15,3 +15,5 @@
 - Resolve the Vite project root from the working directory, not import.meta.url, because configuration bundling relocates the config into a temporary folder.
 - Pricing, plan and "free" wording lives only in src/lib/plans-copy.ts; components import it so wording changes in one place.
 - Robin's marketing policy and validation live in marketing-knowledge.ts; structured review metadata uses marketing_posts.notes so sources and review flags stay separate from copy-ready posts without a schema change.
+- Robin group configuration is persisted server-side; drafts snapshot group settings in notes to keep attribution stable after edits, and schedules use Europe/London rather than a fixed UTC offset.
+- New Robin weekly and reply calls use structured Responses output in server-only helpers; legal drafting uses the discovered flagship model with high reasoning, and no posting automation is installed.
