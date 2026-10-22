@@ -43,4 +43,18 @@ describe("Robin marketing rules", () => {
   test("agent fee claims are flagged for verification", () => {
     expect(prepareMarketingReview({ body: `Agent fees vary. ${body}` }, "help").review_flags).toContain("verify before posting");
   });
+  test.each(["seeking", "bespoke", "portfolio", "premier", "stunning", "pursuant", "whilst", "hereby", "solutions", "leverage", "delighted to announce", "we are pleased to"])("bans corporate wording in posts, replies and images: %s", word => {
+    expect(() => validateMarketingCopy(`${word}. ${body}`, false)).toThrow();
+  });
+  test("allows one emoji after the opening line, not two", () => {
+    expect(() => validateMarketingCopy(`Paperwork again.\nKeep it together. 📁\nWhat works for you?`)).not.toThrow();
+    expect(() => validateMarketingCopy(`Paperwork again.\nKeep it together. 📁 ✅\nWhat works for you?`)).toThrow();
+  });
+  test("no emoji in the first line, including a Northern Ireland flag", () => {
+    expect(() => validateMarketingCopy(`📁 Paperwork again.\nWhat works for you?`)).toThrow();
+    expect(() => validateMarketingCopy(`🇬🇧 Paperwork again.\nWhat works for you?`)).toThrow();
+  });
+  test("a joined emoji counts as one, not several symbols", () => {
+    expect(() => validateMarketingCopy(`Paperwork again.\nKeep your evidence together. 👨‍👩‍👧\nWhat works for you?`)).not.toThrow();
+  });
 });
