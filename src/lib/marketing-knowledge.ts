@@ -1,4 +1,4 @@
-import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
+import { APPROVED_LINE } from "@/lib/plans-copy";
 /**
  * RoostNI Marketing Engine — brand voice + Northern Ireland rental law
  * knowledge base. Imported into marketing server functions only; it is a
