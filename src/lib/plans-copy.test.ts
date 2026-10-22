@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, test as it } from "bun:test";
 import { APPROVED_LINE, PLANS, SHORT_LINES, findBannedPhrases } from "./plans-copy";
 import { MARKETING_KNOWLEDGE } from "./marketing-knowledge";
 
