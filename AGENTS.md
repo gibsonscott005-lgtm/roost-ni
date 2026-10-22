@@ -13,6 +13,7 @@
 - Reserve photo and gallery-thumbnail space before URLs resolve, and stack alternate homepage audience panels in one grid cell so switching audiences does not move subsequent content.
 - Resolve browser Cloud settings through the build-time public allowlist, preferring VITE settings and accepting only URL/publishable-key server fallbacks; omit absent defines so managed preview configuration can inject them later without exposing private credentials.
 - Resolve the Vite project root from the working directory, not import.meta.url, because configuration bundling relocates the config into a temporary folder.
+- Never alias or globally pin the bare entities package; only legacy email-renderer subpaths may be aliased, so modern HTML parsers resolve their own compatible decoder exports.
 - Pricing, plan and "free" wording lives only in src/lib/plans-copy.ts; components import it so wording changes in one place.
 - Robin's marketing policy and validation live in marketing-knowledge.ts; structured review metadata uses marketing_posts.notes so sources and review flags stay separate from copy-ready posts without a schema change.
 - Robin group configuration is persisted server-side; drafts snapshot group settings in notes to keep attribution stable after edits, and schedules use Europe/London rather than a fixed UTC offset.
