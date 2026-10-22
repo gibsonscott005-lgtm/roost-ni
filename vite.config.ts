@@ -47,9 +47,10 @@ export default (env: { command: "build" | "serve"; mode: string }) => {
     plugins: [mcpPlugin()],
     resolve: {
       alias: {
+        // Only legacy email-renderer paths need aliases. A bare `entities`
+        // alias would hijack modern subpaths and bypass nested package exports.
         "entities/lib/decode.js": path.resolve(rootDir, "node_modules/entities/lib/decode.js"),
         "entities/lib/encode.js": path.resolve(rootDir, "node_modules/entities/lib/encode.js"),
-        entities: path.resolve(rootDir, "node_modules/entities"),
       },
     },
   },
