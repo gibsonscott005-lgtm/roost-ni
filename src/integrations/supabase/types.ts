@@ -187,6 +187,24 @@ export type Database = {
           },
         ]
       }
+      marketing_group_settings: {
+        Row: {
+          groups: Json
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          groups?: Json
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          groups?: Json
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       marketing_insights: {
         Row: {
           active: boolean
