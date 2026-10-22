@@ -1,6 +1,6 @@
 import { describe, expect, test as it } from "bun:test";
-import { APPROVED_LINE, PLANS, SHORT_LINES, findBannedPhrases } from "./plans-copy";
-import { MARKETING_KNOWLEDGE } from "./marketing-knowledge";
+import { APPROVED_LINE, PLANS, SHORT_LINES, findBannedPhrases } from "./src/lib/plans-copy";
+import { MARKETING_KNOWLEDGE } from "./src/lib/marketing-knowledge";
 
 describe("plans copy rules", () => {
   it("only the core plan is live, and planned services have no price", () => {
