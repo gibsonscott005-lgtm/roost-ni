@@ -1,3 +1,5 @@
+import { Button } from "@/components/ui/button";
+import { readMarketingReview } from "@/lib/marketing-knowledge";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -218,11 +220,14 @@ export function MarketingAdminPanel() {
           <p className="text-xs text-muted-foreground">RoostNI's marketing assistant</p>
         </div>
       </div>
+      <label htmlFor="robin-todays-brief" className="block text-sm font-semibold text-foreground">Today's brief</label>
       <textarea
+        id="robin-todays-brief"
+        maxLength={6000}
         value={brief}
         onChange={(e) => setBrief(e.target.value)}
         rows={4}
-        placeholder="Today's brief (optional) — paste your data or strategy for today's post. Leave blank to use Robin's standing strategy."
+        placeholder="Topic, audience, recent results and any claims you have explicitly checked (optional)."
         className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
       />
       <div className="flex flex-wrap items-center gap-2">
@@ -237,7 +242,7 @@ export function MarketingAdminPanel() {
           <option value="ni_legal">NI Legal Series</option>
           <option value="reddit">Reddit</option>
         </select>
-        <button
+        <Button
           type="button"
           onClick={generate}
           disabled={generating}
@@ -249,7 +254,7 @@ export function MarketingAdminPanel() {
             <Sparkles className="h-3.5 w-3.5" />
           )}
           {generating ? "Robin is drafting…" : focus === "reddit" ? "Draft today's Reddit post" : "Draft today's post"}
-        </button>
+        </Button>
         <button
           type="button"
           onClick={refreshResults}
@@ -279,13 +284,7 @@ export function MarketingAdminPanel() {
         </button>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Robin drafts posts around Northern Ireland rental law and RoostNI's
-        free tools. For groups: copy the group post (no links, so admin filters
-        don't hold it), post it directly in the group — not via "Share" — then
-        paste the first comment with the tracked link. Visits, audits, alerts
-        and sign-ups are scored back here automatically, so Robin learns what works.
-      </p>
+
 
       {insights.length > 0 ? (
         <div className="rounded-2xl border border-border bg-surface-muted/50 p-4">
@@ -428,6 +427,20 @@ export function MarketingAdminPanel() {
                     {post.body}
                   </p>
                 )}
+
+                {(() => {
+                  const review = readMarketingReview(post.notes);
+                  return <div className="mt-3 border-l-2 border-verified pl-3 text-xs text-foreground">
+                    <p className="font-semibold">{review?.content_mode === "help" ? "Pure help" : review?.content_mode === "soft" ? "Soft mention" : review?.content_mode === "direct" ? "Direct promotion" : "Legacy draft"} · Check before posting</p>
+                    {review?.legal_statements.map((item, index) => <div key={index} className="mt-2">
+                      <p>{item.statement}</p>
+                      <a href={item.source} target="_blank" rel="noreferrer" className="break-all underline">{item.source}</a>
+                      <p className="font-semibold">{item.flag}</p>
+                    </div>)}
+                    {review?.review_flags.includes("verify before posting") ? <p className="mt-2 font-semibold">Verify before posting — portal, agent or fee claim</p> : null}
+                    {!review ? <p className="mt-1 text-muted-foreground">Not checked against Robin’s current wording and source rules.</p> : null}
+                  </div>;
+                })()}
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   {post.platform === "reddit" ? (

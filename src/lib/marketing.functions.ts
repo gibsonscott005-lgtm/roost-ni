@@ -7,6 +7,10 @@ import {
   NI_LEGAL_GUARDRAILS,
   NI_LEGAL_TOPICS,
   type NiLegalTopic,
+  nextContentMode,
+  prepareMarketingReview,
+  type LegalStatement,
+  type ContentMode,
 } from "@/lib/marketing-knowledge";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -120,41 +124,19 @@ interface GeneratedPost {
   topic: string;
   body: string;
   link_url: string | null;
+  legal_statements?: LegalStatement[];
+  review_flags?: string[];
 }
 
 /** Admin-only: drafts a fresh batch of scheduled posts via the AI gateway. */
-// ============================================================================
-// DAILY_STRATEGY_OVERRIDE
-// Paste today's CMO brief between the backticks below. When non-empty it is
-// injected at the top of every Facebook and Reddit generation prompt and takes
-// priority over the standing strategy (NI law and brand rules still apply).
-// Leave it as an empty string to fall back to the master strategy.
-// ============================================================================
-const DAILY_STRATEGY_OVERRIDE = `
-# DAILY_STRATEGY_OVERRIDE: October 12, 2026
-
-THEME: Single Daily Campaign Focus & Strict Limit Enforcement
-
-TARGET AUDIENCE: Self-Managing Landlords & Tenants in Northern Ireland
-
-
-
-STRATEGY PARAMETERS:
-
-1. THE PAIN POINT: Robin has been mistakenly outputting 4 posts per week instead of a singular, hyper-focused daily strategy brief. This override explicitly locks Robin to generate exactly ONE acute daily campaign theme and piece of copy per run to prevent content fatigue and maintain high engagement in local NI groups.
-
-2. LAW WRITING INSTRUCTIONS: Enforce strict single-topic NI compliance rules (e.g., Private Tenancies Act (NI) 2022, 28-day rent receipts, or tiered notice periods). Never bundle multiple distinct legal mandates into a single chaotic broadcast.
-
-3. LOCAL GEOGRAPHY HOOK: Anchor the singular daily post to specific local regions like Newtownards, Bangor, or Belfast without information overload.
-
-4. CALL TO ACTION: Direct the single audience segment to the exact relevant conversion link (roostni.co.uk/audit or roostni.co.uk/dashboard/passport) using clean tracked UTM parameters.
-`.trim();
+// Daily direction is supplied by the admin brief, never by editing this file.
+const DAILY_STRATEGY_OVERRIDE = "";
 
 function withDailyOverride(prompt: string, brief?: string): string {
   const today = brief?.trim() || DAILY_STRATEGY_OVERRIDE;
   if (!today) return prompt;
   return [
-    "## TODAY'S STRATEGY OVERRIDE (highest priority — follow exactly, within NI law and the hard bans)",
+    "## TODAY'S BRIEF (topic guidance only; wording, fairness, sourcing and content-mode rules always take precedence)",
     today,
     "",
     prompt,
@@ -171,7 +153,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
     const [recentRes, insightsRes] = await Promise.all([
       supabaseAdmin
         .from("marketing_posts")
-        .select("topic, angle, persona, status, results")
+        .select("topic, angle, persona, status, results, notes")
         .order("scheduled_for", { ascending: false })
         .limit(25),
       supabaseAdmin
@@ -186,6 +168,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       angle: string;
       persona: string;
       status: string;
+      notes: string | null;
       results: { score?: number; visits?: number; audits?: number; alerts?: number; signups?: number } | null;
     }>;
     const insights = (insightsRes.data ?? []) as Array<{ kind: string; insight: string }>;
@@ -207,8 +190,14 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       ? insights.map((i) => `- (${i.kind}) ${i.insight}`).join("\n")
       : "- none learned yet";
 
+    // Count only drafts made under this policy; old promotional history is not a starting offset.
+    const { count: policyCount } = await supabaseAdmin.from("marketing_posts")
+      .select("id", { count: "exact", head: true }).like("notes", '%"content_mode"%').neq("status", "skipped");
+    const contentMode = nextContentMode(policyCount ?? 0);
+    const sourceCatalogue = [...new Set(NI_LEGAL_TOPICS.map(t => `${t.title}: ${t.source}`))].join("\n");
+
     if (data.focus === "reddit") {
-      return generateRedditBatch(supabaseAdmin, context.userId, recent, data.brief);
+      return generateRedditBatch(supabaseAdmin, context.userId, recent, contentMode, sourceCatalogue, data.brief);
     }
 
     const isLegal = data.focus === "ni_legal";
@@ -247,7 +236,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
 
     const focusLine =
       data.focus === "mixed"
-        ? "Mix landlord and tenant posts roughly evenly across the batch."
+        ? `Alternate landlord and tenant topics across recent history. ${recent[0]?.persona === "tenant" ? "Prefer a landlord topic today." : "Prefer a tenant topic today: rights, deposits or preparing evidence."}`
         : data.focus === "landlord"
           ? "Every post targets private landlords in Northern Ireland."
           : data.focus === "tenant"
@@ -259,10 +248,10 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
           "",
           NI_LEGAL_GUARDRAILS,
           "",
-          `Write exactly ${legalPicks.length} posts, one per topic below, in this order. Use ONLY these facts:`,
+          `Write exactly ${legalPicks.length} posts, one per topic below. The URLs are review sources, not verified facts. Do not invent legal details:`,
           ...legalPicks.map(
             (t, i) =>
-              `${i + 1}. key=${t.key} | ${t.title} | Responsible body: ${t.body}${t.upcoming ? " | UPCOMING/PROPOSED" : ""}\n   Facts: ${t.facts}\n   link_url: ${t.cta}`,
+              `${i + 1}. key=${t.key} | ${t.title} | Responsible body: ${t.body}${t.upcoming ? " | UPCOMING/PROPOSED" : ""}\n   Supporting page: ${t.source}\n   Optional link_url: ${t.cta}`,
           ),
           'Set "persona" to "community" and "angle" to "legal:<key>" exactly.',
         ]
@@ -272,7 +261,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       `Draft exactly ONE Facebook post for RoostNI, on a single focused topic. ${focusLine}`,
       ...legalBlock,
       "",
-      "Learned lessons from past performance (obey these):",
+      "Learned lessons (topic suggestions only; discard any conflicting wording or unsupported claims):",
       insightSummary,
       "",
       "Recently drafted/posted topics — do NOT repeat or lightly reword these:",
@@ -282,10 +271,13 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       isLegal
         ? "- Northern Ireland law only; follow the jurisdiction rules above."
         : "- One topic only; never bundle several legal duties into one post.",
-      "- Each post needs exactly one CTA URL from the approved list in the system prompt.",
-      "- Do NOT paste the CTA URL or any web address inside the body text — the tracked link goes in the first comment. Follow the Facebook GROUP compliance rules: peer tone, end with a discussion question, then \"(Link in the first comment 👇)\", then max 4 hashtags.",
+      `- Assigned content_mode: ${contentMode}. ${contentMode === "help" ? "Pure help: no RoostNI mention, hashtag or link; link_url must be null." : contentMode === "soft" ? "One understated mention; optional relevant business link returned separately." : "Direct promotion, useful fact/question first; one relevant business link returned separately."}`,
+      "- Under 150 words, at most 4 hashtags before the final genuine discussion question. No sales-statistics paragraph, no tagline. Never add a link instruction after the question.",
+      "- Every legal statement needs its exact body wording in legal_statements, a supporting specific nidirect page and flag check before posting. Any agent/portal/fee claim needs verify before posting in review_flags, and must be omitted unless today's brief explicitly confirms it.",
+      "Specific source catalogue (human checking is still required; never invent a URL):",
+      sourceCatalogue,
       "- Return ONLY a JSON array, no markdown fences, each item:",
-      '  {"persona":"landlord"|"tenant"|"community","angle":"short-kebab-label","topic":"5-10 word summary","body":"full post text with \\n newlines","link_url":"the CTA URL used"}',
+      '  {"persona":"landlord"|"tenant"|"community","angle":"short-kebab-label","topic":"5-10 word summary","body":"full post text with \\n newlines","link_url":"optional approved business URL or null","legal_statements":[{"statement":"exact legal statement in body","source":"specific nidirect page","flag":"check before posting"}],"review_flags":["check before posting"]}',
     ].join("\n");
 
     const { createOpenAICompatible } = await import("@ai-sdk/openai-compatible");
@@ -333,8 +325,10 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "")
         .slice(0, 32);
+      const review = prepareMarketingReview(p, contentMode, isLegal);
       return {
         created_by: context.userId,
+        notes: JSON.stringify(review),
         persona: legalTopic
           ? "community"
           : ["landlord", "tenant", "community"].includes(p.persona)
@@ -343,11 +337,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
         angle: legalTopic ? `legal:${legalTopic.key}` : String(p.angle ?? "general").slice(0, 60),
         topic: String(p.topic ?? legalTopic?.title ?? "Untitled post").slice(0, 140),
         body: p.body.trim().slice(0, 4000),
-        link_url: legalTopic
-          ? legalTopic.cta
-          : typeof p.link_url === "string"
-            ? p.link_url.slice(0, 300)
-            : null,
+        link_url: contentMode === "help" ? null : typeof p.link_url === "string" && p.link_url.startsWith("https://roostni.co.uk/") ? p.link_url.slice(0, 300) : null,
         utm_campaign: `fb_${dateSlug}_${topicSlug || "post"}_${i}`.slice(0, 90),
         scheduled_for: when.toISOString(),
         status: "scheduled",
@@ -621,9 +611,6 @@ export function buildGroupPostText(post: MarketingPost): string {
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-  if (post.link_url && !/first comment/i.test(body)) {
-    body = `${body}\n\n(Link in the first comment 👇)`;
-  }
   return body;
 }
 
@@ -641,14 +628,16 @@ const REDDIT_RULES = [
   "Northern Ireland law only. Never cite English frameworks (ASTs, Section 21/8, Right to Rent, Renters' Rights Act, five-week deposit cap). Deposits: TDS Northern Ireland or MyDeposits Northern Ireland only.",
   "Include the line: 'General information only, not legal advice — check nidirect.gov.uk for the current rules.'",
   "Mix formats across the batch: practical guides, myth-busters (NI vs England), discussion questions that invite people to share experiences, and scenario questions.",
-  "Mention RoostNI at most once, humbly, at the very end (e.g. 'I help run RoostNI, a free NI renting tool — the [checklist](LINK) might help.'), and use the literal placeholder LINK for the URL. Discussion-only posts may omit RoostNI entirely and set link_url to null.",
-  "Never say 'vetting'. RoostNI organises self-certified applicant evidence; it is not an agent or a legal service. Core tools are free forever; optional paid services are opt-in and clearly priced. Never say '100% free', 'zero fees', 'no catch' or that any paid service exists today.",
+  "Follow the assigned content mode. Pure help omits RoostNI and link_url; soft mentions are understated, direct posts are useful first. If linking, use the literal placeholder LINK.",
+  "All wording, evidence-organiser, fairness and sourced legal review rules also apply to Reddit titles, bodies and images. Never claim compliance; say built around NI tenancy rules.",
 ].join("\n");
 
 async function generateRedditBatch(
   supabaseAdmin: any,
   userId: string,
   recent: Array<{ topic: string; angle: string }>,
+  contentMode: ContentMode,
+  sourceCatalogue: string,
   brief?: string,
 ) {
   const count = 1;
@@ -658,8 +647,11 @@ async function generateRedditBatch(
     "Recent topics — do NOT repeat:",
     recent.map((r) => `- ${r.topic} (${r.angle})`).join("\n") || "- none",
     "",
+    `Assigned content mode: ${contentMode}. Pure help has no business mention or link.`,
+    "Every legal statement needs its exact body wording, supporting nidirect page and check before posting flag. Agent/portal/fee claims require explicit brief confirmation and verify before posting.",
+    sourceCatalogue,
     "Return ONLY a JSON array, no fences, each item:",
-    '{"persona":"landlord"|"tenant"|"community","angle":"short-kebab-label","title":"Reddit post title, max 200 chars, no clickbait","body":"markdown body with \\n newlines","link_url":"approved RoostNI URL or null"}',
+    '{"persona":"landlord"|"tenant"|"community","angle":"short-kebab-label","title":"Reddit post title, max 200 chars, no clickbait","body":"markdown body with \\n newlines","link_url":"approved RoostNI URL or null","legal_statements":[{"statement":"exact statement in body","source":"specific nidirect page","flag":"check before posting"}],"review_flags":["check before posting"]}',
   ].join("\n");
 
   const { createOpenAI } = await import("@ai-sdk/openai");
@@ -688,7 +680,7 @@ async function generateRedditBatch(
   const end = text.lastIndexOf("]");
   if (start === -1 || end <= start) throw new Error("The AI returned an unexpected format — try again.");
   const parsed = JSON.parse(text.slice(start, end + 1)) as Array<{
-    persona?: string; angle?: string; title?: string; body?: string; link_url?: string | null;
+    persona?: string; angle?: string; title?: string; body?: string; link_url?: string | null; legal_statements?: LegalStatement[]; review_flags?: string[];
   }>;
   const cleaned = parsed
     .filter((p) => p && typeof p.body === "string" && p.body.trim().length > 80 && typeof p.title === "string")
@@ -697,16 +689,18 @@ async function generateRedditBatch(
 
   const base = nextDailySlot();
   const rows = cleaned.map((p, i) => {
+    const review = prepareMarketingReview({ ...p, body: p.body ?? "", topic: p.title }, contentMode, false, false);
     const when = new Date(base.getTime() + i * 86400000);
     const slug = String(p.angle ?? p.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32);
     return {
       created_by: userId,
       platform: "reddit",
-      persona: ["landlord", "tenant", "community"].includes(p.persona ?? "") ? p.persona! : "community",
+      notes: JSON.stringify(review),
+      persona: ["landlord", "tenant", "community"].includes(p.persona ?? "") ? p.persona : "community",
       angle: String(p.angle ?? "reddit").slice(0, 60),
-      topic: p.title!.trim().slice(0, 140),
-      body: p.body!.trim().slice(0, 4000),
-      link_url: typeof p.link_url === "string" && p.link_url.startsWith("http") ? p.link_url.slice(0, 300) : null,
+      topic: (p.title ?? "").trim().slice(0, 140),
+      body: (p.body ?? "").trim().slice(0, 4000),
+      link_url: contentMode !== "help" && typeof p.link_url === "string" && p.link_url.startsWith("https://roostni.co.uk/") ? p.link_url.slice(0, 300) : null,
       utm_campaign: `rd_${when.toISOString().slice(0, 10)}_${slug || "post"}_${i}`.slice(0, 90),
       scheduled_for: when.toISOString(),
       status: "scheduled",
