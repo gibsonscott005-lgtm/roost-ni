@@ -329,6 +329,7 @@ function AuthPage() {
         if (utmParams.source) signupData.utm_source = utmParams.source;
         if (utmParams.medium) signupData.utm_medium = utmParams.medium;
         if (utmParams.campaign) signupData.utm_campaign = utmParams.campaign;
+        if (utmParams.content) signupData.utm_content = utmParams.content;
 
         posthog.capture("sign_up_started", {
           account_type: role,

@@ -2,7 +2,6 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { Output, streamText } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayRunIdFetch } from "./run-id.server.ts";
-import { createLovableAiGatewayProvider } from "./gateway-helpers.server.ts";
 
 const legalSchema = z.object({ statement: z.string(), source: z.string(), flag: z.enum(["check before posting"]) });
 export const draftSchema = z.object({ group_id: z.string(), persona: z.string(), angle: z.string(), topic: z.string(), body: z.string(), link_url: z.string().nullable(), legal_statements: z.array(legalSchema), review_flags: z.array(z.string()) });
@@ -17,10 +16,5 @@ export async function generateRobinOutput<T extends z.ZodType>(key: string, inst
   return await result.output;
 }
 export async function generateOrdinaryWeek(key: string, instructions: string, prompt: string) {
-  const provider = createLovableAiGatewayProvider(key, undefined, { baseURL: "https://ai.gateway.lovable.dev/v1" });
-  const result = streamText({ model: provider("google/gemini-2.5-flash"), system: instructions, prompt, temperature: 0.9, maxRetries: 0 });
-  const text = await result.text;
-  const start = text.indexOf("{"); const end = text.lastIndexOf("}");
-  if (start < 0 || end <= start) throw new Error("Robin returned no usable draft. Nothing was saved.");
-  return z.object({ posts: z.array(draftSchema) }).parse(JSON.parse(text.slice(start,end+1)));
+  return generateRobinOutput(key, instructions, prompt, z.object({ posts: z.array(draftSchema) }));
 }

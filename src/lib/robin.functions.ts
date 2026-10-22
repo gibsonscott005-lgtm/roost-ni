@@ -62,7 +62,7 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
     const link = mode === "help" ? null : post.link_url;
     if (link && new URL(link).origin !== "https://roostni.co.uk") throw new Error("Unapproved business link.");
     return { created_by:context.userId, platform:"facebook", persona:post.persona, angle:post.angle, topic:post.topic, body:post.body, link_url:link,
-      notes:JSON.stringify({ ...review, group:assignment.group, model:data.focus === "ni_legal" ? "openai/gpt-6-astra" : "google/gemini-2.5-flash" }),
+      notes:JSON.stringify({ ...review, group:assignment.group, model:"openai/gpt-6-astra" }),
       utm_campaign:`fb_${assignment.scheduled_for.slice(0,10)}_${runId}_${i}`, scheduled_for:assignment.scheduled_for, status:"draft" };
   });
   const { data: created, error:insertError } = await supabaseAdmin.from("marketing_posts").insert(rows).select("*");
