@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -89,7 +90,7 @@ export const Route = createFileRoute("/listings/$id")({
     const area = loaderData.location || loaderData.address?.split(",").slice(-2, -1)[0]?.trim() || "Northern Ireland";
     const beds = loaderData.bedrooms;
     const bedText = beds === 0 ? "Studio" : beds ? `${beds}-Bed property` : "Property";
-    const d = `£${Number(loaderData.monthly_rent).toLocaleString("en-GB")} pcm • ${bedText} in ${area}, Northern Ireland. Direct rental with zero agent fees.`;
+    const d = `£${Number(loaderData.monthly_rent).toLocaleString("en-GB")} pcm • ${bedText} in ${area}, Northern Ireland. Let direct by the landlord. No fees to apply.`;
     const url = `https://roostni.co.uk/listings/${params.id}`;
     const image = loaderData.photoUrls[0] || "https://roostni.co.uk/og/roostni-preview.jpg";
     return {
@@ -477,7 +478,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
               "No more copying payslips into Facebook DMs",
               "Identity, income and references in one private profile",
               "Withdraw an application and the landlord's access ends",
-              "Free for renters — no fees",
+              SHORT_LINES.tenantsNeverPay,
             ].map((t) => (
               <li key={t} className="flex items-start gap-1.5">
                 <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-verified" strokeWidth={3} />

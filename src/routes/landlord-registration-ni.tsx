@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import {
@@ -309,8 +310,7 @@ function LandlordRegistrationGuide() {
         </section>
 
         <p className="mt-10 text-xs leading-relaxed text-muted-foreground">
-          RoostNI offers free direct management for Northern Ireland landlords — no fees, no card
-          required. This guide is general information, not legal advice; the authoritative source is{" "}
+          {APPROVED_LINE} This guide is general information, not legal advice; the authoritative source is{" "}
           <a
             href="https://www.communities-ni.gov.uk/articles/landlord-registration-scheme"
             target="_blank"

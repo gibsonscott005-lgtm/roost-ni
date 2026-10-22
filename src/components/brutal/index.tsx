@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -48,7 +49,7 @@ export function BrutalCard({ children, className }: { children: ReactNode; class
   return <div className={cn("border border-border bg-surface p-5 shadow-raised", className)}>{children}</div>;
 }
 
-const TICKER_TEXT = "NO AGENT FEES. EVER. // NO COMMISSION. NO CATCH. // BUILT FOR NORTHERN IRELAND LAW // ";
+const TICKER_TEXT = SHORT_LINES.ticker;
 
 /** Scrolling emerald ticker strip, matching the homepage. */
 export function SiteTicker() {

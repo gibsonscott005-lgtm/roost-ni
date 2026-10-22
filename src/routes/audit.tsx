@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { getEventContext } from "@/lib/utm-session";
 
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -183,8 +184,7 @@ function AuditPage() {
               Free self-check
             </span>
             <p className="brutal-bubble brutal-bubble-paper bg-paper text-paper-foreground mt-5 max-w-md px-4 py-3 text-sm font-semibold">
-              RoostNI offers free direct management for Northern Ireland landlords. No fees,
-              no card required.
+              {APPROVED_LINE}
             </p>
             <h1 className="mt-6 font-display text-4xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl">
               Is your Northern Ireland tenancy paperwork in order<span className="text-verified">?</span>
@@ -321,8 +321,7 @@ function AuditPage() {
         {stage === "result" ? (
           <section>
             <p className="mb-4 rounded-2xl border border-border bg-surface-muted px-4 py-3 text-xs text-muted-foreground">
-              RoostNI offers free direct management for Northern Ireland landlords. No fees, no
-              card required.
+              {APPROVED_LINE}
             </p>
             <div className="rounded-3xl border border-border bg-surface p-6 shadow-resting sm:p-8">
               <div className="flex flex-wrap items-center gap-5">
@@ -478,7 +477,7 @@ function AuditPage() {
                     Get started free — list, let and manage without agent fees
                   </Link>
                   <p className="mt-3 text-xs text-muted-foreground">
-                    Free direct management. Zero agent commissions, no card required. Keep a tenanted property
+                    Core tools are free forever. No commission on rent, no card needed to start. Keep a tenanted property
                     private, or advertise one when it's vacant.
                   </p>
                 </div>
@@ -571,7 +570,7 @@ function AuditPage() {
                   Get started free — list, let and manage without agent fees
                 </Link>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Free direct management. Zero agent commissions, no card required.
+                  Core tools are free forever. No commission on rent, no card needed to start.
                 </p>
               </div>
             ) : null}

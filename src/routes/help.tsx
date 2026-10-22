@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { Home, IdCard, MessageSquarePlus, LifeBuoy } from "lucide-react";
@@ -84,7 +85,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: "Does RoostNI charge anything?",
-    a: "No. Core direct management is free, with zero agent commissions. Any optional paid features shown in the app are previews of future tools — nothing is charged today.",
+    a: APPROVED_LINE + " Nothing is charged today. See How RoostNI is funded at roostni.co.uk/how-roostni-is-funded.",
   },
   {
     q: "Should I use real documents?",

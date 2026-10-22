@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { posthog } from "@/integrations/posthog/client";
@@ -7,11 +8,11 @@ export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Let & Rent Direct in Northern Ireland — No Agent Fees | RoostNI" },
+      { title: "Let & Rent Direct in Northern Ireland — No Commission | RoostNI" },
       {
         name: "description",
         content:
-          "Self-managing NI landlords: list and manage rentals without agent fees, with NI tenancy law built in. Renters: one Tenant Passport to apply direct. Free, with zero agent commissions.",
+          "Self-managing NI landlords: list and manage rentals without agent fees, with NI tenancy law built in. Renters: one Tenant Passport to apply direct. " + SHORT_LINES.coreFreeSentence,
       },
       { property: "og:title", content: "RoostNI | Renting in Northern Ireland, done direct" },
       {
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:title", content: "RoostNI | Renting in Northern Ireland, done direct" },
       {
         name: "twitter:description",
-        content: "Direct rental platform built exclusively for Northern Ireland. Free direct management with zero agent commissions.",
+        content: "Direct renting for Northern Ireland. Core tools are free forever.",
       },
       { name: "twitter:image", content: "https://roostni.co.uk/og/roostni-preview.jpg" },
     ],
@@ -55,9 +56,9 @@ export const Route = createFileRoute("/")({
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web",
               description:
-                "Self-service platform for Northern Ireland private landlords and tenants: direct property listings, tenancy management with NI tenancy law built in, and a reusable self-certified Tenant Passport. Free to use, with zero agent commissions.",
+                "Self-service platform for Northern Ireland private landlords and tenants: direct property listings, tenancy management with NI tenancy law built in, and a reusable self-certified Tenant Passport. Core tools are free forever; optional paid services are opt-in.",
               areaServed: { "@type": "AdministrativeArea", name: "Northern Ireland" },
-              offers: { "@type": "Offer", price: "0", priceCurrency: "GBP", description: "Free direct management — zero agent commissions" },
+              offers: { "@type": "Offer", name: "Core tools", price: "0", priceCurrency: "GBP", description: APPROVED_LINE },
               publisher: { "@id": "https://roostni.co.uk/#organization" },
             },
           ],
@@ -68,7 +69,7 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
-const TICKER = "NO AGENT FEES. EVER.   //   NO COMMISSION. NO CATCH.   //   BUILT FOR NORTHERN IRELAND LAW   //   ";
+const TICKER = SHORT_LINES.ticker;
 
 function HomePage() {
   const track = (target: string) => posthog.capture("home_cta_click", { target });
@@ -124,7 +125,7 @@ function HomePage() {
 
           <div className="brutal-bubble mt-10 max-w-2xl bg-verified p-5 text-verified-foreground">
             <p className="font-mono text-sm font-bold uppercase leading-relaxed tracking-wide sm:text-base">
-              Free direct management. No agent fees. No commissions. No catch.
+              {APPROVED_LINE}
             </p>
           </div>
         </section>
@@ -150,7 +151,7 @@ function HomePage() {
 
         <section className="border-y-2 border-foreground py-8">
           {[
-            ["£0", "Agent fees — free direct management"],
+            ["0%", "Commission on your rent"],
             ["1 mo", "Deposit cap under PTA 2022"],
             ["28 days", "TIN deadline, tracked for you"],
           ].map(([big, label], i) => (
@@ -180,6 +181,7 @@ function HomePage() {
           <div className="flex gap-4">
             <Link to="/help" className="hover:text-foreground">Help</Link>
             <Link to="/beta" className="hover:text-foreground">About</Link>
+            <Link to="/how-roostni-is-funded" className="hover:text-foreground">How we're funded</Link>
             <Link to="/landlord-registration-ni" className="hover:text-foreground">Landlord registration</Link>
           </div>
         </div>
