@@ -1,3 +1,4 @@
+import { groupBody, trackedGroupLink, readGroupSnapshot } from "./robin-groups";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -576,6 +577,7 @@ export const setMarketingInsightActive = createServerFn({ method: "POST" })
 
 /** Build the paste-ready text for a post, with UTM tags on the CTA link. */
 export function buildShareText(post: MarketingPost): string {
+  if (readGroupSnapshot(post.notes)) return groupBody(post);
   if (!post.link_url) return post.body;
   // Older drafts may carry hand-added UTM tags in the stored link itself —
   // strip them so the post's own campaign tag is the only one applied.
@@ -590,7 +592,7 @@ export function buildShareText(post: MarketingPost): string {
     // not a parseable URL — use as-is
   }
   const joiner = cleanLink.includes("?") ? "&" : "?";
-  const tracked = `${cleanLink}${joiner}utm_source=facebook&utm_medium=social&utm_campaign=${post.utm_campaign}`;
+  const tracked = trackedGroupLink(post);
   // The generator usually embeds the CTA URL in the body — swap every
   // occurrence for the tracked URL, stripping any query string already
   // attached (older drafts carry hand-added UTM tags). Only append when
@@ -605,6 +607,7 @@ export function buildShareText(post: MarketingPost): string {
 
 /** Strips any URLs/web addresses so group Admin Assist filters don't hold the post. */
 export function buildGroupPostText(post: MarketingPost): string {
+  if (readGroupSnapshot(post.notes)) return groupBody(post);
   let body = post.body
     .replace(/https?:\/\/\S+/gi, "")
     .replace(/\b(www\.)?roostni\.co\.uk\S*/gi, "RoostNI")
@@ -616,8 +619,8 @@ export function buildGroupPostText(post: MarketingPost): string {
 
 /** The first comment carrying the campaign-tracked link. */
 export function buildFirstCommentText(post: MarketingPost): string {
-  if (!post.link_url) return "";
-  const full = buildShareText({ ...post, body: "" }).trim();
+  if (!post.link_url || readGroupSnapshot(post.notes)?.linkPlacement === "in body") return "";
+  const full = readGroupSnapshot(post.notes) ? trackedGroupLink(post) : buildShareText({ ...post, body: "" }).trim();
   return `Here's the link mentioned above: ${full}`;
 }
 
@@ -725,5 +728,5 @@ export function buildRedditBody(post: MarketingPost): string {
   } catch { /* use as-is */ }
   const tracked = `${clean}${clean.includes("?") ? "&" : "?"}utm_source=reddit&utm_medium=post&utm_campaign=${post.utm_campaign}`;
   if (/\bLINK\b/.test(post.body)) return post.body.replace(/\bLINK\b/g, tracked);
-  return `${post.body}\n\n[Free NI tool on RoostNI](${tracked})`;
+  return `${post.body}\n\n[NI tool on RoostNI](${tracked})`;
 }

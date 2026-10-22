@@ -209,7 +209,7 @@ function AuthPage() {
 
   const [password, setPassword] = useState("");
   const [hearAboutUs, setHearAboutUs] = useState("");
-  const [utmParams, setUtmParams] = useState<{ source?: string; medium?: string; campaign?: string }>({});
+  const [utmParams, setUtmParams] = useState<{ source?: string; medium?: string; campaign?: string; content?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   // Synchronous lock: state updates lag a frame, so a rapid double-tap on
   // mobile can fire two sign-up requests before `submitting` turns true.
@@ -243,7 +243,7 @@ function AuthPage() {
 
   useEffect(() => {
     const ctx = getEventContext();
-    setUtmParams({ source: ctx.source, medium: ctx.medium, campaign: ctx.campaign });
+    setUtmParams({ source: ctx.source, medium: ctx.medium, campaign: ctx.campaign, content: ctx.content });
   }, []);
 
   useEffect(() => {
@@ -329,6 +329,7 @@ function AuthPage() {
         if (utmParams.source) signupData.utm_source = utmParams.source;
         if (utmParams.medium) signupData.utm_medium = utmParams.medium;
         if (utmParams.campaign) signupData.utm_campaign = utmParams.campaign;
+        if (utmParams.content) signupData.utm_content = utmParams.content;
 
         posthog.capture("sign_up_started", {
           account_type: role,
