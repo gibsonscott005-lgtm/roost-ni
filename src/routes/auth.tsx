@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { getEventContext } from "@/lib/utm-session";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
@@ -683,7 +684,7 @@ function AuthPage() {
 
           <div className="mt-4 flex items-center gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5 text-verified" />
-            Free · Zero agent commissions · Encrypted at rest · GDPR compliant
+            {SHORT_LINES.coreFree} · {SHORT_LINES.noCommission} · Encrypted at rest · GDPR compliant
           </div>
 
           {mode === "reset" ? null : (

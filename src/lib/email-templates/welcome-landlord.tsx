@@ -50,7 +50,7 @@ const WelcomeLandlord = ({ name }: Props) => (
             </Link>
           </Text>
           <Text style={paragraph}>
-            RoostNI is free direct management with zero agent commissions — so if anything is unclear
+            Core tools on RoostNI are free forever, with no commission on your rent, so if anything is unclear
             or doesn't work the way you'd expect, I would genuinely like to hear about it. Just
             reply to this email and it lands straight in my inbox.
           </Text>

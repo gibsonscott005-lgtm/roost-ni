@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import {
@@ -65,7 +66,7 @@ function BetaPage() {
 
       <main className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
         <span className="inline-flex items-center gap-2 rounded-full border border-verified/30 bg-verified-soft/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-foreground">
-          Free · Zero agent commissions
+          {SHORT_LINES.coreFree} · {SHORT_LINES.noCommission}
         </span>
         <h1 className="mt-5 max-w-3xl font-display text-3xl font-semibold tracking-tight sm:text-5xl">
           Renting in Northern Ireland, direct between tenant and landlord.
@@ -204,7 +205,7 @@ function BetaPage() {
 
       <footer className="border-t border-border/70 py-8">
         <p className="mx-auto w-full max-w-5xl px-4 text-xs text-muted-foreground sm:px-6">
-          RoostNI — built for Northern Ireland. Free direct management, zero agent commissions.
+          RoostNI — built for Northern Ireland. {APPROVED_LINE}{" "}<Link to="/how-roostni-is-funded" className="underline hover:text-foreground">How RoostNI is funded</Link>
         </p>
       </footer>
     </div>

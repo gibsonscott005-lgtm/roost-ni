@@ -13,3 +13,4 @@
 - Reserve photo and gallery-thumbnail space before URLs resolve, and stack alternate homepage audience panels in one grid cell so switching audiences does not move subsequent content.
 - Resolve browser Cloud settings through the build-time public allowlist, preferring VITE settings and accepting only URL/publishable-key server fallbacks; omit absent defines so managed preview configuration can inject them later without exposing private credentials.
 - Resolve the Vite project root from the working directory, not import.meta.url, because configuration bundling relocates the config into a temporary folder.
+- Pricing, plan and "free" wording lives only in src/lib/plans-copy.ts; components import it so wording changes in one place.

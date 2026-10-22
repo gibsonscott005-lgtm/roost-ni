@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { MessageSquarePlus, X, FlaskConical } from "lucide-react";
@@ -206,7 +207,7 @@ export function BetaBanner() {
         <p className="text-sm text-foreground">
           <span className="font-semibold">Welcome to RoostNI.</span>{" "}
           <span className="text-muted-foreground">
-            Free direct management, zero agent commissions — tell us anything that could be better.
+            {SHORT_LINES.coreFree} — tell us anything that could be better.
           </span>
         </p>
       </div>

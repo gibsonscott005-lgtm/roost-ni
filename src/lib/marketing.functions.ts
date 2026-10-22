@@ -642,7 +642,7 @@ const REDDIT_RULES = [
   "Include the line: 'General information only, not legal advice — check nidirect.gov.uk for the current rules.'",
   "Mix formats across the batch: practical guides, myth-busters (NI vs England), discussion questions that invite people to share experiences, and scenario questions.",
   "Mention RoostNI at most once, humbly, at the very end (e.g. 'I help run RoostNI, a free NI renting tool — the [checklist](LINK) might help.'), and use the literal placeholder LINK for the URL. Discussion-only posts may omit RoostNI entirely and set link_url to null.",
-  "Never say 'vetting'. RoostNI organises self-certified applicant evidence; it is not an agent or a legal service. It is free during the open beta.",
+  "Never say 'vetting'. RoostNI organises self-certified applicant evidence; it is not an agent or a legal service. Core tools are free forever; optional paid services are opt-in and clearly priced. Never say '100% free', 'zero fees', 'no catch' or that any paid service exists today.",
 ].join("\n");
 
 async function generateRedditBatch(

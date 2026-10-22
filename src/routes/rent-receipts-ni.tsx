@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowRight, Printer, ReceiptText, Scale, ShieldAlert } from "lucide-react";
@@ -287,7 +288,7 @@ function RentReceiptsGuide() {
           <p className="mt-2 text-sm text-muted-foreground">
             RoostNI's Rent Ledger records every payment against the tenancy automatically — amounts,
             dates and periods covered — so a complete, dated receipt history is always one tap away.
-            Free, with zero agent commissions.
+            {SHORT_LINES.coreFreeSentence}
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link to="/auth" onClick={() => track("signup")} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">

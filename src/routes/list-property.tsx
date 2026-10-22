@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -29,12 +30,12 @@ export const Route = createFileRoute("/list-property")({
       {
         name: "description",
         content:
-          "Start your Northern Ireland rental listing now — no account needed until you publish. No agent fees, deposits checked against the one-month cap.",
+          "Start your Northern Ireland rental listing now — no account needed until you publish. No upfront listing fee, deposits checked against the one-month cap.",
       },
       { property: "og:title", content: "List a property free in Northern Ireland — RoostNI" },
       {
         property: "og:description",
-        content: "Fill in your listing first, sign up only when you publish. Free, with zero agent commissions.",
+        content: "Fill in your listing first, sign up only when you publish. " + SHORT_LINES.freeToList + ", " + SHORT_LINES.noCommission.toLowerCase() + ".",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk/list-property" },
@@ -138,7 +139,7 @@ function ListPropertyPage() {
           Fill in the basics now. We'll only ask you to sign up when you publish. Your draft is saved on this device.
         </p>
         <p className="mt-3 inline-flex items-center gap-1.5 border-2 border-background bg-verified px-3 py-1.5 text-xs font-bold text-verified-foreground shadow-raised">
-          <ShieldCheck className="h-3.5 w-3.5" /> Free direct management • Zero agent commissions
+          <ShieldCheck className="h-3.5 w-3.5" /> {SHORT_LINES.freeToList} • {SHORT_LINES.noCommission}
         </p>
 
         <section className="mt-5 space-y-4 rounded-sm border border-border bg-surface p-5 shadow-floating sm:p-6">

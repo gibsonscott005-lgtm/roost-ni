@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -1051,7 +1052,7 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
             Get Your First NI Property Live
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            Free direct management • Zero agent commissions
+            {SHORT_LINES.coreFree} • {SHORT_LINES.noCommission}
           </p>
         </div>
         <span className="rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold">
@@ -2131,7 +2132,7 @@ function TenantOnboardingChecklist({
         </div>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-verified-soft px-3 py-1.5 text-[11px] font-semibold text-verified">
           <ShieldCheck className="h-3.5 w-3.5" />
-          100% Free for Tenants • No Agency Application Fees • Reusable across Northern Ireland
+          {SHORT_LINES.tenantsNeverPay} • No fees to apply • Reusable across Northern Ireland
         </span>
       </div>
 

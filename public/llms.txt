@@ -21,7 +21,8 @@ Important boundaries:
 
 - [Home](https://roostni.co.uk/): What RoostNI does for landlords and tenants.
 - [Property listings](https://roostni.co.uk/listings): Homes to rent directly from Northern Ireland landlords.
-- [Open beta](https://roostni.co.uk/beta): How to join the free beta.
+- [About RoostNI](https://roostni.co.uk/beta): Who we are and how to get started.
+- [How RoostNI is funded](https://roostni.co.uk/how-roostni-is-funded): Core tools are free forever; optional paid services are always opt-in and clearly priced.
 - [Help](https://roostni.co.uk/help): Answers to common questions.
 
 ## Key facts
