@@ -105,7 +105,7 @@ function FundingPage() {
           <p className="font-display text-xl font-extrabold">Questions?</p>
           <p className="mt-2">
             If something here isn't clear, email{" "}
-            <a href="mailto:support@roostni.co.uk" className="font-bold underline">support@roostni.co.uk</a>. A real
+            <a href="mailto:scott@roostni.co.uk" className="font-bold underline">scott@roostni.co.uk</a>. A real
             person in Northern Ireland will reply.
           </p>
         </div>
