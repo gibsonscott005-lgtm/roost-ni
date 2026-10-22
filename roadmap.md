@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Move Robin legal claims into review-only facts, enforce approved/90-day checks, add review page, weekly source checker and owner alerts; 22 facts remain needs_review, weekly schedule enabled, source checks and owner email dispatch verified.
+- [ ] Activate the legal checker on the published site — waits for the user to publish; TDS’s dynamic page remains unreadable by the automatic checker and needs manual review.
+
 - [x] Add editable Facebook groups, weekly drafting at 19:00 UK, combination attribution/results and Reply helper; 37 tests passed, settings persisted and six weekly drafts read back.
 - [x] Upgrade NI legal drafting to the discovered flagship GPT-6 Astra with high reasoning; two legal drafts and reply call succeeded in gateway logs. Nothing posted automatically.
 

@@ -34,6 +34,7 @@ import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard.admin'
 import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
+import { Route as AuthenticatedDashboardLegalFactsRouteImport } from './routes/_authenticated/dashboard.legal-facts'
 import { Route as AuthenticatedDashboardListingEditRouteImport } from './routes/_authenticated/dashboard.listing-edit'
 import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
 import { Route as AuthenticatedLandlordIssueLeaseRouteImport } from './routes/_authenticated/landlord.issue-lease'
@@ -44,6 +45,7 @@ import { Route as ApiPublicDailyRemindersRouteImport } from './routes/api/public
 import { Route as ApiPublicIdentityWebhookRouteImport } from './routes/api/public/identity-webhook'
 import { Route as AuthenticatedDashboardPassportIndexRouteImport } from './routes/_authenticated/dashboard.passport.index'
 import { Route as AuthenticatedDashboardPassportEditRouteImport } from './routes/_authenticated/dashboard.passport.edit'
+import { Route as ApiPublicRobinLegalCheckRouteImport } from './routes/api/public/robin/legal-check'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -179,6 +181,12 @@ const AuthenticatedDashboardApplicationsRoute =
     path: '/applications',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardLegalFactsRoute =
+  AuthenticatedDashboardLegalFactsRouteImport.update({
+    id: '/legal-facts',
+    path: '/legal-facts',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardListingEditRoute =
   AuthenticatedDashboardListingEditRouteImport.update({
     id: '/listing-edit',
@@ -238,6 +246,12 @@ const AuthenticatedDashboardPassportEditRoute =
     path: '/passport/edit',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const ApiPublicRobinLegalCheckRoute =
+  ApiPublicRobinLegalCheckRouteImport.update({
+    id: '/api/public/robin/legal-check',
+    path: '/api/public/robin/legal-check',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
@@ -279,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/dashboard/legal-facts': typeof AuthenticatedDashboardLegalFactsRoute
   '/dashboard/listing-edit': typeof AuthenticatedDashboardListingEditRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
   '/landlord/issue-lease': typeof AuthenticatedLandlordIssueLeaseRoute
@@ -289,6 +304,7 @@ export interface FileRoutesByFullPath {
   '/api/public/identity-webhook': typeof ApiPublicIdentityWebhookRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
+  '/api/public/robin/legal-check': typeof ApiPublicRobinLegalCheckRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -317,6 +333,7 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/dashboard/legal-facts': typeof AuthenticatedDashboardLegalFactsRoute
   '/dashboard/listing-edit': typeof AuthenticatedDashboardListingEditRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
   '/landlord/issue-lease': typeof AuthenticatedLandlordIssueLeaseRoute
@@ -327,6 +344,7 @@ export interface FileRoutesByTo {
   '/api/public/identity-webhook': typeof ApiPublicIdentityWebhookRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
+  '/api/public/robin/legal-check': typeof ApiPublicRobinLegalCheckRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -358,6 +376,7 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/_authenticated/dashboard/legal-facts': typeof AuthenticatedDashboardLegalFactsRoute
   '/_authenticated/dashboard/listing-edit': typeof AuthenticatedDashboardListingEditRoute
   '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
   '/_authenticated/landlord/issue-lease': typeof AuthenticatedLandlordIssueLeaseRoute
@@ -368,6 +387,7 @@ export interface FileRoutesById {
   '/api/public/identity-webhook': typeof ApiPublicIdentityWebhookRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/passport/edit': typeof AuthenticatedDashboardPassportEditRoute
+  '/api/public/robin/legal-check': typeof ApiPublicRobinLegalCheckRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -399,6 +419,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/dashboard/admin'
     | '/dashboard/applications'
+    | '/dashboard/legal-facts'
     | '/dashboard/listing-edit'
     | '/dashboard/settings'
     | '/landlord/issue-lease'
@@ -409,6 +430,7 @@ export interface FileRouteTypes {
     | '/api/public/identity-webhook'
     | '/dashboard/'
     | '/dashboard/passport/edit'
+    | '/api/public/robin/legal-check'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -437,6 +459,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/dashboard/admin'
     | '/dashboard/applications'
+    | '/dashboard/legal-facts'
     | '/dashboard/listing-edit'
     | '/dashboard/settings'
     | '/landlord/issue-lease'
@@ -447,6 +470,7 @@ export interface FileRouteTypes {
     | '/api/public/identity-webhook'
     | '/dashboard'
     | '/dashboard/passport/edit'
+    | '/api/public/robin/legal-check'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -477,6 +501,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/dashboard/admin'
     | '/_authenticated/dashboard/applications'
+    | '/_authenticated/dashboard/legal-facts'
     | '/_authenticated/dashboard/listing-edit'
     | '/_authenticated/dashboard/settings'
     | '/_authenticated/landlord/issue-lease'
@@ -487,6 +512,7 @@ export interface FileRouteTypes {
     | '/api/public/identity-webhook'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/passport/edit'
+    | '/api/public/robin/legal-check'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -517,6 +543,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiPublicDailyRemindersRoute: typeof ApiPublicDailyRemindersRoute
   ApiPublicIdentityWebhookRoute: typeof ApiPublicIdentityWebhookRoute
+  ApiPublicRobinLegalCheckRoute: typeof ApiPublicRobinLegalCheckRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -699,6 +726,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardApplicationsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/legal-facts': {
+      id: '/_authenticated/dashboard/legal-facts'
+      path: '/legal-facts'
+      fullPath: '/dashboard/legal-facts'
+      preLoaderRoute: typeof AuthenticatedDashboardLegalFactsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/listing-edit': {
       id: '/_authenticated/dashboard/listing-edit'
       path: '/listing-edit'
@@ -769,6 +803,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardPassportEditRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/api/public/robin/legal-check': {
+      id: '/api/public/robin/legal-check'
+      path: '/api/public/robin/legal-check'
+      fullPath: '/api/public/robin/legal-check'
+      preLoaderRoute: typeof ApiPublicRobinLegalCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/auth/preview': {
       id: '/lovable/email/auth/preview'
       path: '/lovable/email/auth/preview'
@@ -796,6 +837,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAdminRoute: typeof AuthenticatedDashboardAdminRoute
   AuthenticatedDashboardApplicationsRoute: typeof AuthenticatedDashboardApplicationsRoute
+  AuthenticatedDashboardLegalFactsRoute: typeof AuthenticatedDashboardLegalFactsRoute
   AuthenticatedDashboardListingEditRoute: typeof AuthenticatedDashboardListingEditRoute
   AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
@@ -808,6 +850,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardAdminRoute: AuthenticatedDashboardAdminRoute,
     AuthenticatedDashboardApplicationsRoute:
       AuthenticatedDashboardApplicationsRoute,
+    AuthenticatedDashboardLegalFactsRoute:
+      AuthenticatedDashboardLegalFactsRoute,
     AuthenticatedDashboardListingEditRoute:
       AuthenticatedDashboardListingEditRoute,
     AuthenticatedDashboardSettingsRoute: AuthenticatedDashboardSettingsRoute,
@@ -868,6 +912,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiPublicDailyRemindersRoute: ApiPublicDailyRemindersRoute,
   ApiPublicIdentityWebhookRoute: ApiPublicIdentityWebhookRoute,
+  ApiPublicRobinLegalCheckRoute: ApiPublicRobinLegalCheckRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,

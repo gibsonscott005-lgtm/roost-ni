@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { nextContentMode, prepareMarketingReview, validateMarketingCopy, NI_LEGAL_TOPICS, readMarketingReview } from "./src/lib/marketing-knowledge";
+import { nextContentMode, prepareMarketingReview, validateMarketingCopy, readMarketingReview } from "./src/lib/marketing-knowledge";
 
 const body = "Organise your rental evidence before a viewing. What has helped you prepare?";
 describe("Robin marketing rules", () => {
@@ -36,9 +36,10 @@ describe("Robin marketing rules", () => {
   test("legal series requires a specific supported page and check flag", () => {
     expect(() => prepareMarketingReview({ body }, "help", true)).toThrow();
     expect(() => prepareMarketingReview({ body, legal_statements: [{ statement: body, source: "https://www.nidirect.gov.uk", flag: "check before posting" }] }, "help", true)).toThrow();
-    const source = NI_LEGAL_TOPICS[0]?.source ?? "";
-    const review = prepareMarketingReview({ body, legal_statements: [{ statement: body, source, flag: "check before posting" }] }, "help", true);
-    expect(readMarketingReview(JSON.stringify(review))?.legal_statements[0]).toEqual({ statement: body, source, flag: "check before posting" });
+    const source = "https://www.nidirect.gov.uk/articles/protection-against-eviction";
+    const facts = [{id:"example",topic:"Evidence",fact_text:body,source_url:source,last_verified_at:new Date().toISOString(),status:"approved",revision:1}];
+    const review = prepareMarketingReview({ body, legal_statements: [{ statement: body, source, flag: "check before posting" }] }, "help", true, true, facts);
+    expect(readMarketingReview(JSON.stringify(review))?.legal_statements[0]).toMatchObject({ statement: body, source, flag: "check before posting", fact_id:"example" });
   });
   test("agent fee claims are flagged for verification", () => {
     expect(prepareMarketingReview({ body: `Agent fees vary. ${body}` }, "help").review_flags).toContain("verify before posting");

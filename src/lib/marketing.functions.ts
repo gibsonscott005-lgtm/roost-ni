@@ -1,3 +1,5 @@
+import { legalFactCatalogue, type LegalFact } from "./legal-fact-rules";
+import { weekSlots } from "./robin-groups";
 import { groupBody, trackedGroupLink, readGroupSnapshot } from "./robin-groups";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -6,8 +8,6 @@ import {
   MARKETING_KNOWLEDGE,
   NI_LEGAL_COOLDOWN_DAYS,
   NI_LEGAL_GUARDRAILS,
-  NI_LEGAL_TOPICS,
-  type NiLegalTopic,
   nextContentMode,
   prepareMarketingReview,
   type LegalStatement,
@@ -195,14 +195,16 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
     const { count: policyCount } = await supabaseAdmin.from("marketing_posts")
       .select("id", { count: "exact", head: true }).like("notes", '%"content_mode"%').neq("status", "skipped");
     const contentMode = nextContentMode(policyCount ?? 0);
-    const sourceCatalogue = [...new Set(NI_LEGAL_TOPICS.map(t => `${t.title}: ${t.source}`))].join("\n");
+    const { getApprovedLegalFacts } = await import("./legal-facts.server");
+    const approvedFacts = await getApprovedLegalFacts(supabaseAdmin);
+    const sourceCatalogue = legalFactCatalogue(approvedFacts);
 
     if (data.focus === "reddit") {
-      return generateRedditBatch(supabaseAdmin, context.userId, recent, contentMode, sourceCatalogue, data.brief);
+      return generateRedditBatch(supabaseAdmin, context.userId, recent, contentMode, sourceCatalogue, data.brief, approvedFacts);
     }
 
     const isLegal = data.focus === "ni_legal";
-    let legalPicks: NiLegalTopic[] = [];
+    let legalPicks: Array<{key:string;title:string;body:string;source:string;cta:string;upcoming?:boolean}> = [];
     if (isLegal) {
       // Topic cooldown: exclude any legal topic used in the last N days, then
       // prefer topics that have gone longest without a post.
@@ -218,19 +220,19 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
         const key = row.angle.slice("legal:".length);
         if (!lastUsed.has(key)) lastUsed.set(key, row.scheduled_for);
       }
-      const eligible = NI_LEGAL_TOPICS.filter((t) => {
+      const eligible = approvedFacts.map(f => ({key:f.id,title:f.topic,body:f.fact_text,source:f.source_url,cta:"https://roostni.co.uk/audit"})).filter((t) => {
         const used = lastUsed.get(t.key);
         return !used || used < since;
       }).sort((a, b) => (lastUsed.get(a.key) ?? "").localeCompare(lastUsed.get(b.key) ?? ""));
       // Keep one "upcoming change" slot (Friday) when available.
-      const upcoming = eligible.filter((t) => t.upcoming);
-      const current = eligible.filter((t) => !t.upcoming);
+      const upcoming: typeof eligible = [];
+      const current = eligible;
       legalPicks = [current[0] ?? upcoming[0]].filter(
-        (t): t is NiLegalTopic => Boolean(t),
+        (t): t is NonNullable<typeof t> => Boolean(t),
       );
       if (legalPicks.length === 0) {
         throw new Error(
-          `Every legal topic has been covered in the last ${NI_LEGAL_COOLDOWN_DAYS} days — try again later.`,
+          "No unused approved legal facts verified within 90 days. Review facts before drafting.",
         );
       }
     }
@@ -249,7 +251,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
           "",
           NI_LEGAL_GUARDRAILS,
           "",
-          `Write exactly ${legalPicks.length} posts, one per topic below. The URLs are review sources, not verified facts. Do not invent legal details:`,
+          `Write exactly ${legalPicks.length} posts, one per topic below. Use only these exact approved statements. Do not invent legal details:`,
           ...legalPicks.map(
             (t, i) =>
               `${i + 1}. key=${t.key} | ${t.title} | Responsible body: ${t.body}${t.upcoming ? " | UPCOMING/PROPOSED" : ""}\n   Supporting page: ${t.source}\n   Optional link_url: ${t.cta}`,
@@ -289,13 +291,18 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
       apiKey: process.env["LOVABLE_API_KEY"]!,
     });
 
-    const result = streamText({
-      model: gateway("google/gemini-2.5-flash"),
+    const result = isLegal ? null : streamText({
+      model: gateway("google/gemini-3.8-flash"),
       system: MARKETING_KNOWLEDGE,
       prompt: withDailyOverride(prompt, data.brief),
       temperature: 0.9,
     });
-    const text = await result.text;
+    const text = isLegal ? JSON.stringify(await (async () => {
+      const {generateRobinOutput} = await import("./robin-ai/generate.server");
+      const key=process.env["LOVABLE_API_KEY"]; if(!key) throw new Error("AI not configured.");
+      const output = await generateRobinOutput(key,MARKETING_KNOWLEDGE,withDailyOverride(prompt,data.brief)+"\nReturn an object with posts containing the requested posts array.",z.object({posts:z.array(z.object({persona:z.string(),angle:z.string(),topic:z.string(),body:z.string(),link_url:z.string().nullable(),legal_statements:z.array(z.object({statement:z.string(),source:z.string(),flag:z.enum(["check before posting"])})),review_flags:z.array(z.string())}))}),true);
+      return output.posts;
+    })()) : await result?.text ?? "";
 
     const start = text.indexOf("[");
     const end = text.lastIndexOf("]");
@@ -312,7 +319,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
     }
 
     // Legal series: Mon/Wed/Fri. Otherwise one post per day. 18:00 UTC.
-    const base = nextDailySlot();
+    const base = weekSlots(1)[0] ?? nextDailySlot();
 
     const rows = cleaned.map((p, i) => {
       const when = isLegal
@@ -326,7 +333,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "")
         .slice(0, 32);
-      const review = prepareMarketingReview(p, contentMode, isLegal);
+      const review = prepareMarketingReview(p, contentMode, isLegal, true, approvedFacts);
       return {
         created_by: context.userId,
         notes: JSON.stringify(review),
@@ -341,7 +348,7 @@ export const generateMarketingPlan = createServerFn({ method: "POST" })
         link_url: contentMode === "help" ? null : typeof p.link_url === "string" && p.link_url.startsWith("https://roostni.co.uk/") ? p.link_url.slice(0, 300) : null,
         utm_campaign: `fb_${dateSlug}_${topicSlug || "post"}_${i}`.slice(0, 90),
         scheduled_for: when.toISOString(),
-        status: "scheduled",
+        status: "draft",
       };
     });
 
@@ -628,7 +635,7 @@ const REDDIT_RULES = [
   "You are drafting posts for r/nirenting, a Reddit community about renting in Northern Ireland, owned and moderated by the RoostNI founder.",
   "Reddit rules: long-form, genuinely useful, plain-spoken British English. No hashtags, no emojis, no marketing hype, no 'game-changer'.",
   "Use Reddit Markdown: short intro, ## headings or **bold** labels, bullet lists, a short 'TL;DR' line at the end.",
-  "Northern Ireland law only. Never cite English frameworks (ASTs, Section 21/8, Right to Rent, Renters' Rights Act, five-week deposit cap). Deposits: TDS Northern Ireland or MyDeposits Northern Ireland only.",
+  "Northern Ireland law only. Never cite English frameworks (ASTs, Section 21/8, Right to Rent, Renters' Rights Act, five-week deposit cap). Any scheme claim must come from a currently approved database fact.",
   "Include the line: 'General information only, not legal advice — check nidirect.gov.uk for the current rules.'",
   "Mix formats across the batch: practical guides, myth-busters (NI vs England), discussion questions that invite people to share experiences, and scenario questions.",
   "Follow the assigned content mode. Pure help omits RoostNI and link_url; soft mentions are understated, direct posts are useful first. If linking, use the literal placeholder LINK.",
@@ -642,6 +649,7 @@ async function generateRedditBatch(
   contentMode: ContentMode,
   sourceCatalogue: string,
   brief?: string,
+  approvedFacts: LegalFact[] = [],
 ) {
   const count = 1;
   const prompt = [
@@ -690,9 +698,9 @@ async function generateRedditBatch(
     .slice(0, count);
   if (cleaned.length === 0) throw new Error("The AI returned no usable posts — try again.");
 
-  const base = nextDailySlot();
+  const base = weekSlots(1)[0] ?? nextDailySlot();
   const rows = cleaned.map((p, i) => {
-    const review = prepareMarketingReview({ ...p, body: p.body ?? "", topic: p.title }, contentMode, false, false);
+    const review = prepareMarketingReview({ ...p, body: p.body ?? "", topic: p.title }, contentMode, false, false, approvedFacts);
     const when = new Date(base.getTime() + i * 86400000);
     const slug = String(p.angle ?? p.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32);
     return {
@@ -706,7 +714,7 @@ async function generateRedditBatch(
       link_url: contentMode !== "help" && typeof p.link_url === "string" && p.link_url.startsWith("https://roostni.co.uk/") ? p.link_url.slice(0, 300) : null,
       utm_campaign: `rd_${when.toISOString().slice(0, 10)}_${slug || "post"}_${i}`.slice(0, 90),
       scheduled_for: when.toISOString(),
-      status: "scheduled",
+      status: "draft",
     };
   });
   const { data: inserted, error } = await supabaseAdmin

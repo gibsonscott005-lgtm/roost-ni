@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { RobinGroupsPanel } from "./robin-groups-panel";
 import { readGroupSnapshot } from "@/lib/robin-groups";
 import { Button } from "@/components/ui/button";
@@ -233,6 +234,7 @@ export function MarketingAdminPanel() {
         placeholder="Topic, audience, recent results and any claims you have explicitly checked (optional)."
         className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
       />
+      <Link to="/dashboard/legal-facts" className="inline-flex text-sm font-semibold text-verified underline">Review Robin’s legal facts</Link>
       <RobinGroupsPanel brief={brief} focus={focus} posts={posts} onDrafted={load}/>
       <div className="flex flex-wrap items-center gap-2">
         <select
@@ -440,7 +442,7 @@ export function MarketingAdminPanel() {
                     {review?.legal_statements.map((item, index) => <div key={index} className="mt-2">
                       <p>{item.statement}</p>
                       <a href={item.source} target="_blank" rel="noreferrer" className="break-all underline">{item.source}</a>
-                      <p className="font-semibold">{item.flag}</p>
+                      <p className="font-semibold">Verified: {item.verified_at ? new Date(item.verified_at).toLocaleDateString("en-GB") : "Not verified — legacy draft"} · {item.flag}</p>
                     </div>)}
                     {review?.review_flags.includes("verify before posting") ? <p className="mt-2 font-semibold">Verify before posting — portal, agent or fee claim</p> : null}
                     {!review ? <p className="mt-1 text-muted-foreground">Not checked against Robin’s current wording and source rules.</p> : null}

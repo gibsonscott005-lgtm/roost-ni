@@ -1,0 +1,13 @@
+import {test,expect} from "bun:test";
+import {eligibleLegalFacts,assertApprovedStatements,summariseSourceChange,type LegalFact} from "./src/lib/legal-fact-rules";
+const now=Date.parse("2026-10-22T23:07:00Z");
+const fact:LegalFact={id:"notice",topic:"Notice to quit",fact_text:"The notice period is four weeks.",source_url:"https://www.communities-ni.gov.uk/articles/section-11-private-tenancies-northern-ireland-act-2022",status:"approved",last_verified_at:new Date(now).toISOString(),revision:1};
+test("only approved facts may be used",()=>{expect(eligibleLegalFacts([{...fact,status:"needs_review"}],now)).toEqual([]);});
+test("facts older than 90 days are skipped",()=>{expect(eligibleLegalFacts([{...fact,last_verified_at:new Date(now-90*86400000-1).toISOString()}],now)).toEqual([]);expect(eligibleLegalFacts([{...fact,last_verified_at:new Date(now-90*86400000).toISOString()}],now)).toHaveLength(1);});
+test("unverified and future verification dates are rejected",()=>{expect(eligibleLegalFacts([{...fact,last_verified_at:null},{...fact,last_verified_at:new Date(now+1).toISOString()}],now)).toEqual([]);});
+test("notice periods cannot be used before individual approval",()=>{expect(()=>assertApprovedStatements(fact.fact_text,[{statement:fact.fact_text,source:fact.source_url}],[{...fact,status:"needs_review"}],now)).toThrow();});
+test("an undeclared notice period is blocked even outside legal series",()=>{expect(()=>assertApprovedStatements("Notice to quit is 12 weeks.",[],[],now)).toThrow();});
+test("undeclared legal duties cannot bypass the catalogue",()=>{expect(()=>assertApprovedStatements("Your landlord must hand you a notice.",[],[],now)).toThrow();});
+test("approved legal posts retain source and verified date",()=>{expect(assertApprovedStatements(fact.fact_text,[{statement:fact.fact_text,source:fact.source_url}],[fact],now)[0]).toMatchObject({source:fact.source_url,verified_at:"2026-10-22T23:07:00.000Z",fact_id:"notice"});});
+test("rejected facts remain unavailable",()=>{expect(eligibleLegalFacts([{...fact,rejected_at:new Date(now).toISOString()}],now)).toEqual([]);});
+test("source difference summary identifies changed page text without rewriting facts",()=>{expect(summariseSourceChange("Old period guidance\nSame", "New period guidance\nSame")).toContain("Removed/changed: Old period guidance");expect(summariseSourceChange("Old period guidance", "New period guidance")).toContain("Added/changed: New period guidance");});
