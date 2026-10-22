@@ -1,3 +1,5 @@
+import { RobinGroupsPanel } from "./robin-groups-panel";
+import { readGroupSnapshot } from "@/lib/robin-groups";
 import { Button } from "@/components/ui/button";
 import { readMarketingReview } from "@/lib/marketing-knowledge";
 import { useCallback, useEffect, useState } from "react";
@@ -39,6 +41,7 @@ const dateFmt = (iso: string) =>
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Europe/London",
   });
 
 const personaStyles: Record<string, string> = {
@@ -170,7 +173,7 @@ export function MarketingAdminPanel() {
   const copyGroupPost = (post: MarketingPost) => {
     setLastCopiedId(post.id);
     try { localStorage.setItem("roost_last_copied_post", post.id); } catch { /* ignore */ }
-    copyText(buildGroupPostText(post), "Group post copied", "No links inside — post it directly in the group, then add the first comment.");
+    copyText(buildGroupPostText(post), "Group post copied", "Uses this draft’s saved link placement and posting identity.");
   };
   const copyFirstComment = (post: MarketingPost) =>
     copyText(buildFirstCommentText(post), "First comment copied", "Paste this as the first comment straight after posting.");
@@ -230,6 +233,7 @@ export function MarketingAdminPanel() {
         placeholder="Topic, audience, recent results and any claims you have explicitly checked (optional)."
         className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
       />
+      <RobinGroupsPanel brief={brief} focus={focus} posts={posts} onDrafted={load}/>
       <div className="flex flex-wrap items-center gap-2">
         <select
           value={focus}
@@ -242,7 +246,7 @@ export function MarketingAdminPanel() {
           <option value="ni_legal">NI Legal Series</option>
           <option value="reddit">Reddit</option>
         </select>
-        <Button
+        {focus === "reddit" ? <Button
           type="button"
           onClick={generate}
           disabled={generating}
@@ -254,7 +258,7 @@ export function MarketingAdminPanel() {
             <Sparkles className="h-3.5 w-3.5" />
           )}
           {generating ? "Robin is drafting…" : focus === "reddit" ? "Draft today's Reddit post" : "Draft today's post"}
-        </Button>
+        </Button> : null}
         <button
           type="button"
           onClick={refreshResults}
@@ -390,6 +394,7 @@ export function MarketingAdminPanel() {
                     {post.angle}
                   </span>
                 </div>
+                {readGroupSnapshot(post.notes) ? <p className="mt-2 text-xs font-semibold text-verified">{readGroupSnapshot(post.notes)?.name} · {readGroupSnapshot(post.notes)?.linkPlacement} · {readGroupSnapshot(post.notes)?.postAs}</p> : null}
                 <p className="mt-2 text-sm font-medium text-foreground">{post.topic}</p>
 
                 {editingId === post.id ? (
@@ -469,7 +474,7 @@ export function MarketingAdminPanel() {
                   >
                     <Copy className="h-3 w-3" /> 1. Copy group post
                   </button>
-                  {post.link_url ? (
+                  {post.link_url && readGroupSnapshot(post.notes)?.linkPlacement !== "in body" ? (
                     <button
                       type="button"
                       onClick={() => copyFirstComment(post)}
