@@ -88,7 +88,7 @@ export function readMarketingReview(notes: string | null): MarketingReview | nul
   } catch { return null; }
 }
 export function validateMarketingCopy(text: string, facebook = true): void {
-  if (/\b(free|platform|guaranteed|compliant)\b|100\s*%|\b(organi[sz](?:e|ed|es|ing|ation)|color|recognize)\b/i.test(text.replace(/\borganis(?:e|ed|es|ing|ation)\b/gi, ""))) {
+  if (/\b(free|platform|guaranteed|compliant)\b|100\s*%|\b(organiz(?:e|ed|es|ing|ation)|colors?|recogniz(?:e|ed|es|ing))\b/i.test(text)) {
     throw new Error("Draft wording needs revision: use British spelling and avoid pricing or compliance claims.");
   }
   if (!facebook) return;
