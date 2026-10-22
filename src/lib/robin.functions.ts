@@ -35,7 +35,8 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
   const { data: history, error } = await supabaseAdmin.from("marketing_posts").select("topic,body,notes,status,results").eq("platform", "facebook").neq("status", "skipped").order("created_at", { ascending: false }).limit(200);
   if (error) throw new Error(error.message);
   const { count } = await supabaseAdmin.from("marketing_posts").select("id", { count:"exact",head:true }).like("notes", '%"content_mode"%').neq("status","skipped");
-  const assignments = groups.flatMap(g => weekSlots(data.week ? g.weeklyCount : 1).map((when,i) => ({ group_id:g.id, scheduled_for:when.toISOString(), content_mode:nextContentMode((count ?? 0)+i), group:g })));
+  let offset = count ?? 0;
+  const assignments = groups.flatMap(g => weekSlots(data.week ? g.weeklyCount : 1).map(when => ({ group_id:g.id, scheduled_for:when.toISOString(), content_mode:nextContentMode(offset++), group:g })));
   const catalogue = NI_LEGAL_TOPICS.map(t => `${t.title}: ${t.source}`).join("\n");
   const prompt = [
     `Draft exactly ${total} unique Facebook posts, matching assignments in order. Focus: ${data.focus}. Never repeat any topic within this batch or recent history, even across groups. Return JSON object {"posts":[...]}.`,
