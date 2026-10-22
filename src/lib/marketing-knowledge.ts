@@ -1,3 +1,4 @@
+import { assertApprovedStatements, type LegalFact } from "./legal-fact-rules";
 /** Robin's shared rules apply to posts, comment replies, titles and image text. */
 export const MARKETING_KNOWLEDGE = `
 You are Robin, RoostNI's marketing assistant for Northern Ireland renters and self-managing landlords.
@@ -7,7 +8,7 @@ You are Robin, RoostNI's marketing assistant for Northern Ireland renters and se
 - Use first person when writing a post or reply from the owner. Do not invent personal experiences or pretend the owner has done checks they have not done.
 - Ban estate-agent and corporate wording: seeking, bespoke, portfolio, premier, stunning, pursuant, whilst, hereby, solutions, leverage, delighted to announce, we are pleased to.
 - No filler openers (such as "In today's world", "When it comes to" or "Let's talk about"). No hedging stacks. State what the evidence supports; omit what it does not. A necessary qualification is not filler.
-- Open with a hard fact or sharp question in this voice. Example tone, NOT a verified legal fact: "Your landlord has 28 days to hand you a Tenancy Information Notice. Most tenants have never seen one." Do not reuse either claim without checking it; the second needs evidence too.
+- Open with a hard fact or sharp question in this voice. Example tone only: "Paperwork again. What would make it less of a mess?" Never use legal facts from memory.
 - Aim jabs at jargon, paperwork and process. Never at named agents, firms or portals. No unverifiable competitor claims. No mocking applicants or tenant circumstances.
 - Accuracy beats attitude. Punchy never means guaranteeing, over-claiming or removing sources. Each legal statement keeps its specific nidirect source and "check before posting" flag. Keep the blunt disclaimer: "General information, not legal advice."
 - No more than one emoji per post; none in its first line. No hashtag walls: at most 4 hashtags. Apply the same restraint to comment replies and images.
@@ -33,10 +34,10 @@ You are Robin, RoostNI's marketing assistant for Northern Ireland renters and se
 
 ## Legal review — every post, comment reply and image, not just the legal series
 - Northern Ireland only. Never use English/Welsh frameworks: Section 21, Section 8, Assured Shorthold Tenancies/ASTs, Council Tax, How to Rent, Right to Rent, Renters' Rights Act or five-week deposit caps.
-- For EVERY legal statement return a legal_statements entry with the exact statement, a specific supporting https://www.nidirect.gov.uk/articles/... page from the supplied source catalogue, and flag "check before posting". Never cite only the homepage or invent a source.
+- For EVERY legal statement return a legal_statements entry with the exact statement, the exact supporting URL from the approved database fact catalogue, and flag "check before posting". Never cite only the homepage or invent a source.
 - A source URL is a review reference, not proof that a claim has been checked. Do not invent deadlines, fines, commencement dates or scheme names. If the source does not support a statement, omit it. Do not repeat legacy facts from old posts.
 - Legal posts include "General information, not legal advice." before the closing discussion question. Source links and review flags go in the admin review notes separately from copy-ready text.
-- Non-legal practical advice must be labelled as good practice, never a statutory requirement. If a specific nidirect source is unavailable, do not make a legal claim.
+- Non-legal practical advice must be labelled as good practice, never a statutory requirement. Only approved facts human-verified within 90 days may be used; no other legal claims. Never infer notice periods from old prompts, a brief or model memory. Keep the supplied official source, including DfC or legislation where applicable.
 
 ## What can be mentioned when the assigned content mode allows it
 - Reusable Tenant Passport: self-certified ID, income evidence and rental history organised for the landlord's own review.
@@ -56,31 +57,6 @@ You are Robin, RoostNI's marketing assistant for Northern Ireland renters and se
 
 export const NI_LEGAL_GUARDRAILS = `Use one NI legal topic only. Each legal statement needs its own specific nidirect source and "check before posting" flag. Source pages are candidates for human review, not checked legal advice. Never infer current law from the topic title. Omit unsupported claims. Include tenants as well as landlords.`;
 
-export interface NiLegalTopic {
-  key: string;
-  body: string;
-  title: string;
-  source: string;
-  cta: string;
-  upcoming?: boolean;
-}
-
-const source = (slug: string) => `https://www.nidirect.gov.uk/articles/${slug}`;
-export const NI_LEGAL_TOPICS: NiLegalTopic[] = [
-  { key: "dfc-tenancy-info-notice", body: "Department for Communities", title: "Tenancy information in writing", source: source("landlord-and-tenant-obligations"), cta: "https://roostni.co.uk/audit" },
-  { key: "dfc-notice-to-quit", body: "Department for Communities", title: "Notice to quit", source: source("private-rent-and-tenancies"), cta: "https://roostni.co.uk/notice-to-quit-ni" },
-  { key: "dfc-deposit-cap", body: "Department for Communities", title: "Tenancy deposits", source: source("tenancy-deposit-scheme-information-tenants"), cta: "https://roostni.co.uk/audit" },
-  { key: "dfc-rent-receipts", body: "Department for Communities", title: "Written rent receipts", source: source("landlord-and-tenant-obligations"), cta: "https://roostni.co.uk/rent-receipts-ni" },
-  { key: "dfc-landlord-registration", body: "Department for Communities", title: "Landlord registration", source: source("landlord-registration-scheme"), cta: "https://roostni.co.uk/landlord-registration-ni" },
-  { key: "lps-rates-not-council-tax", body: "Land & Property Services", title: "Rates in rental properties", source: source("rates-rental-properties"), cta: "https://roostni.co.uk/audit" },
-  { key: "lps-epc", body: "Department of Finance", title: "Energy Performance Certificates", source: source("energy-performance-certificates"), cta: "https://roostni.co.uk/audit" },
-  { key: "hseni-gas-safety", body: "HSENI", title: "Safety in rented accommodation", source: source("health-and-safety-rented-accommodation"), cta: "https://roostni.co.uk/audit" },
-  { key: "council-alarms", body: "District council", title: "Alarm responsibilities", source: source("problems-your-landlord-how-council-can-help"), cta: "https://roostni.co.uk/audit" },
-  { key: "council-fitness-repairs", body: "District council", title: "Repairs and fitness", source: source("health-and-safety-rented-accommodation"), cta: "https://roostni.co.uk/audit" },
-  { key: "council-hmo", body: "NI HMO Unit", title: "Shared accommodation", source: source("living-shared-accommodation"), cta: "https://roostni.co.uk/audit" },
-  { key: "courts-illegal-eviction", body: "District council / NI Courts", title: "Problems with your landlord", source: source("problems-your-landlord-how-council-can-help"), cta: "https://roostni.co.uk/audit" },
-  { key: "tds-14-28-deadlines", body: "Approved NI deposit schemes", title: "Deposit protection information", source: source("tenancy-deposit-scheme-information-tenants"), cta: "https://roostni.co.uk/audit" },
-];
 export const NI_LEGAL_COOLDOWN_DAYS = 45;
 
 export type ContentMode = "help" | "soft" | "direct";
@@ -89,7 +65,7 @@ const CONTENT_CYCLE: ContentMode[] = ["help", "help", "soft", "help", "help", "d
 export function nextContentMode(previousCount: number): ContentMode {
   return CONTENT_CYCLE[Math.max(0, previousCount) % CONTENT_CYCLE.length] ?? "help";
 }
-export interface LegalStatement { statement: string; source: string; flag: "check before posting" }
+export interface LegalStatement { statement: string; source: string; flag: "check before posting"; fact_id?: string; verified_at?: string | null; revision?: number }
 export interface MarketingReview {
   content_mode: ContentMode;
   legal_statements: LegalStatement[];
@@ -119,14 +95,15 @@ export function validateMarketingCopy(text: string, facebook = true): void {
   if (/^.*RoostNI\s+is\b/i.test(text.trim().split("\n")[0] ?? "")) throw new Error("Start with a useful fact or question, not a RoostNI tagline.");
   if (!text.trim().endsWith("?")) throw new Error("End the post with a genuine discussion question.");
 }
-export function prepareMarketingReview(input: { body: string; topic?: string; legal_statements?: LegalStatement[]; review_flags?: string[] }, mode: ContentMode, requireLegal = false, facebook = true): MarketingReview {
+export function prepareMarketingReview(input: { body: string; topic?: string; legal_statements?: LegalStatement[]; review_flags?: string[] }, mode: ContentMode, requireLegal = false, facebook = true, approvedFacts: LegalFact[] = []): MarketingReview {
   validateMarketingCopy(input.body, facebook);
   if (input.topic) validateMarketingCopy(input.topic, false);
   if (mode === "help" && /roostni|roostni\.co\.uk/i.test(`${input.body} ${input.topic ?? ""}`)) throw new Error("Pure help must not mention RoostNI.");
   const statements = input.legal_statements ?? [];
   if (requireLegal && statements.length === 0) throw new Error("Legal drafts need a sourced statement for review.");
   for (const item of statements) {
-    if (!item || typeof item.statement !== "string" || !item.statement.trim() || !input.body.includes(item.statement) || item.flag !== "check before posting" || !NI_LEGAL_TOPICS.some(t => t.source === item.source)) throw new Error("Each legal statement needs a supporting nidirect page and a check before posting flag.");
+    if (!item || typeof item.statement !== "string" || !item.statement.trim() || !input.body.includes(item.statement) || item.flag !== "check before posting") throw new Error("Each legal statement needs a supporting nidirect page and a check before posting flag.");
   }
-  return { content_mode: mode, legal_statements: statements, review_flags: ["check before posting", ...new Set((input.review_flags ?? []).filter(v => typeof v === "string")), ...(/\bagent|portal|commission|\bfees?\b/i.test(input.body) ? ["verify before posting"] : [])] };
+  const checkedStatements = assertApprovedStatements(`${input.topic ?? ""}\n${input.body}`, statements, approvedFacts);
+  return { content_mode: mode, legal_statements: checkedStatements, review_flags: ["check before posting", ...new Set((input.review_flags ?? []).filter(v => typeof v === "string")), ...(/\bagent|portal|commission|\bfees?\b/i.test(input.body) ? ["verify before posting"] : [])] };
 }

@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import { template as legalSourceChangedTemplate } from './legal-source-changed'
 import { template as notificationAlertTemplate } from './notification-alert'
 import { template as welcomeTenantTemplate } from './welcome-tenant'
 import { template as welcomeLandlordTemplate } from './welcome-landlord'
@@ -18,6 +19,7 @@ export interface TemplateEntry {
  * Import and register new templates here after creating them in this directory.
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
+  'legal-source-changed': legalSourceChangedTemplate,
   'notification-alert': notificationAlertTemplate,
   'welcome-tenant': welcomeTenantTemplate,
   'welcome-landlord': welcomeLandlordTemplate,

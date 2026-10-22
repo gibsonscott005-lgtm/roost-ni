@@ -1,0 +1,8 @@
+import React from "react";
+import { Html,Head,Preview,Body,Container,Heading,Text,Link,Section } from "@react-email/components";
+import type { TemplateEntry } from "./registry";
+import * as styles from "./brutal-styles";
+function LegalSourceChanged({ title="Legal source",summary="A source needs review.",sourceUrl="",urgent=false }: {title?:string;summary?:string;sourceUrl?:string;urgent?:boolean}) {
+  return <Html lang="en-GB"><Head/><Preview>{urgent?"Notice to quit source changed":"Robin source needs review"}</Preview><Body style={styles.main}><Container style={styles.container}><Text style={styles.wordmark}>Roost<span style={styles.dot}>NI</span></Text><Section style={styles.card}><Heading style={styles.heading}>{urgent?"Notice to quit. Check now.":"A legal source needs review."}</Heading><Text style={styles.text}>{title}</Text><Text style={styles.text}>{summary}</Text><Text style={styles.text}>Robin cannot use the affected facts until you approve them again. The stored wording has not been overwritten.</Text>{sourceUrl?<Link style={styles.link} href={sourceUrl}>Open source</Link>:null}<Text><Link style={styles.button} href="https://roostni.co.uk/dashboard/legal-facts">Review facts</Link></Text><Text style={styles.footer}>General information, not legal advice.</Text></Section></Container></Body></Html>;
+}
+export const template={component:LegalSourceChanged,subject:(data:Record<string,unknown>)=>data.urgent?"RoostNI — notice to quit source changed":"RoostNI — legal facts need review",displayName:"Robin legal source alert",to:"scott@roostni.co.uk",previewData:{title:"Notice to quit guidance",summary:"Source wording changed. Check the current guidance.",urgent:true}} satisfies TemplateEntry;

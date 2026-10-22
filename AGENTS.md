@@ -17,3 +17,4 @@
 - Robin's marketing policy and validation live in marketing-knowledge.ts; structured review metadata uses marketing_posts.notes so sources and review flags stay separate from copy-ready posts without a schema change.
 - Robin group configuration is persisted server-side; drafts snapshot group settings in notes to keep attribution stable after edits, and schedules use Europe/London rather than a fixed UTC offset.
 - New Robin weekly and reply calls use structured Responses output in server-only helpers; legal drafting uses the discovered flagship model with high reasoning, and no posting automation is installed.
+- Robin legal claims come exclusively from legal_facts; source snapshots live in legal_sources, human approval dates never refresh automatically, and secure TanStack callbacks perform weekly checks via pg_cron because this stack does not use Edge Functions.

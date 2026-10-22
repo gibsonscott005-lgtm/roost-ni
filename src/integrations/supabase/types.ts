@@ -113,6 +113,113 @@ export type Database = {
         }
         Relationships: []
       }
+      legal_facts: {
+        Row: {
+          change_summary: string | null
+          created_at: string
+          fact_text: string
+          id: string
+          last_verified_at: string | null
+          rejected_at: string | null
+          revision: number
+          source_url: string
+          status: string
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          change_summary?: string | null
+          created_at?: string
+          fact_text: string
+          id?: string
+          last_verified_at?: string | null
+          rejected_at?: string | null
+          revision?: number
+          source_url: string
+          status?: string
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          change_summary?: string | null
+          created_at?: string
+          fact_text?: string
+          id?: string
+          last_verified_at?: string | null
+          rejected_at?: string | null
+          revision?: number
+          source_url?: string
+          status?: string
+          topic?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_facts_source_url_fkey"
+            columns: ["source_url"]
+            isOneToOne: false
+            referencedRelation: "legal_sources"
+            referencedColumns: ["source_url"]
+          },
+        ]
+      }
+      legal_monitor_settings: {
+        Row: {
+          email_enabled: boolean
+          id: boolean
+        }
+        Insert: {
+          email_enabled?: boolean
+          id?: boolean
+        }
+        Update: {
+          email_enabled?: boolean
+          id?: boolean
+        }
+        Relationships: []
+      }
+      legal_sources: {
+        Row: {
+          change_summary: string | null
+          check_error: string | null
+          confirmed_at: string | null
+          id: string
+          last_checked_at: string | null
+          notice_to_quit: boolean
+          page_hash: string | null
+          page_text: string | null
+          source_url: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          change_summary?: string | null
+          check_error?: string | null
+          confirmed_at?: string | null
+          id?: string
+          last_checked_at?: string | null
+          notice_to_quit?: boolean
+          page_hash?: string | null
+          page_text?: string | null
+          source_url: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          change_summary?: string | null
+          check_error?: string | null
+          confirmed_at?: string | null
+          id?: string
+          last_checked_at?: string | null
+          notice_to_quit?: boolean
+          page_hash?: string | null
+          page_text?: string | null
+          source_url?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       listing_alert_subscribers: {
         Row: {
           created_at: string
@@ -1240,6 +1347,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_legal_fact: {
+        Args: { p_id: string; p_revision: number }
+        Returns: boolean
+      }
+      configure_legal_monitor: {
+        Args: { p_secret: string; p_url: string }
+        Returns: number
+      }
       emit_notification: {
         Args: {
           p_actor_id: string
@@ -1252,6 +1367,17 @@ export type Database = {
           p_type: Database["public"]["Enums"]["notification_type"]
         }
         Returns: string
+      }
+      legal_monitor_active: { Args: never; Returns: boolean }
+      record_legal_source_check: {
+        Args: {
+          p_expected_hash: string
+          p_hash: string
+          p_id: string
+          p_summary: string
+          p_text: string
+        }
+        Returns: boolean
       }
     }
     Enums: {

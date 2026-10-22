@@ -1,0 +1,6 @@
+import {createFileRoute,Link} from "@tanstack/react-router";
+import {LegalFactsPanel} from "@/components/legal-facts-panel";
+import {DashboardShell} from "@/components/dashboard-shell";
+import {useAuth} from "@/hooks/use-auth";
+export const Route=createFileRoute("/_authenticated/dashboard/legal-facts")({staticData:{sitemap:false},head:()=>({meta:[{title:"Robin legal fact review — RoostNI"},{name:"description",content:"Review and approve Robin’s Northern Ireland legal facts and source changes."},{property:"og:title",content:"Robin legal fact review — RoostNI"},{property:"og:description",content:"Northern Ireland fact approvals, verification dates and source monitoring."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:LegalFactsPage});
+function LegalFactsPage(){const {user,profile}=useAuth();return <DashboardShell user={user} profile={profile} activeKey="admin"><div className="space-y-6"><Link className="underline text-sm" to="/dashboard/admin">Back to command centre</Link><h1 className="font-display text-3xl font-bold">Robin’s legal facts</h1><LegalFactsPanel/></div></DashboardShell>;}
