@@ -1,5 +1,8 @@
 # Roadmap
 
+- [ ] Add editable Facebook groups, weekly drafting at 19:00 UK, combination attribution/results and Reply helper.
+- [ ] Upgrade NI legal drafting to a high-capability available model and verify actual calls and drafts.
+
 - [x] Add Robin’s blunt brand voice, Step 1 structure and site-matched image instructions; 31 tests passed and a real admin draft saved and read back correctly.
 
 - [x] Update Robin’s daily brief, wording, helpful weekly mix and legal/competitor review flags; policy tests and two authenticated draft/read-back checks passed; image design unchanged.
