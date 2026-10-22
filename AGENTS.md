@@ -14,3 +14,4 @@
 - Resolve browser Cloud settings through the build-time public allowlist, preferring VITE settings and accepting only URL/publishable-key server fallbacks; omit absent defines so managed preview configuration can inject them later without exposing private credentials.
 - Resolve the Vite project root from the working directory, not import.meta.url, because configuration bundling relocates the config into a temporary folder.
 - Pricing, plan and "free" wording lives only in src/lib/plans-copy.ts; components import it so wording changes in one place.
+- Robin's marketing policy and validation live in marketing-knowledge.ts; structured review metadata uses marketing_posts.notes so sources and review flags stay separate from copy-ready posts without a schema change.

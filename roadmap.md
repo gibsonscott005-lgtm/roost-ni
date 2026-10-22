@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Update Robin’s daily brief, wording, helpful weekly mix and legal/competitor review flags; policy tests and two authenticated draft/read-back checks passed; image design unchanged.
+
 - [x] Repair publishing connection configuration without changing generated clients; verify public pages and landlord sign-up gateway in preview.
 - [ ] Confirm the scheduled deployment finishes and repeat live-page checks — publication requested 2026-10-21; live checks still serve the previous broken client bundle and fail before landlord sign-up.
 
