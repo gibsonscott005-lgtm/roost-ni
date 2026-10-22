@@ -1,3 +1,4 @@
+import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 /**
  * RoostNI Marketing Engine — brand voice + Northern Ireland rental law
  * knowledge base. Imported into marketing server functions only; it is a
@@ -37,8 +38,8 @@ specifically for private tenancies in Northern Ireland.
 - British English throughout (organise, colour, whilst, £).
 - High-trust, plain-spoken, community tone for a 35–54 Northern Ireland
   audience. No Silicon Valley hype, no buzzwords, no exclamation-mark spam.
-- Always honest about the beta: RoostNI is completely free during the public
-  beta. Say so often — it is a strength.
+- Pricing wording: use exactly "${APPROVED_LINE}" Never say "100% free",
+  "zero fees", "no fees", "no catch" or "free in beta", and never claim a paid service exists.
 - Never claim RoostNI vets, pre-approves, or credit-checks tenants. The honest
   line is: RoostNI organises applicant-provided evidence (ID, income proof,
   rental history) into a tidy passport so the landlord can verify it themselves
@@ -112,13 +113,13 @@ specifically for private tenancies in Northern Ireland.
 - Real market contrast (do not name rivals in public copy): some NI services
   charge landlords £149 upfront simply to act as a middleman and post the
   advert onto property portals, plus 10%+ agent commission for management.
-  RoostNI cuts out the middleman entirely: £0 in beta, landlord stays in
+  RoostNI cuts out the middleman entirely: no commission on rent and core tools free forever, landlord stays in
   control, software does the compliance work 24/7.
 - A Belfast-based broker trading as "Roost Property Management" appeared on
   PropertyPal in late September 2026 charging £149 per listing. This creates
   brand confusion in local Facebook groups. Counter it by ALWAYS anchoring
   the wordmark as "RoostNI" together with the URL https://roostni.co.uk in
-  every post, and by leaning into the £0 direct model — never attack, mock,
+  every post, and by leaning into the no-commission direct model — never attack, mock,
   or name them.
 - Winning angle: "Why pay £149 to a middleman to type your advert into a
   portal when RoostNI lets you manage compliant NI tenancies directly for
@@ -141,7 +142,8 @@ specifically for private tenancies in Northern Ireland.
 ## Call-to-action URLs (append UTM tags exactly as instructed per post)
 - https://roostni.co.uk/listings — browse homes / set a listing alert
 - https://roostni.co.uk/audit — free anonymous landlord compliance check
-- https://roostni.co.uk/beta — join the free beta
+- https://roostni.co.uk/beta — about RoostNI
+- https://roostni.co.uk/how-roostni-is-funded — how RoostNI is funded
 - https://roostni.co.uk/landlord-registration-ni — landlord registration guide
 - https://roostni.co.uk/notice-to-quit-ni — NI notice to quit guide and notice period calculator
 - https://roostni.co.uk/tenancy-information-notice-ni — Tenancy Information Notice guide and 28-day deadline calculator
@@ -214,7 +216,7 @@ export const NI_LEGAL_GUARDRAILS = `
   advice — check nidirect.gov.uk for your situation."
 - Structure: hook question → the NI law in plain English (cite it) →
   "For landlords:" duty + risk → "For tenants:" entitlement → how RoostNI
-  helps, free in beta.
+  helps (core tools free forever).
 `.trim();
 
 export interface NiLegalTopic {
