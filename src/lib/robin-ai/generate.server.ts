@@ -4,7 +4,7 @@ import { z } from "zod";
 import { createLovableAiGatewayRunIdFetch } from "./run-id.server.ts";
 
 const legalSchema = z.object({ statement: z.string(), source: z.string(), flag: z.enum(["check before posting"]) });
-export const draftSchema = z.object({ group_id: z.string(), persona: z.string(), angle: z.string(), topic: z.string(), body: z.string(), link_url: z.string().nullable(), legal_statements: z.array(legalSchema), review_flags: z.array(z.string()) });
+export const draftSchema = z.object({ group_id: z.string(), persona: z.string(), angle: z.string(), topic: z.string(), body: z.string(), link_url: z.string().nullable(), legal_statements: z.array(legalSchema), review_flags: z.array(z.string()), image_brief: z.object({ headline: z.string(), fact_line: z.string(), layout: z.string() }) });
 export const replySchema = z.object({ body: z.string(), legal_statements: z.array(legalSchema), review_flags: z.array(z.string()) });
 export async function generateRobinOutput<T extends z.ZodType>(key: string, instructions: string, prompt: string, schema: T, legal = false): Promise<z.infer<T>> {
   const provider = createOpenAI({ baseURL: "https://ai.gateway.lovable.dev/v1", apiKey: key, headers: { "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "vercel-ai-sdk" }, fetch: createLovableAiGatewayRunIdFetch().fetch });
