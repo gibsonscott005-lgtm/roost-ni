@@ -1,6 +1,7 @@
 import {createServerFn} from "@tanstack/react-start";
 import {requireSupabaseAuth} from "@/integrations/supabase/auth-middleware";
 import {z} from "zod";
+import {validateLegalSourceUrl} from "./legal-source-url";
 
 export const getLegalReview=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).handler(async({context})=>{
   const {requireLegalAdmin}=await import("./legal-facts.server"); await requireLegalAdmin(context.supabase,context.userId);
@@ -15,7 +16,7 @@ export const reviewLegalFact=createServerFn({method:"POST"}).middleware([require
   const {data:fact,error}=await supabaseAdmin.from("legal_facts").select("*").eq("id",data.id).single(); if(error || !fact) throw new Error("Fact not found.");
   if(fact.revision!==data.revision) throw new Error("This fact changed since you opened it. Refresh before reviewing.");
   let sourceUrl=fact.source_url;
-  if(data.sourceUrl) { const {validateLegalSourceUrl}=await import("./legal-source-reader.server"); sourceUrl=validateLegalSourceUrl(data.sourceUrl); }
+  if(data.sourceUrl) sourceUrl=validateLegalSourceUrl(data.sourceUrl);
   if(data.action==="approve") {
     const {error:approvalError}=await supabaseAdmin.rpc("approve_legal_fact",{p_id:data.id,p_revision:data.revision});
     if(approvalError) throw new Error(approvalError.message);

@@ -1,11 +1,7 @@
 import { load } from "cheerio";
+import { validateLegalSourceUrl } from "./legal-source-url";
 
-const hosts = new Set(["www.nidirect.gov.uk","www.communities-ni.gov.uk","www.legislation.gov.uk","www.housingrights.org.uk","www.tdsnorthernireland.com","www.mydepositsni.co.uk"]);
-export function validateLegalSourceUrl(value:string) {
-  const url=new URL(value);
-  if(url.protocol!=="https:" || !hosts.has(url.hostname) || url.username || url.password || url.port) throw new Error("Use a recognised NI legal source URL.");
-  return url.toString();
-}
+export { validateLegalSourceUrl };
 export async function readLegalSource(value:string) {
   let url=validateLegalSourceUrl(value);
   for(let redirects=0;redirects<6;redirects++) {
