@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { prepareImageBrief } from "./marketing-knowledge";
+import { prepareImageBrief } from "./src/lib/marketing-knowledge";
 const body = "Deposits in NI must not exceed one month's rent. Did you know that?";
 describe("image brief", () => {
   test("headline of 8+ words is rejected", () => expect(() => prepareImageBrief({ headline: "one two three four five six seven eight", fact_line: "Did you know that?", layout: "" }, body)).toThrow());
