@@ -1,6 +1,7 @@
 import {createServerFn} from "@tanstack/react-start";
 import {requireSupabaseAuth} from "@/integrations/supabase/auth-middleware";
 import {z} from "zod";
+import {validateLegalSourceUrl} from "./legal-source-url";
 
 export const getLegalReview=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).handler(async({context})=>{
   const {requireLegalAdmin}=await import("./legal-facts.server"); await requireLegalAdmin(context.supabase,context.userId);
