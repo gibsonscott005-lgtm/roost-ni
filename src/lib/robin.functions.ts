@@ -26,14 +26,23 @@ export const saveRobinGroups = createServerFn({ method: "POST" }).middleware([re
   const { error } = await supabaseAdmin.from("marketing_group_settings").upsert({ id: "robin", groups: data, updated_at: new Date().toISOString() });
   if (error) throw new Error(error.message); return { ok: true };
 });
-export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((data: unknown) => z.object({ focus: z.enum(["mixed","landlord","tenant","ni_legal"]), groupIds: z.array(z.string()).min(1).max(20), week: z.boolean(), brief: z.string().max(6000).optional() }).parse(data)).handler(async ({ data, context }) => {
+export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((data: unknown) => z.object({ focus: z.enum(["mixed","landlord","tenant","ni_legal"]), groupIds: z.array(z.string()).min(1).max(20), week: z.boolean(), replace: z.boolean().optional(), brief: z.string().max(6000).optional() }).parse(data)).handler(async ({ data, context }) => {
   await admin(context.supabase, context.userId);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const groups = (await groupsFrom(supabaseAdmin)).filter(g => data.groupIds.includes(g.id));
   if (groups.length !== new Set(data.groupIds).size) throw new Error("Save your group settings first.");
   const total = groups.reduce((n,g) => n + (data.week ? g.weeklyCount : 1),0);
   if (total > 14) throw new Error("Select fewer groups: at most 14 drafts in one run, up to 7 per group.");
-  const { data: history, error } = await supabaseAdmin.from("marketing_posts").select("topic,body,notes,status,results").eq("platform", "facebook").neq("status", "skipped").order("created_at", { ascending: false }).limit(200);
+  // Re-draft: queued (unposted) posts are being replaced, so they must not count as history.
+  let replacedIds: string[] = [];
+  if (data.replace) {
+    const { data: queued, error: queuedError } = await supabaseAdmin.from("marketing_posts").select("id").in("status", ["draft", "scheduled"]);
+    if (queuedError) throw new Error(queuedError.message);
+    replacedIds = (queued ?? []).map(row => row.id);
+  }
+  let historyQuery = supabaseAdmin.from("marketing_posts").select("topic,body,notes,status,results").eq("platform", "facebook").neq("status", "skipped");
+  if (data.replace) historyQuery = historyQuery.not("status", "in", "(draft,scheduled)");
+  const { data: history, error } = await historyQuery.order("created_at", { ascending: false }).limit(200);
   if (error) throw new Error(error.message);
   const { count } = await supabaseAdmin.from("marketing_posts").select("id", { count:"exact",head:true }).like("notes", '%"content_mode"%').neq("status","skipped");
   let offset = count ?? 0;
@@ -71,7 +80,13 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
       utm_campaign:`fb_${assignment.scheduled_for.slice(0,10)}_${runId}_${i}`, scheduled_for:assignment.scheduled_for, status:"draft" };
   });
   const { data: created, error:insertError } = await supabaseAdmin.from("marketing_posts").insert(rows).select("*");
-  if (insertError) throw new Error(insertError.message); return { created:created ?? [] };
+  if (insertError) throw new Error(insertError.message);
+  // Old queue is removed only after the new drafts are safely saved.
+  if (replacedIds.length) {
+    const { error: deleteError } = await supabaseAdmin.from("marketing_posts").delete().in("id", replacedIds).in("status", ["draft", "scheduled"]);
+    if (deleteError) throw new Error(`New drafts saved, but the old queue could not be cleared: ${deleteError.message}`);
+  }
+  return { created:created ?? [], removed: replacedIds.length };
 });
 export const draftRobinReply = createServerFn({ method:"POST" }).middleware([requireSupabaseAuth]).inputValidator((data:unknown) => z.object({ comment:z.string().min(1).max(4000), groupId:z.string().optional() }).parse(data)).handler(async ({ data,context }) => {
   await admin(context.supabase,context.userId);
