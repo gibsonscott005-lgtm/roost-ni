@@ -117,7 +117,7 @@ const IMAGE_BANS: [RegExp, string][] = [
   [/\bcompliant\b/i, "compliant"], [/\bcompliance\s+tools?\b/i, "compliance tools"], [/\bplatforms?\b/i, "platform"],
   [/\bmiddle\s*-?\s*m[ae]n\b|\bcut\s+out\s+the\b|\bletting\s+agents?\b|\bestate\s+agents?\b|\bagent\s+fees?\b/i, "middleman or letting-agent slogan"],
 ];
-const US_SPELLING = /\b(organiz\w*|recogniz\w*|realiz\w*|apologiz\w*|minimiz\w*|maximiz\w*|prioritiz\w*|authoriz\w*|colors?|colored|favou?rites?(?<!favourites?)|favorite\w*|centers?|licensed?\s?(?=)|honors?|neighbors?\w*|behaviors?|analyz\w*|program(?!me)s?|catalog(?!ue)s?|labor\b)/i;
+const US_SPELLING = /\b(organiz\w*|recogniz\w*|realiz\w*|apologiz\w*|minimiz\w*|maximiz\w*|prioritiz\w*|authoriz\w*|analyz\w*|colors?|colored|favorite\w*|centers?|honors?|neighbors?|behaviors?|labor|catalog|programs?)\b/i;
 const LEGAL_WORDS = /\b(must|legally|law|statutory|legal|required|entitled|rights?|regulations?|legislation|notice|eviction|deposit|cap|protect\w*|register\w*|deadline)\b/i;
 const NUMBER_WORDS = /\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|fifty|hundred)\b/gi;
 const figures = (v: string) => [...(v.match(/\d[\d,.]*/g) ?? []), ...(v.toLowerCase().match(NUMBER_WORDS) ?? [])];
@@ -128,7 +128,7 @@ export function imageTextProblems(...texts: string[]): string[] {
   for (const t of texts) {
     for (const [re, label] of IMAGE_BANS) if (re.test(t) && !out.includes(`Banned on images: ${label}`)) out.push(`Banned on images: ${label}`);
     const us = t.match(US_SPELLING)?.[0];
-    if (us && !/^(licen[cs]e)/i.test(us) && !out.includes(`US spelling: ${us}`)) out.push(`US spelling: ${us}`);
+    if (us && !out.includes(`US spelling: ${us}`)) out.push(`US spelling: ${us}`);
   }
   return out;
 }
