@@ -45,6 +45,14 @@ export default (env: { command: "build" | "serve"; mode: string }) => {
         : process.env,
     ),
     plugins: [mcpPlugin()],
+    // Pre-transform the entry pages when the preview wakes so the first
+    // visit (or a Retry after a cold start) does not wait on compilation.
+    server: {
+      warmup: {
+        clientFiles: ["./src/routes/__root.tsx", "./src/routes/index.tsx", "./src/router.tsx"],
+        ssrFiles: ["./src/server.ts", "./src/routes/__root.tsx", "./src/routes/index.tsx"],
+      },
+    },
     resolve: {
       alias: {
         // Only legacy email-renderer paths need aliases. A bare `entities`
