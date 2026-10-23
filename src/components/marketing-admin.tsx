@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { RobinGroupsPanel } from "./robin-groups-panel";
 import { readGroupSnapshot } from "@/lib/robin-groups";
 import { Button } from "@/components/ui/button";
-import { readMarketingReview, readImageBrief, formatImageBrief } from "@/lib/marketing-knowledge";
+import { readMarketingReview, readImageBrief, formatImageBrief, auditImageBrief } from "@/lib/marketing-knowledge";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -446,15 +446,17 @@ export function MarketingAdminPanel() {
                     </div>)}
                     {review?.review_flags.includes("verify before posting") ? <p className="mt-2 font-semibold">Verify before posting — portal, agent or fee claim</p> : null}
                     {!review ? <p className="mt-1 text-muted-foreground">Not checked against Robin’s current wording and source rules.</p> : null}
-                    {(() => { const brief = post.platform === "facebook" ? readImageBrief(post.notes) : null; return brief ? <div className="mt-3 border-2 border-foreground p-2">
+                    {(() => { const brief = post.platform === "facebook" ? readImageBrief(post.notes) : null; if (!brief) return null; const problems = auditImageBrief(brief); const blocked = problems.length > 0; return <div className="mt-3 border-2 border-foreground p-2">
                       <p className="font-semibold uppercase tracking-wide">Image brief</p>
+                      {blocked ? <div role="alert" className="mt-1 border-2 border-destructive bg-destructive/10 p-2 font-semibold text-destructive">Copy blocked: {problems.join(" · ")}</div> : null}
                       <p className="mt-1"><span className="font-semibold">Headline:</span> {brief.headline}</p>
-                      <p><span className="font-semibold">Fact line:</span> {brief.fact_line}</p>
+                      <p><span className="font-semibold">Supporting line:</span> {brief.fact_line}</p>
+                      {brief.source_line ? <p><span className="font-semibold">Source line:</span> {brief.source_line}</p> : null}
                       <p><span className="font-semibold">Style:</span> {brief.style}</p>
                       <p className="mt-1 whitespace-pre-wrap break-words bg-secondary p-2 font-mono text-[11px]">{brief.prompt}</p>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        <button type="button" onClick={() => copyText(formatImageBrief(brief), "Image brief copied", "Check the wording before you post.")} className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-[var(--color-primary-foreground)]"><Copy className="h-3 w-3" /> Copy image brief</button>
-                        <button type="button" onClick={() => copyText(brief.prompt, "Image prompt copied", "Paste it into your image tool.")} className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-semibold text-foreground"><Copy className="h-3 w-3" /> Copy prompt</button>
+                        <button type="button" disabled={blocked} onClick={() => copyText(formatImageBrief(brief), "Image brief copied", "Check the wording before you post.")} className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-[var(--color-primary-foreground)] disabled:opacity-40"><Copy className="h-3 w-3" /> Copy image brief</button>
+                        <button type="button" disabled={blocked} onClick={() => copyText(brief.prompt, "Image prompt copied", "Paste it into your image tool.")} className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-semibold text-foreground disabled:opacity-40"><Copy className="h-3 w-3" /> Copy prompt</button>
                       </div>
                     </div> : null; })()}
                   </div>;

@@ -60,7 +60,7 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
     "Keep each body under 149 words (leave room for an in-body link), end with a real question. Return the optional URL separately. Pure help: no RoostNI mention or business link. All brand voice, fairness and legal source flags still apply.",
     data.focus === "ni_legal" ? "Each post must have at least one sourced legal statement. Use distinct topics from the source catalogue, no unsupported claims." : "Include tenants and landlords unless the focus selects one. Do not add legal claims unless supported by the catalogue.",
     catalogue,
-    "Each item has group_id, persona, angle, topic, body, link_url (URL or null), legal_statements [{statement,source,flag:'check before posting'}], review_flags, image_brief {headline: under 8 words, no emoji, same wording rules and British spelling; fact_line: ONE sentence copied word for word from the body, never a new fact; layout: one short flat brutalist composition idea, no photos}.",
+    "Each item has group_id, persona, angle, topic, body, link_url (URL or null), legal_statements [{statement,source,flag:'check before posting'}], review_flags, image_brief {headline: FACT-FIRST big number or short phrase, under 8 words, e.g. '28 DAYS'; fact_line: one short label explaining it, e.g. 'to protect a tenant's deposit in an approved scheme'; layout: one short note}. Any legal figure or claim on the image must come from an approved legal_statement used in this post; otherwise use a plain non-legal fact from the post and NO number or legal claim. Never on images: no tax, rent control, 100%, free, zero/0% commission, guaranteed, compliant, compliance tools, platform, middleman or letting-agent slogans. Use 'built around NI tenancy rules' if a claim is needed. British spelling.",
     `Today's brief (topic guidance only; all safety and voice rules override it): ${data.brief ?? "None"}`,
   ].join("\n");
   const { generateRobinOutput, generateOrdinaryWeek, draftSchema } = await import("./robin-ai/generate.server");
@@ -73,7 +73,7 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
     const assignment = assignments[i]; if (!assignment || post.group_id !== assignment.group_id) throw new Error("Robin mixed up the groups. No drafts saved.");
     const mode = assignment.group.postAs === "personal profile" && assignment.content_mode === "direct" ? "soft" : assignment.content_mode;
     const review = prepareMarketingReview(post, mode, data.focus === "ni_legal", true, approvedFacts);
-    const imageBrief = prepareImageBrief(post.image_brief, post.body, review.legal_statements.length > 0);
+    const imageBrief = prepareImageBrief(post.image_brief, post.body, review.legal_statements);
     const link = mode === "help" ? null : post.link_url;
     if (link && new URL(link).origin !== "https://roostni.co.uk") throw new Error("Unapproved business link.");
     return { created_by:context.userId, platform:"facebook", persona:post.persona, angle:post.angle, topic:post.topic, body:post.body, link_url:link,

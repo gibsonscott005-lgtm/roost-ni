@@ -178,5 +178,5 @@ export function readImageBrief(notes: string | null): ImageBrief | null {
   try { const v = JSON.parse(notes ?? "null")?.image_brief; return v && typeof v.prompt === "string" ? v as ImageBrief : null; } catch { return null; }
 }
 export function formatImageBrief(b: ImageBrief): string {
-  return `Headline: ${b.headline}\nFact line: ${b.fact_line}\nStyle: ${b.style}\nPrompt: ${b.prompt}`;
+  return `Headline: ${b.headline}\nSupporting line: ${b.fact_line}\n${b.source_line ? `Source line: ${b.source_line}\n` : ""}Style: ${b.style}\nPrompt: ${b.prompt}`;
 }
