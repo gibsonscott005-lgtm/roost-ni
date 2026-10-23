@@ -139,6 +139,23 @@ export function auditImageBrief(b: ImageBrief): string[] {
   return p;
 }
 const normaliseText = (v: string) => v.toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^\p{L}\p{N}'£% ]+/gu, " ").replace(/\s+/g, " ").trim();
+const NUMBER_VALUES: Record<string, string> = { one:"1", two:"2", three:"3", four:"4", five:"5", six:"6", seven:"7", eight:"8", nine:"9", ten:"10", eleven:"11", twelve:"12", twenty:"20", thirty:"30", fifty:"50", hundred:"100" };
+const canonicalNumber = (n: string) => NUMBER_VALUES[n.toLowerCase()] ?? n.replace(/[,.]+$/, "").replace(/,/g, "");
+/** Removes "good practice" / "not a legal requirement" labels so they are not read as legal claims. */
+const stripImageDisclaimers = (v: string) => v
+  .replace(/\bgood practice\b[:,]?/gi, " ")
+  .replace(/\bnot\s+(?:an?\s+|another\s+)?(?:legal|statutory)\s+(?:requirement|rule|duty)s?\b/gi, " ")
+  .replace(/\bgeneral information,?\s+not legal advice\.?/gi, " ");
+const STOP = new Set("the and for your you with that this from into what when where which have about before after their them they then than just every each only also more most some such like".split(" "));
+/** Image text summarises the post: most of its meaningful words must appear (by stem) in the body. */
+function groundedInBody(imageText: string, body: string): boolean {
+  const stem = (w: string) => w.slice(0, 5);
+  const bodyStems = new Set(normaliseText(body).split(" ").map(stem));
+  const words = normaliseText(imageText).split(" ").filter(w => w.length >= 4 && !STOP.has(w));
+  if (!words.length) return true;
+  const hits = words.filter(w => bodyStems.has(stem(w))).length;
+  return hits / words.length >= 0.6;
+}
 /** Builds a fact-first image brief. Legal figures and claims may only come from approved legal statements used in the post. */
 export function prepareImageBrief(input: { headline: string; fact_line: string; layout?: string }, body: string, approvedStatements: LegalStatement[] = []): ImageBrief {
   const headline = input.headline.trim(), fact = input.fact_line.trim();
@@ -148,26 +165,25 @@ export function prepareImageBrief(input: { headline: string; fact_line: string; 
   const problems = imageTextProblems(headline, fact);
   if (problems.length) throw new Error(`Image wording needs revision: ${problems.join("; ")}.`);
   if (!fact || fact.split(/\s+/).length > 16) throw new Error("Image supporting line must be one short label.");
-  const imageText = `${headline} ${fact}`;
+  const imageText = stripImageDisclaimers(`${headline} ${fact}`);
   const looksLegal = LEGAL_WORDS.test(imageText) || /\bnotice\s+to\s+quit\b/i.test(imageText);
-  const nums = figures(imageText);
+  const nums = figures(imageText).map(canonicalNumber);
   let sourceLine: string | null = null;
   if (looksLegal || nums.length) {
     const match = approvedStatements.find(s => {
-      const st = normaliseText(s.statement);
-      return figures(s.statement).length >= 0 && nums.every(n => st.includes(normaliseText(n)));
+      const st = figures(s.statement).map(canonicalNumber);
+      return nums.every(n => st.includes(n));
     });
-    const legalMatch = looksLegal ? match : match && nums.length ? match : undefined;
-    if (legalMatch) {
-      const domain = sourceDomain(legalMatch.source);
+    if (match) {
+      const domain = sourceDomain(match.source);
       if (!domain) throw new Error("Approved fact has no valid source for the image.");
       sourceLine = `Source: ${domain}`;
     } else if (looksLegal) {
       throw new Error("Image shows a legal figure or claim that is not an approved fact used in this post.");
-    } else if (!nums.every(n => normaliseText(body).includes(normaliseText(n)))) {
+    } else if (!nums.every(n => figures(body).map(canonicalNumber).includes(n))) {
       throw new Error("Image figure must come from the post itself.");
     }
-  } else if (!normaliseText(body).includes(normaliseText(fact)) && !normaliseText(body).includes(normaliseText(headline))) {
+  } else if (!groundedInBody(imageText, body)) {
     throw new Error("Image text must come from the post itself.");
   }
   const textSpec = `headline "${headline}"; supporting line "${fact}"${sourceLine ? `; source line "${sourceLine}"` : ""}; corner wordmark "RoostNI"`;
