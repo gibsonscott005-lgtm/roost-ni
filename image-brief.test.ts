@@ -22,3 +22,14 @@ describe("image brief", () => {
   });
   test("audit blocks banned wording in saved brief", () => expect(auditImageBrief({ headline: "Free help", fact_line: "x", style: "", prompt: "Do not add any other text." }).length).toBeGreaterThan(0));
 });
+describe("image brief grounding", () => {
+  const travel = "Would that journey still suit you on a wet Tuesday? I'd check the journey at the time you'd actually travel. Good practice: compare weekday and weekend timetables. Which journey would you test?";
+  test("summary headline and good-practice label from the post are accepted", () => {
+    expect(prepareImageBrief({ headline: "TEST THE JOURNEY", fact_line: "Good practice: check your actual travel times." }, travel).source_line).toBeNull();
+  });
+  test("unrelated image text is still rejected", () => expect(() => prepareImageBrief({ headline: "BOILER SERVICE DUE", fact_line: "Book an engineer before winter" }, travel)).toThrow());
+  test("digits match an approved fact written in words", () => {
+    const cap = { statement: "Tenancy deposits must not exceed one month's rent.", source: "https://www.nidirect.gov.uk/articles/x", flag: "check before posting" as const };
+    expect(prepareImageBrief({ headline: "1 MONTH", fact_line: "maximum tenancy deposit" }, cap.statement, [cap]).source_line).toBe("Source: nidirect.gov.uk");
+  });
+});
