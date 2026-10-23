@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { DEFAULT_GROUPS, groupSchema, weekSlots, assertUniqueDrafts, type RobinGroup } from "./robin-groups";
-import { MARKETING_KNOWLEDGE, nextContentMode, prepareMarketingReview } from "./marketing-knowledge";
+import { MARKETING_KNOWLEDGE, nextContentMode, prepareMarketingReview, prepareImageBrief } from "./marketing-knowledge";
 
 async function admin(client: any, userId: string) {
   const { data, error } = await client.from("profiles").select("account_type").eq("id", userId).maybeSingle();
@@ -77,7 +77,7 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
     const link = mode === "help" ? null : post.link_url;
     if (link && new URL(link).origin !== "https://roostni.co.uk") throw new Error("Unapproved business link.");
     return { created_by:context.userId, platform:"facebook", persona:post.persona, angle:post.angle, topic:post.topic, body:post.body, link_url:link,
-      image_prompt:imageBrief.prompt, notes:JSON.stringify({ ...review, image_brief:imageBrief, group:assignment.group, model:"openai/gpt-6-astra" }),
+      notes:JSON.stringify({ ...review, image_brief:imageBrief, group:assignment.group, model:"openai/gpt-6-astra" }),
       utm_campaign:`fb_${assignment.scheduled_for.slice(0,10)}_${runId}_${i}`, scheduled_for:assignment.scheduled_for, status:"draft" };
   });
   const { data: created, error:insertError } = await supabaseAdmin.from("marketing_posts").insert(rows).select("*");
