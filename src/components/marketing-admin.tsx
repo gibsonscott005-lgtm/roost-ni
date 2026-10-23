@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { RobinGroupsPanel } from "./robin-groups-panel";
 import { readGroupSnapshot } from "@/lib/robin-groups";
 import { Button } from "@/components/ui/button";
-import { readMarketingReview } from "@/lib/marketing-knowledge";
+import { readMarketingReview, readImageBrief, formatImageBrief } from "@/lib/marketing-knowledge";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
