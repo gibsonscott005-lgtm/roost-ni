@@ -108,23 +108,75 @@ export function prepareMarketingReview(input: { body: string; topic?: string; le
   return { content_mode: mode, legal_statements: checkedStatements, review_flags: ["check before posting", ...new Set((input.review_flags ?? []).filter(v => typeof v === "string")), ...(/\bagent|portal|commission|\bfees?\b/i.test(input.body) ? ["verify before posting"] : [])] };
 }
 
-export interface ImageBrief { headline: string; fact_line: string; style: string; prompt: string }
-export const IMAGE_BRIEF_STYLE = "RoostNI brutalist: hard black borders, heavy bold Sora type, Manrope supporting text, flat colour blocks in near-black, off-white and vivid emerald, high contrast, sharp geometry, one fact per image. No stock photos, no people photos, no glass, no gradients, no blurred shadows, no pastel AI-render look.";
+export interface ImageBrief { headline: string; fact_line: string; style: string; prompt: string; source_line?: string | null }
+export const IMAGE_BRIEF_STYLE = "RoostNI brutalist: flat dark near-black background, hard black or off-white borders, heavy bold Sora type for the headline, monospace labels allowed, vivid emerald accent, high contrast, sharp flat geometry, one fact per image.";
+export const IMAGE_LAYOUT_RULES = "Layout rules: flat dark background; exactly one big headline (a number or short phrase); one small supporting line under it; one small source line if given; small RoostNI wordmark in one corner with \"NI\" in emerald. Hard borders and monospace labels are fine. No faded, blurred or overlapping ghost text behind the headline. No website UI elements: no nav bars, buttons, menus, 'Browse' or 'Sign in' strips. No 3D renders, no stock photos, no people, no glass, no gradients, no shadows.";
+const IMAGE_BANS: [RegExp, string][] = [
+  [/\bno\s+tax\b/i, "no tax"], [/\brent\s+control/i, "rent control"], [/100\s*%/, "100%"], [/\bfree\b/i, "free"],
+  [/\bzero\s+commission\b/i, "zero commission"], [/(^|\s)0\s*%\s*commission\b/i, "0% commission"], [/\bguarantee(d|s)?\b/i, "guaranteed"],
+  [/\bcompliant\b/i, "compliant"], [/\bcompliance\s+tools?\b/i, "compliance tools"], [/\bplatforms?\b/i, "platform"],
+  [/\bmiddle\s*-?\s*m[ae]n\b|\bcut\s+out\s+the\b|\bletting\s+agents?\b|\bestate\s+agents?\b|\bagent\s+fees?\b/i, "middleman or letting-agent slogan"],
+];
+const US_SPELLING = /\b(organiz\w*|recogniz\w*|realiz\w*|apologiz\w*|minimiz\w*|maximiz\w*|prioritiz\w*|authoriz\w*|analyz\w*|colors?|colored|favorite\w*|centers?|honors?|neighbors?|behaviors?|labor|catalog|programs?)\b/i;
+const LEGAL_WORDS = /\b(must|legally|law|statutory|legal|required|entitled|rights?|regulations?|legislation|notice|eviction|deposit|cap|protect\w*|register\w*|deadline)\b/i;
+const NUMBER_WORDS = /\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|fifty|hundred)\b/gi;
+const figures = (v: string) => [...(v.match(/\d[\d,.]*/g) ?? []), ...(v.toLowerCase().match(NUMBER_WORDS) ?? [])];
+export function sourceDomain(url: string): string | null { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return null; } }
+/** Wording problems on image text; empty array means safe to copy. */
+export function imageTextProblems(...texts: string[]): string[] {
+  const out: string[] = [];
+  for (const t of texts) {
+    for (const [re, label] of IMAGE_BANS) if (re.test(t) && !out.includes(`Banned on images: ${label}`)) out.push(`Banned on images: ${label}`);
+    const us = t.match(US_SPELLING)?.[0];
+    if (us && !out.includes(`US spelling: ${us}`)) out.push(`US spelling: ${us}`);
+  }
+  return out;
+}
+/** Problems with a saved brief, checked again on the dashboard before copying. */
+export function auditImageBrief(b: ImageBrief): string[] {
+  const p = imageTextProblems(b.headline, b.fact_line, b.source_line ?? "");
+  if (!/do not add any other text/i.test(b.prompt)) p.push("Prompt is from an older version. Re-draft for the new layout rules.");
+  return p;
+}
 const normaliseText = (v: string) => v.toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^\p{L}\p{N}'£% ]+/gu, " ").replace(/\s+/g, " ").trim();
-/** Builds a paste-ready image brief; image text must already appear in the post so images never add facts. */
-export function prepareImageBrief(input: { headline: string; fact_line: string; layout?: string }, body: string, legal = false): ImageBrief {
-  const headline = input.headline.trim(), fact = input.fact_line.trim(), layout = (input.layout ?? "").trim();
+/** Builds a fact-first image brief. Legal figures and claims may only come from approved legal statements used in the post. */
+export function prepareImageBrief(input: { headline: string; fact_line: string; layout?: string }, body: string, approvedStatements: LegalStatement[] = []): ImageBrief {
+  const headline = input.headline.trim(), fact = input.fact_line.trim();
   if (!headline || headline.split(/\s+/).length >= 8) throw new Error("Image headline must be under 8 words.");
-  for (const text of [headline, fact, layout]) validateMarketingCopy(text, false);
-  if (/\p{Extended_Pictographic}/u.test(headline)) throw new Error("No emoji in the image headline.");
-  if (!fact || !normaliseText(body).includes(normaliseText(fact))) throw new Error("Image fact line must come from the post itself.");
-  const legalLines = legal ? ` Small source line at the bottom: "Source: nidirect.gov.uk — General information, not legal advice."` : "";
-  const prompt = `Square 1080x1080 social graphic. ${IMAGE_BRIEF_STYLE} Layout: ${layout || "headline in a large flat block with a thick black border, fact line in a contrasting strip below"}. Render this exact text in British English, spelled exactly as written, nothing else: headline "${headline}"; supporting line "${fact}".${legalLines} Small "RoostNI" wordmark bottom corner with "NI" in emerald.`;
-  return { headline, fact_line: fact, style: IMAGE_BRIEF_STYLE, prompt };
+  if (/\p{Extended_Pictographic}/u.test(`${headline} ${fact}`)) throw new Error("No emoji on images.");
+  for (const text of [headline, fact]) validateMarketingCopy(text, false);
+  const problems = imageTextProblems(headline, fact);
+  if (problems.length) throw new Error(`Image wording needs revision: ${problems.join("; ")}.`);
+  if (!fact || fact.split(/\s+/).length > 16) throw new Error("Image supporting line must be one short label.");
+  const imageText = `${headline} ${fact}`;
+  const looksLegal = LEGAL_WORDS.test(imageText) || /\bnotice\s+to\s+quit\b/i.test(imageText);
+  const nums = figures(imageText);
+  let sourceLine: string | null = null;
+  if (looksLegal || nums.length) {
+    const match = approvedStatements.find(s => {
+      const st = normaliseText(s.statement);
+      return figures(s.statement).length >= 0 && nums.every(n => st.includes(normaliseText(n)));
+    });
+    const legalMatch = looksLegal ? match : match && nums.length ? match : undefined;
+    if (legalMatch) {
+      const domain = sourceDomain(legalMatch.source);
+      if (!domain) throw new Error("Approved fact has no valid source for the image.");
+      sourceLine = `Source: ${domain}`;
+    } else if (looksLegal) {
+      throw new Error("Image shows a legal figure or claim that is not an approved fact used in this post.");
+    } else if (!nums.every(n => normaliseText(body).includes(normaliseText(n)))) {
+      throw new Error("Image figure must come from the post itself.");
+    }
+  } else if (!normaliseText(body).includes(normaliseText(fact)) && !normaliseText(body).includes(normaliseText(headline))) {
+    throw new Error("Image text must come from the post itself.");
+  }
+  const textSpec = `headline "${headline}"; supporting line "${fact}"${sourceLine ? `; source line "${sourceLine}"` : ""}; corner wordmark "RoostNI"`;
+  const prompt = `Square 1080x1080 social graphic. ${IMAGE_BRIEF_STYLE} ${IMAGE_LAYOUT_RULES} Render exactly this text in British English, spelled exactly as written: ${textSpec}. Do not add any other text.`;
+  return { headline, fact_line: fact, style: IMAGE_BRIEF_STYLE, prompt, source_line: sourceLine };
 }
 export function readImageBrief(notes: string | null): ImageBrief | null {
   try { const v = JSON.parse(notes ?? "null")?.image_brief; return v && typeof v.prompt === "string" ? v as ImageBrief : null; } catch { return null; }
 }
 export function formatImageBrief(b: ImageBrief): string {
-  return `Headline: ${b.headline}\nFact line: ${b.fact_line}\nStyle: ${b.style}\nPrompt: ${b.prompt}`;
+  return `Headline: ${b.headline}\nSupporting line: ${b.fact_line}\n${b.source_line ? `Source line: ${b.source_line}\n` : ""}Style: ${b.style}\nPrompt: ${b.prompt}`;
 }
