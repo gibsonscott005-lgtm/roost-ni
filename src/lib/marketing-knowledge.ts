@@ -107,3 +107,24 @@ export function prepareMarketingReview(input: { body: string; topic?: string; le
   const checkedStatements = assertApprovedStatements(`${input.topic ?? ""}\n${input.body}`, statements, approvedFacts);
   return { content_mode: mode, legal_statements: checkedStatements, review_flags: ["check before posting", ...new Set((input.review_flags ?? []).filter(v => typeof v === "string")), ...(/\bagent|portal|commission|\bfees?\b/i.test(input.body) ? ["verify before posting"] : [])] };
 }
+
+export interface ImageBrief { headline: string; fact_line: string; style: string; prompt: string }
+export const IMAGE_BRIEF_STYLE = "RoostNI brutalist: hard black borders, heavy bold Sora type, Manrope supporting text, flat colour blocks in near-black, off-white and vivid emerald, high contrast, sharp geometry, one fact per image. No stock photos, no people photos, no glass, no gradients, no blurred shadows, no pastel AI-render look.";
+const normaliseText = (v: string) => v.toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^\p{L}\p{N}'£% ]+/gu, " ").replace(/\s+/g, " ").trim();
+/** Builds a paste-ready image brief; image text must already appear in the post so images never add facts. */
+export function prepareImageBrief(input: { headline: string; fact_line: string; layout?: string }, body: string, legal = false): ImageBrief {
+  const headline = input.headline.trim(), fact = input.fact_line.trim(), layout = (input.layout ?? "").trim();
+  if (!headline || headline.split(/\s+/).length >= 8) throw new Error("Image headline must be under 8 words.");
+  for (const text of [headline, fact, layout]) validateMarketingCopy(text, false);
+  if (/\p{Extended_Pictographic}/u.test(headline)) throw new Error("No emoji in the image headline.");
+  if (!fact || !normaliseText(body).includes(normaliseText(fact))) throw new Error("Image fact line must come from the post itself.");
+  const legalLines = legal ? ` Small source line at the bottom: "Source: nidirect.gov.uk — General information, not legal advice."` : "";
+  const prompt = `Square 1080x1080 social graphic. ${IMAGE_BRIEF_STYLE} Layout: ${layout || "headline in a large flat block with a thick black border, fact line in a contrasting strip below"}. Render this exact text in British English, spelled exactly as written, nothing else: headline "${headline}"; supporting line "${fact}".${legalLines} Small "RoostNI" wordmark bottom corner with "NI" in emerald.`;
+  return { headline, fact_line: fact, style: IMAGE_BRIEF_STYLE, prompt };
+}
+export function readImageBrief(notes: string | null): ImageBrief | null {
+  try { const v = JSON.parse(notes ?? "null")?.image_brief; return v && typeof v.prompt === "string" ? v as ImageBrief : null; } catch { return null; }
+}
+export function formatImageBrief(b: ImageBrief): string {
+  return `Headline: ${b.headline}\nFact line: ${b.fact_line}\nStyle: ${b.style}\nPrompt: ${b.prompt}`;
+}

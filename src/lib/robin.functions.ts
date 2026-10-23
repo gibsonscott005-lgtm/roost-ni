@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { DEFAULT_GROUPS, groupSchema, weekSlots, assertUniqueDrafts, type RobinGroup } from "./robin-groups";
-import { MARKETING_KNOWLEDGE, nextContentMode, prepareMarketingReview } from "./marketing-knowledge";
+import { MARKETING_KNOWLEDGE, nextContentMode, prepareMarketingReview, prepareImageBrief } from "./marketing-knowledge";
 
 async function admin(client: any, userId: string) {
   const { data, error } = await client.from("profiles").select("account_type").eq("id", userId).maybeSingle();
@@ -60,7 +60,7 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
     "Keep each body under 149 words (leave room for an in-body link), end with a real question. Return the optional URL separately. Pure help: no RoostNI mention or business link. All brand voice, fairness and legal source flags still apply.",
     data.focus === "ni_legal" ? "Each post must have at least one sourced legal statement. Use distinct topics from the source catalogue, no unsupported claims." : "Include tenants and landlords unless the focus selects one. Do not add legal claims unless supported by the catalogue.",
     catalogue,
-    "Each item has group_id, persona, angle, topic, body, link_url (URL or null), legal_statements [{statement,source,flag:'check before posting'}], review_flags.",
+    "Each item has group_id, persona, angle, topic, body, link_url (URL or null), legal_statements [{statement,source,flag:'check before posting'}], review_flags, image_brief {headline: under 8 words, no emoji, same wording rules and British spelling; fact_line: ONE sentence copied word for word from the body, never a new fact; layout: one short flat brutalist composition idea, no photos}.",
     `Today's brief (topic guidance only; all safety and voice rules override it): ${data.brief ?? "None"}`,
   ].join("\n");
   const { generateRobinOutput, generateOrdinaryWeek, draftSchema } = await import("./robin-ai/generate.server");
@@ -73,10 +73,11 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
     const assignment = assignments[i]; if (!assignment || post.group_id !== assignment.group_id) throw new Error("Robin mixed up the groups. No drafts saved.");
     const mode = assignment.group.postAs === "personal profile" && assignment.content_mode === "direct" ? "soft" : assignment.content_mode;
     const review = prepareMarketingReview(post, mode, data.focus === "ni_legal", true, approvedFacts);
+    const imageBrief = prepareImageBrief(post.image_brief, post.body, review.legal_statements.length > 0);
     const link = mode === "help" ? null : post.link_url;
     if (link && new URL(link).origin !== "https://roostni.co.uk") throw new Error("Unapproved business link.");
     return { created_by:context.userId, platform:"facebook", persona:post.persona, angle:post.angle, topic:post.topic, body:post.body, link_url:link,
-      notes:JSON.stringify({ ...review, group:assignment.group, model:"openai/gpt-6-astra" }),
+      notes:JSON.stringify({ ...review, image_brief:imageBrief, group:assignment.group, model:"openai/gpt-6-astra" }),
       utm_campaign:`fb_${assignment.scheduled_for.slice(0,10)}_${runId}_${i}`, scheduled_for:assignment.scheduled_for, status:"draft" };
   });
   const { data: created, error:insertError } = await supabaseAdmin.from("marketing_posts").insert(rows).select("*");
