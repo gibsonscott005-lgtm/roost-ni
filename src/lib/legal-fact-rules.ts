@@ -20,7 +20,11 @@ export function assertApprovedStatements<T extends { statement:string; source:st
   // Do not let an undeclared notice period slip through a non-legal draft.
   const remainder = statements.reduce((text,s) => text.split(s.statement).join(""), body);
   if (/(?:\b(?:\d+|four|eight|twelve|one|two|three|six)\s*[-–]?\s*(?:days?|weeks?|months?)\b)/i.test(remainder) && /notice|quit|evict/i.test(body)) throw new Error("Notice periods must come from individually approved facts.");
-  if (/\b(?:must|legally|required by law|statutory|legal duty|legal requirement|entitled|rights?|regulations?|legislation|notice to quit|eviction|deposit cap|deposit protection)\b/i.test(remainder.replace(/General information, not legal advice\./g,""))) throw new Error("Legal wording must be included as an exact approved fact. Use practical advice instead.");
+  const withoutDisclaimers = remainder
+    .replace(/General information, not legal advice\./g, "")
+    .replace(/\bnot\s+(?:an?\s+|another\s+)?(?:legal|statutory)\s+(?:requirement|rule|duty)s?\b/gi, "")
+    .replace(/\bnot\s+(?:required by law|a legal must)\b/gi, "");
+  if (/\b(?:must|legally|required by law|statutory|legal duty|legal requirement|entitled|rights?|regulations?|legislation|notice to quit|eviction|deposit cap|deposit protection)\b/i.test(withoutDisclaimers)) throw new Error("Legal wording must be included as an exact approved fact. Use practical advice instead.");
   return statements.map(s => {
     const fact = eligible.find(f => f.fact_text === s.statement && f.source_url === s.source);
     return { ...s, fact_id:fact?.id, verified_at:fact?.last_verified_at, revision:fact?.revision };
