@@ -11,3 +11,13 @@ test("undeclared legal duties cannot bypass the catalogue",()=>{expect(()=>asser
 test("approved legal posts retain source and verified date",()=>{expect(assertApprovedStatements(fact.fact_text,[{statement:fact.fact_text,source:fact.source_url}],[fact],now)[0]).toMatchObject({source:fact.source_url,verified_at:"2026-10-22T23:07:00.000Z",fact_id:"notice"});});
 test("rejected facts remain unavailable",()=>{expect(eligibleLegalFacts([{...fact,rejected_at:new Date(now).toISOString()}],now)).toEqual([]);});
 test("source difference summary identifies changed page text without rewriting facts",()=>{expect(summariseSourceChange("Old period guidance\nSame", "New period guidance\nSame")).toContain("Removed/changed: Old period guidance");expect(summariseSourceChange("Old period guidance", "New period guidance")).toContain("Added/changed: New period guidance");});
+import { assertApprovedStatements as _assertDisclaimer } from "./src/lib/legal-fact-rules";
+import { test as _t, expect as _e } from "bun:test";
+_t("practical advice disclaimers do not trip the legal wording check", () => {
+  _e(() => _assertDisclaimer("Name the folder clearly. Good practice, not another legal requirement.", [], [])).not.toThrow();
+  _e(() => _assertDisclaimer("Good practice for renters, not a legal requirement.", [], [])).not.toThrow();
+});
+_t("real legal claims still blocked", () => {
+  _e(() => _assertDisclaimer("Landlords must register.", [], [])).toThrow();
+  _e(() => _assertDisclaimer("This is a legal requirement.", [], [])).toThrow();
+});
