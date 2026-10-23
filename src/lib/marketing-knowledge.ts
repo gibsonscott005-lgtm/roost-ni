@@ -148,26 +148,25 @@ export function prepareImageBrief(input: { headline: string; fact_line: string; 
   const problems = imageTextProblems(headline, fact);
   if (problems.length) throw new Error(`Image wording needs revision: ${problems.join("; ")}.`);
   if (!fact || fact.split(/\s+/).length > 16) throw new Error("Image supporting line must be one short label.");
-  const imageText = `${headline} ${fact}`;
+  const imageText = stripImageDisclaimers(`${headline} ${fact}`);
   const looksLegal = LEGAL_WORDS.test(imageText) || /\bnotice\s+to\s+quit\b/i.test(imageText);
-  const nums = figures(imageText);
+  const nums = figures(imageText).map(canonicalNumber);
   let sourceLine: string | null = null;
   if (looksLegal || nums.length) {
     const match = approvedStatements.find(s => {
-      const st = normaliseText(s.statement);
-      return figures(s.statement).length >= 0 && nums.every(n => st.includes(normaliseText(n)));
+      const st = figures(s.statement).map(canonicalNumber);
+      return nums.every(n => st.includes(n));
     });
-    const legalMatch = looksLegal ? match : match && nums.length ? match : undefined;
-    if (legalMatch) {
-      const domain = sourceDomain(legalMatch.source);
+    if (match) {
+      const domain = sourceDomain(match.source);
       if (!domain) throw new Error("Approved fact has no valid source for the image.");
       sourceLine = `Source: ${domain}`;
     } else if (looksLegal) {
       throw new Error("Image shows a legal figure or claim that is not an approved fact used in this post.");
-    } else if (!nums.every(n => normaliseText(body).includes(normaliseText(n)))) {
+    } else if (!nums.every(n => figures(body).map(canonicalNumber).includes(n))) {
       throw new Error("Image figure must come from the post itself.");
     }
-  } else if (!normaliseText(body).includes(normaliseText(fact)) && !normaliseText(body).includes(normaliseText(headline))) {
+  } else if (!groundedInBody(imageText, body)) {
     throw new Error("Image text must come from the post itself.");
   }
   const textSpec = `headline "${headline}"; supporting line "${fact}"${sourceLine ? `; source line "${sourceLine}"` : ""}; corner wordmark "RoostNI"`;
