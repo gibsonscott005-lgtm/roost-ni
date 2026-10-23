@@ -458,7 +458,7 @@ export function MarketingAdminPanel() {
                         <button type="button" disabled={blocked} onClick={() => copyText(formatImageBrief(brief), "Image brief copied", "Check the wording before you post.")} className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-[var(--color-primary-foreground)] disabled:opacity-40"><Copy className="h-3 w-3" /> Copy image brief</button>
                         <button type="button" disabled={blocked} onClick={() => copyText(brief.prompt, "Image prompt copied", "Paste it into your image tool.")} className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-semibold text-foreground disabled:opacity-40"><Copy className="h-3 w-3" /> Copy prompt</button>
                       </div>
-                    </div> : null; })()}
+                    </div>; })()}
                   </div>;
                 })()}
 
