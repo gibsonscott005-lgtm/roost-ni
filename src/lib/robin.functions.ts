@@ -73,7 +73,10 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
     const assignment = assignments[i]; if (!assignment || post.group_id !== assignment.group_id) throw new Error("Robin mixed up the groups. No drafts saved.");
     const mode = assignment.group.postAs === "personal profile" && assignment.content_mode === "direct" ? "soft" : assignment.content_mode;
     const review = prepareMarketingReview(post, mode, data.focus === "ni_legal", true, approvedFacts);
-    const imageBrief = prepareImageBrief(post.image_brief, post.body, review.legal_statements);
+    // An image brief problem must never discard the whole batch: save the post without a brief and flag it.
+    let imageBrief: ReturnType<typeof prepareImageBrief> | null = null;
+    try { imageBrief = prepareImageBrief(post.image_brief, post.body, review.legal_statements); }
+    catch (e) { review.review_flags.push(`Image brief needs rewriting: ${e instanceof Error ? e.message : "invalid"}`); }
     const link = mode === "help" ? null : post.link_url;
     if (link && new URL(link).origin !== "https://roostni.co.uk") throw new Error("Unapproved business link.");
     return { created_by:context.userId, platform:"facebook", persona:post.persona, angle:post.angle, topic:post.topic, body:post.body, link_url:link,
