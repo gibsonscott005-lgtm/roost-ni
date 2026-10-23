@@ -144,17 +144,17 @@ const canonicalNumber = (n: string) => NUMBER_VALUES[n.toLowerCase()] ?? n.repla
 /** Removes "good practice" / "not a legal requirement" labels so they are not read as legal claims. */
 const stripImageDisclaimers = (v: string) => v
   .replace(/\bgood practice\b[:,]?/gi, " ")
-  .replace(/\bnot\s+(?:an?\s+|another\s+)?(?:legal|statutory)\s+(?:requirement|rule|duty)s?\b/gi, " ")
+  .replace(/\bnot\s+(?:(?:an?|another|any|extra|additional|further|formal|separate|new)\s+){0,3}(?:legal|statutory|tenancy)\s+(?:requirements?|rules?|duty|duties|obligations?|checklists?)\b/gi, " ")
   .replace(/\bgeneral information,?\s+not legal advice\.?/gi, " ");
-const STOP = new Set("the and for your you with that this from into what when where which have about before after their them they then than just every each only also more most some such like".split(" "));
-/** Image text summarises the post: most of its meaningful words must appear (by stem) in the body. */
-function groundedInBody(imageText: string, body: string): boolean {
-  const stem = (w: string) => w.slice(0, 5);
-  const bodyStems = new Set(normaliseText(body).split(" ").map(stem));
+const STOP = new Set("the and for your you with that this from into what when where which have about before after their them they then than just every each only also more most some such like less".split(" "));
+/** Image text summarises the post: enough meaningful words must share a root with words in the body (dig/digging). */
+export function groundedInBody(imageText: string, body: string): boolean {
+  const bodyWords = normaliseText(body).split(" ").filter(w => w.length >= 3);
   const words = normaliseText(imageText).split(" ").filter(w => w.length >= 4 && !STOP.has(w));
   if (!words.length) return true;
-  const hits = words.filter(w => bodyStems.has(stem(w))).length;
-  return hits / words.length >= 0.6;
+  const root = (w: string) => w.slice(0, Math.min(5, Math.max(3, w.length - 3)));
+  const hits = words.filter(w => bodyWords.some(b => b.startsWith(root(w)) || w.startsWith(root(b)))).length;
+  return hits / words.length >= 0.5;
 }
 /** Builds a fact-first image brief. Legal figures and claims may only come from approved legal statements used in the post. */
 export function prepareImageBrief(input: { headline: string; fact_line: string; layout?: string }, body: string, approvedStatements: LegalStatement[] = []): ImageBrief {
