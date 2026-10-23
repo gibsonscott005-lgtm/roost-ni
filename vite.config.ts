@@ -45,6 +45,47 @@ export default (env: { command: "build" | "serve"; mode: string }) => {
         : process.env,
     ),
     plugins: [mcpPlugin()],
+    // Pre-bundle every library the app loads up front. Without this, Vite
+    // discovers router/SSR helpers on the first visit after a wake-up, pauses
+    // requests to re-bundle and force-reloads the page ("This page didn't load").
+    optimizeDeps: {
+      include: [
+        "@tanstack/react-router",
+        "@tanstack/react-router > @tanstack/react-store",
+        "@tanstack/router-core",
+        "@tanstack/router-core/isServer",
+        "@tanstack/router-core/ssr/client",
+        "@tanstack/router-core/ssr/server",
+        "@tanstack/history",
+        "@tanstack/react-query",
+        "seroval",
+        "h3-v2",
+        "@supabase/supabase-js",
+        "posthog-js",
+        "sonner",
+        "lucide-react",
+        "clsx",
+        "tailwind-merge",
+        "class-variance-authority",
+        "zod",
+        "date-fns",
+        "react-day-picker",
+        "@radix-ui/react-alert-dialog",
+        "@radix-ui/react-dialog",
+        "@radix-ui/react-popover",
+        "@radix-ui/react-slot",
+        "@radix-ui/react-tabs",
+        "@lovable.dev/mcp-js",
+        "@lovable.dev/mcp-js/stacks/tanstack",
+        "@lovable.dev/email-js",
+        "@react-email/components",
+        "@react-email/render",
+        "@ai-sdk/openai",
+        "@ai-sdk/openai-compatible",
+        "ai",
+        "cheerio",
+      ],
+    },
     // Pre-transform the entry pages when the preview wakes so the first
     // visit (or a Retry after a cold start) does not wait on compilation.
     server: {
