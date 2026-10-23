@@ -139,6 +139,23 @@ export function auditImageBrief(b: ImageBrief): string[] {
   return p;
 }
 const normaliseText = (v: string) => v.toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^\p{L}\p{N}'£% ]+/gu, " ").replace(/\s+/g, " ").trim();
+const NUMBER_VALUES: Record<string, string> = { one:"1", two:"2", three:"3", four:"4", five:"5", six:"6", seven:"7", eight:"8", nine:"9", ten:"10", eleven:"11", twelve:"12", twenty:"20", thirty:"30", fifty:"50", hundred:"100" };
+const canonicalNumber = (n: string) => NUMBER_VALUES[n.toLowerCase()] ?? n.replace(/[,.]+$/, "").replace(/,/g, "");
+/** Removes "good practice" / "not a legal requirement" labels so they are not read as legal claims. */
+const stripImageDisclaimers = (v: string) => v
+  .replace(/\bgood practice\b[:,]?/gi, " ")
+  .replace(/\bnot\s+(?:an?\s+|another\s+)?(?:legal|statutory)\s+(?:requirement|rule|duty)s?\b/gi, " ")
+  .replace(/\bgeneral information,?\s+not legal advice\.?/gi, " ");
+const STOP = new Set("the and for your you with that this from into what when where which have about before after their them they then than just every each only also more most some such like".split(" "));
+/** Image text summarises the post: most of its meaningful words must appear (by stem) in the body. */
+function groundedInBody(imageText: string, body: string): boolean {
+  const stem = (w: string) => w.slice(0, 5);
+  const bodyStems = new Set(normaliseText(body).split(" ").map(stem));
+  const words = normaliseText(imageText).split(" ").filter(w => w.length >= 4 && !STOP.has(w));
+  if (!words.length) return true;
+  const hits = words.filter(w => bodyStems.has(stem(w))).length;
+  return hits / words.length >= 0.6;
+}
 /** Builds a fact-first image brief. Legal figures and claims may only come from approved legal statements used in the post. */
 export function prepareImageBrief(input: { headline: string; fact_line: string; layout?: string }, body: string, approvedStatements: LegalStatement[] = []): ImageBrief {
   const headline = input.headline.trim(), fact = input.fact_line.trim();
