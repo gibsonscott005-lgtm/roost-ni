@@ -51,13 +51,35 @@ export const emitNotificationSchema = z.object({
   entity_id: z.string().uuid(),
   title: z.string().min(1).max(140),
   body: z.string().max(500).nullable().optional(),
-  // Only same-origin relative paths — never an absolute/external URL.
-  link_path: z
-    .string()
-    .min(1)
-    .max(500)
-    .regex(/^\/(?!\/)[A-Za-z0-9\-._~!$&'()*+,;=:@/?%#[\]]*$/, "link_path must be a relative app path"),
+  // Only known app pages with known query parameters — callers can never
+  // point an email button at an arbitrary page.
+  link_path: z.string().min(1).max(200).refine(isAllowedLinkPath, "link_path is not an allowed app page"),
 });
+
+const ALLOWED_LINK_PAGES = new Set([
+  "/dashboard",
+  "/dashboard/applications",
+  "/dashboard/passport",
+  "/tenant/tenancy",
+  "/tenant/review-lease",
+  "/landlord/manage-tenancy",
+]);
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const TAB_RE = /^[a-z][a-z-]{0,30}$/;
+
+function isAllowedLinkPath(value: string): boolean {
+  const [path, query, ...rest] = value.split("?");
+  if (rest.length > 0 || value.includes("#")) return false;
+  if (!ALLOWED_LINK_PAGES.has(path)) return false;
+  if (query === undefined) return true;
+  const params = new URLSearchParams(query);
+  for (const [key, val] of params) {
+    if (key === "share" && UUID_RE.test(val)) continue;
+    if (key === "tab" && TAB_RE.test(val)) continue;
+    return false;
+  }
+  return true;
+}
 
 export type EmitNotificationInput = z.infer<typeof emitNotificationSchema>;
 
