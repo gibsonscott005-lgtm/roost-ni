@@ -125,12 +125,31 @@ export const getAdminOverview = createServerFn({ method: "POST" })
     const emailById = new Map<string, string | null>(
       (usersRes.data?.users ?? []).map((u) => [u.id, u.email ?? null]),
     );
-    const profiles = profilesRes.data ?? [];
-    const nameById = new Map(profiles.map((p) => [p.id, p.full_name]));
-    const audits = auditsRes.data ?? [];
+    const allProfiles = profilesRes.data ?? [];
+    // Hide test activity: example.com addresses and anything by admin accounts.
+    const isTestEmail = (e: string | null | undefined) =>
+      !!e && /@example\.(com|org|net)$/i.test(e.trim());
+    const adminIds = new Set(
+      allProfiles.filter((p) => p.account_type === "admin").map((p) => p.id),
+    );
+    const adminEmails = new Set(
+      [...adminIds].map((id) => emailById.get(id)?.toLowerCase()).filter(Boolean) as string[],
+    );
+    const testIds = new Set(
+      allProfiles
+        .filter((p) => adminIds.has(p.id) || isTestEmail(emailById.get(p.id)))
+        .map((p) => p.id),
+    );
+    const isTestAddr = (e: string | null | undefined) =>
+      isTestEmail(e) || (!!e && adminEmails.has(e.trim().toLowerCase()));
+    const profiles = allProfiles.filter((p) => !testIds.has(p.id));
+    const nameById = new Map(allProfiles.map((p) => [p.id, p.full_name]));
+    const audits = (auditsRes.data ?? []).filter((a) => !isTestAddr(a.email));
     const listings = listingsRes.data ?? [];
     const feedback = feedbackRes.data ?? [];
-    const alertSubscribers = ((alertsRes.data ?? []) as AdminAlertSubscriber[]);
+    const alertSubscribers = ((alertsRes.data ?? []) as AdminAlertSubscriber[]).filter(
+      (s) => !isTestAddr(s.email),
+    );
 
     const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const scores = audits.map((a) => a.score);
