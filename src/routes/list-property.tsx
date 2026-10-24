@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { posthog } from "@/integrations/posthog/client";
 import { notifyListingPublished } from "@/lib/listing-alerts.functions";
+import { trackLandlordStep } from "@/lib/landlord-funnel-track";
 import { HEATING_OPTIONS, usesFuelTank } from "@/lib/listing-details";
 
 const DRAFT_KEY = "roostni_listing_draft";
