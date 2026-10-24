@@ -176,6 +176,13 @@ function AdminDashboard() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <Link
+                to="/dashboard/landlord-funnel"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+              >
+                <Users className="h-3.5 w-3.5" />
+                Landlord funnel
+              </Link>
               <button
                 type="button"
                 onClick={() => {

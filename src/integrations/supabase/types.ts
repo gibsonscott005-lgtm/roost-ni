@@ -113,6 +113,45 @@ export type Database = {
         }
         Relationships: []
       }
+      landlord_funnel_events: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          last_at: string
+          occurrences: number
+          user_id: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          last_at?: string
+          occurrences?: number
+          user_id: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          last_at?: string
+          occurrences?: number
+          user_id?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       legal_facts: {
         Row: {
           change_summary: string | null
@@ -1369,6 +1408,16 @@ export type Database = {
         Returns: string
       }
       legal_monitor_active: { Args: never; Returns: boolean }
+      log_landlord_funnel_event: {
+        Args: {
+          p_event: string
+          p_utm_campaign?: string
+          p_utm_content?: string
+          p_utm_medium?: string
+          p_utm_source?: string
+        }
+        Returns: boolean
+      }
       record_legal_source_check: {
         Args: {
           p_expected_hash: string

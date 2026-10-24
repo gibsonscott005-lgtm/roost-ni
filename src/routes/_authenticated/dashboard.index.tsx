@@ -8,6 +8,9 @@ import {
   withdrawApplication,
 } from "@/lib/application-withdraw.functions";
 import { notifyListingPublished } from "@/lib/listing-alerts.functions";
+import { requestSetupHelp } from "@/lib/landlord-funnel.functions";
+import { trackLandlordStep } from "@/lib/landlord-funnel-track";
+import { getEventContext } from "@/lib/utm-session";
 import {
   Building2,
   Check,
@@ -144,6 +147,7 @@ function Dashboard() {
     if (!user) return;
     loadListings();
     if (isLandlord) {
+      trackLandlordStep("landlord_dashboard_viewed");
       supabase
         .from("passport_shares")
         .select("id", { count: "exact", head: true })
@@ -179,7 +183,10 @@ function Dashboard() {
           listings={listings}
           loading={loading}
           executedByListing={executedByListing}
-          onAdd={() => setTab("add")}
+          onAdd={() => {
+            trackLandlordStep("add_property_clicked");
+            setTab("add");
+          }}
           onRefresh={loadListings}
         />
 
@@ -969,6 +976,79 @@ function StatCard({
 
 const AUDIT_DONE_KEY = "roostni_audit_last";
 
+/** Shown instead of an empty dashboard when a landlord has no properties yet. */
+function FirstPropertyEmptyState({ onAdd }: { onAdd: () => void }) {
+  const askHelp = useServerFn(requestSetupHelp);
+  const [helpState, setHelpState] = useState<"idle" | "sending" | "sent">("idle");
+  const steps = [
+    { title: "Add your property", body: "Address, rent and deposit. Takes about a minute." },
+    { title: "Add photos and details", body: "Bedrooms, heating, parking and a few good photos." },
+    { title: "Publish", body: "Make it live and share the link wherever you like." },
+  ];
+  const ask = async () => {
+    setHelpState("sending");
+    try {
+      await askHelp({ data: { utm: getEventContext() } });
+      setHelpState("sent");
+      toast.success("Request sent", { description: "Scott will get in touch personally." });
+    } catch (e) {
+      setHelpState("idle");
+      toast.error("Could not send your request", {
+        description: e instanceof Error ? e.message : "Please try again",
+      });
+    }
+  };
+  return (
+    <section className="rounded-sm border-2 border-foreground bg-surface p-5 shadow-floating sm:p-8">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-verified">Getting started</p>
+      <h2 className="mt-1 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+        Let's get your first property on RoostNI
+      </h2>
+      <p className="mt-2 max-w-prose text-sm text-muted-foreground">
+        Three steps. Save it privately first if you're not ready to advertise.
+      </p>
+      <div className="mt-5 flex items-center gap-3">
+        <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-muted" aria-hidden>
+          <div className="h-full w-0 rounded-full bg-verified" />
+        </div>
+        <span className="text-xs font-semibold">0 of 3 done</span>
+      </div>
+      <ol className="mt-5 space-y-3">
+        {steps.map((s, i) => (
+          <li key={s.title} className="flex items-start gap-3 rounded-sm border border-border p-4">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-surface-muted text-sm font-semibold">
+              {i + 1}
+            </span>
+            <div>
+              <p className="font-display text-sm font-semibold tracking-tight">{s.title}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{s.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <button
+          type="button"
+          onClick={onAdd}
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-verified px-6 py-3 text-base font-semibold text-[var(--color-verified-foreground)] shadow-raised transition hover:-translate-y-0.5 hover:shadow-floating"
+        >
+          <Plus className="h-5 w-5" />
+          Add your first property
+        </button>
+        <button
+          type="button"
+          onClick={() => void ask()}
+          disabled={helpState !== "idle"}
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-3 text-sm font-semibold text-foreground transition hover:bg-surface-muted disabled:opacity-70"
+        >
+          {helpState === "sending" ? <Loader2 className="h-4 w-4 animate-spin" /> : helpState === "sent" ? <Check className="h-4 w-4" /> : null}
+          {helpState === "sent" ? "Request sent — I'll be in touch" : "Want me to set this up for you?"}
+        </button>
+      </div>
+    </section>
+  );
+}
+
 function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: () => void }) {
   const [audit, setAudit] = useState<{ score: number; band: string } | null>(null);
   const [copied, setCopied] = useState(false);
@@ -1176,10 +1256,13 @@ function MyProperties({
     }
     toast.success(message, { description });
     if (patch.is_published === true) {
+      trackLandlordStep("listing_published");
       void notifyPublished({ data: { listingId: l.id } }).catch(() => {});
     }
     await onRefresh();
   };
+
+  if (!loading && listings.length === 0) return <FirstPropertyEmptyState onAdd={onAdd} />;
 
   return (
     <div>
@@ -1207,10 +1290,6 @@ function MyProperties({
         <div className="rounded-sm border border-border bg-surface p-6 text-sm text-muted-foreground">
           Loading listings…
         </div>
-      ) : listings.length === 0 ? (
-        <p className="rounded-sm border border-dashed border-border bg-surface p-5 text-center text-sm text-muted-foreground">
-          Your properties will appear here once you add the first one.
-        </p>
       ) : (
         <ul className="overflow-hidden rounded-sm border border-border bg-surface shadow-floating">
           {listings.map((l, i) => (
@@ -1528,8 +1607,10 @@ function AddPropertyForm({
         .select("id")
         .single();
       if (error) throw error;
+      trackLandlordStep("listing_saved_draft");
       if (!isTenanted && mode === "publish" && created) {
         const newId = (created as { id: string }).id;
+        trackLandlordStep("listing_published");
         void notifyPublished({ data: { listingId: newId } }).catch(() => {});
       }
       toast.success(
@@ -1579,7 +1660,7 @@ function AddPropertyForm({
     "mt-1.5 block h-11 w-full rounded-xl border border-border bg-surface shadow-resting px-3.5 text-sm text-foreground placeholder:text-muted-foreground/80 transition focus:border-verified/40 focus:bg-surface focus:outline-none focus:ring-2 focus:ring-verified/20";
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} onChangeCapture={() => trackLandlordStep("listing_started")}>
       <button
         type="button"
         onClick={onCancel}

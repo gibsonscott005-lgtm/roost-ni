@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { notifyListingPublished } from "@/lib/listing-alerts.functions";
+import { trackLandlordStep } from "@/lib/landlord-funnel-track";
 import {
   ArrowLeft,
   Building2,
@@ -225,6 +226,7 @@ function EditListingPage() {
               : "Your changes are live.",
         },
       );
+      trackLandlordStep(publish === true ? "listing_published" : "listing_saved_draft");
       if (publish === true && id) {
         void notifyPublished({ data: { listingId: id } }).catch(() => {});
       }
