@@ -14,3 +14,9 @@ test("'digging' grounds against 'dig' in the post", () => {
 test("unrelated image text still rejected", () => {
   expect(groundedInBody("CHEAP HOLIDAY FLIGHTS SPAIN", "Keep the registration record in a named folder.")).toBe(false);
 });
+test("everyday 'right document' is not a legal claim", () => {
+  expect(() => assertApprovedStatements("What naming system helps you find the right document without opening six wrong ones?", [], [])).not.toThrow();
+});
+test("'tenants' rights' is still blocked", () => {
+  expect(() => assertApprovedStatements("Know your tenants' rights before you sign.", [], [])).toThrow();
+});
