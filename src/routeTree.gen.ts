@@ -34,6 +34,7 @@ import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard.admin'
 import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
+import { Route as AuthenticatedDashboardLandlordFunnelRouteImport } from './routes/_authenticated/dashboard.landlord-funnel'
 import { Route as AuthenticatedDashboardLegalFactsRouteImport } from './routes/_authenticated/dashboard.legal-facts'
 import { Route as AuthenticatedDashboardListingEditRouteImport } from './routes/_authenticated/dashboard.listing-edit'
 import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
@@ -181,6 +182,12 @@ const AuthenticatedDashboardApplicationsRoute =
     path: '/applications',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardLandlordFunnelRoute =
+  AuthenticatedDashboardLandlordFunnelRouteImport.update({
+    id: '/landlord-funnel',
+    path: '/landlord-funnel',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardLegalFactsRoute =
   AuthenticatedDashboardLegalFactsRouteImport.update({
     id: '/legal-facts',
@@ -293,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/dashboard/landlord-funnel': typeof AuthenticatedDashboardLandlordFunnelRoute
   '/dashboard/legal-facts': typeof AuthenticatedDashboardLegalFactsRoute
   '/dashboard/listing-edit': typeof AuthenticatedDashboardListingEditRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
@@ -333,6 +341,7 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/dashboard/landlord-funnel': typeof AuthenticatedDashboardLandlordFunnelRoute
   '/dashboard/legal-facts': typeof AuthenticatedDashboardLegalFactsRoute
   '/dashboard/listing-edit': typeof AuthenticatedDashboardListingEditRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
@@ -376,6 +385,7 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/dashboard/admin': typeof AuthenticatedDashboardAdminRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
+  '/_authenticated/dashboard/landlord-funnel': typeof AuthenticatedDashboardLandlordFunnelRoute
   '/_authenticated/dashboard/legal-facts': typeof AuthenticatedDashboardLegalFactsRoute
   '/_authenticated/dashboard/listing-edit': typeof AuthenticatedDashboardListingEditRoute
   '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRoute
@@ -419,6 +429,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/dashboard/admin'
     | '/dashboard/applications'
+    | '/dashboard/landlord-funnel'
     | '/dashboard/legal-facts'
     | '/dashboard/listing-edit'
     | '/dashboard/settings'
@@ -459,6 +470,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/dashboard/admin'
     | '/dashboard/applications'
+    | '/dashboard/landlord-funnel'
     | '/dashboard/legal-facts'
     | '/dashboard/listing-edit'
     | '/dashboard/settings'
@@ -501,6 +513,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/dashboard/admin'
     | '/_authenticated/dashboard/applications'
+    | '/_authenticated/dashboard/landlord-funnel'
     | '/_authenticated/dashboard/legal-facts'
     | '/_authenticated/dashboard/listing-edit'
     | '/_authenticated/dashboard/settings'
@@ -726,6 +739,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardApplicationsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/landlord-funnel': {
+      id: '/_authenticated/dashboard/landlord-funnel'
+      path: '/landlord-funnel'
+      fullPath: '/dashboard/landlord-funnel'
+      preLoaderRoute: typeof AuthenticatedDashboardLandlordFunnelRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/legal-facts': {
       id: '/_authenticated/dashboard/legal-facts'
       path: '/legal-facts'
@@ -837,6 +857,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAdminRoute: typeof AuthenticatedDashboardAdminRoute
   AuthenticatedDashboardApplicationsRoute: typeof AuthenticatedDashboardApplicationsRoute
+  AuthenticatedDashboardLandlordFunnelRoute: typeof AuthenticatedDashboardLandlordFunnelRoute
   AuthenticatedDashboardLegalFactsRoute: typeof AuthenticatedDashboardLegalFactsRoute
   AuthenticatedDashboardListingEditRoute: typeof AuthenticatedDashboardListingEditRoute
   AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRoute
@@ -850,6 +871,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardAdminRoute: AuthenticatedDashboardAdminRoute,
     AuthenticatedDashboardApplicationsRoute:
       AuthenticatedDashboardApplicationsRoute,
+    AuthenticatedDashboardLandlordFunnelRoute:
+      AuthenticatedDashboardLandlordFunnelRoute,
     AuthenticatedDashboardLegalFactsRoute:
       AuthenticatedDashboardLegalFactsRoute,
     AuthenticatedDashboardListingEditRoute:
