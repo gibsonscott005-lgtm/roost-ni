@@ -134,6 +134,13 @@
       "when": 1792710848290,
       "tag": "0018_atomic_legal_fact_approval",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792876630862,
+      "tag": "0019_landlord_funnel_events",
+      "breakpoints": true
     }
   ]
 }
