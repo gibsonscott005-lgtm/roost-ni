@@ -16,10 +16,10 @@ export function RobinGroupsPanel({ brief, focus, posts, onDrafted }: { brief: st
   useEffect(() => { void fetchGroups({ data:undefined }).then(rows => { setGroups(rows); setSelected(rows.map(g=>g.id)); setReady(true); }).catch(e=>toast.error(e.message)); },[fetchGroups]);
   const update = (id:string, patch:Partial<RobinGroup>) => setGroups(rows=>rows.map(g=>g.id===id?{...g,...patch}:g));
   const save = async () => { await saveGroups({ data:groups }); };
-  const queued = posts.filter(p => p.status === "draft" || p.status === "scheduled").length;
+  const queued = posts.filter(p => p.platform === "facebook" && (p.status === "draft" || p.status === "scheduled")).length;
   const generate = async (week:boolean, replace = false) => {
     if (focus === "reddit") return;
-    if (replace && !window.confirm(`Remove all ${queued} unposted post${queued===1?"":"s"} from the queue and replace them with fresh drafts from the current brief?`)) return;
+    if (replace && !window.confirm(`Remove all ${queued} unposted Facebook post${queued===1?"":"s"} from the queue and replace them with fresh drafts from the current brief?`)) return;
     setBusy(true);
     try { await save(); const result = await draft({ data:{ brief:brief.trim()||undefined, focus, groupIds:selected, week, replace } }); toast.success(replace ? `${result.removed} old post${result.removed===1?"":"s"} removed, ${result.created.length} new drafts saved — nothing posted` : `${result.created.length} drafts saved — nothing posted`); await onDrafted(); }
     catch(e) { toast.error(e instanceof Error?e.message:"Could not draft posts", { description: replace ? "Your existing queue was left as it was." : undefined }); } finally { setBusy(false); }
@@ -49,7 +49,7 @@ export function RobinGroupsPanel({ brief, focus, posts, onDrafted }: { brief: st
       <Button disabled={!ready||busy||!selected.length||focus==="reddit"} onClick={()=>void generate(true)}><Sparkles/>Draft full week</Button>
     </div>
     <div className="flex flex-wrap gap-2 border-t border-border pt-3">
-      <p className="w-full text-xs text-muted-foreground">Changed the brief? Re-draft removes every unposted post in the queue ({queued}) and replaces it. Old posts stay until the new ones are saved.</p>
+      <p className="w-full text-xs text-muted-foreground">Changed the brief? Re-draft removes every unposted Facebook post ({queued}) and replaces it. Reddit drafts are left alone. Old posts stay until the new ones are saved.</p>
       <Button variant="outline" disabled={!ready||busy||!selected.length||focus==="reddit"||!queued} onClick={()=>void generate(false,true)}><RefreshCw/>Re-draft today</Button>
       <Button variant="outline" disabled={!ready||busy||!selected.length||focus==="reddit"||!queued} onClick={()=>void generate(true,true)}><RefreshCw/>Re-draft week</Button>
     </div>
