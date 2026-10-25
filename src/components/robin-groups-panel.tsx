@@ -49,7 +49,7 @@ export function RobinGroupsPanel({ brief, focus, posts, onDrafted }: { brief: st
       <Button disabled={!ready||busy||!selected.length||focus==="reddit"} onClick={()=>void generate(true)}><Sparkles/>Draft full week</Button>
     </div>
     <div className="flex flex-wrap gap-2 border-t border-border pt-3">
-      <p className="w-full text-xs text-muted-foreground">Changed the brief? Re-draft removes every unposted Facebook post ({queued}) and replaces it. Reddit drafts are left alone. Old posts stay until the new ones are saved.</p>{/**/}
+      <p className="w-full text-xs text-muted-foreground">Changed the brief? Re-draft removes every unposted Facebook post ({queued}) and replaces it. Reddit drafts are left alone. Old posts stay until the new ones are saved.</p>
       <Button variant="outline" disabled={!ready||busy||!selected.length||focus==="reddit"||!queued} onClick={()=>void generate(false,true)}><RefreshCw/>Re-draft today</Button>
       <Button variant="outline" disabled={!ready||busy||!selected.length||focus==="reddit"||!queued} onClick={()=>void generate(true,true)}><RefreshCw/>Re-draft week</Button>
     </div>
