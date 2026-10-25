@@ -53,13 +53,13 @@ export const Route = createFileRoute("/auth")({
       {
         name: "description",
         content:
-          "Create a free Tenant or Landlord account on RoostNI. Email sign-up for renters and property owners in Northern Ireland.",
+          "Create a Tenant or Landlord account on RoostNI. Email sign-up for renters and property owners in Northern Ireland.",
       },
       { property: "og:title", content: "Sign in or sign up — RoostNI" },
       {
         property: "og:description",
         content:
-          "Create a free Tenant or Landlord account on RoostNI — tenant passports and compliant listings for Northern Ireland.",
+          "Create a Tenant or Landlord account on RoostNI — tenant passports and listings built around NI tenancy rules.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk/auth" },
@@ -72,6 +72,7 @@ export const Route = createFileRoute("/auth")({
 
 type Role = "tenant" | "landlord";
 type Mode = "signup" | "login" | "reset";
+const WELCOME_KEY = "roost_welcome_pending";
 
 const COMMON_EMAIL_DOMAINS = [
   "gmail.com",
@@ -219,6 +220,44 @@ function AuthPage() {
   const [emailWarning, setEmailWarning] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
   const [listingTitle, setListingTitle] = useState<string | null>(null);
+  const [awaitingEmail, setAwaitingEmail] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
+
+  const handleResend = async () => {
+    if (!awaitingEmail || cooldown > 0) return;
+    setCooldown(60);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: awaitingEmail,
+      options: { emailRedirectTo: `${window.location.origin}/auth` },
+    });
+    if (error) toast.error("Couldn't resend the email", { description: error.message });
+    else toast.success("Email sent again");
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!awaitingEmail || code.length !== 6 || verifying) return;
+    setVerifying(true);
+    setCodeError(null);
+    sessionStorage.setItem(WELCOME_KEY, "1");
+    const { error } = await supabase.auth.verifyOtp({ email: awaitingEmail, token: code, type: "signup" });
+    setVerifying(false);
+    if (error) {
+      sessionStorage.removeItem(WELCOME_KEY);
+      setCodeError("That code didn't work. It may be mistyped or out of date — tap Resend email for a new one.");
+    }
+    // On success onAuthStateChange signs them in and routes to the dashboard.
+  };
 
   // Visitors arriving from a property's "Apply" button get context about the
   // home they were looking at, so the sign-up wall doesn't feel like a dead end.
@@ -253,6 +292,15 @@ function AuthPage() {
         .select("account_type")
         .eq("id", userId)
         .maybeSingle();
+      if (sessionStorage.getItem(WELCOME_KEY)) {
+        sessionStorage.removeItem(WELCOME_KEY);
+        toast.success("You're in. Your email is confirmed.", {
+          description:
+            profile?.account_type === "landlord"
+              ? "Next step: add your first property."
+              : "Next step: fill in your tenant passport.",
+        });
+      }
       // Honour a preserved same-origin return path (e.g. the OAuth consent screen).
       if (nextFromSearch) {
         window.location.href = nextFromSearch;
@@ -262,6 +310,8 @@ function AuthPage() {
       navigate({ to: target });
     };
 
+    // Arriving from the confirmation link: show the welcome once.
+    if (/type=signup/.test(window.location.hash)) sessionStorage.setItem(WELCOME_KEY, "1");
 
     // Initial session check (handles email-confirmation redirects landing here)
     supabase.auth.getSession().then(({ data }) => {
@@ -350,15 +400,12 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        // Fire-and-forget welcome email — never blocks or breaks sign-up.
-        // Welcome email is sent once the user has a session (see onAuthStateChange).
-        void signUpResult;
-        toast.success("Account created", {
-          description:
-            role === "landlord"
-              ? "Welcome to RoostNI. Your landlord dashboard is ready."
-              : "Welcome to RoostNI. Your tenant passport is being prepared.",
-        });
+        // Email confirmation is required: no session yet, so show the
+        // "Check your email" screen. Welcome email follows once signed in.
+        if (!signUpResult.session) {
+          setAwaitingEmail(normalizedEmail);
+          setCooldown(60);
+        }
         // onAuthStateChange will handle the role-based redirect
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
@@ -495,7 +542,64 @@ function AuthPage() {
           </div>
           )}
 
-          {mode === "reset" && resetSent ? (
+          {awaitingEmail ? (
+            <div className="mt-5 space-y-4">
+              <div className="rounded-sm border border-verified/30 bg-verified-soft/60 p-4 text-sm text-foreground">
+                <p className="font-display text-lg font-bold">Check your email</p>
+                <p className="mt-1 text-muted-foreground">
+                  We've sent a confirmation email to <span className="font-mono font-bold text-foreground">{awaitingEmail}</span>.
+                  Tap the button in it, or type the 6-digit code below.
+                </p>
+                <p className="mt-2 text-muted-foreground">
+                  Not there? Check your spam or promotions folder. It can take a couple of minutes.
+                </p>
+              </div>
+              <form onSubmit={handleVerifyCode} className="space-y-3">
+                <label className="block">
+                  <span className="text-sm font-medium text-foreground">6-digit code</span>
+                  <input
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    placeholder="123456"
+                    aria-label="6-digit code"
+                    className="mt-1.5 w-full rounded-sm border border-border bg-surface px-3 py-3 text-center font-mono text-2xl tracking-[0.4em] outline-none focus:border-verified"
+                  />
+                </label>
+                {codeError ? <p className="text-sm text-destructive">{codeError}</p> : null}
+                <button
+                  type="submit"
+                  disabled={code.length !== 6 || verifying}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 font-display text-sm font-semibold text-[var(--color-primary-foreground)] transition hover:bg-foreground/92 disabled:opacity-50"
+                >
+                  {verifying ? "Checking…" : "Confirm my email"}
+                </button>
+              </form>
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={cooldown > 0}
+                className="inline-flex w-full items-center justify-center rounded-full border border-border px-6 py-3 text-sm font-medium transition hover:bg-surface-muted disabled:opacity-50"
+              >
+                {cooldown > 0 ? `Resend email in ${cooldown}s` : "Resend email"}
+              </button>
+              <p className="text-center text-sm text-muted-foreground">
+                Wrong address?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAwaitingEmail(null);
+                    setCode("");
+                    setCodeError(null);
+                  }}
+                  className="font-medium text-foreground underline"
+                >
+                  Change it
+                </button>
+              </p>
+            </div>
+          ) : mode === "reset" && resetSent ? (
             <div className="mt-5 space-y-4">
               <div className="rounded-sm border border-verified/30 bg-verified-soft/60 p-4 text-sm text-foreground">
                 <p className="font-medium">Check your inbox</p>
