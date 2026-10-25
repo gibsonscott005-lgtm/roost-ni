@@ -36,7 +36,7 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
   // Re-draft: queued (unposted) posts are being replaced, so they must not count as history.
   let replacedIds: string[] = [];
   if (data.replace) {
-    const { data: queued, error: queuedError } = await supabaseAdmin.from("marketing_posts").select("id").in("status", ["draft", "scheduled"]);
+    const { data: queued, error: queuedError } = await supabaseAdmin.from("marketing_posts").select("id").eq("platform", "facebook").in("status", ["draft", "scheduled"]);
     if (queuedError) throw new Error(queuedError.message);
     replacedIds = (queued ?? []).map(row => row.id);
   }
@@ -87,7 +87,7 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
   if (insertError) throw new Error(insertError.message);
   // Old queue is removed only after the new drafts are safely saved.
   if (replacedIds.length) {
-    const { error: deleteError } = await supabaseAdmin.from("marketing_posts").delete().in("id", replacedIds).in("status", ["draft", "scheduled"]);
+    const { error: deleteError } = await supabaseAdmin.from("marketing_posts").delete().in("id", replacedIds).eq("platform", "facebook").in("status", ["draft", "scheduled"]);
     if (deleteError) throw new Error(`New drafts saved, but the old queue could not be cleared: ${deleteError.message}`);
   }
   return { created:created ?? [], removed: replacedIds.length };
