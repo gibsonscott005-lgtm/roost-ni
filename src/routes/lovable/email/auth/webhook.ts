@@ -30,13 +30,22 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
           emails: {
             signup: {
               subject: 'Confirm your RoostNI email',
-              render: (data) =>
-                React.createElement(SignupEmail, {
+              render: async (data) => {
+                // Funnel step for landlords; never blocks the email.
+                try {
+                  const { supabaseAdmin } = await import('@/integrations/supabase/client.server')
+                  await supabaseAdmin.rpc('log_confirmation_email_sent', { p_email: data.email })
+                } catch (e) {
+                  console.error('[funnel] confirmation_email_sent not logged', e)
+                }
+                return React.createElement(SignupEmail, {
                   siteName: SITE_NAME,
                   siteUrl: SITE_URL,
                   recipient: data.email,
                   confirmationUrl: data.url,
-                }),
+                  token: data.token ?? undefined,
+                })
+              },
             },
             invite: {
               subject: "You're invited to RoostNI",

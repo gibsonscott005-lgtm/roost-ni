@@ -141,6 +141,13 @@
       "when": 1792876630862,
       "tag": "0019_landlord_funnel_events",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792956846287,
+      "tag": "0020_signup_funnel_steps",
+      "breakpoints": true
     }
   ]
 }

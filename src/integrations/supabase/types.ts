@@ -1407,7 +1407,15 @@ export type Database = {
         }
         Returns: string
       }
+      funnel_record_auth_step: {
+        Args: { p_at?: string; p_event: string; p_user: string }
+        Returns: undefined
+      }
       legal_monitor_active: { Args: never; Returns: boolean }
+      log_confirmation_email_sent: {
+        Args: { p_email: string }
+        Returns: undefined
+      }
       log_landlord_funnel_event: {
         Args: {
           p_event: string

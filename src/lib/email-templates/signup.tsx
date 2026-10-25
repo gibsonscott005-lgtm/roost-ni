@@ -11,19 +11,21 @@ import {
   Preview,
   Text,
 } from '@react-email/components'
-import { button, card, container, dot, footer, h1, link, main, tag, text, wordmark } from './brutal-styles'
+import { button, card, codeStyle, container, dot, footer, h1, link, main, tag, text, wordmark } from './brutal-styles'
 
 interface SignupEmailProps {
   siteName: string
   siteUrl: string
   recipient: string
   confirmationUrl: string
+  token?: string
 }
 
 export const SignupEmail = ({
   siteUrl,
   recipient,
   confirmationUrl,
+  token,
 }: SignupEmailProps) => (
   <Html lang="en-GB" dir="ltr">
     <Head>
@@ -58,6 +60,12 @@ export const SignupEmail = ({
           <Button style={button} href={confirmationUrl}>
             Verify email
           </Button>
+          {token ? (
+            <>
+              <Text style={text}>Or type this code on the sign-up screen:</Text>
+              <Text style={codeStyle}>{token}</Text>
+            </>
+          ) : null}
         </div>
         <Text style={footer}>
           If you did not create an account, you can safely ignore this email.

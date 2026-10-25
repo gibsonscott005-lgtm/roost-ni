@@ -3,6 +3,9 @@
 
 export const FUNNEL_STEPS = [
   "signed_up",
+  "confirmation_email_sent",
+  "email_confirmed",
+  "first_sign_in",
   "landlord_dashboard_viewed",
   "add_property_clicked",
   "listing_started",
@@ -15,6 +18,9 @@ export type FunnelEvent = FunnelStep | "help_requested";
 
 export const STEP_LABELS: Record<FunnelStep, string> = {
   signed_up: "Signed up",
+  confirmation_email_sent: "Confirmation email sent",
+  email_confirmed: "Email confirmed",
+  first_sign_in: "First sign-in",
   landlord_dashboard_viewed: "Viewed dashboard",
   add_property_clicked: "Clicked add property",
   listing_started: "Started a listing",
