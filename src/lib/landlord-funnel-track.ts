@@ -9,7 +9,7 @@ const sent = new Set<string>();
  * the first time and bumps the latest timestamp; tenants and admins are ignored.
  * Never throws — tracking must not break the page.
  */
-export function trackLandlordStep(event: Exclude<FunnelEvent, "signed_up" | "help_requested">) {
+export function trackLandlordStep(event: Exclude<FunnelEvent, "signed_up" | "confirmation_email_sent" | "email_confirmed" | "first_sign_in" | "help_requested">) {
   if (typeof window === "undefined" || sent.has(event)) return;
   sent.add(event);
   const utm = getEventContext();

@@ -12,6 +12,12 @@ describe("landlord funnel", () => {
     expect(summariseLandlord("u", [row("signed_up", 2)], now).stuck).toBe(false);
   });
 
+  test("unconfirmed for 3+ days is stuck; sign-up steps come before the dashboard", () => {
+    expect(summariseLandlord("u", [row("signed_up", 4), row("confirmation_email_sent", 4)], now).stuck).toBe(true);
+    const e = summariseLandlord("u", [row("signed_up", 1), row("email_confirmed", 1), row("first_sign_in", 1)], now);
+    expect(e.furthestStep).toBe("first_sign_in");
+  });
+
   test("a published landlord is never stuck", () => {
     expect(summariseLandlord("u", [row("listing_published", 10)], now).stuck).toBe(false);
   });
