@@ -500,7 +500,7 @@ function AuthPage() {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "signup"
-              ? "Verified passports for renters. Compliant listings for landlords."
+              ? "Reusable passports for renters. Listings built around NI tenancy rules for landlords."
               : mode === "reset"
                 ? "Enter your email and we'll send you a link to set a new one."
                 : "Continue to your passport or property dashboard."}
@@ -508,7 +508,7 @@ function AuthPage() {
         </div>
 
         <section className="rounded-sm border border-border bg-surface p-4 shadow-floating sm:p-7">
-          {mode === "reset" ? null : (
+          {mode === "reset" || awaitingEmail ? null : (
           <div
             role="tablist"
             aria-label="Account type"
