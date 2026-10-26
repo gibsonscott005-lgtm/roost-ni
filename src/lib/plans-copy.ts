@@ -1,51 +1,38 @@
 // Single source of truth for RoostNI pricing/plan wording.
-// Never hard-code "free"/price copy in components — import from here.
+// Never hard-code price or plan copy in components — import from here.
 
 export const APPROVED_LINE =
-  "Core tools are free forever. Optional paid services are always opt-in and clearly priced.";
+  "Every tool is included at every level. Pay by the number of homes you manage. No commission on rent. Never any fees for tenants.";
+
+export const BILLING_NOTE = "Billing is not switched on yet. Nothing is charged today.";
+export const STATUTORY_NOTE = "Statutory tools stay open to everyone.";
 
 export const SHORT_LINES = {
-  coreFree: "Core tools free forever",
-  coreFreeSentence: "Core tools are free forever, with no commission on rent.",
+  everyToolIncluded: "Every tool included",
+  payByHomes: "Pay by the number of homes you manage",
   noCommission: "No commission on rent",
   tenantsNeverPay: "Never any fees for tenants",
-  freeToList: "Free to list",
-  ticker: "NO COMMISSION ON RENT   //   CORE TOOLS FREE FOREVER   //   BUILT FOR NORTHERN IRELAND LAW   //   ",
+  billingOff: "Billing not switched on yet",
+  noCommissionSentence: "No commission on rent, and never any fees for tenants.",
+  ticker: "NO COMMISSION ON RENT   //   NEVER ANY FEES FOR TENANTS   //   BUILT FOR NORTHERN IRELAND LAW   //   ",
 } as const;
 
-export const PERMANENTLY_FREE = [
-  "Property listings",
-  "Tenant Passports",
-  "The applicant inbox",
-  "Tenancy management",
-  "Rent ledger and rent receipts",
-  "Maintenance tickets",
-  "Every statutory tool: the compliance check, the Notice to Quit calculator, the Tenancy Information Notice help and cash rent receipts",
-] as const;
-
-export type PlanStatus = "live" | "planned";
+export type PlanStatus = "live" | "not_billing" | "planned";
 export interface Plan {
   id: string;
   name: string;
   status: PlanStatus;
-  /** Monthly price in GBP; null until launched. */
-  price: number | null;
   paidBy: "nobody" | "landlord" | "third-party";
 }
 
+/** Pricing figures live in pricing.ts; billing is not switched on for any plan. */
 export const PLANS: readonly Plan[] = [
-  { id: "core", name: "Core", status: "live", price: 0, paidBy: "nobody" },
-  { id: "pro", name: "Pro (5+ properties)", status: "planned", price: null, paidBy: "landlord" },
-  { id: "listing-boost", name: "Listing boost", status: "planned", price: null, paidBy: "landlord" },
-  { id: "verified-badge", name: "Verified badge", status: "planned", price: null, paidBy: "landlord" },
-  { id: "rent-collection", name: "Rent collection", status: "planned", price: null, paidBy: "landlord" },
-  { id: "trade-referrals", name: "Trade referrals", status: "planned", price: null, paidBy: "third-party" },
-  { id: "insurance-referrals", name: "Insurance referrals", status: "planned", price: null, paidBy: "third-party" },
+  { id: "standard", name: "Standard", status: "not_billing", paidBy: "landlord" },
+  { id: "founding", name: "Founding landlord", status: "not_billing", paidBy: "landlord" },
 ];
 
-/** Planned services may only ever be described as possible future options. */
 export function planLabel(plan: Plan): string {
-  return plan.status === "live" ? plan.name : `${plan.name} — possible future option`;
+  return plan.status === "live" ? plan.name : `${plan.name} — billing not switched on yet`;
 }
 
 export const BANNED_PHRASES = [
@@ -55,6 +42,9 @@ export const BANNED_PHRASES = [
   "no catch",
   "free during beta",
   "free during the open beta",
+  "free forever",
+  "core tools are free",
+  "free to list",
 ] as const;
 
 export function findBannedPhrases(text: string): string[] {

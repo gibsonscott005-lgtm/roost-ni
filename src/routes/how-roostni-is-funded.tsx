@@ -1,10 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
-import { APPROVED_LINE, PERMANENTLY_FREE } from "@/lib/plans-copy";
+import { APPROVED_LINE, BILLING_NOTE, STATUTORY_NOTE } from "@/lib/plans-copy";
+import {
+  ARCHIVE_UNCOUNT_MONTHS,
+  FOUNDING_LANDLORD_LIMIT,
+  FOUNDING_PLAN,
+  STANDARD_PLAN,
+  formatGBP,
+  monthlyPence,
+} from "@/lib/pricing";
+
+const EXAMPLES = [1, 3, 10];
 
 const TITLE = "How RoostNI is funded — straight answers about money | RoostNI";
 const DESC =
-  "What stays free on RoostNI permanently, why compliance tools are never paywalled, and how any optional paid extras would work in future. No commission on rent, never any fees for tenants.";
+  "RoostNI pricing for Northern Ireland landlords: every tool included, pay by the number of homes you manage, no commission on rent, never any fees for tenants. Billing is not switched on yet.";
 
 export const Route = createFileRoute("/how-roostni-is-funded")({
   staticData: { sitemap: true },
@@ -54,42 +64,64 @@ function FundingPage() {
           <p className="font-display text-xl font-extrabold leading-snug sm:text-2xl">{APPROVED_LINE}</p>
         </div>
 
-        <section className="mt-14">
-          <h2 className="text-2xl font-extrabold sm:text-3xl">What stays free, permanently</h2>
-          <ul className="mt-4 space-y-2 border-2 border-border p-5">
-            {PERMANENTLY_FREE.map((item) => (
-              <li key={item} className="flex gap-3">
-                <span className="font-mono font-bold text-verified">—</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-muted-foreground">These aren't trial features, and we won't take them away later.</p>
+        <p className="mt-6 border-2 border-border p-4 font-bold">{BILLING_NOTE}</p>
+
+        <section className="mt-14 grid gap-6 sm:grid-cols-2">
+          <div className="border-2 border-border p-5">
+            <p className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">// Standard</p>
+            <p className="mt-3 text-3xl font-extrabold">{formatGBP(STANDARD_PLAN.firstHomePence)} a month</p>
+            <ul className="mt-4 space-y-1">
+              <li>for your first home</li>
+              <li>plus {formatGBP(STANDARD_PLAN.extraHomePence)} for each extra home</li>
+              <li>never more than {formatGBP(STANDARD_PLAN.capPence)} a month</li>
+            </ul>
+          </div>
+          <div className="border-2 border-verified p-5">
+            <p className="font-mono text-xs font-bold uppercase tracking-wider text-verified">// Founding landlords</p>
+            <p className="mt-3 text-3xl font-extrabold">{formatGBP(FOUNDING_PLAN.firstHomePence)} a month</p>
+            <ul className="mt-4 space-y-1">
+              <li>for the first {FOUNDING_LANDLORD_LIMIT} landlords who list a property</li>
+              <li>one month free from the day you list</li>
+              <li>then {formatGBP(FOUNDING_PLAN.firstHomePence)} first home, plus {formatGBP(FOUNDING_PLAN.extraHomePence)} each extra</li>
+              <li>never more than {formatGBP(FOUNDING_PLAN.capPence)} a month</li>
+              <li>price locked for {FOUNDING_PLAN.lockMonths} months</li>
+            </ul>
+          </div>
         </section>
 
         <section className="mt-12">
-          <h2 className="text-2xl font-extrabold sm:text-3xl">The law is never behind a paywall</h2>
+          <h2 className="text-2xl font-extrabold sm:text-3xl">What it works out at</h2>
+          <table className="mt-4 w-full border-2 border-border text-left">
+            <thead className="font-mono text-xs uppercase tracking-wider">
+              <tr><th className="p-3">Homes</th><th className="p-3">Standard</th><th className="p-3">Founding</th></tr>
+            </thead>
+            <tbody>
+              {EXAMPLES.map((n) => (
+                <tr key={n} className="border-t-2 border-border">
+                  <td className="p-3 font-bold">{n}</td>
+                  <td className="p-3 tabular-nums">{formatGBP(monthlyPence(n, STANDARD_PLAN))}</td>
+                  <td className="p-3 tabular-nums">{formatGBP(monthlyPence(n, FOUNDING_PLAN))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <section className="mt-12">
+          <h2 className="text-2xl font-extrabold sm:text-3xl">How a home is counted</h2>
           <p className="mt-4 leading-relaxed">
-            If a tool helps you meet your legal duties in Northern Ireland, it stays free. That includes anything
-            that produces a notice, receipt, reminder or record you need to keep. You'll never have to pay to
-            stay compliant.
+            By address. A home stays counted until it is sold, or until it has been archived for{" "}
+            {ARCHIVE_UNCOUNT_MONTHS} months. Every tool is included whatever number you have.
           </p>
         </section>
 
         <section className="mt-12">
-          <h2 className="text-2xl font-extrabold sm:text-3xl">What might cost money in future</h2>
-          <p className="mt-4 leading-relaxed">
-            We may add optional extras later on. Examples include tools for landlords with five or more
-            properties, or help from trusted local providers. If we do:
-          </p>
+          <h2 className="text-2xl font-extrabold sm:text-3xl">What never costs anything</h2>
           <ul className="mt-4 list-disc space-y-1 pl-6">
-            <li>they'll always be opt-in, and you'll never be moved onto them automatically</li>
-            <li>the price will be clear before you choose</li>
-            <li>they'll be paid for by landlords or by the outside providers involved</li>
-            <li>we'll never take a percentage of your rent</li>
-            <li>tenants will never be charged a fee to apply or to use RoostNI</li>
+            <li>{STATUTORY_NOTE}</li>
+            <li>Never any fees for tenants: not to apply, not for a Tenant Passport, not for an identity check.</li>
+            <li>No commission on rent, ever.</li>
           </ul>
-          <p className="mt-4 font-bold">None of these extras are available today. Nothing is charged right now.</p>
         </section>
 
         <section className="mt-12">

@@ -36,7 +36,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { ListingCover, PhotoPicker, uploadListingPhotos } from "@/components/listing-photos";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
-import { PRICING_ITEM_KEYS } from "@/lib/pricing";
 import {
   AvailabilityFields,
   DescriptionField,
@@ -1132,7 +1131,7 @@ function LandlordOnboarding({ listings, onAdd }: { listings: Listing[]; onAdd: (
             Get Your First NI Property Live
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            {SHORT_LINES.coreFree} • {SHORT_LINES.noCommission}
+            {SHORT_LINES.everyToolIncluded} • {SHORT_LINES.noCommission}
           </p>
         </div>
         <span className="rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold">
@@ -2062,7 +2061,6 @@ function AddPropertyForm({
       <PricingBreakdown
         className="mt-5"
         title="What this listing would cost"
-        itemKeys={[PRICING_ITEM_KEYS.tenancyAgreement]}
       />
 
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">

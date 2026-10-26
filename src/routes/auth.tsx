@@ -789,7 +789,7 @@ function AuthPage() {
 
           <div className="mt-4 flex items-center gap-2 rounded-xl bg-surface-muted px-3 py-2.5 text-xs text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5 text-verified" />
-            {SHORT_LINES.coreFree} · {SHORT_LINES.noCommission} · Encrypted at rest · GDPR compliant
+            {SHORT_LINES.noCommission} · {SHORT_LINES.tenantsNeverPay} · Encrypted at rest · GDPR compliant
           </div>
 
           {mode === "reset" ? null : (

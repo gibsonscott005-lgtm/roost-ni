@@ -707,6 +707,7 @@ export type Database = {
       }
       pricing_tiers: {
         Row: {
+          cap_pence: number
           completion_fee_pence: number
           created_at: string
           id: string
@@ -720,6 +721,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          cap_pence?: number
           completion_fee_pence?: number
           created_at?: string
           id?: string
@@ -733,6 +735,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          cap_pence?: number
           completion_fee_pence?: number
           created_at?: string
           id?: string

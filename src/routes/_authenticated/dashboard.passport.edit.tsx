@@ -769,15 +769,10 @@ function VerifyIdentityPanel({
       <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <ShieldCheck className="h-4 w-4 text-muted-foreground" />
         Verify your identity
-        {config ? (
-          <span className="rounded-full bg-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {formatFee(config.feePence)} one-off
-          </span>
-        ) : null}
       </p>
       <p className="mt-1.5 text-xs text-muted-foreground">
-        A checked ID is the strongest thing on your passport. You pay once and it applies to
-        every landlord you apply to — no repeat referencing fees. RoostNI still does not
+        A checked ID is the strongest thing on your passport. It applies to every landlord you
+        apply to, and tenants never pay a fee for it. RoostNI still does not
         recommend you to landlords; the decision is always theirs.
       </p>
 

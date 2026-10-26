@@ -23,23 +23,24 @@ block them.
 
 ## Who pays
 
-Both sides. A landlord fee for the tenancy workspace, a tenant fee for the
-reusable passport. Being paid by both is the honest version of neutrality — the
-tenant is a customer, not the product. The price comparison is a high-street
+Landlords pay by the number of homes they manage. Every tool is included at
+every level. Tenants never pay — no fee to apply, no fee for the passport, no
+fee for an identity check. No commission on rent. Statutory tools stay open to
+everyone. Billing is not switched on yet. The price comparison is a high-street
 agent's fee, not a listings portal's.
 
 ## Two-sided balance
 
 Roost must never sound like a landlord-only tool or a tenant-only tool, even when
-one audience is dominant. The platform is paid by and built for both sides:
+one audience is dominant. The platform is built for both sides; only landlords pay:
 
 - **Renters** get a reusable Tenant Passport, transparent screening, and a direct
   line to the landlord — no repeated forms, no opaque intermediaries.
 - **Landlords** get a compliant tenancy workspace and organised evidence, while
   keeping the letting decision entirely in their own hands.
 
-Because both sides pay, Roost can be neutral. The renter is a customer, not the
-product. The landlord is a customer, not the only stakeholder. Any description of
+Because tenants never pay and their data is never sold, the renter is a
+customer, not the product. The landlord is a customer, not the only stakeholder. Any description of
 Roost — on the landing page, in outreach, or in the product — should make both
 sides' benefits visible.
 
@@ -52,8 +53,8 @@ of what the terms say. Therefore:
 - Roost states what it checked: a document is attached, the figures entered add
   up, the declaration is timestamped and immutable.
 - Roost states what it did not check: employment, previous landlord, credit
-  history — and identity too, unless the tenant has paid for a real identity
-  check, which is the one claim Roost stands behind.
+  history — and identity too, unless a real identity check has been completed,
+  which is the one claim Roost stands behind.
 - The boundary appears **where the decision is made** — beside the applicant's
   claims and at the point of acceptance — not only in the terms.
 - Accepting an applicant requires the landlord to confirm they carried out their

@@ -1,6 +1,6 @@
 # RoostNI
 
-> RoostNI is a Northern Ireland-only platform for private landlords and tenants who let and rent directly, without a letting agent. Landlords can list properties and manage tenancies with Northern Ireland tenancy law built in. Tenants keep a reusable Tenant Passport of self-certified evidence to apply directly. Free during the open beta.
+> RoostNI is a Northern Ireland-only platform for private landlords and tenants who let and rent directly, without a letting agent. Landlords can list properties and manage tenancies with Northern Ireland tenancy law built in. Tenants keep a reusable Tenant Passport of self-certified evidence to apply directly. Every tool is included at every level; landlords pay by the number of homes they manage (billing not switched on yet); no commission on rent; never any fees for tenants.
 
 RoostNI follows Northern Ireland law only: the Private Tenancies (Northern Ireland) Order 2006, as amended by the Private Tenancies Act (Northern Ireland) 2022, and the 2024 smoke, heat and carbon monoxide alarm regulations. English rules such as Section 21, Section 8, Assured Shorthold Tenancies, Right to Rent checks and the five-week deposit cap do not apply in Northern Ireland.
 
@@ -22,7 +22,7 @@ Important boundaries:
 - [Home](https://roostni.co.uk/): What RoostNI does for landlords and tenants.
 - [Property listings](https://roostni.co.uk/listings): Homes to rent directly from Northern Ireland landlords.
 - [About RoostNI](https://roostni.co.uk/beta): Who we are and how to get started.
-- [How RoostNI is funded](https://roostni.co.uk/how-roostni-is-funded): Core tools are free forever; optional paid services are always opt-in and clearly priced.
+- [How RoostNI is funded](https://roostni.co.uk/how-roostni-is-funded): Every tool included, pay by the number of homes you manage, no commission on rent, never any fees for tenants; billing not switched on yet and clearly priced.
 - [Help](https://roostni.co.uk/help): Answers to common questions.
 
 ## Key facts

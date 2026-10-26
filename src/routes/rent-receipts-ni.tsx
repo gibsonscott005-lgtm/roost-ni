@@ -288,7 +288,7 @@ function RentReceiptsGuide() {
           <p className="mt-2 text-sm text-muted-foreground">
             RoostNI's Rent Ledger records every payment against the tenancy automatically — amounts,
             dates and periods covered — so a complete, dated receipt history is always one tap away.
-            {SHORT_LINES.coreFreeSentence}
+            {SHORT_LINES.noCommissionSentence}
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link to="/auth" onClick={() => track("signup")} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">

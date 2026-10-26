@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -19,12 +19,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useServerFn } from "@tanstack/react-start";
 import { DashboardShell } from "@/components/dashboard-shell";
-import {
-  SimulatedBillingNotice,
-  TierTable,
-  useBillingSnapshot,
-} from "@/components/pricing-breakdown";
-import { completionFeePence, formatGBP, monthlyLabel, monthlyPence } from "@/lib/pricing";
+import { SimulatedBillingNotice, useBillingSnapshot } from "@/components/pricing-breakdown";
+import { PRICING_PLANS, formatGBP, monthlyPence, planSummary } from "@/lib/pricing";
+import { APPROVED_LINE, STATUTORY_NOTE } from "@/lib/plans-copy";
 import { NOTIFICATION_TYPES, type NotificationType } from "@/lib/notifications.functions";
 import { deleteAccount } from "@/lib/account.functions";
 import { getEmailConfigStatus } from "@/lib/email-status.functions";
@@ -465,9 +462,8 @@ function Field({
 }
 
 function BillingCard() {
-  const { snapshot, tier, active, isPending } = useBillingSnapshot();
+  const { snapshot, active, isPending } = useBillingSnapshot();
   const count = snapshot.propertyCount;
-  const monthly = monthlyPence(tier, count);
 
   return (
     <section className="mb-5 rounded-sm border border-border bg-surface p-5">
@@ -479,83 +475,33 @@ function BillingCard() {
           <h3 className="font-display text-base font-semibold tracking-tight">
             Subscription & billing
           </h3>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            A preview of the plan your portfolio sits on. Read-only — nothing is charged.
-          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{APPROVED_LINE}</p>
         </div>
       </div>
 
       {isPending ? (
-        <p className="mt-4 text-sm text-muted-foreground">Working out your plan…</p>
+        <p className="mt-4 text-sm text-muted-foreground">Counting your homes…</p>
       ) : (
         <>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <div className="rounded-sm bg-surface-muted p-4">
-              <p className="text-xs text-muted-foreground">Current plan</p>
-              <p className="mt-1 font-display text-lg font-semibold tracking-tight">{tier.name}</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                {count} {count === 1 ? "property" : "properties"} on your account
-              </p>
+              <p className="text-xs text-muted-foreground">Homes on your account</p>
+              <p className="mt-1 font-display text-lg font-semibold tracking-tight">{count}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">Counted by address</p>
             </div>
-            <div className="rounded-sm bg-surface-muted p-4">
-              <p className="text-xs text-muted-foreground">Monthly</p>
-              <p className="mt-1 font-display text-lg font-semibold tabular-nums tracking-tight">
-                {formatGBP(monthly)}
-              </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">{monthlyLabel(tier)}</p>
-            </div>
-            <div className="rounded-sm bg-surface-muted p-4">
-              <p className="text-xs text-muted-foreground">Completion fee</p>
-              <p className="mt-1 font-display text-lg font-semibold tabular-nums tracking-tight">
-                {formatGBP(completionFeePence(tier))}
-              </p>
-              <p className="mt-0.5 text-xs text-muted-foreground">Once per completed tenancy</p>
-            </div>
-          </div>
-
-          <TierTable tiers={snapshot.tiers} currentKey={tier.key} propertyCount={count} />
-
-          <div className="mt-5 rounded-sm border border-border bg-surface-muted p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Simulated invoice — this month
-            </p>
-            <div className="mt-2 divide-y divide-border/70">
-              <div className="flex items-center justify-between py-2 text-sm">
-                <span>{tier.name} subscription</span>
-                <span className="tabular-nums">{formatGBP(monthly)}</span>
-              </div>
-              <div className="flex items-center justify-between py-2 text-sm">
-                <span>Completion fees</span>
-                <span className="tabular-nums">{formatGBP(0)}</span>
-              </div>
-              <div className="flex items-center justify-between py-2 text-sm font-semibold">
-                <span>Total (not charged)</span>
-                <span className="tabular-nums">{formatGBP(monthly)}</span>
-              </div>
-            </div>
-          </div>
-
-          <h4 className="mt-6 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            One-off documents & extras
-          </h4>
-          <div className="mt-2 divide-y divide-border/70">
-            {snapshot.items.map((i) => (
-              <div key={i.key} className="flex items-start justify-between gap-4 py-2">
-                <span className="text-sm">
-                  {i.name}
-                  {i.description ? (
-                    <span className="mt-0.5 block text-xs text-muted-foreground">
-                      {i.description}
-                    </span>
-                  ) : null}
-                </span>
-                <span className="shrink-0 text-sm font-semibold tabular-nums">
-                  {formatGBP(i.price_pence)}
-                </span>
+            {PRICING_PLANS.map((plan) => (
+              <div key={plan.key} className="rounded-sm bg-surface-muted p-4">
+                <p className="text-xs text-muted-foreground">{plan.name} monthly</p>
+                <p className="mt-1 font-display text-lg font-semibold tabular-nums tracking-tight">
+                  {formatGBP(monthlyPence(count, plan))}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{planSummary(plan)}</p>
               </div>
             ))}
           </div>
-
+          <p className="mt-4 text-xs text-muted-foreground">
+            {STATUTORY_NOTE} <Link to="/how-roostni-is-funded" className="underline">How RoostNI is funded</Link>
+          </p>
           {active ? null : <SimulatedBillingNotice className="mt-4" />}
         </>
       )}

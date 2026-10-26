@@ -46,11 +46,11 @@ const WelcomeLandlord = ({ name }: Props) => (
             </Link>
             {'  ·  '}
             <Link href="https://roostni.co.uk/audit" style={link}>
-              Run the free Landlord Audit
+              Run the Landlord Audit
             </Link>
           </Text>
           <Text style={paragraph}>
-            Core tools on RoostNI are free forever, with no commission on your rent, so if anything is unclear
+            Every tool on RoostNI is included, there's no commission on your rent and billing isn't switched on yet, so if anything is unclear
             or doesn't work the way you'd expect, I would genuinely like to hear about it. Just
             reply to this email and it lands straight in my inbox.
           </Text>

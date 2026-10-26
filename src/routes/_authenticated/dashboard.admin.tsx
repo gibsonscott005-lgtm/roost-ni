@@ -166,7 +166,7 @@ function AdminDashboard() {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                {SHORT_LINES.coreFree}
+                {SHORT_LINES.everyToolIncluded}
               </p>
               <h1 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
                 Command centre

@@ -207,7 +207,7 @@ export function BetaBanner() {
         <p className="text-sm text-foreground">
           <span className="font-semibold">Welcome to RoostNI.</span>{" "}
           <span className="text-muted-foreground">
-            {SHORT_LINES.coreFree} — tell us anything that could be better.
+            {SHORT_LINES.everyToolIncluded} — tell us anything that could be better.
           </span>
         </p>
       </div>

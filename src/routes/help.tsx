@@ -85,7 +85,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: "Does RoostNI charge anything?",
-    a: APPROVED_LINE + " Nothing is charged today. See How RoostNI is funded at roostni.co.uk/how-roostni-is-funded.",
+    a: APPROVED_LINE + " Billing is not switched on yet, so nothing is charged today. Statutory tools stay open to everyone. See How RoostNI is funded at roostni.co.uk/how-roostni-is-funded.",
   },
   {
     q: "Should I use real documents?",

@@ -262,7 +262,7 @@ function NoticeToQuitGuide() {
           <h2 className="font-display text-2xl font-extrabold tracking-tight">Are the rest of your tenancies in order?</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Take the free five-question NI compliance check, or keep your tenancy records, notices and rent
-            receipts in one place with RoostNI. {SHORT_LINES.coreFreeSentence}
+            receipts in one place with RoostNI. {SHORT_LINES.noCommissionSentence}
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link to="/audit" onClick={() => track("audit")} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
