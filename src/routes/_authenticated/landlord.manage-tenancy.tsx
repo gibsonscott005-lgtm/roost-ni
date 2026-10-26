@@ -37,7 +37,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { CertificatesPanel } from "@/components/property-certificates";
 import { PricingBreakdown } from "@/components/pricing-breakdown";
-import { PRICING_ITEM_KEYS } from "@/lib/pricing";
 import { emitNotification } from "@/lib/notifications.functions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TenancyEndPanel } from "@/components/tenancy-end-panel";
@@ -1803,13 +1802,7 @@ function DocumentsTab({
 
       <PricingBreakdown
         className="md:col-span-2"
-        title="Documents & completion fee"
-        itemKeys={[
-          PRICING_ITEM_KEYS.tenancyAgreement,
-          PRICING_ITEM_KEYS.noticeToQuit,
-          PRICING_ITEM_KEYS.rentIncrease,
-          PRICING_ITEM_KEYS.checkOut,
-        ]}
+        title="What your homes would cost"
       />
     </div>
   );

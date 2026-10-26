@@ -477,7 +477,7 @@ function AuditPage() {
                     Get started free — list, let and manage without agent fees
                   </Link>
                   <p className="mt-3 text-xs text-muted-foreground">
-                    Core tools are free forever. No commission on rent, no card needed to start. Keep a tenanted property
+                    Every tool is included. No commission on rent, no card needed to start. Keep a tenanted property
                     private, or advertise one when it's vacant.
                   </p>
                 </div>
@@ -570,7 +570,7 @@ function AuditPage() {
                   Get started free — list, let and manage without agent fees
                 </Link>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Core tools are free forever. No commission on rent, no card needed to start.
+                  Every tool is included. No commission on rent, no card needed to start.
                 </p>
               </div>
             ) : null}

@@ -272,7 +272,7 @@ function TenancyInformationNoticeGuide() {
           <h2 className="font-display text-2xl font-extrabold tracking-tight">Keep every tenancy's paperwork in one place</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             RoostNI's tenancy records keep each tenancy's key dates, documents and rent receipts together —
-            so the 28-day deadlines and Notices of Variation never slip. {SHORT_LINES.coreFreeSentence}
+            so the 28-day deadlines and Notices of Variation never slip. {SHORT_LINES.noCommissionSentence}
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link to="/auth" onClick={() => track("signup")} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">

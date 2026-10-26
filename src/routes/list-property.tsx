@@ -36,7 +36,7 @@ export const Route = createFileRoute("/list-property")({
       { property: "og:title", content: "List a property free in Northern Ireland — RoostNI" },
       {
         property: "og:description",
-        content: "Fill in your listing first, sign up only when you publish. " + SHORT_LINES.freeToList + ", " + SHORT_LINES.noCommission.toLowerCase() + ".",
+        content: "Fill in your listing first, sign up only when you publish. " + SHORT_LINES.noCommission + ", " + SHORT_LINES.tenantsNeverPay.toLowerCase() + ".",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk/list-property" },
@@ -140,7 +140,7 @@ function ListPropertyPage() {
           Fill in the basics now. We'll only ask you to sign up when you publish. Your draft is saved on this device.
         </p>
         <p className="mt-3 inline-flex items-center gap-1.5 border-2 border-background bg-verified px-3 py-1.5 text-xs font-bold text-verified-foreground shadow-raised">
-          <ShieldCheck className="h-3.5 w-3.5" /> {SHORT_LINES.freeToList} • {SHORT_LINES.noCommission}
+          <ShieldCheck className="h-3.5 w-3.5" /> {SHORT_LINES.noCommission} • {SHORT_LINES.billingOff}
         </p>
 
         <section className="mt-5 space-y-4 rounded-sm border border-border bg-surface p-5 shadow-floating sm:p-6">
