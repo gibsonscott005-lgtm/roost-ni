@@ -18,20 +18,20 @@ export const Route = createFileRoute("/landlord-registration-ni")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Landlord Registration NI: A Plain-English Guide — RoostNI" },
+      { title: "Landlord Registration Northern Ireland: Fees, Renewal & Fines (2026) — RoostNI" },
       {
         name: "description",
         content:
-          "Every private landlord in Northern Ireland must register with the Landlord Registration Scheme. What it costs (£70 online), what you need, renewals every three years, and the penalties for skipping it.",
+          "Landlord Registration Scheme NI in plain English: £70 online or £80 on paper, one fee for all your properties, renew every three years, £500 fixed penalty if you don't. What you need and how to register.",
       },
       {
         property: "og:title",
-        content: "Landlord registration in Northern Ireland — the plain-English guide",
+        content: "Landlord registration in Northern Ireland: fees, renewal and fines",
       },
       {
         property: "og:description",
         content:
-          "Who must register, what it costs, what you need to hand, renewals every three years, and what happens if you don't. A clear guide for NI landlords.",
+          "£70 online, one fee covers every property, renew every three years. What you need to hand, how to register on nidirect, and what happens if you don't.",
       },
       { property: "og:type", content: "article" },
       { property: "og:image", content: "https://roostni.co.uk/og/landlord-registration-ni.jpg" },
@@ -49,7 +49,7 @@ export const Route = createFileRoute("/landlord-registration-ni")({
           "@context": "https://schema.org",
           "@type": "Article",
           image: "https://roostni.co.uk/og/landlord-registration-ni.jpg",
-          headline: "Landlord registration in Northern Ireland: the plain-English guide",
+          headline: "Landlord registration in Northern Ireland: fees, renewal and fines",
           description:
             "Who must register with the NI Landlord Registration Scheme, what it costs, what you need, renewals and penalties.",
           author: { "@type": "Organization", name: "RoostNI" },
@@ -57,7 +57,18 @@ export const Route = createFileRoute("/landlord-registration-ni")({
           url: PAGE_URL,
           mainEntityOfPage: { "@type": "WebPage", "@id": PAGE_URL },
           datePublished: "2026-09-21",
-          dateModified: "2026-09-21",
+          dateModified: "2026-10-26",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "RoostNI", item: "https://roostni.co.uk/" },
+            { "@type": "ListItem", position: 2, name: "Landlord registration NI", item: PAGE_URL },
+          ],
         }),
       },
     ],
