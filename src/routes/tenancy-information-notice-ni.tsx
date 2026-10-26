@@ -62,6 +62,8 @@ export const Route = createFileRoute("/tenancy-information-notice-ni")({
           description: DESC,
           author: { "@type": "Organization", name: "RoostNI" },
           publisher: { "@type": "Organization", name: "RoostNI" },
+          url: PAGE_URL,
+          mainEntityOfPage: { "@type": "WebPage", "@id": PAGE_URL },
           datePublished: "2026-10-10",
           dateModified: "2026-10-10",
         }),
