@@ -12,7 +12,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Self-managing NI landlords: list and manage rentals without agent fees, with NI tenancy law built in. Renters: one Tenant Passport to apply direct. " + SHORT_LINES.coreFreeSentence,
+          "Self-managing NI landlords: list and manage rentals without agent fees, with NI tenancy law built in. Renters: one Tenant Passport to apply direct. " + SHORT_LINES.noCommissionSentence,
       },
       { property: "og:title", content: "RoostNI | Renting in Northern Ireland, done direct" },
       {
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/")({
       { name: "twitter:title", content: "RoostNI | Renting in Northern Ireland, done direct" },
       {
         name: "twitter:description",
-        content: "Direct renting for Northern Ireland. Core tools are free forever.",
+        content: "Direct renting for Northern Ireland. No commission on rent. Never any fees for tenants.",
       },
       { name: "twitter:image", content: "https://roostni.co.uk/og/roostni-preview.jpg" },
     ],
@@ -56,9 +56,9 @@ export const Route = createFileRoute("/")({
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web",
               description:
-                "Self-service platform for Northern Ireland private landlords and tenants: direct property listings, tenancy management with NI tenancy law built in, and a reusable self-certified Tenant Passport. Core tools are free forever; optional paid services are opt-in.",
+                "Self-service platform for Northern Ireland private landlords and tenants: direct property listings, tenancy management with NI tenancy law built in, and a reusable self-certified Tenant Passport. Every tool is included at every level; landlords pay by the number of homes they manage, and billing is not switched on yet. Never any fees for tenants.",
               areaServed: { "@type": "AdministrativeArea", name: "Northern Ireland" },
-              offers: { "@type": "Offer", name: "Core tools", price: "0", priceCurrency: "GBP", description: APPROVED_LINE },
+              offers: { "@type": "Offer", name: "Standard", price: "7", priceCurrency: "GBP", description: APPROVED_LINE + " Billing is not switched on yet." },
               publisher: { "@id": "https://roostni.co.uk/#organization" },
             },
           ],
