@@ -18,6 +18,15 @@ export function initPostHog() {
     capture_pageview: false,
     capture_pageleave: true,
     autocapture: true,
+    // React recovers from hydration mismatches (#418/#423/#425) by re-rendering
+    // on the client; visitors see a normal page, so don't count them as crashes.
+    before_send: (event) => {
+      if (event?.event === "$exception") {
+        const text = JSON.stringify(event.properties?.$exception_list ?? event.properties ?? "");
+        if (/Minified React error #(418|423|425)|Hydration failed/i.test(text)) return null;
+      }
+      return event;
+    },
     loaded: (posthogInstance) => {
       posthogInstance.capture("$pageview");
     },

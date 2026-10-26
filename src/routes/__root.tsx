@@ -7,6 +7,7 @@ import {
   createRootRouteWithContext,
   useRouter,
   HeadContent,
+  ClientOnly,
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
@@ -113,11 +114,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {children}
         <Scripts />
       </body>
@@ -155,8 +156,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
-      <BetaFeedbackWidget />
-      <Toaster position="top-center" richColors closeButton />
+      {/* Browser-only widgets mount after hydration so server and client HTML match. */}
+      <ClientOnly fallback={null}>
+        <BetaFeedbackWidget />
+        <Toaster position="top-center" richColors closeButton />
+      </ClientOnly>
     </QueryClientProvider>
   );
 }
