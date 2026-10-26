@@ -87,6 +87,36 @@ const WHAT_YOU_NEED = [
   "A HMO registration certificate number, if any property is a house in multiple occupation",
 ];
 
+const QUICK_FACTS = [
+  { label: "Cost", value: "£70 online · £80 paper" },
+  { label: "Covers", value: "All your properties" },
+  { label: "Lasts", value: "3 years" },
+  { label: "Skip it", value: "£500 fixed penalty" },
+];
+
+const REG_FAQ = [
+  {
+    q: "Is landlord registration compulsory in Northern Ireland?",
+    a: "Yes. Every private landlord letting under a private tenancy must register with the Landlord Registration Scheme, ideally before the tenancy starts.",
+  },
+  {
+    q: "How much does landlord registration cost in NI?",
+    a: "£70 online or by phone, £80 on a paper form. It's one fee per landlord, not per property, and it lasts three years.",
+  },
+  {
+    q: "I use a letting agent. Do I still need to register?",
+    a: "Yes. The duty sits with you as the landlord. You add your agent's details when you register.",
+  },
+  {
+    q: "How do I check if a landlord is registered?",
+    a: "The register is public. Anyone can search it on nidirect by landlord name or property address.",
+  },
+  {
+    q: "What happens if I let my registration lapse?",
+    a: "An expired registration means you're no longer complying, even if you registered first time round. Renewal reminders go out about eight weeks before expiry.",
+  },
+];
+
 const OTHER_DUTIES = [
   {
     title: "Tenancy Information Notice",
@@ -94,7 +124,7 @@ const OTHER_DUTIES = [
   },
   {
     title: "Deposit protection within 28 days",
-    body: "Any tenancy deposit must go into an approved scheme — TDS Northern Ireland or MyDeposits Northern Ireland — within 28 days of receiving it, with the prescribed information given to the tenant. Deposits are capped at one month's rent.",
+    body: "Any tenancy deposit must go into an approved scheme — TDS Northern Ireland or MyDeposits Northern Ireland — within 28 days of receiving it, with the prescribed information given to the tenant. The official notice form says a deposit should not be more than one month's rent.",
   },
   {
     title: "Energy Performance Certificate",
@@ -147,6 +177,16 @@ function LandlordRegistrationGuide() {
           one of the first legal duties of the job. Here's what the Landlord Registration Scheme is,
           what it costs, and how to stay on the right side of it.
         </p>
+
+
+        <section aria-label="Quick answers" className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {QUICK_FACTS.map((f) => (
+            <div key={f.label} className="border-2 border-border bg-surface p-3 shadow-raised">
+              <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{f.label}</p>
+              <p className="mt-1 font-display text-sm font-extrabold leading-tight">{f.value}</p>
+            </div>
+          ))}
+        </section>
 
         <section className="mt-10 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
           <div className="flex items-center gap-3">
@@ -294,12 +334,24 @@ function LandlordRegistrationGuide() {
           </div>
         </section>
 
+        <section className="mt-6 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
+          <h2 className="font-display text-2xl font-extrabold tracking-tight">Common questions</h2>
+          <div className="mt-4 divide-y-2 divide-border">
+            {REG_FAQ.map((item) => (
+              <div key={item.q} className="py-4 first:pt-0 last:pb-0">
+                <h3 className="text-sm font-bold text-foreground">{item.q}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-10 border-2 border-border bg-foreground p-6 text-[var(--color-primary-foreground)] shadow-floating sm:p-8">
           <h2 className="font-display text-2xl font-extrabold tracking-tight">
             How does the rest of your paperwork shape up?
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-[var(--color-primary-foreground)]/80">
-            Our free two-minute self-check covers registration plus the other main statutory duties —
+            Our two-minute self-check covers registration plus the other main statutory duties —
             deposit protection, safety certificates, notices and rent records. Twelve questions, your
             score straight away, no email or account needed.
           </p>
@@ -310,7 +362,7 @@ function LandlordRegistrationGuide() {
               className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-foreground)] px-5 py-2.5 font-display text-sm font-semibold text-foreground shadow-raised transition hover:opacity-92"
             >
               <ClipboardCheck className="h-4 w-4" />
-              Run Free Landlord Audit
+              Run the landlord audit
             </Link>
             <Link
               to="/beta"
@@ -341,7 +393,7 @@ function LandlordRegistrationGuide() {
           >
             nidirect
           </a>
-          . Details checked September 2026.
+          . Details checked October 2026.
         </p>
       </main>
     </div>
