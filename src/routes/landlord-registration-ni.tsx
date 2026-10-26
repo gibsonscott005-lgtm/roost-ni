@@ -54,6 +54,8 @@ export const Route = createFileRoute("/landlord-registration-ni")({
             "Who must register with the NI Landlord Registration Scheme, what it costs, what you need, renewals and penalties.",
           author: { "@type": "Organization", name: "RoostNI" },
           publisher: { "@type": "Organization", name: "RoostNI" },
+          url: PAGE_URL,
+          mainEntityOfPage: { "@type": "WebPage", "@id": PAGE_URL },
           datePublished: "2026-09-21",
           dateModified: "2026-09-21",
         }),

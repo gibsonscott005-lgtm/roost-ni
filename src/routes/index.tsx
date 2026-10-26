@@ -14,7 +14,7 @@ export const Route = createFileRoute("/")({
         content:
           "Self-managing NI landlords: list and manage rentals without agent fees, with NI tenancy law built in. Renters: one Tenant Passport to apply direct. " + SHORT_LINES.noCommissionSentence,
       },
-      { property: "og:title", content: "RoostNI | Renting in Northern Ireland, done direct" },
+      { property: "og:title", content: "RoostNI — the direct rental platform for Northern Ireland landlords and tenants" },
       {
         property: "og:description",
         content:
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
       { property: "og:image:height", content: "630" },
       { property: "og:image:alt", content: "RoostNI — Renting in Northern Ireland, done direct" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "RoostNI | Renting in Northern Ireland, done direct" },
+      { name: "twitter:title", content: "RoostNI — the direct rental platform for Northern Ireland landlords and tenants" },
       {
         name: "twitter:description",
         content: "Direct renting for Northern Ireland. No commission on rent. Never any fees for tenants.",
