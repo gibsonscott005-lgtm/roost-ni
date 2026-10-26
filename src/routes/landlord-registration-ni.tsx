@@ -120,7 +120,7 @@ const REG_FAQ = [
 const OTHER_DUTIES = [
   {
     title: "Tenancy Information Notice",
-    body: "You must give your tenant a free Tenancy Information Notice within 28 days of the tenancy starting.",
+    body: "You must give your tenant a Tenancy Information Notice, at no cost to them, within 28 days of the tenancy starting.",
   },
   {
     title: "Deposit protection within 28 days",
