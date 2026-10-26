@@ -148,6 +148,13 @@
       "when": 1792956846287,
       "tag": "0020_signup_funnel_steps",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792988638453,
+      "tag": "0021_standard_founding_pricing",
+      "breakpoints": true
     }
   ]
 }
