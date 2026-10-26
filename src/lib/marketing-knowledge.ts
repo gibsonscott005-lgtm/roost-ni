@@ -15,6 +15,7 @@ You are Robin, RoostNI's marketing assistant for Northern Ireland renters and se
 
 ## Non-negotiable wording and safety
 - British English in every output, including image text: organise, organised, colour, recognise. Never use American spelling.
+- Approved funding line, word for word when funding comes up: "Every tool is included at every level. Pay by the number of homes you manage. No commission on rent. Never any fees for tenants." Billing is not switched on yet. Allowed short lines: "No commission on rent" and "Never any fees for tenants". Never say "free forever", "core tools are free" or "free to list".
 - Do not use the words "free", "platform", "guaranteed", "100%" or claims of compliance in public copy or images. Say "built around NI tenancy rules" when describing the tools. This marketing-specific restriction overrides older pricing wording.
 - RoostNI is an evidence organiser, not a vetting agency. Applicant evidence is self-certified; landlords do their own checks and make their own decisions. Never imply identity, credit, employment or background checks have been done by RoostNI. Never score, rank or recommend applicants.
 - No discriminatory tenant selection: no preferences or exclusions based on protected characteristics, nationality, family status, disability or receipt of benefits. Discuss relevant evidence fairly and consistently, not ideal tenant stereotypes.
@@ -81,6 +82,9 @@ export function readMarketingReview(notes: string | null): MarketingReview | nul
 export function validateMarketingCopy(text: string, facebook = true): void {
   if (/\b(seeking|bespoke|portfolio|premier|stunning|pursuant|whilst|hereby|solutions|leverage)\b|\bdelighted\s+to\s+announce\b|\bwe\s+are\s+pleased\s+to\b/i.test(text)) {
     throw new Error("Draft wording needs revision: use Robin’s plain, straight-talking voice, not estate-agent or corporate jargon.");
+  }
+  if (/\bfree\s+forever\b|\bcore\s+tools\s+are\s+free\b|\bfree\s+to\s+list\b/i.test(text)) {
+    throw new Error("Draft wording needs revision: do not say free forever, core tools are free or free to list. Use the approved funding line.");
   }
   if (/\b(free|platform|guaranteed|compliant)\b|100\s*%|\b(organiz(?:e|ed|es|ing|ation)|colors?|recogniz(?:e|ed|es|ing))\b/i.test(text)) {
     throw new Error("Draft wording needs revision: use British spelling and avoid pricing or compliance claims.");

@@ -67,7 +67,7 @@ If you're a self-managing landlord you can:
 • Issue a proper NI tenancy agreement, signed digitally, with the statutory bits included
 • Handle end of tenancy properly — notice to quit, final inspection, deposit settlement
 
-Core tools are free forever. The audit is still there if you want to check your paperwork first (2 minutes, no sign-up):
+Billing isn't switched on yet, and tenants never pay. The audit is still there if you want to check your paperwork first (2 minutes, no sign-up):
 
 https://roostni.co.uk/audit?utm_source=facebook&utm_medium=community&utm_campaign=audit_launch
 
@@ -103,7 +103,7 @@ Curious what the most common gaps are — happy to share what comes back.
 ```text
 RoostNI is a Northern Ireland renting platform for Northern Ireland — tenants fill in one passport (ID, income, references) and share it with landlords, instead of re-sending everything over WhatsApp for every place.
 
-Core tools are free forever. Just use test documents, not real ones.
+Billing isn't switched on yet, and tenants never pay. Just use test documents, not real ones.
 
 Take a look first, then try it if you like what you see:
 https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
@@ -122,7 +122,7 @@ And it's starting to work: over the past couple of weeks real renters have signe
 
 That's the point: when you list a property here, enquiries come from tenants who've already got their paperwork together — no chasing payslips over WhatsApp.
 
-Core tools are free forever. You can list a property, or keep an existing tenancy's certificates and records in order even if you're not advertising:
+Billing isn't switched on yet, and tenants never pay. You can list a property, or keep an existing tenancy's certificates and records in order even if you're not advertising:
 
 https://roostni.co.uk/listings?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
 
@@ -140,7 +140,7 @@ RoostNI is a Northern Ireland renting platform I'm building — tenants apply wi
 
 A question for the weekend, self-managing landlords: when a property comes vacant, what's the biggest pain point right now? Finding tenants, sorting the paperwork, or the turnaround work in between?
 
-Core tools are free forever — curious what matters most before I build the next bit.
+Billing isn't switched on yet — curious what matters most before I build the next bit.
 ```
 
 ## One-to-one reply script
@@ -150,7 +150,7 @@ Use this when someone comments or messages asking for more detail.
 ```text
 Thanks for the interest. RoostNI is a Northern Ireland renting platform for Northern Ireland — tenants build one passport (ID, income, references) and share it with landlords, and self-managing landlords get listings plus the whole tenancy paperwork side in one place.
 
-Core tools are free forever. Right now we're after honest feedback on what's confusing, what's missing and what you'd actually use. We only ask people to use test data (not real passports or payslips).
+Billing isn't switched on yet, and tenants never pay. Right now we're after honest feedback on what's confusing, what's missing and what you'd actually use. We only ask people to use test data (not real passports or payslips).
 
 If you'd like to try it: https://roostni.co.uk/beta?utm_source=facebook&utm_medium=social&utm_campaign=beta_recruit
 
@@ -191,7 +191,7 @@ Full reply (use when they ask for details):
 ```text
 Thanks for the message! Just to be upfront with you: that listing is a test property I'm using to trial a new renting platform I'm building for Northern Ireland — so it's not a genuine let, and I don't want you going through the process for nothing.
 
-The site itself is live and free to try — core tools are free forever. It's built for renters: instead of re-sending ID, payslips and references over Messenger for every place, you fill in one passport and share it with landlords.
+The site itself is live, billing isn't switched on yet, and tenants never pay. It's built for renters: instead of re-sending ID, payslips and references over Messenger for every place, you fill in one passport and share it with landlords.
 
 If you're currently looking, you'd be a brilliant person to try it and tell me what's confusing or missing (use test documents, not real ones):
 https://roostni.co.uk/beta
