@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { tagAsInternalUser } from "@/integrations/posthog/client";
+import { isInternalEmail } from "@/lib/internal-accounts";
 
 export type AccountType = "tenant" | "landlord" | "admin";
 
@@ -44,7 +45,7 @@ export function useAuth() {
             .then(({ data }) => {
               const p = data as Profile | null;
               setProfile(p);
-              if (p?.account_type === "admin") tagAsInternalUser();
+              if (p?.account_type === "admin" || isInternalEmail(s.user.email)) tagAsInternalUser();
             });
         }, 0);
       }
@@ -63,7 +64,7 @@ export function useAuth() {
           .then(({ data: p }) => {
             const prof = p as Profile | null;
             setProfile(prof);
-            if (prof?.account_type === "admin") tagAsInternalUser();
+            if (prof?.account_type === "admin" || isInternalEmail(data.session?.user?.email)) tagAsInternalUser();
             setLoading(false);
           });
       } else {
