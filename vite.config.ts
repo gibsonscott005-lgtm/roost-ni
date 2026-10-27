@@ -80,10 +80,8 @@ export default (env: { command: "build" | "serve"; mode: string }) => {
         "@lovable.dev/email-js",
         "@react-email/components",
         "@react-email/render",
-        "@ai-sdk/openai",
-        "@ai-sdk/openai-compatible",
-        "ai",
-        "cheerio",
+        // Server-only libraries (AI SDK, cheerio) are deliberately excluded:
+        // the browser never loads them, and pre-bundling them slowed every wake-up.
       ],
     },
     // Pre-transform the entry pages when the preview wakes so the first
