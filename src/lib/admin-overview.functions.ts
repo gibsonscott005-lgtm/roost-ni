@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { isInternalEmail } from "@/lib/internal-accounts";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export interface AdminSignUp {
@@ -127,8 +128,7 @@ export const getAdminOverview = createServerFn({ method: "POST" })
     );
     const allProfiles = profilesRes.data ?? [];
     // Hide test activity: example.com addresses and anything by admin accounts.
-    const isTestEmail = (e: string | null | undefined) =>
-      !!e && /@example\.(com|org|net)$/i.test(e.trim());
+    const isTestEmail = (e: string | null | undefined) => isInternalEmail(e);
     const adminIds = new Set(
       allProfiles.filter((p) => p.account_type === "admin").map((p) => p.id),
     );

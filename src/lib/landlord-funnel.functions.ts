@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { isInternalEmail } from "@/lib/internal-accounts";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
@@ -100,7 +101,7 @@ export const getLandlordFunnel = createServerFn({ method: "POST" })
     }
     const now = Date.now();
     const landlords: LandlordFunnelRow[] = (profilesRes.data ?? [])
-      .filter((p) => !/@example\.(com|org|net)$/i.test(emailById.get(p.id) ?? ""))
+      .filter((p) => !isInternalEmail(emailById.get(p.id)))
       .map((p) => {
         const rows = byUser.get(p.id) ?? [
           { user_id: p.id, event: "signed_up", created_at: p.created_at, last_at: p.created_at },
