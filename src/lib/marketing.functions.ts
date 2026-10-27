@@ -45,7 +45,7 @@ export interface MarketingInsight {
   kind: string;
   insight: string;
   verdict?: string;
-  evidence?: unknown;
+  evidence?: Record<string, string | number | string[]>;
   active: boolean;
   created_at: string;
 }
