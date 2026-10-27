@@ -359,6 +359,7 @@ export type Database = {
           id: string
           insight: string
           kind: string
+          verdict: string
         }
         Insert: {
           active?: boolean
@@ -367,6 +368,7 @@ export type Database = {
           id?: string
           insight: string
           kind: string
+          verdict?: string
         }
         Update: {
           active?: boolean
@@ -375,8 +377,56 @@ export type Database = {
           id?: string
           insight?: string
           kind?: string
+          verdict?: string
         }
         Relationships: []
+      }
+      marketing_post_results: {
+        Row: {
+          comments: number
+          created_at: string
+          entered_by: string | null
+          group_name: string
+          id: string
+          link_clicks: number
+          post_id: string
+          reach: number
+          reactions: number
+          shares: number
+        }
+        Insert: {
+          comments?: number
+          created_at?: string
+          entered_by?: string | null
+          group_name: string
+          id?: string
+          link_clicks?: number
+          post_id: string
+          reach?: number
+          reactions?: number
+          shares?: number
+        }
+        Update: {
+          comments?: number
+          created_at?: string
+          entered_by?: string | null
+          group_name?: string
+          id?: string
+          link_clicks?: number
+          post_id?: string
+          reach?: number
+          reactions?: number
+          shares?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_post_results_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       marketing_posts: {
         Row: {
@@ -392,6 +442,7 @@ export type Database = {
           posted_at: string | null
           results: Json
           scheduled_for: string
+          skip_reason: string | null
           status: string
           topic: string
           updated_at: string
@@ -410,6 +461,7 @@ export type Database = {
           posted_at?: string | null
           results?: Json
           scheduled_for: string
+          skip_reason?: string | null
           status?: string
           topic: string
           updated_at?: string
@@ -428,6 +480,7 @@ export type Database = {
           posted_at?: string | null
           results?: Json
           scheduled_for?: string
+          skip_reason?: string | null
           status?: string
           topic?: string
           updated_at?: string
@@ -456,6 +509,39 @@ export type Database = {
           landing_path?: string | null
           utm_campaign?: string
           utm_source?: string | null
+        }
+        Relationships: []
+      }
+      marketing_weekly_reviews: {
+        Row: {
+          comparison: Json
+          created_at: string
+          id: string
+          missing_results: string[]
+          next_plan: string[]
+          stop: string[]
+          week_start: string
+          worked: string[]
+        }
+        Insert: {
+          comparison?: Json
+          created_at?: string
+          id?: string
+          missing_results?: string[]
+          next_plan?: string[]
+          stop?: string[]
+          week_start: string
+          worked?: string[]
+        }
+        Update: {
+          comparison?: Json
+          created_at?: string
+          id?: string
+          missing_results?: string[]
+          next_plan?: string[]
+          stop?: string[]
+          week_start?: string
+          worked?: string[]
         }
         Relationships: []
       }

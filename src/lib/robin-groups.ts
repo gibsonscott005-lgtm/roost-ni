@@ -5,11 +5,12 @@ export const groupSchema = z.object({
   places: z.string().max(500), audience: z.string().max(500), worked: z.string().max(1500),
   linkPlacement: z.enum(["in body", "first comment"]), postAs: z.enum(["Page", "personal profile"]),
   weeklyCount: z.number().int().min(1).max(7),
+  promotionAllowed: z.boolean().default(true),
 });
 export type RobinGroup = z.infer<typeof groupSchema>;
 export const DEFAULT_GROUPS: RobinGroup[] = [
-  { id: "newtownards-ards", name: "Newtownards & Ards Peninsula", places: "Newtownards, Ards Peninsula, Comber, Donaghadee, Portaferry", audience: "Local renters and self-managing landlords", worked: "Historic owner-reported observations: native posts reached 33–75 views. Treat as context only, not a current claim or conversion evidence.", linkPlacement: "first comment", postAs: "personal profile", weeklyCount: 3 },
-  { id: "belfast-community", name: "Belfast community", places: "Belfast, east Belfast, west Belfast, north Belfast, south Belfast", audience: "Local renters and self-managing landlords", worked: "No group-specific results confirmed yet. Do not import claims about other Belfast groups.", linkPlacement: "first comment", postAs: "personal profile", weeklyCount: 3 },
+  { id: "newtownards-ards", name: "Newtownards & Ards Peninsula", places: "Newtownards, Ards Peninsula, Comber, Donaghadee, Portaferry", audience: "Local renters and self-managing landlords", worked: "Historic owner-reported observations: native posts reached 33–75 views. Treat as context only, not a current claim or conversion evidence.", linkPlacement: "first comment", postAs: "personal profile", weeklyCount: 3, promotionAllowed: true },
+  { id: "belfast-community", name: "Belfast community", places: "Belfast, east Belfast, west Belfast, north Belfast, south Belfast", audience: "Local renters and self-managing landlords", worked: "No group-specific results confirmed yet. Do not import claims about other Belfast groups.", linkPlacement: "first comment", postAs: "personal profile", weeklyCount: 3, promotionAllowed: true },
 ];
 export const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 export function combinationTag(group: RobinGroup): string {
@@ -71,4 +72,11 @@ export function combinationResults(posts: { notes: string | null; status: string
     row.posts++; row.audits += post.results?.audits ?? 0; row.alerts += post.results?.alerts ?? 0; row.signups += post.results?.signups ?? 0; totals.set(key, row);
   }
   return [...totals.values()].sort((a,b) => (b.audits+b.alerts+b.signups)-(a.audits+a.alerts+a.signups));
+}
+/** Ready-to-paste first comment: one-line call to action plus the campaign-tagged link. */
+export function firstCommentText(post: { link_url: string | null; utm_campaign: string; notes: string | null }): string {
+  const link = trackedGroupLink({ ...post, link_url: post.link_url ?? "https://roostni.co.uk/" });
+  let cta = "";
+  try { cta = String(JSON.parse(post.notes ?? "null")?.first_comment_cta ?? ""); } catch { /* legacy */ }
+  return `${cta.trim() || "Everything I mentioned is here:"}\n${link}`;
 }

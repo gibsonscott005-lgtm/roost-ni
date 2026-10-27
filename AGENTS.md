@@ -22,3 +22,5 @@
 - Legal source URL validation lives in dependency-free src/lib/legal-source-url.ts; server function handlers must never import the cheerio-based legal-source-reader.server (its undici chain breaks the published worker bundle with "markAsUncloneable" errors).
 - Keep vite.config.ts optimizeDeps.include listing every client library the app loads (router core/SSR helpers, seroval, h3-v2, etc.); late discovery makes Vite pause and force-reload the preview after wake-ups. Add new client packages there when installing them.
 - Landlord funnel steps are written only through the log_landlord_funnel_event database function (first time kept, latest time bumped) and the table stores user ids only; emails are joined at read time for admins so personal details never live in tracking data.
+
+- Robin marketing data is append-only: database triggers block deletes on posts, results, insights, visits and weekly reviews, and results rows cannot be updated; re-drafts mark old posts skipped with a reason. Weekly plan/cooldown/founding-count logic lives in src/lib/robin-plan.ts so it stays testable.

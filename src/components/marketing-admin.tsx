@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { RobinGroupsPanel } from "./robin-groups-panel";
+import { RobinOverview, ResultsForm, latestResult } from "./robin-results";
 import { readGroupSnapshot } from "@/lib/robin-groups";
 import { Button } from "@/components/ui/button";
 import { readMarketingReview, readImageBrief, formatImageBrief, auditImageBrief } from "@/lib/marketing-knowledge";
@@ -147,7 +148,7 @@ export function MarketingAdminPanel() {
 
   const updatePost = async (
     id: string,
-    patch: { status?: "scheduled" | "posted" | "skipped"; body?: string },
+    patch: { status?: "scheduled" | "posted" | "skipped"; body?: string; skipReason?: string },
     successMessage: string,
   ) => {
     setBusyId(id);
@@ -235,6 +236,7 @@ export function MarketingAdminPanel() {
         className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground"
       />
       <Link to="/dashboard/legal-facts" className="inline-flex text-sm font-semibold text-verified underline">Review Robin’s legal facts</Link>
+      {data ? <RobinOverview data={data} /> : null}
       <RobinGroupsPanel brief={brief} focus={focus} posts={posts} onDrafted={load}/>
       <div className="flex flex-wrap items-center gap-2">
         <select
@@ -272,6 +274,7 @@ export function MarketingAdminPanel() {
         </button>
         <button
           type="button"
+          hidden
           onClick={distill}
           disabled={distilling || !canDistill}
           title={
@@ -447,7 +450,7 @@ export function MarketingAdminPanel() {
                     {review?.review_flags.includes("verify before posting") ? <p className="mt-2 font-semibold">Verify before posting — portal, agent or fee claim</p> : null}
                     {!review ? <p className="mt-1 text-muted-foreground">Not checked against Robin’s current wording and source rules.</p> : null}
                     {(() => { const brief = post.platform === "facebook" ? readImageBrief(post.notes) : null; if (!brief) return null; const problems = auditImageBrief(brief); const blocked = problems.length > 0; return <div className="mt-3 border-2 border-foreground p-2">
-                      <p className="font-semibold uppercase tracking-wide">Image brief</p>
+                      <p className="font-semibold uppercase tracking-wide">Pomelli image brief</p>
                       {blocked ? <div role="alert" className="mt-1 border-2 border-destructive bg-destructive/10 p-2 font-semibold text-destructive">Copy blocked: {problems.join(" · ")}</div> : null}
                       <p className="mt-1"><span className="font-semibold">Headline:</span> {brief.headline}</p>
                       <p><span className="font-semibold">Supporting line:</span> {brief.fact_line}</p>
@@ -462,6 +465,11 @@ export function MarketingAdminPanel() {
                   </div>;
                 })()}
 
+                {post.platform === "facebook" && readGroupSnapshot(post.notes) ? <div className="mt-3 border-2 border-foreground p-2 text-xs">
+                  <p className="font-semibold uppercase tracking-wide">First comment</p>
+                  <p className="mt-1 whitespace-pre-wrap break-all">{buildFirstCommentText(post)}</p>
+                  <button type="button" onClick={() => copyFirstComment(post)} className="mt-2 inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-[var(--color-primary-foreground)]"><Copy className="h-3 w-3" /> 2. Copy first comment</button>
+                </div> : null}
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   {post.platform === "reddit" ? (
                     <>
@@ -489,7 +497,7 @@ export function MarketingAdminPanel() {
                   >
                     <Copy className="h-3 w-3" /> 1. Copy group post
                   </button>
-                  {post.link_url && readGroupSnapshot(post.notes)?.linkPlacement !== "in body" ? (
+                  {post.link_url && !readGroupSnapshot(post.notes) ? (
                     <button
                       type="button"
                       onClick={() => copyFirstComment(post)}
@@ -532,7 +540,7 @@ export function MarketingAdminPanel() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => updatePost(post.id, { status: "skipped" }, "Post skipped")}
+                    onClick={() => { const reason = window.prompt("Why are you skipping this post?")?.trim(); if (!reason) { toast.error("Skipping needs a reason."); return; } void updatePost(post.id, { status: "skipped", skipReason: reason }, "Post skipped — kept in history"); }}
                     disabled={busyId === post.id}
                     className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition hover:bg-secondary disabled:opacity-60"
                   >
@@ -563,7 +571,7 @@ export function MarketingAdminPanel() {
                       {post.topic}
                     </p>
                     <p className="text-[11px] text-muted-foreground">
-                      {dateFmt(post.scheduled_for)} · {post.persona} · {post.status}
+                      {dateFmt(post.scheduled_for)} · {post.persona} · {post.angle} · {post.status}{post.skip_reason ? ` — ${post.skip_reason}` : ""}
                       {post.status === "posted" ? (
                         <>
                           {" "}· visits {post.results?.visits ?? 0} · audits {post.results?.audits ?? 0} · alerts{" "}
@@ -572,6 +580,9 @@ export function MarketingAdminPanel() {
                       ) : null}
                     </p>
                   </div>
+                  {post.status === "posted" && post.platform === "facebook" ? (() => { const r = latestResult(data?.results ?? [], post.id); return r
+                    ? <p className="w-full text-[11px] text-foreground">{r.group_name} · reach {r.reach} · reactions {r.reactions} · comments {r.comments} · shares {r.shares} · link clicks {r.link_clicks} · visits {data?.campaignVisits.find(v => v.utm_campaign === post.utm_campaign)?.visits ?? 0}</p>
+                    : <><span className="rounded-full bg-destructive px-2 py-0.5 text-[10px] font-semibold uppercase text-[var(--color-destructive-foreground)]">Results missing</span><ResultsForm post={post} onSaved={load} /></>; })() : null}
                   {post.status === "posted" && typeof score === "number" ? (
                     <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[11px] font-semibold text-foreground">
                       <TrendingUp className="h-3 w-3 text-verified" />

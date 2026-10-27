@@ -83,10 +83,14 @@ export function validateMarketingCopy(text: string, facebook = true): void {
   if (/\b(seeking|bespoke|portfolio|premier|stunning|pursuant|whilst|hereby|solutions|leverage)\b|\bdelighted\s+to\s+announce\b|\bwe\s+are\s+pleased\s+to\b/i.test(text)) {
     throw new Error("Draft wording needs revision: use Robin’s plain, straight-talking voice, not estate-agent or corporate jargon.");
   }
+  if (/\bfree\s+during\s+(the\s+)?beta\b/i.test(text)) throw new Error("Draft wording needs revision: never say free during beta.");
+  if (/\bdeposit\s+caps?\b|\binsurance\b/i.test(text)) throw new Error("Draft wording needs revision: no deposit cap or insurance claims until they are verified.");
   if (/\bfree\s+forever\b|\bcore\s+tools\s+are\s+free\b|\bfree\s+to\s+list\b/i.test(text)) {
     throw new Error("Draft wording needs revision: do not say free forever, core tools are free or free to list. Use the approved funding line.");
   }
-  if (/\b(free|platform|guaranteed|compliant)\b|100\s*%|\b(organiz(?:e|ed|es|ing|ation)|colors?|recogniz(?:e|ed|es|ing))\b/i.test(text)) {
+  // The founding offer's "first month free" is the only allowed use of "free".
+  const withoutOffer = text.replace(/\b(first|one)\s+month\s+free\b/gi, "");
+  if (/\b(free|platform|guaranteed|compliant)\b|100\s*%|\b(organiz(?:e|ed|es|ing|ation)|colors?|recogniz(?:e|ed|es|ing))\b/i.test(withoutOffer)) {
     throw new Error("Draft wording needs revision: use British spelling and avoid pricing or compliance claims.");
   }
   if (!facebook) return;
