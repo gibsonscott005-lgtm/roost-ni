@@ -19,9 +19,9 @@ export function RobinGroupsPanel({ brief, focus, posts, onDrafted }: { brief: st
   const queued = posts.filter(p => p.platform === "facebook" && (p.status === "draft" || p.status === "scheduled")).length;
   const generate = async (week:boolean, replace = false) => {
     if (focus === "reddit") return;
-    if (replace && !window.confirm(`Remove all ${queued} unposted Facebook post${queued===1?"":"s"} from the queue and replace them with fresh drafts from the current brief?`)) return;
+    if (replace && !window.confirm(`Skip all ${queued} unposted Facebook post${queued===1?"":"s"} (kept in history with a reason) and draft fresh ones?`)) return;
     setBusy(true);
-    try { await save(); const result = await draft({ data:{ brief:brief.trim()||undefined, focus, groupIds:selected, week, replace } }); toast.success(replace ? `${result.removed} old post${result.removed===1?"":"s"} removed, ${result.created.length} new drafts saved — nothing posted` : `${result.created.length} drafts saved — nothing posted`); await onDrafted(); }
+    try { await save(); const result = await draft({ data:{ brief:brief.trim()||undefined, focus, groupIds:selected, week, replace } }); toast.success(replace ? `${result.removed} old post${result.removed===1?"":"s"} skipped, ${result.created.length} new drafts saved — nothing posted` : `${result.created.length} drafts saved — nothing posted`); await onDrafted(); }
     catch(e) { toast.error(e instanceof Error?e.message:"Could not draft posts", { description: replace ? "Your existing queue was left as it was." : undefined }); } finally { setBusy(false); }
   };
   const results = combinationResults(posts);
@@ -36,20 +36,21 @@ export function RobinGroupsPanel({ brief, focus, posts, onDrafted }: { brief: st
       <label className="block text-xs">Local places<input className={field} value={g.places} onChange={e=>update(g.id,{places:e.target.value})}/></label>
       <label className="block text-xs">Audience<input className={field} value={g.audience} onChange={e=>update(g.id,{audience:e.target.value})}/></label>
       <label className="block text-xs">What has worked<textarea className={field} value={g.worked} onChange={e=>update(g.id,{worked:e.target.value})}/></label>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-4">
         <label className="text-xs">Link placement<select className={field} value={g.linkPlacement} onChange={e=>update(g.id,{linkPlacement:e.target.value as RobinGroup["linkPlacement"]})}><option>in body</option><option>first comment</option></select></label>
         <label className="text-xs">Post as<select className={field} value={g.postAs} onChange={e=>update(g.id,{postAs:e.target.value as RobinGroup["postAs"]})}><option>Page</option><option>personal profile</option></select></label>
+        <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={g.promotionAllowed} onChange={e=>update(g.id,{promotionAllowed:e.target.checked})}/>Promotion allowed</label>
         <label className="text-xs">Posts per week<input className={field} type="number" min={1} max={7} value={g.weeklyCount} onChange={e=>update(g.id,{weeklyCount:Number(e.target.value)})}/></label>
       </div>
     </div>)}
     <div className="flex flex-wrap gap-2">
-      <Button variant="outline" onClick={()=>{const id=crypto.randomUUID();setGroups(rows=>[...rows,{id,name:"New group",places:"",audience:"Local renters and landlords",worked:"No confirmed results yet",linkPlacement:"first comment",postAs:"personal profile",weeklyCount:3}]);setSelected(ids=>[...ids,id]);}}><Plus/>Add group</Button>
+      <Button variant="outline" onClick={()=>{const id=crypto.randomUUID();setGroups(rows=>[...rows,{id,name:"New group",places:"",audience:"Local renters and landlords",worked:"No confirmed results yet",linkPlacement:"first comment",postAs:"personal profile",weeklyCount:3,promotionAllowed:true}]);setSelected(ids=>[...ids,id]);}}><Plus/>Add group</Button>
       <Button variant="outline" disabled={!ready||busy} onClick={()=>void save().then(()=>toast.success("Group settings saved")).catch(e=>toast.error(e.message))}><Save/>Save groups</Button>
       <Button disabled={!ready||busy||!selected.length||focus==="reddit"} onClick={()=>void generate(false)}>{busy?<Loader2 className="animate-spin"/>:<Sparkles/>}Draft selected groups</Button>
-      <Button disabled={!ready||busy||!selected.length||focus==="reddit"} onClick={()=>void generate(true)}><Sparkles/>Draft full week</Button>
+      <Button disabled={!ready||busy||!selected.length||focus==="reddit"} onClick={()=>void generate(true)}><Sparkles/>Draft week plan (5 posts)</Button>
     </div>
     <div className="flex flex-wrap gap-2 border-t border-border pt-3">
-      <p className="w-full text-xs text-muted-foreground">Changed the brief? Re-draft removes every unposted Facebook post ({queued}) and replaces it. Reddit drafts are left alone. Old posts stay until the new ones are saved.</p>
+      <p className="w-full text-xs text-muted-foreground">Changed the brief? Re-draft marks every unposted Facebook post ({queued}) as skipped with the reason \"Replaced by re-draft\". Nothing is deleted. Reddit drafts are left alone.</p>
       <Button variant="outline" disabled={!ready||busy||!selected.length||focus==="reddit"||!queued} onClick={()=>void generate(false,true)}><RefreshCw/>Re-draft today</Button>
       <Button variant="outline" disabled={!ready||busy||!selected.length||focus==="reddit"||!queued} onClick={()=>void generate(true,true)}><RefreshCw/>Re-draft week</Button>
     </div>
