@@ -50,6 +50,11 @@ export default (env: { command: "build" | "serve"; mode: string }) => {
     // requests to re-bundle and force-reloads the page ("This page didn't load").
     optimizeDeps: {
       include: [
+        "react",
+        "react-dom",
+        "react-dom/client",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
         "@tanstack/react-router",
         "@tanstack/react-router > @tanstack/react-store",
         "@tanstack/router-core",

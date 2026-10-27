@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Check, Loader2 } from "lucide-react";
@@ -15,14 +15,33 @@ export function latestResult(results: PostResult[], postId: string): PostResult 
 
 export function ResultsForm({ post, onSaved }: { post: MarketingPost; onSaved: () => Promise<void> }) {
   const save = useServerFn(saveMarketingResults);
+  const draftKey = `roost_results_draft_${post.id}`;
   const [busy, setBusy] = useState(false);
   const [groupName, setGroupName] = useState(readGroupSnapshot(post.notes)?.name ?? "");
   const [values, setValues] = useState<Record<string, string>>({});
+  const [restored, setRestored] = useState(false);
+  // Restore typed figures after a tab switch or reload.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (raw) {
+        const d = JSON.parse(raw) as { groupName?: string; values?: Record<string, string> };
+        if (d.values) setValues(d.values);
+        if (d.groupName) setGroupName(d.groupName);
+      }
+    } catch { /* ignore */ }
+    setRestored(true);
+  }, [draftKey]);
+  useEffect(() => {
+    if (!restored) return;
+    try { localStorage.setItem(draftKey, JSON.stringify({ groupName, values })); } catch { /* ignore */ }
+  }, [restored, draftKey, groupName, values]);
   const submit = async () => {
     setBusy(true);
     try {
       const n = (k: string) => Math.max(0, Math.floor(Number(values[k] ?? 0) || 0));
       await save({ data: { postId: post.id, groupName: groupName.trim() || "Unknown group", reach: n("reach"), reactions: n("reactions"), comments: n("comments"), shares: n("shares"), linkClicks: n("linkClicks") } });
+      try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
       toast.success("Results saved");
       await onSaved();
     } catch (e) { toast.error(e instanceof Error ? e.message : "Could not save results"); }
