@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { isInternalEmail } from "@/lib/internal-accounts";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export interface AdminSignUp {
