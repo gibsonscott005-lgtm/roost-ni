@@ -48,3 +48,9 @@ test("one post per value is too little data; clear gaps are win and loss", () =>
   expect(out.find(c => c.value === "deadline")?.postIds).toEqual(["a", "b"]);
   expect(compareWeek(posts.slice(0, 1), [res("a", 30)])[0]?.verdict).toBe("too_little_data");
 });
+
+import { lastCompletedSunday as lcs } from "./src/lib/robin-plan";
+test("weekly review never covers the week still running", () => {
+  expect(lcs(new Date("2026-11-01T12:00:00Z"))).toBe("2026-10-25"); // Sunday → previous Sunday
+  expect(lcs(new Date("2026-11-02T12:00:00Z"))).toBe("2026-11-01"); // Monday → yesterday
+});

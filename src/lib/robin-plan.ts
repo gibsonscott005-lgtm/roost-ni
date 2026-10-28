@@ -61,3 +61,10 @@ export function lastSunday(now = new Date()): string {
   d.setUTCDate(d.getUTCDate() - d.getUTCDay());
   return d.toISOString().slice(0, 10);
 }
+
+/** Last Sunday (UK) of a fully finished Mon–Sun week: on a Sunday, the week still running is not reviewed. */
+export function lastCompletedSunday(now = new Date()): string {
+  const d = new Date(`${new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(now)}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - (d.getUTCDay() || 7));
+  return d.toISOString().slice(0, 10);
+}
