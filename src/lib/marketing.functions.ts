@@ -105,11 +105,11 @@ export const getMarketingEngine = createServerFn({ method: "POST" })
 
 /** Builds last week's review once (Sunday onwards). Never overwrites an existing review. */
 async function ensureWeeklyReview(supabaseAdmin: any, force = false) {
-  const { lastSunday, compareWeek, WEEKLY_PLAN } = await import("./robin-plan");
-  const weekEnd = lastSunday();
-  const { data: existing } = await supabaseAdmin.from("marketing_weekly_reviews").select("id").eq("week_start", weekEnd).maybeSingle();
-  if (existing && !force) return;
-  if (existing) return;
+  const { lastCompletedSunday, compareWeek, WEEKLY_PLAN } = await import("./robin-plan");
+  const weekEnd = lastCompletedSunday();
+  const { data: existing } = await supabaseAdmin.from("marketing_weekly_reviews").select("id, missing_results").eq("week_start", weekEnd).maybeSingle();
+  // A review is final once every posted post has results; until then it is rebuilt so late entries count.
+  if (existing && !force && !(existing.missing_results ?? []).length) return;
   const from = new Date(new Date(`${weekEnd}T00:00:00Z`).getTime() - 6 * 86400000).toISOString();
   const to = new Date(new Date(`${weekEnd}T00:00:00Z`).getTime() + 86400000).toISOString();
   const { data: posts } = await supabaseAdmin.from("marketing_posts").select("id, angle, persona, link_url, notes, topic").eq("status", "posted").gte("posted_at", from).lt("posted_at", to);
@@ -122,6 +122,10 @@ async function ensureWeeklyReview(supabaseAdmin: any, force = false) {
   const withResults = new Set((results ?? []).map((r: { post_id: string }) => r.post_id));
   const missing = ids.filter(id => !withResults.has(id));
   const label = (c: { dimension: string; value: string; postIds: string[]; avgEngagement: number; avgReach: number }) => `${c.dimension} "${c.value}": ${c.postIds.length} posts, avg engagement ${c.avgEngagement}, avg reach ${c.avgReach}`;
+  if (existing) {
+    // Retire (never delete) this week's earlier insights before saving the refreshed ones.
+    await supabaseAdmin.from("marketing_insights").update({ active: false }).eq("evidence->>week_end", weekEnd).eq("active", true);
+  }
   if (comparisons.length) {
     await supabaseAdmin.from("marketing_insights").insert(comparisons.map(c => ({ kind: c.verdict === "loss" ? "loss" : "win", verdict: c.verdict, active: c.verdict !== "too_little_data",
       insight: c.verdict === "win" ? `Do more: ${label(c)}` : c.verdict === "loss" ? `Stop: ${label(c)}` : `Too little data: ${label(c)}`,
@@ -131,7 +135,7 @@ async function ensureWeeklyReview(supabaseAdmin: any, force = false) {
   const stop = comparisons.filter(c => c.verdict === "loss").map(label);
   const next = [`${WEEKLY_PLAN.length} posts: 3 landlord problems, 1 founding places, 1 how to list.`, ...worked.slice(0, 2).map(w => `Repeat: ${w}`), ...stop.slice(0, 2).map(w => `Drop: ${w}`)];
   if (!comparisons.length) next.push(list.length ? "Enter results for last week's posts so Robin can compare." : "No posts marked posted last week.");
-  await supabaseAdmin.from("marketing_weekly_reviews").upsert({ week_start: weekEnd, worked, stop, next_plan: next, missing_results: missing, comparison: { comparisons } }, { onConflict: "week_start", ignoreDuplicates: true });
+  await supabaseAdmin.from("marketing_weekly_reviews").upsert({ week_start: weekEnd, worked, stop, next_plan: next, missing_results: missing, comparison: { comparisons } }, { onConflict: "week_start" });
 }
 
 /** Admin-only: record results for a posted post. Append-only; a correction adds a new row. */
