@@ -2,7 +2,7 @@ import { legalFactCatalogue } from "./legal-fact-rules";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { DEFAULT_GROUPS, groupSchema, weekSlots, assertUniqueDrafts, type RobinGroup } from "./robin-groups";
+import { DEFAULT_GROUPS, parseRobinGroups, weekSlots, assertUniqueDrafts, type RobinGroup } from "./robin-groups";
 import { MARKETING_KNOWLEDGE, nextContentMode, prepareMarketingReview, prepareImageBrief, validateMarketingCopy } from "./marketing-knowledge";
 import { WEEKLY_PLAN, TOPIC_COOLDOWN_DAYS, TENANT_TIP_WINDOW, tenantTipBlocked, foundingPlacesLeft, foundingOfferLine, type PostType } from "./robin-plan";
 
@@ -10,18 +10,17 @@ async function admin(client: any, userId: string) {
   const { data, error } = await client.from("profiles").select("account_type").eq("id", userId).maybeSingle();
   if (error || data?.account_type !== "admin") throw new Error("Forbidden");
 }
-const groupsSchema = z.array(groupSchema).max(20).refine(groups => new Set(groups.map(g => g.id)).size === groups.length, "Group IDs must be unique");
 async function groupsFrom(client: any): Promise<RobinGroup[]> {
   const { data, error } = await client.from("marketing_group_settings").select("groups").eq("id", "robin").maybeSingle();
   if (error) throw new Error(error.message);
-  return data ? groupsSchema.parse(data.groups) : DEFAULT_GROUPS;
+  return data ? parseRobinGroups(data.groups) : DEFAULT_GROUPS;
 }
 export const getRobinGroups = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   await admin(context.supabase, context.userId);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return groupsFrom(supabaseAdmin);
 });
-export const saveRobinGroups = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((data: unknown) => groupsSchema.parse(data)).handler(async ({ data, context }) => {
+export const saveRobinGroups = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((data: unknown) => parseRobinGroups(data)).handler(async ({ data, context }) => {
   await admin(context.supabase, context.userId);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin.from("marketing_group_settings").upsert({ id: "robin", groups: data, updated_at: new Date().toISOString() });

@@ -3,11 +3,32 @@ import { z } from "zod";
 export const groupSchema = z.object({
   id: z.string().min(1).max(60), name: z.string().min(1).max(100),
   places: z.string().max(500), audience: z.string().max(500), worked: z.string().max(1500),
-  linkPlacement: z.enum(["in body", "first comment"]), postAs: z.enum(["Page", "personal profile"]),
+  linkPlacement: z.enum(["in body", "first comment"]),
+  postAs: z.preprocess(value => value === "RoostNI Page" ? "Page" : value, z.enum(["Page", "personal profile"])),
   weeklyCount: z.number().int().min(1).max(7),
   promotionAllowed: z.boolean().default(true),
 });
 export type RobinGroup = z.infer<typeof groupSchema>;
+const groupsSchema = z.array(groupSchema).max(20).refine(groups => new Set(groups.map(g => g.id)).size === groups.length, "Each group needs a different ID.");
+/** Accept legacy labels without weakening validation or changing posting identity. */
+export function parseRobinGroups(input: unknown): RobinGroup[] {
+  const result = groupsSchema.safeParse(input);
+  if (result.success) return result.data;
+  const issue = result.error.issues[0];
+  const index = issue?.path[0];
+  const prefix = typeof index === "number" ? `Group ${index + 1}: ` : "Group settings: ";
+  const field = issue?.path[1];
+  const messages: Record<string, string> = {
+    postAs: 'choose Page or personal profile under “Post as”.',
+    linkPlacement: 'choose in body or first comment for the link.',
+    weeklyCount: 'choose a whole number from 1 to 7 for posts per week.',
+    name: 'enter a group name of 1–100 characters.',
+    places: 'keep local places within 500 characters.',
+    audience: 'keep the audience within 500 characters.',
+    worked: 'keep what has worked within 1,500 characters.',
+  };
+  throw new Error(prefix + (typeof field === "string" ? messages[field] ?? "check the saved details and try again." : "check that there are no duplicate groups and no more than 20 groups."));
+}
 export const DEFAULT_GROUPS: RobinGroup[] = [
   { id: "newtownards-ards", name: "Newtownards & Ards Peninsula", places: "Newtownards, Ards Peninsula, Comber, Donaghadee, Portaferry", audience: "Local renters and self-managing landlords", worked: "Historic owner-reported observations: native posts reached 33–75 views. Treat as context only, not a current claim or conversion evidence.", linkPlacement: "first comment", postAs: "personal profile", weeklyCount: 3, promotionAllowed: true },
   { id: "belfast-community", name: "Belfast community", places: "Belfast, east Belfast, west Belfast, north Belfast, south Belfast", audience: "Local renters and self-managing landlords", worked: "No group-specific results confirmed yet. Do not import claims about other Belfast groups.", linkPlacement: "first comment", postAs: "personal profile", weeklyCount: 3, promotionAllowed: true },

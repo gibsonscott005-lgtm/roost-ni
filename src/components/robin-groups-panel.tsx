@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Plus, Trash2, Save, Sparkles, Copy, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getRobinGroups, saveRobinGroups, generateRobinDrafts, draftRobinReply } from "@/lib/robin.functions";
-import { combinationResults, type RobinGroup } from "@/lib/robin-groups";
+import { combinationResults, parseRobinGroups, type RobinGroup } from "@/lib/robin-groups";
 import type { MarketingPost } from "@/lib/marketing.functions";
 import type { MarketingReview } from "@/lib/marketing-knowledge";
 
@@ -15,7 +15,7 @@ export function RobinGroupsPanel({ brief, focus, posts, onDrafted }: { brief: st
   const [busy,setBusy] = useState(false), [comment,setComment] = useState(""), [reply,setReply] = useState<{ body:string; review:MarketingReview }|null>(null), [replyBusy,setReplyBusy] = useState(false);
   useEffect(() => { void fetchGroups({ data:undefined }).then(rows => { setGroups(rows); setSelected(rows.map(g=>g.id)); setReady(true); }).catch(e=>toast.error(e.message)); },[fetchGroups]);
   const update = (id:string, patch:Partial<RobinGroup>) => setGroups(rows=>rows.map(g=>g.id===id?{...g,...patch}:g));
-  const save = async () => { await saveGroups({ data:groups }); };
+  const save = async () => { await saveGroups({ data:parseRobinGroups(groups) }); };
   const queued = posts.filter(p => p.platform === "facebook" && (p.status === "draft" || p.status === "scheduled")).length;
   const generate = async (week:boolean, replace = false) => {
     if (focus === "reddit") return;
