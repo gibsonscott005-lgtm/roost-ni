@@ -278,7 +278,7 @@ function TenancyInformationNoticeGuide() {
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Link to="/auth" onClick={() => track("signup")} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-              Try RoostNI free <ArrowRight className="h-4 w-4" />
+              Create your account <ArrowRight className="h-4 w-4" />
             </Link>
             <Link to="/audit" onClick={() => track("audit")} className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:bg-secondary">
               Free compliance check
