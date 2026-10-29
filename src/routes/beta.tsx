@@ -19,19 +19,19 @@ export const Route = createFileRoute("/beta")({
       {
         name: "description",
         content:
-          "RoostNI is a Northern Ireland-only platform for landlords and tenants to rent direct: tenant passports, compliant listings and tenancy tools. No commission on rent.",
+          "RoostNI is a Northern Ireland-only platform for landlords and tenants to rent direct: tenant passports, property listings and NI tenancy tools. No commission on rent; billing is not switched on yet.",
       },
       { property: "og:title", content: "About RoostNI | Direct Renting in Northern Ireland" },
       {
         property: "og:description",
         content:
-          "RoostNI is a Northern Ireland-only platform for landlords and tenants to rent direct: tenant passports, compliant listings and tenancy tools. No commission on rent.",
+          "RoostNI is a Northern Ireland-only platform for landlords and tenants to rent direct: tenant passports, property listings and NI tenancy tools. No commission on rent; billing is not switched on yet.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk/beta" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "About RoostNI | Direct Renting in Northern Ireland" },
-      { name: "twitter:description", content: "RoostNI is a Northern Ireland-only platform for landlords and tenants to rent direct: tenant passports, compliant listings and tenancy tools. No commission on rent." },
+      { name: "twitter:description", content: "RoostNI is a Northern Ireland-only platform for landlords and tenants to rent direct: tenant passports, property listings and NI tenancy tools. No commission on rent; billing is not switched on yet." },
     ],
     links: [{ rel: "canonical", href: "https://roostni.co.uk/beta" }],
   }),

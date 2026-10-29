@@ -27,13 +27,13 @@ const EMPTY: Draft = { address: "", postcode: "", rent: "", deposit: "", heating
 export const Route = createFileRoute("/list-property")({
   head: () => ({
     meta: [
-      { title: "List a property free in Northern Ireland — RoostNI" },
+      { title: "List a Rental Property in Northern Ireland — RoostNI" },
       {
         name: "description",
         content:
-          "Start your Northern Ireland rental listing now — no account needed until you publish. No upfront listing fee, deposits checked against the one-month cap.",
+          "Start your Northern Ireland rental listing now — no account needed until you publish. Pay by the number of homes you manage; billing is not switched on yet. No commission on rent.",
       },
-      { property: "og:title", content: "List a property free in Northern Ireland — RoostNI" },
+      { property: "og:title", content: "List a Rental Property in Northern Ireland — RoostNI" },
       {
         property: "og:description",
         content: "Fill in your listing first, sign up only when you publish. " + SHORT_LINES.noCommission + ", " + SHORT_LINES.tenantsNeverPay.toLowerCase() + ".",
