@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Correct the homepage deposit-cap claim without changing legal facts or tool rules; verify the homepage metadata and visible wording.
+- [x] Remove the homepage deposit-cap claims; metadata and canonical unchanged, preview verified, legislation reviewed without changing legal facts or tool rules. Goes live on next publish.
 - [ ] Resolve Google's homepage canonical mismatch — blocked by Google still selecting www and hosting's temporary primary-domain redirect.
 
 - [x] Move Robin legal claims into review-only facts, enforce approved/90-day checks, add review page, weekly source checker and owner alerts; 22 facts remain needs_review, weekly schedule enabled, source checks and owner email dispatch verified.
