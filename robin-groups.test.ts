@@ -1,5 +1,18 @@
 import { test, expect } from "bun:test";
-import { DEFAULT_GROUPS, groupSchema, weekSlots, londonSlot, combinationTag, groupBody, trackedGroupLink, assertUniqueDrafts, combinationResults } from "./src/lib/robin-groups";
+import { DEFAULT_GROUPS, groupSchema, parseRobinGroups, weekSlots, londonSlot, combinationTag, groupBody, trackedGroupLink, assertUniqueDrafts, combinationResults } from "./src/lib/robin-groups";
+test("legacy RoostNI Page settings load and save as Page without changing other details", () => {
+  const legacy = DEFAULT_GROUPS.map(group => ({ ...group, postAs: "RoostNI Page" }));
+  const parsed = parseRobinGroups(legacy);
+  expect(parsed).toEqual(DEFAULT_GROUPS.map(group => ({ ...group, postAs: "Page" })));
+  expect(parseRobinGroups(parsed)).toEqual(parsed);
+  expect(parseRobinGroups(DEFAULT_GROUPS)).toEqual(DEFAULT_GROUPS);
+});
+test("unknown posting identities remain invalid", () => {
+  expect(() => parseRobinGroups([{ ...DEFAULT_GROUPS[0], postAs: "unknown" }])).toThrow("Group 1: choose Page or personal profile");
+});
+test("invalid weekly counts give readable errors", () => {
+  expect(() => parseRobinGroups([{ ...DEFAULT_GROUPS[0], weeklyCount: 8 }])).toThrow("Group 1: choose a whole number from 1 to 7");
+});
 test("starts with only the requested two groups and three weekly drafts each",()=>{
   expect(DEFAULT_GROUPS.map(g=>g.name)).toEqual(["Newtownards & Ards Peninsula","Belfast community"]);
   expect(DEFAULT_GROUPS.map(g=>g.weeklyCount)).toEqual([3,3]);
