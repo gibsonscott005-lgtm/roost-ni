@@ -271,7 +271,7 @@ function NoticeToQuitGuide() {
               Free compliance check <ArrowRight className="h-4 w-4" />
             </Link>
             <Link to="/auth" onClick={() => track("signup")} className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:bg-secondary">
-              Try RoostNI free
+              Create your account
             </Link>
           </div>
         </section>

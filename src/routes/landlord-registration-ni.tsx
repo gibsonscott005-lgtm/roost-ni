@@ -140,7 +140,7 @@ const OTHER_DUTIES = [
   },
   {
     title: "Correct notice periods",
-    body: "Notice to quit depends on tenancy length: 4 weeks under 12 months, 8 weeks up to 10 years, and 12 weeks beyond that.",
+    body: "Notice to quit depends on tenancy length: 4 weeks for 12 months or less, 8 weeks up to 10 years, and 12 weeks beyond that.",
   },
 ];
 
@@ -352,7 +352,7 @@ function LandlordRegistrationGuide() {
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-[var(--color-primary-foreground)]/80">
             Our two-minute self-check covers registration plus the other main statutory duties —
-            deposit protection, safety certificates, notices and rent records. Twelve questions, your
+            deposit protection, safety certificates, notices and rent records. Five questions, your
             score straight away, no email or account needed.
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-3">

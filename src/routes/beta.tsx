@@ -15,21 +15,23 @@ export const Route = createFileRoute("/beta")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "About RoostNI — Northern Ireland Renting, Direct" },
+      { title: "About RoostNI | Direct Renting in Northern Ireland" },
       {
         name: "description",
         content:
-          "Help test RoostNI, Northern Ireland's direct renting platform. Tenant passports, compliant listings and full tenancy management — built around NI law.",
+          "RoostNI is a Northern Ireland-only platform for landlords and tenants to rent direct: tenant passports, compliant listings and tenancy tools. No commission on rent.",
       },
-      { property: "og:title", content: "About RoostNI — Northern Ireland Renting, Direct" },
+      { property: "og:title", content: "About RoostNI | Direct Renting in Northern Ireland" },
       {
         property: "og:description",
         content:
-          "Test RoostNI before launch: tenant passports for renters, compliant listings and tenancy management for landlords across Northern Ireland.",
+          "RoostNI is a Northern Ireland-only platform for landlords and tenants to rent direct: tenant passports, compliant listings and tenancy tools. No commission on rent.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk/beta" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "About RoostNI | Direct Renting in Northern Ireland" },
+      { name: "twitter:description", content: "RoostNI is a Northern Ireland-only platform for landlords and tenants to rent direct: tenant passports, compliant listings and tenancy tools. No commission on rent." },
     ],
     links: [{ rel: "canonical", href: "https://roostni.co.uk/beta" }],
   }),
@@ -170,8 +172,8 @@ function BetaPage() {
               upload your own documents, and withdraw access whenever you choose.
             </li>
             <li>
-              <span className="font-medium text-foreground">Nothing is charged.</span>{" "}
-              Core direct management is free. Optional paid tools shown in the app are previews of future features.
+              Billing isn't switched on yet, so nothing is charged today. Every tool is included at every level, and landlords will pay by the number of homes they manage. Statutory tools stay open to everyone. See{" "}
+              <Link to="/how-roostni-is-funded" className="font-medium text-foreground underline">How RoostNI is funded</Link>.
             </li>
             <li>
               <span className="font-medium text-foreground">RoostNI assists, it never decides.</span>{" "}
@@ -195,7 +197,7 @@ function BetaPage() {
             search={{ role: "tenant" }}
             className="inline-flex items-center justify-center rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
           >
-            Create your free account
+            Create your account
           </Link>
           <span className="text-sm text-muted-foreground">
             Takes about two minutes. You can switch roles later by signing up again.

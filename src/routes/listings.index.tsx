@@ -39,17 +39,18 @@ export const Route = createFileRoute("/listings/")({
       {
         name: "description",
         content:
-          "Browse houses and flats to rent in Belfast and across Northern Ireland. Registered landlords, honest rent and transparent fuel policies — set a free listing alert.",
+          "Browse houses and flats to rent direct from landlords across Northern Ireland, with no agent fees. Set a free listing alert for new homes.",
       },
       { property: "og:title", content: "Houses to Rent in Belfast & Northern Ireland — RoostNI" },
       {
         property: "og:description",
         content:
-          "Houses and flats to rent from registered NI landlords. Every property compliant, every fuel policy honest.",
+          "Browse houses and flats to rent direct from landlords across Northern Ireland, with no agent fees. Set a free listing alert for new homes.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk/listings" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:description", content: "Browse houses and flats to rent direct from landlords across Northern Ireland, with no agent fees. Set a free listing alert for new homes." },
     ],
     links: [{ rel: "canonical", href: "https://roostni.co.uk/listings" }],
   }),
@@ -246,10 +247,10 @@ function ListingsIndexPage() {
           </h1>
           <div className="mt-5 flex flex-wrap items-stretch gap-3">
             <div className="brutal-bubble bg-verified text-verified-foreground max-w-xs px-4 py-3 font-display text-lg font-extrabold">
-              {filtered.length} listings live.
+              Example listings
             </div>
             <div className="brutal-bubble brutal-bubble-paper bg-paper text-paper-foreground mt-3 max-w-sm px-4 py-3 text-sm font-semibold">
-              Every listing comes from a registered NI landlord. You deal with them directly.
+              These are example listings while our first landlords join. Real listings appear here as landlords publish them, and you deal with the landlord directly.
             </div>
           </div>
         </div>

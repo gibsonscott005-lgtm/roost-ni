@@ -106,6 +106,7 @@ export const Route = createFileRoute("/listings/$id")({
         { name: "twitter:title", content: t },
         { name: "twitter:description", content: d },
         { name: "twitter:image", content: image },
+        ...(loaderData.title?.startsWith("[TEST LISTING") ? [{ name: "robots", content: "noindex" }] : []),
       ],
       links: [{ rel: "canonical", href: url }],
     };

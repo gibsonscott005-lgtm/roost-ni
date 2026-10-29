@@ -142,12 +142,15 @@ function HomePage() {
           <AudienceCard
             n="02 / Landlords"
             title="Got a property?"
-            body="List it free in minutes. Deposit cap, TIN and notice periods handled the NI way."
+            body="List your home in minutes. Founding landlords get a month free. Deposit cap, TIN and notice periods handled the NI way."
             to="/list-property"
             onClick={() => track("landlord_list")}
             tone="verified"
           />
         </section>
+        <p className="-mt-4 mb-8 text-sm font-semibold">
+          <Link to="/how-roostni-is-funded" className="underline">First 20 landlords to list: one month free, then £5 a month, locked for 24 months.</Link>
+        </p>
 
         <section className="border-y-2 border-foreground py-8">
           {[
