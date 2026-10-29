@@ -142,7 +142,7 @@ function HomePage() {
           <AudienceCard
             n="02 / Landlords"
             title="Got a property?"
-            body="List your home in minutes. Founding landlords get a month free. Deposit cap, TIN and notice periods handled the NI way."
+            body="List your home in minutes. Founding landlords get a month free. TIN and notice periods handled the NI way."
             to="/list-property"
             onClick={() => track("landlord_list")}
             tone="verified"
@@ -155,7 +155,6 @@ function HomePage() {
         <section className="border-y-2 border-foreground py-8">
           {[
             ["0%", "Commission on your rent"],
-            ["1 mo", "Deposit cap under PTA 2022"],
             ["28 days", "TIN deadline, tracked for you"],
           ].map(([big, label], i) => (
             <div key={big} className={`py-8 ${i ? "border-t border-border" : ""}`}>
