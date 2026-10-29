@@ -14,6 +14,7 @@ import {
   type ContentMode,
 } from "@/lib/marketing-knowledge";
 import type { Database } from "@/integrations/supabase/types";
+import { uniqueWeeklyInsights, weeklyInsightKey, shouldPublishWeeklyInsights, weeklyInsightActive } from "./robin-weekly-insights";
 
 export interface MarketingPost {
   id: string;
@@ -85,7 +86,7 @@ export const getMarketingEngine = createServerFn({ method: "POST" })
     const { foundingPlacesLeft } = await import("./robin-plan");
     const [postsRes, insightsRes, resultsRes, visitsRes, reviewRes, landlords] = await Promise.all([
       supabaseAdmin.from("marketing_posts").select("id, platform, persona, angle, topic, body, link_url, utm_campaign, scheduled_for, status, posted_at, skip_reason, notes, results, created_at").order("scheduled_for", { ascending: false }).limit(120),
-      supabaseAdmin.from("marketing_insights").select("id, kind, insight, verdict, evidence, active, created_at").order("created_at", { ascending: false }).limit(40),
+      supabaseAdmin.from("marketing_insights").select("id, kind, insight, verdict, evidence, active, created_at").order("created_at", { ascending: false }),
       supabaseAdmin.from("marketing_post_results").select("id, post_id, group_name, reach, reactions, comments, shares, link_clicks, created_at").order("created_at", { ascending: true }).limit(2000),
       supabaseAdmin.from("marketing_visits").select("utm_campaign").limit(10000),
       supabaseAdmin.from("marketing_weekly_reviews").select("week_start, worked, stop, next_plan, missing_results").order("week_start", { ascending: false }).limit(1).maybeSingle(),
@@ -95,7 +96,7 @@ export const getMarketingEngine = createServerFn({ method: "POST" })
     for (const v of visitsRes.data ?? []) visitCounts.set(v.utm_campaign, (visitCounts.get(v.utm_campaign) ?? 0) + 1);
     return {
       posts: (postsRes.data ?? []) as unknown as MarketingPost[],
-      insights: (insightsRes.data ?? []) as MarketingInsight[],
+      insights: uniqueWeeklyInsights((insightsRes.data ?? []) as MarketingInsight[]).slice(0, 40),
       results: (resultsRes.data ?? []) as PostResult[],
       campaignVisits: [...visitCounts].map(([utm_campaign, visits]) => ({ utm_campaign, visits })).sort((a, b) => b.visits - a.visits),
       foundingPlacesLeft: foundingPlacesLeft(landlords),
@@ -103,13 +104,13 @@ export const getMarketingEngine = createServerFn({ method: "POST" })
     };
   });
 
-/** Builds last week's review once (Sunday onwards). Never overwrites an existing review. */
-async function ensureWeeklyReview(supabaseAdmin: any, force = false) {
+/** Refresh incomplete summaries; publish learned lessons only once results are complete. */
+async function ensureWeeklyReview(supabaseAdmin: any) {
   const { lastCompletedSunday, compareWeek, WEEKLY_PLAN } = await import("./robin-plan");
   const weekEnd = lastCompletedSunday();
   const { data: existing } = await supabaseAdmin.from("marketing_weekly_reviews").select("id, missing_results").eq("week_start", weekEnd).maybeSingle();
   // A review is final once every posted post has results; until then it is rebuilt so late entries count.
-  if (existing && !force && !(existing.missing_results ?? []).length) return;
+  if (existing && !(existing.missing_results ?? []).length) return;
   const from = new Date(new Date(`${weekEnd}T00:00:00Z`).getTime() - 6 * 86400000).toISOString();
   const to = new Date(new Date(`${weekEnd}T00:00:00Z`).getTime() + 86400000).toISOString();
   const { data: posts } = await supabaseAdmin.from("marketing_posts").select("id, angle, persona, link_url, notes, topic").eq("status", "posted").gte("posted_at", from).lt("posted_at", to);
@@ -122,14 +123,17 @@ async function ensureWeeklyReview(supabaseAdmin: any, force = false) {
   const withResults = new Set((results ?? []).map((r: { post_id: string }) => r.post_id));
   const missing = ids.filter(id => !withResults.has(id));
   const label = (c: { dimension: string; value: string; postIds: string[]; avgEngagement: number; avgReach: number }) => `${c.dimension} "${c.value}": ${c.postIds.length} posts, avg engagement ${c.avgEngagement}, avg reach ${c.avgReach}`;
-  if (existing) {
-    // Retire (never delete) this week's earlier insights before saving the refreshed ones.
-    await supabaseAdmin.from("marketing_insights").update({ active: false }).eq("evidence->>week_end", weekEnd).eq("active", true);
-  }
-  if (comparisons.length) {
-    await supabaseAdmin.from("marketing_insights").insert(comparisons.map(c => ({ kind: c.verdict === "loss" ? "loss" : "win", verdict: c.verdict, active: c.verdict !== "too_little_data",
+  if (shouldPublishWeeklyInsights(missing, existing) && comparisons.length) {
+    const { data: previous, error: previousError } = await supabaseAdmin.from("marketing_insights").select("active, evidence").eq("evidence->>week_end", weekEnd).order("created_at", { ascending: false });
+    if (previousError) throw new Error(previousError.message);
+    const choices = new Map(uniqueWeeklyInsights((previous ?? []) as Array<{ active: boolean; evidence: unknown }>).map(i => [weeklyInsightKey(i), i]));
+    // Legacy provisional lessons are retained as history; carry their latest choices into the final set.
+    const { error: retireError } = await supabaseAdmin.from("marketing_insights").update({ active: false }).eq("evidence->>week_end", weekEnd).eq("active", true);
+    if (retireError) throw new Error(retireError.message);
+    const { error: insightError } = await supabaseAdmin.from("marketing_insights").insert(comparisons.map(c => ({ kind: c.verdict === "loss" ? "loss" : "win", verdict: c.verdict, active: weeklyInsightActive(choices.get(weeklyInsightKey({ evidence: { week_end: weekEnd, dimension: c.dimension, value: c.value } })), c.verdict),
       insight: c.verdict === "win" ? `Do more: ${label(c)}` : c.verdict === "loss" ? `Stop: ${label(c)}` : `Too little data: ${label(c)}`,
       evidence: { week_end: weekEnd, post_ids: c.postIds, avg_engagement: c.avgEngagement, avg_reach: c.avgReach, dimension: c.dimension, value: c.value } })));
+    if (insightError) throw new Error(insightError.message);
   }
   const worked = comparisons.filter(c => c.verdict === "win").map(label);
   const stop = comparisons.filter(c => c.verdict === "loss").map(label);

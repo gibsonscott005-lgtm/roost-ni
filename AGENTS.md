@@ -24,3 +24,4 @@
 - Landlord funnel steps are written only through the log_landlord_funnel_event database function (first time kept, latest time bumped) and the table stores user ids only; emails are joined at read time for admins so personal details never live in tracking data.
 
 - Robin marketing data is append-only: database triggers block deletes on posts, results, insights, visits and weekly reviews, and results rows cannot be updated; re-drafts mark old posts skipped with a reason. Weekly plan/cooldown/founding-count logic lives in src/lib/robin-plan.ts so it stays testable.
+- Robin refreshes incomplete weekly summaries without publishing lessons; final lessons preserve prior active choices, and weekly comparison duplicates are collapsed before the learned-list limit so history is retained without crowding out other lessons.
