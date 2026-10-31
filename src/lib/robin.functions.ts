@@ -26,11 +26,12 @@ export const saveRobinGroups = createServerFn({ method: "POST" }).middleware([re
   const { error } = await supabaseAdmin.from("marketing_group_settings").upsert({ id: "robin", groups: data, updated_at: new Date().toISOString() });
   if (error) throw new Error(error.message); return { ok: true };
 });
-/** Landlords (excluding owner test accounts) who have published a property. */
+/** Landlords (excluding owner test accounts) who have added a home — tenanted or vacant, advertised or not. */
 export async function countFoundingLandlords(supabaseAdmin: any): Promise<number> {
-  const { data, error } = await supabaseAdmin.from("property_listings").select("landlord_id").eq("is_published", true).limit(2000);
+  const { data, error } = await supabaseAdmin.from("property_listings").select("landlord_id, address").limit(5000);
   if (error) throw new Error(error.message);
-  const ids = [...new Set((data ?? []).map((r: { landlord_id: string }) => r.landlord_id))] as string[];
+  const { landlordsWithAHome } = await import("./home-count");
+  const ids = landlordsWithAHome((data ?? []) as { landlord_id: string; address: string | null }[]);
   const { isInternalEmail } = await import("./internal-accounts");
   let n = 0;
   for (const id of ids) { const { data: u } = await supabaseAdmin.auth.admin.getUserById(id); if (!isInternalEmail(u?.user?.email)) n++; }
