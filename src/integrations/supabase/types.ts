@@ -650,7 +650,8 @@ export type Database = {
           tenancy_completed_at: string | null
           tenancy_start_date: string | null
           tenancy_status: string
-          tenant_id: string
+          tenant_id: string | null
+          tin_on_file_reported_at: string | null
           withdraw_count: number
           withdrawn_at: string | null
           withdrawn_reason: string | null
@@ -690,7 +691,8 @@ export type Database = {
           tenancy_completed_at?: string | null
           tenancy_start_date?: string | null
           tenancy_status?: string
-          tenant_id: string
+          tenant_id?: string | null
+          tin_on_file_reported_at?: string | null
           withdraw_count?: number
           withdrawn_at?: string | null
           withdrawn_reason?: string | null
@@ -730,7 +732,8 @@ export type Database = {
           tenancy_completed_at?: string | null
           tenancy_start_date?: string | null
           tenancy_status?: string
-          tenant_id?: string
+          tenant_id?: string | null
+          tin_on_file_reported_at?: string | null
           withdraw_count?: number
           withdrawn_at?: string | null
           withdrawn_reason?: string | null
@@ -1483,6 +1486,7 @@ export type Database = {
         Args: { p_secret: string; p_url: string }
         Returns: number
       }
+      create_existing_tenancy: { Args: { p_listing: string }; Returns: string }
       emit_notification: {
         Args: {
           p_actor_id: string
