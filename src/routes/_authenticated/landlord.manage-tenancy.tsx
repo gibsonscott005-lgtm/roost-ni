@@ -1730,8 +1730,27 @@ function DocumentsTab({
     }
   };
 
+  const isExisting = share.lease_kind === "existing_agreement";
+
   return (
     <div className="grid gap-4 md:grid-cols-2">
+      {isExisting ? (
+        <div className="rounded-sm border border-border bg-surface p-5">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-sm bg-surface-muted text-foreground">
+              <FileText className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="font-display text-base font-semibold tracking-tight">Existing tenancy agreement</p>
+              <p className="text-xs text-muted-foreground">Agreed before RoostNI</p>
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            This tenancy was agreed outside RoostNI, so there is no RoostNI signature record. Keep your
+            own signed copy safe.
+          </p>
+        </div>
+      ) : (
       <div className="rounded-sm border border-border bg-surface p-5">
         <div className="flex items-center gap-3">
           <span className="grid h-10 w-10 place-items-center rounded-sm bg-verified text-[var(--color-verified-foreground)]">
@@ -1799,6 +1818,7 @@ function DocumentsTab({
           </button>
         </div>
       </div>
+      )}
 
       <div className="rounded-sm border border-border bg-surface p-5">
         <div className="flex items-center gap-3">
@@ -1823,6 +1843,22 @@ function DocumentsTab({
         >
           <Download className="h-3.5 w-3.5" /> Generate notice
         </button>
+        {isExisting ? (
+          <label className="mt-4 flex items-start gap-2 text-xs">
+            <input
+              type="checkbox"
+              className="mt-0.5"
+              checked={!!share.tin_on_file_reported_at}
+              onChange={(e) => onReportTinOnFile(e.target.checked)}
+            />
+            <span>
+              Landlord says a notice is on file
+              <span className="block text-muted-foreground">
+                A note for your records only. RoostNI does not check it.
+              </span>
+            </span>
+          </label>
+        ) : null}
       </div>
 
       <PricingBreakdown
