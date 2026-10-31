@@ -74,7 +74,7 @@ type OilLevel = "full" | "three_quarter" | "half" | "quarter" | "empty";
 
 interface ShareRow {
   id: string;
-  tenant_id: string;
+  tenant_id: string | null;
   listing_id: string;
   lease_status: string | null;
   lease_signed_at: string | null;
@@ -111,7 +111,9 @@ interface ShareRow {
     heating_type: string | null;
     ni_landlord_reg_number: string | null;
     enforce_empty_in_full_out: boolean | null;
+    existing_tenant_name: string | null;
   } | null;
+  tin_on_file_reported_at: string | null;
 }
 
 interface ReceiptRow {
@@ -171,7 +173,7 @@ function ManageTenancyPage() {
       const { data: share, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, lease_sent_at, lease_oil_clause, lease_kind, lease_document_path, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_cert_path, deposit_protected_at, oil_handover_level, inventory_completed_at, tenancy_start_date, tenancy_status, final_meter_readings, final_oil_level, final_inspection_submitted_at, final_inspection_response, tenancy_completed_at, tenant:profiles!tenant_id(full_name), listing:property_listings!listing_id(id, title, address, location, monthly_rent, deposit, heating_type, ni_landlord_reg_number, enforce_empty_in_full_out)",
+          "id, tenant_id, listing_id, lease_status, tin_on_file_reported_at, lease_signed_at, lease_signed_name, lease_sent_at, lease_oil_clause, lease_kind, lease_document_path, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_cert_path, deposit_protected_at, oil_handover_level, inventory_completed_at, tenancy_start_date, tenancy_status, final_meter_readings, final_oil_level, final_inspection_submitted_at, final_inspection_response, tenancy_completed_at, tenant:profiles!tenant_id(full_name), listing:property_listings!listing_id(id, title, address, location, monthly_rent, deposit, heating_type, ni_landlord_reg_number, enforce_empty_in_full_out, existing_tenant_name)",
         )
         .eq("id", shareId!)
         .maybeSingle();
@@ -199,12 +201,14 @@ function ManageTenancyPage() {
   const share = tenancyQuery.data?.share ?? null;
   const receipts = tenancyQuery.data?.receipts ?? [];
   const inventory = tenancyQuery.data?.inventory ?? [];
-  const tenantName = share?.tenant?.full_name || "Tenant";
+  const tenantName = share?.tenant?.full_name || share?.listing?.existing_tenant_name || "Tenant";
   const listing = share?.listing;
   const address = listing?.address || listing?.location || listing?.title || "Property";
   const rent = Number(listing?.monthly_rent ?? 0);
   const deposit = Number(listing?.deposit ?? rent);
   const fullyExecuted = share?.lease_status === "counter_signed";
+  // Tenancy that began before RoostNI: no RoostNI signature, no deadline alarms.
+  const isExisting = share?.lease_kind === "existing_agreement";
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["tenancy", shareId] });
 
@@ -521,7 +525,7 @@ function ManageTenancyPage() {
 
   // 28-day deposit deadline reminder (at most once per day per tenancy)
   useEffect(() => {
-    if (!share || !shareId || share.deposit_protected_at) return;
+    if (!share || !shareId || !share.tenant_id || isExisting || share.deposit_protected_at) return;
     const anchor = share.lease_signed_at || share.lease_sent_at;
     if (!anchor) return;
     const daysLeft = Math.ceil((new Date(anchor).getTime() + 28 * 864e5 - Date.now()) / 864e5);
@@ -543,7 +547,7 @@ function ManageTenancyPage() {
         link_path: "/tenant/tenancy?tab=deposit",
       },
     }).catch((err) => console.error("[notify]", err));
-  }, [share, shareId, address]);
+  }, [share, shareId, address, isExisting]);
 
   return (
     <DashboardShell user={user} profile={profile} activeKey="applications">
@@ -571,6 +575,10 @@ function ManageTenancyPage() {
             <span className="inline-flex items-center gap-1.5 rounded-full bg-verified px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-verified-foreground)]">
               <BadgeCheck className="h-3.5 w-3.5" /> Lease executed
             </span>
+          ) : isExisting ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Existing tenancy · agreed before RoostNI
+            </span>
           ) : null}
         </div>
       </div>
@@ -589,6 +597,8 @@ function ManageTenancyPage() {
           propertyId={share.listing_id}
           startDate={share.tenancy_start_date}
           tinAcknowledgedAt={share.lease_signed_at}
+          existingTenancy={isExisting}
+          tinOnFileReportedAt={share.tin_on_file_reported_at}
         />
         <Tabs defaultValue={searchTab || "overview"} className="w-full">
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-sm bg-surface-muted p-1">
@@ -613,6 +623,7 @@ function ManageTenancyPage() {
           </TabsList>
 
           <TabsContent value="overview" className="mt-5 space-y-5">
+            {isExisting ? null : (
             <div className="grid gap-4 md:grid-cols-2">
               <FundCard
                 title="Security Deposit"
@@ -631,6 +642,7 @@ function ManageTenancyPage() {
                 onConfirm={(m) => confirmFunds("rent", m)}
               />
             </div>
+            )}
 
             <RentScheduleCard
               startDate={share.tenancy_start_date}
@@ -716,6 +728,7 @@ function ManageTenancyPage() {
               certPath={share.deposit_cert_path}
               onUploadCert={uploadDepositCert}
               onOpenCert={openDepositCert}
+              existingTenancy={isExisting}
             />
           </TabsContent>
 
@@ -758,6 +771,9 @@ function ManageTenancyPage() {
               address={address}
               rent={rent}
               deposit={deposit}
+              onReportTinOnFile={(on) =>
+                updateShareMutation.mutate({ tin_on_file_reported_at: on ? new Date().toISOString() : null })
+              }
             />
             {share.listing_id && user?.id ? (
               <section className="rounded-sm border border-border bg-surface p-5">
@@ -971,7 +987,9 @@ function DepositProtection({
   certPath,
   onUploadCert,
   onOpenCert,
+  existingTenancy = false,
 }: {
+  existingTenancy?: boolean;
   startedAt: string | null;
   protectedAt: string | null;
   scheme: string | null;
@@ -997,7 +1015,7 @@ function DepositProtection({
   const urgent = !overdue && daysLeft <= 7;
   const isProtected = !!protectedAt;
 
-  const ringColor = isProtected
+  const ringColor = isProtected || existingTenancy
     ? "var(--color-verified)"
     : overdue
       ? "#dc2626"
@@ -1007,7 +1025,7 @@ function DepositProtection({
 
   const r = 72;
   const c = 2 * Math.PI * r;
-  const offset = c * (1 - progress);
+  const offset = existingTenancy && !isProtected ? c : c * (1 - progress);
 
   return (
     <div className="grid gap-4 md:grid-cols-[260px_1fr]">
@@ -1028,7 +1046,12 @@ function DepositProtection({
           />
         </svg>
         <div className="-mt-[120px] flex h-[120px] flex-col items-center justify-center text-center">
-          {isProtected ? (
+          {existingTenancy && !isProtected ? (
+            <>
+              <p className="font-display text-base font-semibold tracking-tight">Existing tenancy</p>
+              <p className="px-2 text-[11px] text-muted-foreground">Record the scheme and certificate below</p>
+            </>
+          ) : isProtected ? (
             <>
               <ShieldCheck className="h-6 w-6 text-verified" />
               <p className="mt-1 font-display text-base font-semibold tracking-tight text-verified">
@@ -1054,7 +1077,7 @@ function DepositProtection({
           )}
         </div>
         <p className="mt-4 text-center text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          NI Statutory 28-day deadline
+          {existingTenancy ? "No countdown for tenancies added from before RoostNI" : "NI Statutory 28-day deadline"}
         </p>
       </div>
 
@@ -1630,7 +1653,9 @@ function DocumentsTab({
   address,
   rent,
   deposit,
+  onReportTinOnFile,
 }: {
+  onReportTinOnFile: (on: boolean) => void;
   share: ShareRow;
   tenantName: string;
   landlordName: string;
