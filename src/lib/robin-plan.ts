@@ -13,7 +13,7 @@ export function foundingPlacesLeft(landlordsWhoListed: number): number {
 /** Exact founding offer wording Robin may use. */
 export function foundingOfferLine(placesLeft: number): string {
   const f = FOUNDING_PLAN, s = STANDARD_PLAN;
-  return `${placesLeft} of ${FOUNDING_LANDLORD_LIMIT} founding places left. First 20 landlords who list a property: first month free, then ${formatGBP(f.firstHomePence)} for the first home and ${formatGBP(f.extraHomePence)} for each extra, capped at ${formatGBP(f.capPence)}, locked for 24 months. After that: ${formatGBP(s.firstHomePence)} and ${formatGBP(s.extraHomePence)}, capped at ${formatGBP(s.capPence)}. No commission on rent. Never any fees for tenants. Statutory tools stay open to everyone. Billing is not switched on yet.`;
+  return `${placesLeft} of ${FOUNDING_LANDLORD_LIMIT} founding places left. First 20 landlords to add a home (tenanted or vacant): first month free from the day they add a home, then ${formatGBP(f.firstHomePence)} for the first home and ${formatGBP(f.extraHomePence)} for each extra, capped at ${formatGBP(f.capPence)}, locked for 24 months. After that: ${formatGBP(s.firstHomePence)} and ${formatGBP(s.extraHomePence)}, capped at ${formatGBP(s.capPence)}. No commission on rent. Never any fees for tenants. Statutory tools stay open to everyone. Billing is not switched on yet.`;
 }
 
 /** True when one more tenant post would break "at most 1 tenant tip in 5". */

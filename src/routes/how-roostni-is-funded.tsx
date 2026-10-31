@@ -80,8 +80,8 @@ function FundingPage() {
             <p className="font-mono text-xs font-bold uppercase tracking-wider text-verified">// Founding landlords</p>
             <p className="mt-3 text-3xl font-extrabold">{formatGBP(FOUNDING_PLAN.firstHomePence)} a month</p>
             <ul className="mt-4 space-y-1">
-              <li>for the first {FOUNDING_LANDLORD_LIMIT} landlords who list a property</li>
-              <li>one month free from the day you list</li>
+              <li>for the first {FOUNDING_LANDLORD_LIMIT} landlords who add a home, tenanted or vacant</li>
+              <li>one month free from the day you add a home</li>
               <li>then {formatGBP(FOUNDING_PLAN.firstHomePence)} first home, plus {formatGBP(FOUNDING_PLAN.extraHomePence)} each extra</li>
               <li>never more than {formatGBP(FOUNDING_PLAN.capPence)} a month</li>
               <li>price locked for {FOUNDING_PLAN.lockMonths} months</li>

@@ -1,7 +1,7 @@
 import { AlertTriangle, Check, Clock, ShieldCheck } from "lucide-react";
 import { certificateState, usePropertyCertificates } from "@/components/property-certificates";
 
-type ItemState = "ok" | "warn" | "bad";
+type ItemState = "ok" | "warn" | "bad" | "info";
 
 interface Item {
   key: string;
@@ -25,7 +25,12 @@ export function ComplianceHealthBar({
   propertyId,
   startDate,
   tinAcknowledgedAt,
+  existingTenancy = false,
+  tinOnFileReportedAt = null,
 }: {
+  /** Tenancy began before RoostNI: no deadline alarms, no legal position stated. */
+  existingTenancy?: boolean;
+  tinOnFileReportedAt?: string | null;
   propertyId: string;
   startDate: string | null;
   tinAcknowledgedAt: string | null;
@@ -43,7 +48,14 @@ export function ComplianceHealthBar({
   });
 
   let tin: Item;
-  if (tinAcknowledgedAt) {
+  if (existingTenancy) {
+    tin = {
+      key: "TIN",
+      label: "Tenancy Information Notice",
+      state: "info",
+      detail: tinOnFileReportedAt ? "Landlord says a notice is on file" : "Not recorded",
+    };
+  } else if (tinAcknowledgedAt) {
     tin = { key: "TIN", label: "Tenancy Information Notice", state: "ok", detail: "Issued & acknowledged" };
   } else if (startDate) {
     const days = Math.ceil(
@@ -58,9 +70,10 @@ export function ComplianceHealthBar({
   }
   items.push(tin);
 
-  const okCount = items.filter((i) => i.state === "ok").length;
-  const pct = Math.round((okCount / items.length) * 100);
-  const allGood = okCount === items.length;
+  const scored = items.filter((i) => i.state !== "info");
+  const okCount = scored.filter((i) => i.state === "ok").length;
+  const pct = Math.round((okCount / scored.length) * 100);
+  const allGood = okCount === scored.length;
 
   return (
     <section
@@ -75,7 +88,7 @@ export function ComplianceHealthBar({
               Compliance health
             </p>
             <p className="font-display text-base font-semibold tracking-tight">
-              {isLoading ? "Checking…" : `${okCount} of ${items.length} statutory items in order`}
+              {isLoading ? "Checking…" : existingTenancy ? `${okCount} of ${scored.length} certificates on file` : `${okCount} of ${scored.length} statutory items in order`}
             </p>
           </div>
         </div>
@@ -91,12 +104,16 @@ export function ComplianceHealthBar({
             className={`flex items-start gap-2 rounded-sm border px-3 py-2 ${
               i.state === "ok"
                 ? "border-verified/30 bg-verified-soft"
-                : i.state === "warn"
+                : i.state === "info"
+                  ? "border-border bg-surface-muted"
+                  : i.state === "warn"
                   ? "border-amber-300/60 bg-amber-50 dark:bg-amber-950/30"
                   : "border-rose-300/60 bg-rose-50 dark:bg-rose-950/30"
             }`}
           >
-            {i.state === "ok" ? (
+            {i.state === "info" ? (
+              <Clock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+            ) : i.state === "ok" ? (
               <Check className="mt-0.5 h-4 w-4 shrink-0 text-verified" strokeWidth={3} />
             ) : i.state === "warn" ? (
               <Clock className="mt-0.5 h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" />

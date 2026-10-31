@@ -25,3 +25,5 @@
 
 - Robin marketing data is append-only: database triggers block deletes on posts, results, insights, visits and weekly reviews, and results rows cannot be updated; re-drafts mark old posts skipped with a reason. Weekly plan/cooldown/founding-count logic lives in src/lib/robin-plan.ts so it stays testable.
 - Robin refreshes incomplete weekly summaries without publishing lessons; final lessons preserve prior active choices, and weekly comparison duplicates are collapsed before the learned-list limit so history is retained without crowding out other lessons.
+- Tenancies that began before RoostNI are passport_shares rows with lease_kind 'existing_agreement', lease_status 'existing' and an optional null tenant_id, created only via create_existing_tenancy; they never show a RoostNI signature or deadline countdowns, so the app never claims a signature or lateness it cannot know.
+- Homes and founding places are counted by normalised address in src/lib/home-count.ts (any added home, tenanted or vacant), so duplicates never inflate counts.

@@ -355,6 +355,7 @@ async function runCertificateReminders(admin: Admin, runDate: string, out: Remin
 
   const tenantsByListing = new Map<string, string[]>();
   for (const t of tenants ?? []) {
+    if (!t.tenant_id) continue;
     const list = tenantsByListing.get(t.listing_id) ?? [];
     list.push(t.tenant_id);
     tenantsByListing.set(t.listing_id, list);

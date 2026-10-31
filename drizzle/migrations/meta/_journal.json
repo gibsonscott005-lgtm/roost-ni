@@ -169,6 +169,13 @@
       "when": 1793302486145,
       "tag": "0023_guard_tenant_payment_status",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793440867169,
+      "tag": "0024_existing_tenancy_records",
+      "breakpoints": true
     }
   ]
 }

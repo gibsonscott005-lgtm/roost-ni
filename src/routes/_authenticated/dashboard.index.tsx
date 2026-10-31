@@ -127,9 +127,10 @@ function Dashboard() {
       const ids = rows.map((r) => r.id);
       const { data: shares } = await supabase
         .from("passport_shares")
-        .select("id, listing_id, lease_status")
+        .select("id, listing_id, lease_status, tenancy_status")
         .in("listing_id", ids)
-        .eq("lease_status", "counter_signed");
+        .in("lease_status", ["counter_signed", "existing"])
+        .neq("tenancy_status", "completed");
       const map: Record<string, string> = {};
       ((shares as { id: string; listing_id: string }[] | null) ?? []).forEach((s) => {
         if (!map[s.listing_id]) map[s.listing_id] = s.id;
@@ -1345,7 +1346,7 @@ function MyProperties({
                           pcm
                         </span>
                       </p>
-                      {executedByListing[l.id] ? (
+                      {executedByListing[l.id] && l.occupancy_status !== "tenanted" ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-[#1d4ed8] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
                           <BadgeCheck className="h-3 w-3 shrink-0" />
                           Let Agreed
@@ -1387,7 +1388,7 @@ function MyProperties({
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-1.5 sm:justify-end">
-                {executedByListing[l.id] ? (
+                {executedByListing[l.id] && l.occupancy_status !== "tenanted" ? (
                   <Link
                     to="/landlord/manage-tenancy"
                     search={{ share: executedByListing[l.id] }}
@@ -1398,10 +1399,36 @@ function MyProperties({
                   </Link>
                 ) : l.occupancy_status === "tenanted" ? (
                   <>
+                    {executedByListing[l.id] ? (
+                      <Link
+                        to="/landlord/manage-tenancy"
+                        search={{ share: executedByListing[l.id] }}
+                        className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                      >
+                        <FileSignature className="h-3 w-3 shrink-0" />
+                        Manage Tenancy
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={busyId === l.id}
+                        onClick={async () => {
+                          setBusyId(l.id);
+                          const { error } = await supabase.rpc("create_existing_tenancy", { p_listing: l.id });
+                          setBusyId(null);
+                          if (error) toast.error("Couldn't set up the tenancy record", { description: error.message });
+                          else await onRefresh();
+                        }}
+                        className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92 disabled:opacity-60"
+                      >
+                        <FileSignature className="h-3 w-3 shrink-0" />
+                        Set up Manage Tenancy
+                      </button>
+                    )}
                     <Link
                       to="/dashboard/listing-edit"
                       search={{ id: l.id }}
-                      className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-[11px] font-medium text-[var(--color-primary-foreground)] transition hover:bg-foreground/92"
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary"
                     >
                       <ShieldCheck className="h-3 w-3 shrink-0" />
                       Records & certificates
@@ -1409,14 +1436,20 @@ function MyProperties({
                     <button
                       type="button"
                       disabled={busyId === l.id}
-                      onClick={() =>
+                      onClick={async () => {
+                        await supabase
+                          .from("passport_shares")
+                          .update({ tenancy_status: "completed", tenancy_completed_at: new Date().toISOString() })
+                          .eq("listing_id", l.id)
+                          .eq("lease_kind", "existing_agreement")
+                          .neq("tenancy_status", "completed");
                         void setStatus(
                           l,
                           { occupancy_status: "vacant", tenancy_ended_at: new Date().toISOString() },
                           "Marked as vacant",
                           "You can advertise it on RoostNI whenever you're ready.",
-                        )
-                      }
+                        );
+                      }}
                       className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
                     >
                       Tenancy ended
@@ -1606,6 +1639,12 @@ function AddPropertyForm({
         .select("id")
         .single();
       if (error) throw error;
+      if (isTenanted && created) {
+        const { error: tenancyErr } = await supabase.rpc("create_existing_tenancy", {
+          p_listing: (created as { id: string }).id,
+        });
+        if (tenancyErr) console.error("[existing-tenancy]", tenancyErr);
+      }
       trackLandlordStep("listing_saved_draft");
       if (!isTenanted && mode === "publish" && created) {
         const newId = (created as { id: string }).id;

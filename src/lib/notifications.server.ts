@@ -70,7 +70,7 @@ export async function resolveParties(
         .from("passport_shares")
         .select("tenant_id")
         .eq("listing_id", entityId);
-      return [listing.landlord_id, ...(shares ?? []).map((s) => s.tenant_id)];
+      return [listing.landlord_id, ...(shares ?? []).map((s) => s.tenant_id).filter((id): id is string => !!id)];
     }
 
     default:
