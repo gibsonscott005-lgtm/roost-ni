@@ -149,7 +149,7 @@ function HomePage() {
           />
         </section>
         <p className="-mt-4 mb-8 text-sm font-semibold">
-          <Link to="/how-roostni-is-funded" className="underline">First 20 landlords to list: one month free, then £5 a month, locked for 24 months.</Link>
+          <Link to="/how-roostni-is-funded" className="underline">First 20 landlords to add a home: one month free, then £5 a month, locked for 24 months.</Link>
         </p>
 
         <section className="border-y-2 border-foreground py-8">

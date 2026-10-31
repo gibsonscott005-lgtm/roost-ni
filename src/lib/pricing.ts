@@ -14,7 +14,7 @@ export interface PricingPlan {
   firstHomePence: number;
   extraHomePence: number;
   capPence: number;
-  /** Months at no charge from the day the first property is listed. */
+  /** Months at no charge from the day the first home is added. */
   introMonths: number;
   /** Months the price is locked for. 0 = no lock promised. */
   lockMonths: number;
@@ -40,7 +40,7 @@ export const FOUNDING_PLAN: PricingPlan = {
   lockMonths: 24,
 };
 
-/** The first this many landlords who list a property get the founding price. */
+/** The first this many landlords who add a home (tenanted or vacant) get the founding price. */
 export const FOUNDING_LANDLORD_LIMIT = 20;
 /** An archived home stops counting after this many months. */
 export const ARCHIVE_UNCOUNT_MONTHS = 12;
