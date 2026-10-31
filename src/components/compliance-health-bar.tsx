@@ -88,7 +88,7 @@ export function ComplianceHealthBar({
               Compliance health
             </p>
             <p className="font-display text-base font-semibold tracking-tight">
-              {isLoading ? "Checking…" : `${okCount} of ${scored.length} certificates on file`}
+              {isLoading ? "Checking…" : existingTenancy ? `${okCount} of ${scored.length} certificates on file` : `${okCount} of ${scored.length} statutory items in order`}
             </p>
           </div>
         </div>
