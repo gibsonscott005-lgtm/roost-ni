@@ -787,7 +787,7 @@ function ManageTenancyPage() {
               shareId={share.id}
               role="landlord"
               currentUserId={user?.id ?? null}
-              tenantId={share.tenant_id}
+              tenantId={share.tenant_id ?? ""}
               landlordId={user?.id ?? ""}
               tenantName={tenantName}
               landlordName={profile?.full_name || "Landlord"}
