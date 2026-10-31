@@ -56,7 +56,7 @@ export const getApplicantPassports = createServerFn({ method: "POST" })
       .not("status", "in", "(withdrawn,declined,rejected)");
     if (shareErr) throw new Error(shareErr.message);
 
-    const tenantIds = Array.from(new Set((shares ?? []).map((s) => s.tenant_id)));
+    const tenantIds = Array.from(new Set((shares ?? []).map((s) => s.tenant_id).filter((id): id is string => !!id)));
     if (!tenantIds.length) return { passports: [] };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
