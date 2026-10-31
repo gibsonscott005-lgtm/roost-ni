@@ -65,7 +65,7 @@ export function RobinOverview({ data }: { data: MarketingEngineData }) {
     <div className="border-2 border-foreground p-3">
       <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Founding places left</p>
       <p className="font-display text-3xl font-bold">{data.foundingPlacesLeft} <span className="text-base font-semibold">of 20</span></p>
-      <p className="text-xs text-muted-foreground">Live count of landlords who have listed a property. Your own test accounts are left out. Robin uses this number in founding posts.</p>
+      <p className="text-xs text-muted-foreground">Live count of landlords who have added a home, tenanted or vacant. Your own test accounts are left out. Robin uses this number in founding posts.</p>
     </div>
     {missing.length > 0 ? <div role="alert" className="border-2 border-destructive bg-destructive/10 p-3 text-xs">
       <p className="font-semibold text-destructive">Results missing on {missing.length} posted post{missing.length === 1 ? "" : "s"}</p>

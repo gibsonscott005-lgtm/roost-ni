@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { countHomesByAddress } from "./home-count";
 import { DEFAULT_BILLING_CONFIG, type BillingConfig } from "./pricing";
 
 export interface BillingSnapshot {
@@ -18,13 +19,13 @@ export const getBillingSnapshot = createServerFn({ method: "GET" })
       supabaseAdmin.from("billing_config").select("payments_enabled, currency, notice").maybeSingle(),
       supabase
         .from("property_listings")
-        .select("id", { count: "exact", head: true })
+        .select("address")
         .eq("landlord_id", userId),
     ]);
 
     const config = (configRes.data as BillingConfig | null) ?? DEFAULT_BILLING_CONFIG;
     return {
       config: { ...config, payments_enabled: !!config.payments_enabled },
-      propertyCount: countRes.count ?? 0,
+      propertyCount: countHomesByAddress((countRes.data ?? []) as { address: string | null }[]),
     };
   });
