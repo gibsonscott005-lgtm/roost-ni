@@ -1,0 +1,2 @@
+ALTER TABLE public.passport_shares DROP CONSTRAINT IF EXISTS passport_shares_lease_status_check;
+ALTER TABLE public.passport_shares ADD CONSTRAINT passport_shares_lease_status_check CHECK (lease_status IS NULL OR lease_status IN ('sent_to_tenant','signed_pending_landlord','counter_signed','existing'));
