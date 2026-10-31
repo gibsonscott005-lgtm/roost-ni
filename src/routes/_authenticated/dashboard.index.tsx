@@ -1436,14 +1436,20 @@ function MyProperties({
                     <button
                       type="button"
                       disabled={busyId === l.id}
-                      onClick={() =>
+                      onClick={async () => {
+                        await supabase
+                          .from("passport_shares")
+                          .update({ tenancy_status: "completed", tenancy_completed_at: new Date().toISOString() })
+                          .eq("listing_id", l.id)
+                          .eq("lease_kind", "existing_agreement")
+                          .neq("tenancy_status", "completed");
                         void setStatus(
                           l,
                           { occupancy_status: "vacant", tenancy_ended_at: new Date().toISOString() },
                           "Marked as vacant",
                           "You can advertise it on RoostNI whenever you're ready.",
-                        )
-                      }
+                        );
+                      }}
                       className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1.5 text-[11px] font-medium text-foreground transition hover:bg-secondary disabled:opacity-60"
                     >
                       Tenancy ended
