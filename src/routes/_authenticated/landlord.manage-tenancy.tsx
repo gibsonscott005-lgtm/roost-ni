@@ -653,6 +653,7 @@ function ManageTenancyPage() {
               onSaveStartDate={saveStartDate}
               onLogPayment={logRentPayment}
               onRemind={sendRentReminder}
+              existingTenancy={isExisting}
             />
 
             <div className="overflow-hidden rounded-sm border border-border bg-surface">
@@ -1191,6 +1192,7 @@ function RentScheduleCard({
   onSaveStartDate,
   onLogPayment,
   onRemind,
+  existingTenancy = false,
 }: {
   startDate: string | null;
   suggestedStart: string | null;
@@ -1200,6 +1202,8 @@ function RentScheduleCard({
   onSaveStartDate: (v: string) => void;
   onLogPayment: (m: RentMonth, method: PaymentMethod, amount: number) => void | Promise<void>;
   onRemind: (m: RentMonth) => void;
+  /** Tenancy began before RoostNI: no arrears totals, late labels or reminders. */
+  existingTenancy?: boolean;
 }) {
   const [draftStart, setDraftStart] = useState(
     startDate || suggestedStart || new Date().toISOString().slice(0, 10),
@@ -1253,7 +1257,11 @@ function RentScheduleCard({
         <ClipboardList className="h-5 w-5 text-muted-foreground" />
       </div>
 
-      {arrears.monthsBehind > 0 ? (
+      {existingTenancy ? (
+        <div className="border-b border-border bg-surface-muted px-5 py-3 text-sm text-muted-foreground">
+          This tenancy began before RoostNI. Log any payments you've received; past months are not marked as late.
+        </div>
+      ) : arrears.monthsBehind > 0 ? (
         <div className="border-b border-border bg-red-50 px-5 py-3 text-sm text-red-700">
           <span className="font-semibold">£{arrears.total.toLocaleString()} in arrears</span> ·{" "}
           {arrears.monthsBehind} month{arrears.monthsBehind === 1 ? "" : "s"} behind.
@@ -1275,11 +1283,17 @@ function RentScheduleCard({
                 </p>
               </div>
               <span className="text-sm">£{Number(m.amount).toLocaleString()}</span>
-              <span
-                className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${rentStateClasses(m.state)}`}
-              >
-                {RENT_STATE_LABEL[m.state]}
-              </span>
+              {existingTenancy && m.state !== "paid" ? (
+                <span className="rounded-full bg-surface-muted px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Not logged
+                </span>
+              ) : (
+                <span
+                  className={`rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider ${rentStateClasses(m.state)}`}
+                >
+                  {RENT_STATE_LABEL[m.state]}
+                </span>
+              )}
               <div className="flex flex-wrap items-center gap-2">
                 {m.state !== "paid" ? (
                   <>
@@ -1292,7 +1306,7 @@ function RentScheduleCard({
                     >
                       <Receipt className="h-3.5 w-3.5" /> Log payment
                     </button>
-                    {m.state === "overdue" || m.state === "due" ? (
+                    {!existingTenancy && (m.state === "overdue" || m.state === "due") ? (
                       <button
                         type="button"
                         onClick={() => onRemind(m)}

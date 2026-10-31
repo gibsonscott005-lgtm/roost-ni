@@ -107,8 +107,8 @@ export function ComplianceHealthBar({
                 : i.state === "info"
                   ? "border-border bg-surface-muted"
                   : i.state === "warn"
-                  ? "border-amber-300/60 bg-amber-50 dark:bg-amber-950/30"
-                  : "border-rose-300/60 bg-rose-50 dark:bg-rose-950/30"
+                  ? "border-amber-400/50 bg-amber-500/10"
+                  : "border-rose-400/50 bg-rose-500/10"
             }`}
           >
             {i.state === "info" ? (
