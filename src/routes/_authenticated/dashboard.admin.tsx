@@ -11,6 +11,7 @@ import {
   type AdminOverview,
 } from "@/lib/admin-overview.functions";
 import { MarketingAdminPanel } from "@/components/marketing-admin";
+import { ArticlesAdminPanel } from "@/components/articles-admin";
 import {
   isAnalyticsOptedOut,
   optInToAnalytics,
@@ -25,6 +26,7 @@ import {
   ExternalLink,
   Eye,
   EyeOff,
+  FileText,
   Loader2,
   Megaphone,
   MessageSquare,
@@ -58,7 +60,7 @@ function AdminDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [data, setData] = useState<AdminOverview | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  type AdminTab = "signups" | "audits" | "feedback" | "alerts" | "marketing";
+  type AdminTab = "signups" | "audits" | "feedback" | "alerts" | "marketing" | "articles";
   const [tab, setTabState] = useState<AdminTab>("signups");
   useEffect(() => {
     const saved = sessionStorage.getItem("roost_admin_tab") as AdminTab | null;
@@ -282,9 +284,16 @@ function AdminDashboard() {
               icon={Megaphone}
               label="Robin (Marketing)"
             />
+            <TabButton
+              active={tab === "articles"}
+              onClick={() => setTab("articles")}
+              icon={FileText}
+              label="Articles"
+            />
           </div>
 
           {tab === "marketing" ? <MarketingAdminPanel /> : null}
+          {tab === "articles" ? <ArticlesAdminPanel /> : null}
 
           {tab === "signups" ? (
             data && data.signUps.length > 0 ? (

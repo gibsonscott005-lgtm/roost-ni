@@ -92,6 +92,7 @@ function HomePage() {
           </Link>
           <nav className="flex items-center gap-4 font-mono text-sm font-bold uppercase">
             <Link to="/listings" className="text-muted-foreground hover:text-foreground">Browse</Link>
+            <Link to="/blog" className="text-muted-foreground hover:text-foreground">Blog</Link>
             <Link to="/list-property" onClick={() => track("header_list")} className="hidden text-muted-foreground hover:text-foreground sm:inline">List</Link>
             <Link to="/help" className="hidden text-muted-foreground hover:text-foreground sm:inline">Help</Link>
             <Link to="/auth" search={{ mode: "login" }} className="border-2 border-foreground px-3 py-1.5 hover:bg-foreground hover:text-background">
@@ -180,7 +181,8 @@ function HomePage() {
       <footer className="border-t-2 border-foreground">
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 font-mono text-xs uppercase text-muted-foreground sm:flex-row sm:justify-between sm:px-6">
           <p>© {new Date().getFullYear()} RoostNI — Northern Ireland only</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
+            <Link to="/blog" className="hover:text-foreground">Blog</Link>
             <Link to="/help" className="hover:text-foreground">Help</Link>
             <Link to="/beta" className="hover:text-foreground">About</Link>
             <Link to="/how-roostni-is-funded" className="hover:text-foreground">How we're funded</Link>
