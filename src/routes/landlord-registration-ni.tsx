@@ -124,7 +124,7 @@ const OTHER_DUTIES = [
   },
   {
     title: "Deposit protection within 28 days",
-    body: "Any tenancy deposit must go into an approved scheme — TDS Northern Ireland or MyDeposits Northern Ireland — within 28 days of receiving it, with the prescribed information given to the tenant. The official notice form says a deposit should not be more than one month's rent.",
+    body: "Any tenancy deposit must go into an approved scheme, TDS Northern Ireland or MyDeposits Northern Ireland, within 28 days of receiving it. The landlord must give the tenant the prescribed information within 35 days of receiving the deposit. A deposit cannot be more than one month's rent.",
   },
   {
     title: "Energy Performance Certificate",

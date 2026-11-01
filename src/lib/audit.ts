@@ -57,7 +57,7 @@ export const AUDIT_QUESTIONS: AuditQuestion[] = [
   {
     id: "deposit_scheme",
     area: "Deposit",
-    question: "Was the deposit protected with TDS NI or MyDeposits NI within 28 days?",
+    question: "Was the deposit protected with TDS NI or MyDeposits NI within 28 days of you receiving it?",
     help: "The tenant must also receive the scheme's prescribed information within 35 days of the deposit being paid.",
     options: [
       { value: "yes", label: "Yes — protected, and the tenant was told", points: 2 },
