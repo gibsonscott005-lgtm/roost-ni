@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      articles: {
+        Row: {
+          author_name: string
+          category: string
+          content_markdown: string
+          created_at: string
+          excerpt: string
+          id: string
+          legal_checked_at: string | null
+          meta_description: string | null
+          meta_title: string | null
+          published_at: string | null
+          slug: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_name?: string
+          category?: string
+          content_markdown?: string
+          created_at?: string
+          excerpt?: string
+          id?: string
+          legal_checked_at?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          slug: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_name?: string
+          category?: string
+          content_markdown?: string
+          created_at?: string
+          excerpt?: string
+          id?: string
+          legal_checked_at?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          slug?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       beta_feedback: {
         Row: {
           account_type: string | null
@@ -1504,6 +1555,7 @@ export type Database = {
         Args: { p_at?: string; p_event: string; p_user: string }
         Returns: undefined
       }
+      is_admin_profile: { Args: { _uid: string }; Returns: boolean }
       legal_monitor_active: { Args: never; Returns: boolean }
       log_confirmation_email_sent: {
         Args: { p_email: string }
