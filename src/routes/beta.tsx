@@ -152,7 +152,7 @@ function BetaPage() {
             <Tile
               icon={FileSignature}
               title="Lease & deposit"
-              body="Issue, sign, counter-sign, then protect the deposit inside the 28-day window."
+              body="Issue, sign and counter-sign the lease. Protect the deposit in an approved scheme within 28 days of receiving it."
             />
             <Tile
               icon={Wrench}
