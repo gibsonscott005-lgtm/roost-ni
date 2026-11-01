@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { articleStatus, londonLocalToUtcIso, utcIsoToLondonLocal } from "./blog";
-import { renderMarkdown } from "./markdown";
+import { articleStatus, londonLocalToUtcIso, utcIsoToLondonLocal } from "./src/lib/blog";
+import { renderMarkdown } from "./src/lib/markdown";
 
 describe("blog scheduling", () => {
   it("treats winter London time as UTC", () => {
