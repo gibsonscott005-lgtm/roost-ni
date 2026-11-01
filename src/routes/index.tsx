@@ -95,7 +95,7 @@ function HomePage() {
             <Link to="/blog" className="text-muted-foreground hover:text-foreground">Blog</Link>
             <Link to="/list-property" onClick={() => track("header_list")} className="hidden text-muted-foreground hover:text-foreground sm:inline">List</Link>
             <Link to="/help" className="hidden text-muted-foreground hover:text-foreground sm:inline">Help</Link>
-            <Link to="/auth" search={{ mode: "login" }} className="border-2 border-foreground px-3 py-1.5 hover:bg-foreground hover:text-background">
+            <Link to="/auth" search={{ mode: "login" }} className="whitespace-nowrap border-2 border-foreground px-3 py-1.5 hover:bg-foreground hover:text-background">
               Sign in
             </Link>
           </nav>

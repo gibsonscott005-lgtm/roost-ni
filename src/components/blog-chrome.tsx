@@ -14,7 +14,7 @@ export function BlogHeader() {
         <nav className="flex items-center gap-4 font-mono text-sm font-bold uppercase">
           <Link to="/listings" className="text-muted-foreground hover:text-foreground">Browse</Link>
           <Link to="/blog" className="text-foreground">Blog</Link>
-          <Link to="/auth" search={{ mode: "login" }} className="border-2 border-foreground px-3 py-1.5 hover:bg-foreground hover:text-background">
+          <Link to="/auth" search={{ mode: "login" }} className="whitespace-nowrap border-2 border-foreground px-3 py-1.5 hover:bg-foreground hover:text-background">
             Sign in
           </Link>
         </nav>
