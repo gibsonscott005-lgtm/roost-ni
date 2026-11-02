@@ -7,12 +7,21 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const subscribeSchema = z.object({
   email: z.string().trim().email().max(200),
   utm: z.record(z.string(), z.string().max(120)).optional(),
+  alert: z
+    .object({
+      area: z.string().trim().max(120).optional(),
+      bedrooms: z.number().int().min(0).max(50).optional(),
+      maxRent: z.number().int().min(0).max(100000).optional(),
+      listingId: z.string().uuid().optional(),
+    })
+    .optional(),
 });
 
 /**
  * Public: adds an email address to the new-listing alert list. Runs with the
  * publishable key against an anon INSERT policy — no session required, and
- * nothing is read back. Duplicate emails are ignored silently.
+ * nothing is read back. Duplicate emails are ignored silently. Optional alert
+ * filters (area, bedrooms, rent) are stored alongside attribution in `utm`.
  */
 export const subscribeToListingAlerts = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => subscribeSchema.parse(data))
@@ -23,14 +32,37 @@ export const subscribeToListingAlerts = createServerFn({ method: "POST" })
       { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
     );
 
+    const meta: Record<string, string> = { ...(data.utm ?? {}) };
+    if (data.alert?.area) meta.alert_area = data.alert.area;
+    if (data.alert?.bedrooms !== undefined) meta.alert_bedrooms = String(data.alert.bedrooms);
+    if (data.alert?.maxRent !== undefined) meta.alert_max_rent = String(data.alert.maxRent);
+    if (data.alert?.listingId) meta.alert_source_listing = data.alert.listingId;
+
     const { error } = await supabase
       .from("listing_alert_subscribers" as never)
-      .insert({ email: data.email.trim().toLowerCase(), utm: data.utm ?? {} } as never);
+      .insert({ email: data.email.trim().toLowerCase(), utm: meta } as never);
 
     // A duplicate email just means they're already on the list — not an error.
     if (error && (error as { code?: string }).code !== "23505") {
       throw new Error(error.message);
     }
+    return { ok: true };
+  });
+
+const unsubscribeSchema = z.object({ email: z.string().trim().email().max(200) });
+
+/**
+ * Public: removes an email from the listing alert list. Always returns ok so
+ * the page never reveals whether an address was on the list.
+ */
+export const unsubscribeFromListingAlerts = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => unsubscribeSchema.parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin
+      .from("listing_alert_subscribers" as never)
+      .delete()
+      .eq("email" as never, data.email.trim().toLowerCase() as never);
     return { ok: true };
   });
 
