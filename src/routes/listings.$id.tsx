@@ -10,6 +10,7 @@ import {
 } from "@/lib/application-withdraw.functions";
 import { getListingPhotoUrls } from "@/lib/listing-photos.functions";
 import { posthog } from "@/integrations/posthog/client";
+import { PropertyAlertBar, PropertyAlertInline } from "@/components/listing-detail-alert";
 
 function notify(payload: EmitNotificationInput) {
   emitNotification({ data: payload }).catch((err) =>
@@ -186,7 +187,10 @@ function ListingDetailPage() {
           </div>
         </div>
 
-        <section className="mt-6 overflow-hidden rounded-sm border border-border bg-surface shadow-resting">
+        <PropertyAlertInline listing={listing} />
+        <PropertyAlertBar listing={listing} />
+
+        <section className="mt-4 overflow-hidden rounded-sm border border-border bg-surface shadow-resting">
           <ListingGallery
             paths={listing.photo_urls}
             photoUrls={listing.photoUrls}
