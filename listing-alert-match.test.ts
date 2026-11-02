@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { isTestListing, matchesArea, sentToday } from "./listing-alert-match";
+import { describe, expect, it } from "bun:test";
+import { isTestListing, matchesArea, sentToday } from "./src/lib/listing-alert-match";
 
 const listing = { title: "2-bed flat", location: "Bangor, Co Down", address: "1 Main St, Bangor BT20" };
 
