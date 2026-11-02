@@ -187,12 +187,8 @@ function ListingDetailPage() {
           </div>
         </div>
 
-        {listing.title.startsWith("[TEST") ? null : (
-          <>
-            <PropertyAlertInline listing={listing} />
-            <PropertyAlertBar listing={listing} />
-          </>
-        )}
+        <PropertyAlertInline listing={listing} />
+        <PropertyAlertBar listing={listing} />
 
         <section className="mt-4 overflow-hidden rounded-sm border border-border bg-surface shadow-resting">
           <ListingGallery
