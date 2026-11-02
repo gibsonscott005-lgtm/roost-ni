@@ -190,6 +190,13 @@
       "when": 1793553947803,
       "tag": "0026_create_articles",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1793617046169,
+      "tag": "0027_listing_alert_delivery",
+      "breakpoints": true
     }
   ]
 }

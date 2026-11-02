@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { z } from "zod";
 import { unsubscribeFromListingAlerts } from "@/lib/listing-alerts.functions";
 
 export const Route = createFileRoute("/unsubscribe")({
-  validateSearch: z.object({ email: z.string().optional() }),
+  validateSearch: z.object({ token: z.string().optional() }),
   head: () => ({
     meta: [
       { title: "Unsubscribe from listing alerts — RoostNI" },
@@ -20,17 +20,20 @@ export const Route = createFileRoute("/unsubscribe")({
   component: UnsubscribePage,
 });
 
+const isUuid = (t?: string) => !!t && /^[0-9a-f-]{36}$/i.test(t);
+
 function UnsubscribePage() {
-  const { email: initial } = Route.useSearch();
+  const { token } = Route.useSearch();
   const unsubscribe = useServerFn(unsubscribeFromListingAlerts);
-  const [email, setEmail] = useState(initial ?? "");
   const [state, setState] = useState<"idle" | "saving" | "done" | "error">("idle");
 
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
+  // Nothing happens on page load: only tapping the button removes the record,
+  // so email link scanners can't unsubscribe anyone.
+  const confirm = async () => {
+    if (!token) return;
     setState("saving");
     try {
-      await unsubscribe({ data: { email: email.trim() } });
+      await unsubscribe({ data: { token } });
       setState("done");
     } catch {
       setState("error");
@@ -40,27 +43,25 @@ function UnsubscribePage() {
   return (
     <main className="mx-auto max-w-md px-4 py-16">
       <h1 className="font-display text-2xl font-bold">Unsubscribe from listing alerts</h1>
-      {state === "done" ? (
+      {!isUuid(token) ? (
+        <p className="mt-4 text-sm">
+          This link isn't complete. Use the unsubscribe link at the bottom of any RoostNI alert email.
+        </p>
+      ) : state === "done" ? (
         <p className="mt-4 text-sm">Done. You won't get any more new-listing emails from RoostNI.</p>
       ) : (
-        <form onSubmit={submit} className="mt-4 space-y-3">
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            aria-label="Email address"
-            className="h-10 w-full rounded-sm border border-border bg-surface px-3 text-sm"
-          />
+        <div className="mt-4 space-y-3">
+          <p className="text-sm">Stop receiving new-listing alert emails from RoostNI?</p>
           <button
-            type="submit"
+            type="button"
+            onClick={confirm}
             disabled={state === "saving"}
             className="h-10 w-full rounded-sm bg-foreground text-sm font-semibold text-[var(--color-primary-foreground)] disabled:opacity-60"
           >
             Unsubscribe
           </button>
           {state === "error" ? <p className="text-sm text-destructive">Couldn't do that just now. Please try again.</p> : null}
-        </form>
+        </div>
       )}
       <Link to="/listings" className="mt-6 inline-block text-sm underline">Back to listings</Link>
     </main>

@@ -12,6 +12,7 @@ import {
 } from "@/lib/admin-overview.functions";
 import { MarketingAdminPanel } from "@/components/marketing-admin";
 import { ArticlesAdminPanel } from "@/components/articles-admin";
+import { ListingAlertAdmin } from "@/components/listing-alert-admin";
 import {
   isAnalyticsOptedOut,
   optInToAnalytics,
@@ -452,6 +453,7 @@ function AdminDashboard() {
             )
           ) : null}
 
+          {tab === "alerts" ? <ListingAlertAdmin /> : null}
           {tab === "alerts" ? (
             data && data.alertSubscribers.length > 0 ? (
               <div className="mt-6">

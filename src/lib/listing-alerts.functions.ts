@@ -4,6 +4,8 @@ import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+const notifySchema = z.object({ listingId: z.string().uuid() });
+
 const subscribeSchema = z.object({
   email: z.string().trim().email().max(200),
   utm: z.record(z.string(), z.string().max(120)).optional(),
@@ -49,26 +51,89 @@ export const subscribeToListingAlerts = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-const unsubscribeSchema = z.object({ email: z.string().trim().email().max(200) });
+const unsubscribeSchema = z.object({ token: z.string().uuid() });
 
 /**
- * Public: removes an email from the listing alert list. Always returns ok so
- * the page never reveals whether an address was on the list.
+ * Public: removes the subscriber holding this unsubscribe token. Only called
+ * when the person taps the button, so link scanners can't unsubscribe anyone.
+ * Always returns ok so the page never reveals whether a token was valid.
  */
 export const unsubscribeFromListingAlerts = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => unsubscribeSchema.parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin
-      .from("listing_alert_subscribers" as never)
+      .from("listing_alert_subscribers")
       .delete()
-      .eq("email" as never, data.email.trim().toLowerCase() as never);
+      .eq("unsubscribe_token", data.token);
     return { ok: true };
   });
 
-const notifySchema = z.object({
-  listingId: z.string().uuid(),
-});
+async function assertAdmin(context: { supabase: any; userId: string }) {
+  const { data } = await context.supabase.rpc("is_admin_profile", { _uid: context.userId });
+  if (!data) throw new Error("Forbidden");
+}
+
+/** Admin: live-delivery switch state plus listings available to preview. */
+export const getListingAlertAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [{ data: settings }, { data: listings }] = await Promise.all([
+      supabaseAdmin.from("listing_alert_settings").select("live_delivery, updated_at").eq("id", true).maybeSingle(),
+      supabaseAdmin
+        .from("property_listings")
+        .select("id, title, location, is_test, is_published, alerts_sent_at")
+        .order("created_at", { ascending: false })
+        .limit(100),
+    ]);
+    return {
+      liveDelivery: settings?.live_delivery ?? false,
+      updatedAt: settings?.updated_at ?? null,
+      listings: listings ?? [],
+    };
+  });
+
+/** Admin only: switch live subscriber delivery on or off. */
+export const setListingAlertLiveDelivery = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ live: z.boolean() }).parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase
+      .from("listing_alert_settings")
+      .update({ live_delivery: data.live, updated_at: new Date().toISOString(), updated_by: context.userId })
+      .eq("id", true);
+    if (error) throw new Error(error.message);
+    return { liveDelivery: data.live };
+  });
+
+/** Admin only: flag or unflag a listing as a test listing. */
+export const setListingIsTest = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({ listingId: z.string().uuid(), isTest: z.boolean() }).parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("property_listings").update({ is_test: data.isTest }).eq("id", data.listingId);
+    return { ok: true };
+  });
+
+/** Admin only: send the real alert email for any listing to the admin's own sign-in address. */
+export const sendListingAlertPreviewToMe = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => notifySchema.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const email = (context.claims as { email?: string }).email;
+    if (!email) throw new Error("Your account has no email address.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { sendListingAlertPreview } = await import("@/lib/listing-alert-dispatch.server");
+    const res = await sendListingAlertPreview(supabaseAdmin, data.listingId, email);
+    return { sent: res.sent, to: email };
+  });
+
 
 /**
  * Landlord-only: called after a listing is published. Verifies the caller owns
@@ -120,6 +185,12 @@ export const notifyListingPublished = createServerFn({ method: "POST" })
         },
         idempotencyKey: `listing-published-${row.id}-${today}`,
       });
+      try {
+        const { dispatchListingAlerts } = await import("@/lib/listing-alert-dispatch.server");
+        await dispatchListingAlerts(supabaseAdmin, row.id);
+      } catch (err) {
+        console.error("listing alert dispatch failed", err);
+      }
       return result;
     } catch {
       return { sent: false as const, reason: "error" as const };
