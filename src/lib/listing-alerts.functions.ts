@@ -4,6 +4,8 @@ import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+const notifySchema = z.object({ listingId: z.string().uuid() });
+
 const subscribeSchema = z.object({
   email: z.string().trim().email().max(200),
   utm: z.record(z.string(), z.string().max(120)).optional(),
@@ -183,6 +185,12 @@ export const notifyListingPublished = createServerFn({ method: "POST" })
         },
         idempotencyKey: `listing-published-${row.id}-${today}`,
       });
+      try {
+        const { dispatchListingAlerts } = await import("@/lib/listing-alert-dispatch.server");
+        await dispatchListingAlerts(supabaseAdmin, row.id);
+      } catch (err) {
+        console.error("listing alert dispatch failed", err);
+      }
       return result;
     } catch {
       return { sent: false as const, reason: "error" as const };
