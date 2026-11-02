@@ -310,23 +310,50 @@ export type Database = {
         }
         Relationships: []
       }
+      listing_alert_settings: {
+        Row: {
+          id: boolean
+          live_delivery: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: boolean
+          live_delivery?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: boolean
+          live_delivery?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       listing_alert_subscribers: {
         Row: {
           created_at: string
           email: string
           id: string
+          last_alert_sent_at: string | null
+          unsubscribe_token: string
           utm: Json
         }
         Insert: {
           created_at?: string
           email: string
           id?: string
+          last_alert_sent_at?: string | null
+          unsubscribe_token?: string
           utm?: Json
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
+          last_alert_sent_at?: string | null
+          unsubscribe_token?: string
           utm?: Json
         }
         Relationships: []
@@ -976,6 +1003,7 @@ export type Database = {
       property_listings: {
         Row: {
           address: string
+          alerts_sent_at: string | null
           available_from: string | null
           bathrooms: number | null
           bedrooms: number | null
@@ -995,6 +1023,7 @@ export type Database = {
           heating_type: string
           id: string
           is_published: boolean
+          is_test: boolean
           landlord_id: string
           location: string | null
           min_tenancy_months: number | null
@@ -1012,6 +1041,7 @@ export type Database = {
         }
         Insert: {
           address: string
+          alerts_sent_at?: string | null
           available_from?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
@@ -1031,6 +1061,7 @@ export type Database = {
           heating_type: string
           id?: string
           is_published?: boolean
+          is_test?: boolean
           landlord_id: string
           location?: string | null
           min_tenancy_months?: number | null
@@ -1048,6 +1079,7 @@ export type Database = {
         }
         Update: {
           address?: string
+          alerts_sent_at?: string | null
           available_from?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
@@ -1067,6 +1099,7 @@ export type Database = {
           heating_type?: string
           id?: string
           is_published?: boolean
+          is_test?: boolean
           landlord_id?: string
           location?: string | null
           min_tenancy_months?: number | null
