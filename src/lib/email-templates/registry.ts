@@ -5,6 +5,7 @@ import { template as welcomeTenantTemplate } from './welcome-tenant'
 import { template as welcomeLandlordTemplate } from './welcome-landlord'
 import { template as listingPublishedTemplate } from './listing-published'
 import { template as setupHelpRequestedTemplate } from './setup-help-requested'
+import { template as listingAlertSubscriberTemplate } from './listing-alert-subscriber'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -26,4 +27,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'welcome-landlord': welcomeLandlordTemplate,
   'listing-published': listingPublishedTemplate,
   'setup-help-requested': setupHelpRequestedTemplate,
+  'listing-alert-subscriber': listingAlertSubscriberTemplate,
 }
