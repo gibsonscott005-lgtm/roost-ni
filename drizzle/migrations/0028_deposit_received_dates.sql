@@ -1,0 +1,1 @@
+ALTER TABLE public.passport_shares ADD COLUMN IF NOT EXISTS deposit_received_at date, ADD COLUMN IF NOT EXISTS prescribed_info_given_at date;

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { depositDeadlines } from "@/lib/deposit-deadlines";
 import { z } from "zod";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -90,6 +91,8 @@ interface ShareRow {
   deposit_scheme: string | null;
   deposit_cert_number: string | null;
   deposit_protected_at: string | null;
+  deposit_received_at: string | null;
+  prescribed_info_given_at: string | null;
   oil_handover_level: OilLevel | null;
   inventory_completed_at: string | null;
   tenancy_start_date: string | null;
@@ -173,7 +176,7 @@ function ManageTenancyPage() {
       const { data: share, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, tenant_id, listing_id, lease_status, tin_on_file_reported_at, lease_signed_at, lease_signed_name, lease_sent_at, lease_oil_clause, lease_kind, lease_document_path, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_cert_path, deposit_protected_at, oil_handover_level, inventory_completed_at, tenancy_start_date, tenancy_status, final_meter_readings, final_oil_level, final_inspection_submitted_at, final_inspection_response, tenancy_completed_at, tenant:profiles!tenant_id(full_name), listing:property_listings!listing_id(id, title, address, location, monthly_rent, deposit, heating_type, ni_landlord_reg_number, enforce_empty_in_full_out, existing_tenant_name)",
+          "id, tenant_id, listing_id, lease_status, tin_on_file_reported_at, lease_signed_at, lease_signed_name, lease_sent_at, lease_oil_clause, lease_kind, lease_document_path, deposit_status, rent_status, deposit_payment_method, rent_payment_method, deposit_scheme, deposit_cert_number, deposit_cert_path, deposit_protected_at, deposit_received_at, prescribed_info_given_at, oil_handover_level, inventory_completed_at, tenancy_start_date, tenancy_status, final_meter_readings, final_oil_level, final_inspection_submitted_at, final_inspection_response, tenancy_completed_at, tenant:profiles!tenant_id(full_name), listing:property_listings!listing_id(id, title, address, location, monthly_rent, deposit, heating_type, ni_landlord_reg_number, enforce_empty_in_full_out, existing_tenant_name)",
         )
         .eq("id", shareId!)
         .maybeSingle();
@@ -526,9 +529,9 @@ function ManageTenancyPage() {
   // 28-day deposit deadline reminder (at most once per day per tenancy)
   useEffect(() => {
     if (!share || !shareId || !share.tenant_id || isExisting || share.deposit_protected_at) return;
-    const anchor = share.lease_signed_at || share.lease_sent_at;
-    if (!anchor) return;
-    const daysLeft = Math.ceil((new Date(anchor).getTime() + 28 * 864e5 - Date.now()) / 864e5);
+    const dates = depositDeadlines(share.deposit_received_at);
+    if (!dates) return;
+    const daysLeft = Math.ceil((dates.protectBy.getTime() - Date.now()) / 864e5);
     if (daysLeft > 7) return;
     const key = `roost:deposit-reminder:${shareId}:${new Date().toDateString()}`;
     if (typeof window === "undefined" || window.localStorage.getItem(key)) return;
@@ -721,7 +724,9 @@ function ManageTenancyPage() {
 
           <TabsContent value="deposit" className="mt-5 space-y-5">
             <DepositProtection
-              startedAt={share.lease_signed_at || share.lease_sent_at}
+              receivedAt={share.deposit_received_at}
+              prescribedInfoAt={share.prescribed_info_given_at}
+              onSaveDates={(patch) => updateShareMutation.mutate(patch)}
               protectedAt={share.deposit_protected_at}
               scheme={share.deposit_scheme}
               cert={share.deposit_cert_number}
@@ -980,7 +985,6 @@ function FundCard({
 }
 
 function DepositProtection({
-  startedAt,
   protectedAt,
   scheme,
   cert,
@@ -989,9 +993,14 @@ function DepositProtection({
   onUploadCert,
   onOpenCert,
   existingTenancy = false,
+  receivedAt,
+  prescribedInfoAt,
+  onSaveDates,
 }: {
   existingTenancy?: boolean;
-  startedAt: string | null;
+  receivedAt: string | null;
+  prescribedInfoAt: string | null;
+  onSaveDates: (patch: { deposit_received_at?: string | null; prescribed_info_given_at?: string | null }) => void;
   protectedAt: string | null;
   scheme: string | null;
   cert: string | null;
@@ -1003,8 +1012,10 @@ function DepositProtection({
   const [chosenScheme, setChosenScheme] = useState(scheme || DEPOSIT_SCHEMES[0]);
   const [certInput, setCertInput] = useState(cert || "");
 
-  const start = startedAt ? new Date(startedAt) : new Date();
-  const deadlineMs = start.getTime() + 28 * 24 * 60 * 60 * 1000;
+  const dates = existingTenancy ? null : depositDeadlines(receivedAt);
+  const noClock = !dates;
+  const start = dates ? dates.received : new Date();
+  const deadlineMs = dates ? dates.protectBy.getTime() : start.getTime();
   const now = Date.now();
   const totalMs = 28 * 24 * 60 * 60 * 1000;
   const remainingMs = deadlineMs - now;
@@ -1012,8 +1023,8 @@ function DepositProtection({
   const progress = elapsedMs / totalMs;
   const daysLeft = Math.ceil(remainingMs / (24 * 60 * 60 * 1000));
   const hoursLeft = Math.max(0, Math.ceil(remainingMs / (60 * 60 * 1000)));
-  const overdue = remainingMs < 0;
-  const urgent = !overdue && daysLeft <= 7;
+  const overdue = !noClock && remainingMs < 0;
+  const urgent = !noClock && !overdue && daysLeft <= 7;
   const isProtected = !!protectedAt;
 
   const ringColor = isProtected || existingTenancy
@@ -1026,7 +1037,7 @@ function DepositProtection({
 
   const r = 72;
   const c = 2 * Math.PI * r;
-  const offset = existingTenancy && !isProtected ? c : c * (1 - progress);
+  const offset = noClock && !isProtected ? c : c * (1 - progress);
 
   return (
     <div className="grid gap-4 md:grid-cols-[260px_1fr]">
@@ -1051,6 +1062,11 @@ function DepositProtection({
             <>
               <p className="font-display text-base font-semibold tracking-tight">Existing tenancy</p>
               <p className="px-2 text-[11px] text-muted-foreground">Record the scheme and certificate below</p>
+            </>
+          ) : noClock && !isProtected ? (
+            <>
+              <p className="font-display text-base font-semibold tracking-tight">No countdown yet</p>
+              <p className="px-2 text-[11px] text-muted-foreground">Add the date you received the deposit to start the reminders.</p>
             </>
           ) : isProtected ? (
             <>
@@ -1078,7 +1094,7 @@ function DepositProtection({
           )}
         </div>
         <p className="mt-4 text-center text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          {existingTenancy ? "No countdown for tenancies added from before RoostNI" : "NI Statutory 28-day deadline"}
+          {existingTenancy ? "No countdown for tenancies added from before RoostNI" : "28 days from receiving the deposit"}
         </p>
       </div>
 
@@ -1093,6 +1109,34 @@ function DepositProtection({
           Lodge the deposit with an approved NI scheme within 28 days of receipt and log the
           certificate number below.
         </p>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <label className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Deposit received on
+            <input
+              type="date"
+              defaultValue={receivedAt ?? ""}
+              onChange={(e) => onSaveDates({ deposit_received_at: e.target.value || null })}
+              className="mt-1.5 block w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground"
+            />
+          </label>
+          <label className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Prescribed information given on
+            <input
+              type="date"
+              defaultValue={prescribedInfoAt ?? ""}
+              onChange={(e) => onSaveDates({ prescribed_info_given_at: e.target.value || null })}
+              className="mt-1.5 block w-full rounded-sm border border-border bg-surface px-3 py-2 text-sm font-normal normal-case tracking-normal text-foreground"
+            />
+          </label>
+          {dates && (
+            <p className="text-xs text-muted-foreground sm:col-span-2">
+              Protect by {dates.protectBy.toLocaleDateString("en-GB", { timeZone: "UTC" })}. Prescribed information by{" "}
+              {dates.prescribedInfoBy.toLocaleDateString("en-GB", { timeZone: "UTC" })}
+              {prescribedInfoAt ? " — recorded as given." : "."}
+            </p>
+          )}
+        </div>
 
         <div className="mt-4 space-y-3">
           <div>

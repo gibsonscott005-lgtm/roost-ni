@@ -700,6 +700,7 @@ export type Database = {
           deposit_cert_path: string | null
           deposit_payment_method: string | null
           deposit_protected_at: string | null
+          deposit_received_at: string | null
           deposit_scheme: string | null
           deposit_status: string
           final_inspection_responded_at: string | null
@@ -721,6 +722,7 @@ export type Database = {
           lease_status: string | null
           listing_id: string
           oil_handover_level: string | null
+          prescribed_info_given_at: string | null
           rent_payment_method: string | null
           rent_status: string
           shared_at: string
@@ -741,6 +743,7 @@ export type Database = {
           deposit_cert_path?: string | null
           deposit_payment_method?: string | null
           deposit_protected_at?: string | null
+          deposit_received_at?: string | null
           deposit_scheme?: string | null
           deposit_status?: string
           final_inspection_responded_at?: string | null
@@ -762,6 +765,7 @@ export type Database = {
           lease_status?: string | null
           listing_id: string
           oil_handover_level?: string | null
+          prescribed_info_given_at?: string | null
           rent_payment_method?: string | null
           rent_status?: string
           shared_at?: string
@@ -782,6 +786,7 @@ export type Database = {
           deposit_cert_path?: string | null
           deposit_payment_method?: string | null
           deposit_protected_at?: string | null
+          deposit_received_at?: string | null
           deposit_scheme?: string | null
           deposit_status?: string
           final_inspection_responded_at?: string | null
@@ -803,6 +808,7 @@ export type Database = {
           lease_status?: string | null
           listing_id?: string
           oil_handover_level?: string | null
+          prescribed_info_given_at?: string | null
           rent_payment_method?: string | null
           rent_status?: string
           shared_at?: string
