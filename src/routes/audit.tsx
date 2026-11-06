@@ -474,7 +474,7 @@ function AuditPage() {
                     className="mt-5 inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
                   >
                     <ShieldCheck className="h-4 w-4" />
-                    Get started free — list, let and manage without agent fees
+                    Add your property — no commission on rent
                   </Link>
                   <p className="mt-3 text-xs text-muted-foreground">
                     Every tool is included. No commission on rent, no card needed to start. Keep a tenanted property
@@ -567,7 +567,7 @@ function AuditPage() {
                   className="inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 font-display text-sm font-semibold text-[var(--color-primary-foreground)] shadow-raised transition hover:bg-foreground/92"
                 >
                   <ShieldCheck className="h-4 w-4" />
-                  Get started free — list, let and manage without agent fees
+                  Add your property — no commission on rent
                 </Link>
                 <p className="mt-3 text-xs text-muted-foreground">
                   Every tool is included. No commission on rent, no card needed to start.

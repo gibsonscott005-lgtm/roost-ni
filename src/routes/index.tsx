@@ -8,17 +8,17 @@ export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Let & Rent Direct in Northern Ireland — No Commission | RoostNI" },
+      { title: "Renting Out a Property in Northern Ireland — Landlord Tools | RoostNI" },
       {
         name: "description",
         content:
-          "Self-managing NI landlords: list and manage rentals direct, with NI tenancy law built in. Renters: one Tenant Passport to apply direct. No commission on rent, never any fees for tenants. Billing is not switched on yet.",
+          "For Northern Ireland landlords: notice to quit periods, the tenancy information notice, landlord registration and rent receipts — then list and manage your property direct. No commission on rent.",
       },
-      { property: "og:title", content: "RoostNI — the direct rental platform for Northern Ireland landlords and tenants" },
+      { property: "og:title", content: "Renting Out a Property in Northern Ireland — Landlord Tools | RoostNI" },
       {
         property: "og:description",
         content:
-          "Rent direct in Northern Ireland. One reusable Tenant Passport for renters, listings and NI tenancy tools for landlords. No commission on rent, never any fees for tenants.",
+          "For Northern Ireland landlords: notice to quit periods, the tenancy information notice, landlord registration and rent receipts — then list and manage your property direct. No commission on rent.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk" },
@@ -27,10 +27,10 @@ export const Route = createFileRoute("/")({
       { property: "og:image:height", content: "630" },
       { property: "og:image:alt", content: "RoostNI — Renting in Northern Ireland, done direct" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "RoostNI — the direct rental platform for Northern Ireland landlords and tenants" },
+      { name: "twitter:title", content: "Renting Out a Property in Northern Ireland — Landlord Tools | RoostNI" },
       {
         name: "twitter:description",
-        content: "Direct renting for Northern Ireland. No commission on rent. Never any fees for tenants.",
+        content: "For Northern Ireland landlords: notice to quit periods, the tenancy information notice, landlord registration and rent receipts — then list and manage your property direct. No commission on rent.",
       },
       { name: "twitter:image", content: "https://roostni.co.uk/og/roostni-preview.jpg" },
     ],
@@ -108,7 +108,7 @@ function HomePage() {
             // Direct rentals for Northern Ireland
           </p>
           <h1 className="mt-6 text-5xl font-extrabold leading-[0.95] sm:text-7xl lg:text-8xl">
-            Renting in Northern Ireland, done direct.
+            Renting out a property in Northern Ireland, done direct.
           </h1>
           <p className="mt-3 text-5xl font-extrabold leading-[0.95] text-muted-foreground sm:text-7xl lg:text-8xl">
             No middleman.
@@ -134,7 +134,7 @@ function HomePage() {
         <section className="grid gap-8 pb-16 md:grid-cols-2">
           <AudienceCard
             n="01 / Tenants"
-            title="Need a place?"
+            title="How do I find a place to rent in NI without agent fees?"
             body="Cut out the WhatsApp chaos. Browse direct NI homes and apply with one Tenant Passport."
             to="/listings"
             onClick={() => track("tenant_browse")}
@@ -142,7 +142,7 @@ function HomePage() {
           />
           <AudienceCard
             n="02 / Landlords"
-            title="Got a property?"
+            title="How do I rent out my property in Northern Ireland?"
             body="List your home in minutes. Founding landlords get a month free. TIN and notice periods handled the NI way."
             to="/list-property"
             onClick={() => track("landlord_list")}
@@ -170,10 +170,10 @@ function HomePage() {
         <section className="py-16">
           <p className="font-mono text-sm font-bold uppercase tracking-wider text-verified">// Free NI tools — no sign-up</p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <ToolLink to="/audit" title="60-second compliance check" />
-            <ToolLink to="/notice-to-quit-ni" title="Notice to Quit calculator" />
-            <ToolLink to="/tenancy-information-notice-ni" title="Tenancy Information Notice guide" />
-            <ToolLink to="/rent-receipts-ni" title="Rent receipts guide" />
+            <ToolLink to="/audit" title="Do I need landlord registration in Northern Ireland?" />
+            <ToolLink to="/notice-to-quit-ni" title="What is a notice to quit in Northern Ireland?" />
+            <ToolLink to="/tenancy-information-notice-ni" title="What is a tenancy information notice?" />
+            <ToolLink to="/rent-receipts-ni" title="Do I have to give a rent receipt for cash?" />
           </div>
         </section>
       </main>
