@@ -11,7 +11,7 @@
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { buildRentSchedule, type ScheduleReceipt } from "@/lib/rent-schedule";
-import { DEPOSIT_RETURN_DAYS } from "@/lib/tenancy-end";
+import { depositDeadlines } from "@/lib/deposit-deadlines";
 
 type Admin = typeof supabaseAdmin;
 
@@ -144,6 +144,9 @@ interface TenancyRow {
   tenancy_status: string | null;
   deposit_status: string | null;
   deposit_protected_at: string | null;
+  deposit_received_at: string | null;
+  prescribed_info_given_at: string | null;
+  lease_kind: string | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   property_listings: any;
 }
@@ -152,7 +155,7 @@ async function runRentAndDepositReminders(admin: Admin, runDate: string, out: Re
   const { data, error } = await admin
     .from("passport_shares")
     .select(
-      "id, tenant_id, listing_id, tenancy_start_date, tenancy_status, deposit_status, deposit_protected_at, property_listings!inner(landlord_id, title, monthly_rent, deposit)",
+      "id, tenant_id, listing_id, tenancy_start_date, tenancy_status, deposit_status, deposit_protected_at, deposit_received_at, prescribed_info_given_at, lease_kind, property_listings!inner(landlord_id, title, monthly_rent, deposit)",
     )
     .eq("lease_status", "counter_signed")
     .not("tenancy_status", "in", "(completed)");
@@ -264,10 +267,37 @@ async function runRentAndDepositReminders(admin: Admin, runDate: string, out: Re
     }
 
     // ---- Deposit protection deadline ------------------------------------
-    const start = parseDay(share.tenancy_start_date);
+    // Counts only from the date the deposit was received; existing tenancies get no alarms.
+    const depositDates = share.lease_kind === "existing_agreement" ? null : depositDeadlines(share.deposit_received_at);
     const alreadyProtected = Boolean(share.deposit_protected_at);
-    if (start && !alreadyProtected && landlordId) {
-      const deadline = new Date(start.getTime() + DEPOSIT_RETURN_DAYS * DAY_MS);
+
+    // ---- Prescribed information (35 days from receipt) -------------------
+    if (depositDates && !share.prescribed_info_given_at && landlordId) {
+      const piDays = daysBetween(today, depositDates.prescribedInfoBy);
+      if (piDays < 0 || piDays === 0 || DEPOSIT_WARNING_DAYS.includes(piDays)) {
+        const piOverdue = piDays < 0;
+        await sendOnce(
+          admin,
+          runDate,
+          {
+            recipientId: landlordId,
+            type: "deposit_deadline_approaching",
+            entityType: "passport_share",
+            entityId: share.id,
+            kind: piOverdue ? "prescribed_info_passed" : `prescribed_info:${piDays}`,
+            title: piOverdue ? "Prescribed information deadline passed" : "Prescribed information due soon",
+            body: piOverdue
+              ? `The 35-day deadline to give the tenant the prescribed deposit information for ${title} passed on ${formatDay(depositDates.prescribedInfoBy)}. Give it now and record the date.`
+              : `Give the tenant the prescribed deposit information for ${title} by ${formatDay(depositDates.prescribedInfoBy)} (35 days from receiving the deposit).`,
+            linkPath: `/landlord/manage-tenancy?share=${share.id}&tab=deposit`,
+          },
+          out,
+        );
+      }
+    }
+
+    if (depositDates && !alreadyProtected && landlordId) {
+      const deadline = depositDates.protectBy;
       const daysLeft = daysBetween(today, deadline);
 
       const shouldWarn = daysLeft < 0 || DEPOSIT_WARNING_DAYS.includes(daysLeft) || daysLeft === 0;
@@ -275,7 +305,7 @@ async function runRentAndDepositReminders(admin: Admin, runDate: string, out: Re
         const overdue = daysLeft < 0;
         const body = overdue
           ? `The 28-day statutory deadline to protect the deposit for ${title} passed on ${formatDay(deadline)}. Protect it and record the scheme details now.`
-          : `You have ${daysLeft === 0 ? "until the end of today" : `${daysLeft} day${daysLeft === 1 ? "" : "s"}`} to protect the deposit for ${title} and give the tenant the prescribed information. The deadline is ${formatDay(deadline)}.`;
+          : `You have ${daysLeft === 0 ? "until the end of today" : `${daysLeft} day${daysLeft === 1 ? "" : "s"}`} to protect the deposit for ${title} in an approved scheme. The deadline is ${formatDay(deadline)} (28 days from receiving it).`;
 
         await sendOnce(
           admin,
