@@ -985,7 +985,6 @@ function FundCard({
 }
 
 function DepositProtection({
-  startedAt,
   protectedAt,
   scheme,
   cert,
