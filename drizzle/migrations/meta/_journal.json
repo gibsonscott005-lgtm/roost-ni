@@ -197,6 +197,13 @@
       "when": 1793617046169,
       "tag": "0027_listing_alert_delivery",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794005330643,
+      "tag": "0028_deposit_received_dates",
+      "breakpoints": true
     }
   ]
 }
