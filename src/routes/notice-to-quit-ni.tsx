@@ -7,9 +7,9 @@ import { posthog } from "@/integrations/posthog/client";
 import { getEventContext } from "@/lib/utm-session";
 
 const PAGE_URL = "https://roostni.co.uk/notice-to-quit-ni";
-const TITLE = "Notice to Quit in Northern Ireland: Periods & Calculator — RoostNI";
+const TITLE = "Notice to Quit NI: 4, 8 or 12 Weeks — Periods & Calculator | RoostNI";
 const DESC =
-  "How much notice a landlord must give in Northern Ireland: 4, 8 or 12 weeks depending on tenancy length. Free notice period calculator, plus why England's Section 21 doesn't apply here.";
+  "How much notice a landlord or tenant must give to end a tenancy in Northern Ireland — 4, 8 or 12 weeks depending on how long the tenancy has lasted. Work out your dates with the notice period calculator, and see why England's Section 21 doesn't apply in NI.";
 
 const FAQ = [
   {
