@@ -117,6 +117,7 @@ function ListPropertyPage() {
       void notifyPublished({ data: { listingId: id } }).catch(() => {});
       localStorage.removeItem(DRAFT_KEY);
       posthog.capture("list_property_published", { listing_id: id });
+      posthog.capture("property_added", { listing_id: id, tenanted: false, listed: true, tenancy_record: false, source: "list_property" });
       toast.success("Your property is live", { description: "Add photos and safety certificates next." });
       navigate({ to: "/dashboard/listing-edit", search: { id } });
     } catch (err) {

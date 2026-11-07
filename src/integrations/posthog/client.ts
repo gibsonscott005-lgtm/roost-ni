@@ -45,6 +45,19 @@ export function tagAsInternalUser() {
   posthog.register({ $internal_or_test_user: true });
 }
 
+/** Link this visitor to their account using the account ID only (no email or name). */
+export function identifyUser(userId: string) {
+  if (typeof window === "undefined" || !POSTHOG_API_KEY) return;
+  if (posthog.get_distinct_id?.() === userId) return;
+  posthog.identify(userId);
+}
+
+/** Unlink the visitor on sign-out so the next person on this device starts fresh. */
+export function resetIdentity() {
+  if (typeof window === "undefined" || !POSTHOG_API_KEY) return;
+  posthog.reset();
+}
+
 /** True when this device has been opted out of analytics capture. */
 export function isAnalyticsOptedOut() {
   if (typeof window === "undefined" || !POSTHOG_API_KEY) return false;
