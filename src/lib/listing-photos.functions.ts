@@ -3,6 +3,12 @@ import { z } from "zod";
 
 const LISTING_PHOTOS_BUCKET = "listing-photos";
 
+/** A photo path is only signable when it lives in the listing owner's own folder. */
+function ownedBy(path: string, landlordId: string): boolean {
+  if (/^https?:\/\//i.test(path) || path.includes("..")) return false;
+  return path.startsWith(`${landlordId}/`);
+}
+
 const inputSchema = z.object({
   paths: z.array(z.string().min(1).max(300)).max(24),
 });
@@ -24,13 +30,15 @@ export const getListingPhotoUrls = createServerFn({ method: "POST" })
 
     const { data: listings } = await supabaseAdmin
       .from("property_listings")
-      .select("photo_urls")
+      .select("landlord_id, photo_urls")
       .eq("is_published", true)
       .overlaps("photo_urls", data.paths);
 
     const allowed = new Set<string>();
     for (const row of listings ?? []) {
-      for (const p of (row.photo_urls as string[] | null) ?? []) allowed.add(p);
+      for (const p of (row.photo_urls as string[] | null) ?? []) {
+        if (ownedBy(p, row.landlord_id as string)) allowed.add(p);
+      }
     }
 
     const requested = data.paths.filter((p) => allowed.has(p));
@@ -68,14 +76,14 @@ export const getListingCoverUrls = createServerFn({ method: "POST" })
 
     const { data: listings } = await supabaseAdmin
       .from("property_listings")
-      .select("id, photo_urls")
+      .select("id, landlord_id, photo_urls")
       .in("id", data.listingIds)
       .eq("is_published", true);
 
     const firstPathById = new Map<string, string>();
     for (const row of listings ?? []) {
       const first = ((row.photo_urls as string[] | null) ?? []).find(
-        (p) => typeof p === "string" && p.length > 0 && !/^https?:\/\//i.test(p),
+        (p) => typeof p === "string" && p.length > 0 && ownedBy(p, row.landlord_id as string),
       );
       if (first) firstPathById.set(row.id as string, first);
     }
