@@ -1,3 +1,4 @@
+import { posthog } from "@/integrations/posthog/client";
 import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
