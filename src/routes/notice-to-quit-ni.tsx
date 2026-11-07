@@ -40,7 +40,7 @@ export const Route = createFileRoute("/notice-to-quit-ni")({
     meta: [
       { title: TITLE },
       { name: "description", content: DESC },
-      { property: "og:title", content: "Notice to quit in Northern Ireland — periods and free calculator" },
+      { property: "og:title", content: TITLE },
       { property: "og:description", content: DESC },
       { property: "og:type", content: "article" },
       { property: "og:image", content: "https://roostni.co.uk/og/notice-to-quit-ni.jpg" },
