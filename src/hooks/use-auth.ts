@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { tagAsInternalUser } from "@/integrations/posthog/client";
+import { tagAsInternalUser, identifyUser, resetIdentity } from "@/integrations/posthog/client";
 import { isInternalEmail } from "@/lib/internal-accounts";
 
 export type AccountType = "tenant" | "landlord" | "admin";
@@ -33,6 +33,8 @@ export function useAuth() {
       currentUserId = nextUserId;
       setSession(s);
       setUser(s?.user ?? null);
+      if (s?.user) identifyUser(s.user.id);
+      else if (event === "SIGNED_OUT") resetIdentity();
       if (!s?.user) {
         setProfile(null);
       } else {
@@ -56,6 +58,7 @@ export function useAuth() {
       setSession(data.session);
       setUser(data.session?.user ?? null);
       if (data.session?.user) {
+        identifyUser(data.session.user.id);
         supabase
           .from("profiles")
           .select("id, full_name, phone, account_type, hear_about_us")

@@ -1,4 +1,5 @@
-import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
+import { APPROVED_LINE, BILLING_NOTE, SHORT_LINES } from "@/lib/plans-copy";
+import { STANDARD_PLAN, FOUNDING_PLAN, FOUNDING_LANDLORD_LIMIT, formatGBP } from "@/lib/pricing";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { posthog } from "@/integrations/posthog/client";
@@ -174,6 +175,73 @@ function HomePage() {
             <ToolLink to="/notice-to-quit-ni" title="What is a notice to quit in Northern Ireland?" />
             <ToolLink to="/tenancy-information-notice-ni" title="What is a tenancy information notice?" />
             <ToolLink to="/rent-receipts-ni" title="Do I have to give a rent receipt for cash?" />
+          </div>
+        </section>
+
+        <section className="border-t-2 border-foreground py-16">
+          <p className="font-mono text-sm font-bold uppercase tracking-wider text-verified">// How it works for landlords</p>
+          <ol className="mt-6 grid gap-3">
+            {[
+              "Add your home — vacant or already tenanted.",
+              "Advertise it direct, or run your existing tenancy from RoostNI.",
+              "Tenants apply with one Tenant Passport. You check the evidence yourself.",
+              "Issue the lease and track your NI deadlines in one place.",
+            ].map((step, i) => (
+              <li key={step} className="flex gap-4 border-2 border-foreground p-4">
+                <span className="font-display text-2xl font-extrabold text-verified">{i + 1}</span>
+                <span className="self-center font-semibold">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="py-16">
+          <p className="font-mono text-sm font-bold uppercase tracking-wider text-verified">// What it costs</p>
+          <div className="mt-6 overflow-x-auto">
+            <table className="w-full border-2 border-foreground text-left">
+              <thead className="bg-foreground text-background font-mono text-xs uppercase">
+                <tr>
+                  <th className="p-3"></th>
+                  <th className="p-3">{STANDARD_PLAN.name}</th>
+                  <th className="p-3">{FOUNDING_PLAN.name}</th>
+                </tr>
+              </thead>
+              <tbody className="font-semibold">
+                {[
+                  ["First home, per month", STANDARD_PLAN.firstHomePence, FOUNDING_PLAN.firstHomePence],
+                  ["Each extra home", STANDARD_PLAN.extraHomePence, FOUNDING_PLAN.extraHomePence],
+                  ["Never more than, per month", STANDARD_PLAN.capPence, FOUNDING_PLAN.capPence],
+                ].map(([label, s, f]) => (
+                  <tr key={label as string} className="border-t border-border">
+                    <td className="p-3">{label}</td>
+                    <td className="p-3">{formatGBP(s as number)}</td>
+                    <td className="p-3 text-verified">{formatGBP(f as number)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-4 text-sm font-semibold">
+            Founding landlords are the first {FOUNDING_LANDLORD_LIMIT} landlords to add a home: {FOUNDING_PLAN.introMonths} month free from that day, then the founding price, locked for {FOUNDING_PLAN.lockMonths} months.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">{SHORT_LINES.noCommissionSentence} {BILLING_NOTE}</p>
+        </section>
+
+        <section className="border-t-2 border-foreground py-16">
+          <p className="font-mono text-sm font-bold uppercase tracking-wider text-verified">// Landlord questions</p>
+          <div className="mt-6 grid gap-3">
+            {[
+              ["What must a landlord give a tenant in Northern Ireland?", "A Tenancy Information Notice, free of charge, within 28 days of the tenancy being granted."],
+              ["How do tenancy deposits work in Northern Ireland?", "Protect the deposit in an approved scheme, TDS Northern Ireland or MyDeposits Northern Ireland, within 28 days of receiving it. Give the tenant the prescribed information within 35 days of receiving it."],
+              ["Do landlords have to give a receipt for cash rent?", "Yes. Every cash payment needs a receipt showing the amount, the date, what it was for and any balance outstanding."],
+              ["What does RoostNI cost?", `${STANDARD_PLAN.name}: ${formatGBP(STANDARD_PLAN.firstHomePence)} a month for the first home, ${formatGBP(STANDARD_PLAN.extraHomePence)} for each extra, never more than ${formatGBP(STANDARD_PLAN.capPence)}. ${APPROVED_LINE} ${BILLING_NOTE}`],
+              ["Does RoostNI vet or credit-check tenants?", "No. RoostNI organises the evidence an applicant gives, so you can check it directly. Tenants never pay anything."],
+            ].map(([q, a]) => (
+              <details key={q} className="border-2 border-foreground p-4">
+                <summary className="cursor-pointer font-bold">{q}</summary>
+                <p className="mt-3 leading-relaxed">{a}</p>
+              </details>
+            ))}
           </div>
         </section>
       </main>

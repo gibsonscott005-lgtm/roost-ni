@@ -1,3 +1,4 @@
+import { posthog } from "@/integrations/posthog/client";
 import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -1639,12 +1640,21 @@ function AddPropertyForm({
         .select("id")
         .single();
       if (error) throw error;
+      let tenancyRecordCreated = false;
       if (isTenanted && created) {
         const { error: tenancyErr } = await supabase.rpc("create_existing_tenancy", {
           p_listing: (created as { id: string }).id,
         });
         if (tenancyErr) console.error("[existing-tenancy]", tenancyErr);
+        tenancyRecordCreated = !tenancyErr;
       }
+      posthog.capture("property_added", {
+        listing_id: (created as { id: string } | null)?.id,
+        tenanted: isTenanted,
+        listed: !isTenanted && mode === "publish",
+        tenancy_record: tenancyRecordCreated,
+        source: "dashboard",
+      });
       trackLandlordStep("listing_saved_draft");
       if (!isTenanted && mode === "publish" && created) {
         const newId = (created as { id: string }).id;

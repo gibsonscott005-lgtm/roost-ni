@@ -255,6 +255,8 @@ function AuthPage() {
     if (error) {
       sessionStorage.removeItem(WELCOME_KEY);
       setCodeError("That code didn't work. It may be mistyped or out of date — tap Resend email for a new one.");
+    } else {
+      posthog.capture("sign_up_completed", { account_type: role, ...getEventContext() });
     }
     // On success onAuthStateChange signs them in and routes to the dashboard.
   };
