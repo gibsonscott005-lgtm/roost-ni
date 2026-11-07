@@ -7,9 +7,9 @@ import { posthog } from "@/integrations/posthog/client";
 import { getEventContext } from "@/lib/utm-session";
 
 const PAGE_URL = "https://roostni.co.uk/notice-to-quit-ni";
-const TITLE = "Notice to Quit NI: 4, 8 or 12 Weeks — Periods & Calculator | RoostNI";
+const TITLE = "Notice to Quit Northern Ireland: Periods & Calculator | RoostNI";
 const DESC =
-  "How much notice a landlord or tenant must give to end a tenancy in Northern Ireland — 4, 8 or 12 weeks depending on how long the tenancy has lasted. Work out your dates with the notice period calculator, and see why England's Section 21 doesn't apply in NI.";
+  "Check Northern Ireland notice-to-quit periods: 4, 8 or 12 weeks for landlords; 4 or 12 for tenants. Use the calculator to work out your notice dates.";
 
 const FAQ = [
   {
@@ -65,7 +65,7 @@ export const Route = createFileRoute("/notice-to-quit-ni")({
           url: PAGE_URL,
           mainEntityOfPage: { "@type": "WebPage", "@id": PAGE_URL },
           datePublished: "2026-10-10",
-          dateModified: "2026-10-10",
+          dateModified: "2026-11-07",
         }),
       },
       {
@@ -121,7 +121,7 @@ function Calculator() {
         <span className="grid h-10 w-10 place-items-center rounded-none bg-surface-muted">
           <CalendarClock className="h-5 w-5 text-foreground" />
         </span>
-        <h2 className="font-display text-2xl font-extrabold tracking-tight">Notice period calculator</h2>
+        <h2 className="font-display text-2xl font-extrabold tracking-tight">Northern Ireland notice period calculator</h2>
       </div>
       <div className="mt-5 grid gap-4 sm:grid-cols-3">
         <label className="text-sm font-medium">
@@ -191,12 +191,13 @@ function NoticeToQuitGuide() {
           // Guide · Northern Ireland
         </span>
         <h1 className="mt-6 font-display text-4xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl">
-          Notice to quit in Northern Ireland: how much notice, and how to give it
+          Notice to quit in Northern Ireland: notice periods and calculator
         </h1>
         <p className="brutal-bubble brutal-bubble-paper mt-6 bg-paper px-4 py-3 text-base font-medium text-paper-foreground">
-          Most notice-to-quit advice online is written for England. Northern Ireland has its own rules, and
-          the current notice periods have applied since 5 May 2022. Here's what applies here, with a calculator to
-          work out the dates.
+          How much notice must a landlord or tenant give in Northern Ireland? Landlord notice periods are
+          4, 8 or 12 weeks; tenant notice periods are 4 or 12 weeks, depending on the tenancy length.
+          Compare the periods below, then use the calculator to work out your dates. These are the current
+          periods in force since 5 May 2022, not the longer landlord periods proposed for the future.
         </p>
 
         <section className="mt-10 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
@@ -204,7 +205,7 @@ function NoticeToQuitGuide() {
             <span className="grid h-10 w-10 place-items-center rounded-none bg-surface-muted">
               <Scale className="h-5 w-5 text-foreground" />
             </span>
-            <h2 className="font-display text-2xl font-extrabold tracking-tight">Landlord notice periods</h2>
+            <h2 className="font-display text-2xl font-extrabold tracking-tight">How much notice must landlords and tenants give?</h2>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             {[
@@ -249,7 +250,7 @@ function NoticeToQuitGuide() {
         </section>
 
         <section className="mt-6 border-2 border-border bg-surface p-6 shadow-raised sm:p-8">
-          <h2 className="font-display text-2xl font-extrabold tracking-tight">Questions landlords ask</h2>
+          <h2 className="font-display text-2xl font-extrabold tracking-tight">Notice-to-quit questions for landlords and tenants</h2>
           <div className="mt-4 space-y-4">
             {FAQ.map((f) => (
               <div key={f.q}>
