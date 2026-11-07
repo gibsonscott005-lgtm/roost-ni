@@ -55,7 +55,33 @@ function BlogIndex() {
           </p>
         </section>
         {articles.length === 0 ? (
-          <p className="py-12 text-muted-foreground">No posts yet. The first one is on its way.</p>
+          <section className="py-12">
+            <h2 className="text-2xl font-extrabold">No posts yet — start with the guides.</h2>
+            <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
+              The first post is on its way. Until then, these plain-English guides cover the questions Northern Ireland landlords and tenants ask most:
+            </p>
+            <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+              <li className="border-2 border-foreground p-4">
+                <Link to="/landlord-registration-ni" className="font-bold hover:text-verified">Landlord registration in NI</Link>
+                <p className="mt-1 text-sm text-muted-foreground">How to register as a landlord in Northern Ireland, step by step.</p>
+              </li>
+              <li className="border-2 border-foreground p-4">
+                <Link to="/tenancy-information-notice-ni" className="font-bold hover:text-verified">Tenancy Information Notice</Link>
+                <p className="mt-1 text-sm text-muted-foreground">The notice a landlord must give a tenant within 28 days of the tenancy starting.</p>
+              </li>
+              <li className="border-2 border-foreground p-4">
+                <Link to="/notice-to-quit-ni" className="font-bold hover:text-verified">Notice to Quit in NI</Link>
+                <p className="mt-1 text-sm text-muted-foreground">The minimum notice periods for ending a tenancy in Northern Ireland.</p>
+              </li>
+              <li className="border-2 border-foreground p-4">
+                <Link to="/rent-receipts-ni" className="font-bold hover:text-verified">Rent receipts in NI</Link>
+                <p className="mt-1 text-sm text-muted-foreground">What a receipt for a cash rent payment must show.</p>
+              </li>
+            </ul>
+            <p className="mt-6 text-muted-foreground">
+              Not sure where your tenancy stands? Try the <Link to="/audit" className="font-bold underline hover:text-verified">compliance health check</Link> — five questions, no account needed.
+            </p>
+          </section>
         ) : (
           <ul className="divide-y divide-border">
             {articles.map((a) => (
