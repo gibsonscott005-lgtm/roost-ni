@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Refine /notice-to-quit-ni search snippet and visible guide wording; rendered metadata, calculator and conversion links verified, notice rules unchanged. Goes live on next publish.
+
 - [x] Remove the homepage deposit-cap claims; metadata and canonical unchanged, preview verified, legislation reviewed without changing legal facts or tool rules. Goes live on next publish.
 - [ ] Resolve Google's homepage canonical mismatch — blocked by Google still selecting www and hosting's temporary primary-domain redirect.
 
