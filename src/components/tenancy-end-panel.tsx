@@ -18,14 +18,12 @@ import { emitNotification } from "@/lib/notifications.functions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { noticeToQuitHtml, depositSettlementHtml, openPrintable } from "@/lib/tenancy-docs";
 import {
-  DEPOSIT_RETURN_DAYS,
   END_STAGES,
   FINAL_CONDITIONS,
   NI_LEGAL_DISCLAIMER,
   daysUntil,
   deriveEndStage,
   deductionsTotal,
-  depositDeadline,
   earliestEndDate,
   formatDate,
   noticeRule,
@@ -372,7 +370,6 @@ function StageTracker({
   endDate: string | null;
 }) {
   const yourMove = stage.actor === role;
-  const days = daysUntil(endDate);
   return (
     <div className={card}>
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -430,26 +427,6 @@ function StageTracker({
             })}
           </ol>
 
-          {stage.depositDeadline && stage.key !== "completed" ? (
-            <p
-              className={`mt-3 rounded-xl p-3 text-xs ${
-                (stage.depositDaysLeft ?? 99) < 0
-                  ? "bg-red-50 text-red-800"
-                  : (stage.depositDaysLeft ?? 99) <= 7
-                    ? "bg-amber-50 text-amber-900"
-                    : "bg-surface-muted text-muted-foreground"
-              }`}
-            >
-              <CalendarClock className="mr-1 inline h-3.5 w-3.5" />
-              Deposit must be settled by {formatDate(stage.depositDeadline)}
-              {stage.depositDaysLeft !== null
-                ? stage.depositDaysLeft >= 0
-                  ? ` — ${stage.depositDaysLeft} days left`
-                  : ` — ${Math.abs(stage.depositDaysLeft)} days overdue`
-                : ""}
-              {days !== null && days > 0 ? ` · tenancy ends in ${days} days` : ""}
-            </p>
-          ) : null}
         </>
       ) : null}
     </div>
@@ -721,9 +698,9 @@ function NoticeSection(
 
         <p className="mt-4 rounded-xl bg-surface-muted p-3 text-xs text-muted-foreground">
           A Notice to Quit must be in writing. Print the notice above and deliver it to the other
-          party — RoostNI keeps the dated record. Deposits must be settled within{" "}
-          {DEPOSIT_RETURN_DAYS} days of the end date (by{" "}
-          {formatDate(depositDeadline(activeNotice.end_date))}).
+          party — RoostNI keeps the dated record. When a tenancy ends, the
+          deposit is repaid through your deposit scheme. Apply to the scheme and say how much you
+          want to keep and why. Your scheme's rules set the timings.
         </p>
       </div>
     );
@@ -1218,8 +1195,6 @@ function SettlementSection({
 
   const total = deductionsTotal(lines);
   const proposedReturn = Math.max(0, Number(depositAmount || 0) - total);
-  const deadline = depositDeadline(endDate);
-  const daysLeft = daysUntil(deadline);
 
   const propose = useMutation({
     mutationFn: async () => {
@@ -1347,11 +1322,7 @@ function SettlementSection({
           <p className={label}>Deposit settlement</p>
           <h3 className="mt-1 text-lg font-semibold">{money(depositAmount)} held</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Must be settled by {formatDate(deadline)}
-            {daysLeft !== null
-              ? ` · ${daysLeft >= 0 ? `${daysLeft} days left` : `${Math.abs(daysLeft)} days overdue`}`
-              : ""}
-            {depositScheme ? ` · Scheme: ${depositScheme}` : ""}
+            {depositScheme ? `Scheme: ${depositScheme}` : ""}
           </p>
         </div>
         {settlement?.returned_at ? (
@@ -1504,8 +1475,8 @@ function SettlementSection({
         <div className="mt-4 space-y-3">
           {!settlement?.proposed_at ? (
             <p className="text-sm text-muted-foreground">
-              Your landlord has not proposed a deposit settlement yet. They have until{" "}
-              {formatDate(deadline)}.
+              Your landlord has not proposed a deposit settlement yet. The deposit is repaid through
+              your deposit scheme, and the scheme's rules set the timings.
             </p>
           ) : (
             <>

@@ -13,12 +13,14 @@ function daysBetween(fromIso: string, today: Date): number {
 }
 
 /**
- * New RoostNI tenancies only (never existing agreements). Counts from the tenancy start date.
+ * New RoostNI tenancies only (never existing agreements). Counts from the date the agreement was signed
+ * (the closest recorded grant date), falling back to the tenancy start date.
  * Sends with 21, 14, 7, 3, 1 and 0 days left, then weekly once the 28 days have passed, until marked given.
  */
-export function tinReminderKind(args: { startDate: string | null; tinGivenAt: string | null; leaseKind: string | null; today: Date }): string | null {
-  if (args.leaseKind === "existing_agreement" || args.tinGivenAt || !args.startDate) return null;
-  const since = daysBetween(args.startDate, args.today);
+export function tinReminderKind(args: { signedAt?: string | null; startDate: string | null; tinGivenAt: string | null; leaseKind: string | null; today: Date }): string | null {
+  const from = args.signedAt || args.startDate;
+  if (args.leaseKind === "existing_agreement" || args.tinGivenAt || !from) return null;
+  const since = daysBetween(from, args.today);
   if (since < 0) return null;
   const left = TIN_DAYS - since;
   if (TIN_COUNTDOWN.includes(left)) return `tin_due:${left}`;

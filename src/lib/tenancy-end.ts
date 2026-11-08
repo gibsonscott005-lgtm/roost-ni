@@ -12,6 +12,7 @@ export type NoticeParty = "landlord" | "tenant";
 export const NI_LEGAL_DISCLAIMER =
   "RoostNI prepares this notice from the tenancy details you have entered. It is not legal advice. Only a court can order possession of a property in Northern Ireland.";
 
+/** Not a legal deadline, not displayed. Kept for internal date maths only; scheme rules set repayment timings. */
 export const DEPOSIT_RETURN_DAYS = 28;
 
 /** Whole months between two dates. */
