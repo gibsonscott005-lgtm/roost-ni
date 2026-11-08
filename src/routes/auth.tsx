@@ -374,7 +374,6 @@ function AuthPage() {
         setResetSent(true);
       } else if (mode === "signup") {
         const signupData: Record<string, string> = {
-          full_name: fullName,
           account_type: role,
         };
         if (hearAboutUs.trim()) signupData.hear_about_us = hearAboutUs.trim();
@@ -623,59 +622,6 @@ function AuthPage() {
             </div>
           ) : (
           <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
-            {mode === "signup" ? (
-              <label className="block">
-                <span className="text-sm font-medium text-foreground">Full name</span>
-                <div className="relative mt-1.5">
-                  <UserRound className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    type="text"
-                    autoComplete="name"
-                    placeholder="James Stewart"
-                    className={`${inputCx} pl-9`}
-                  />
-                </div>
-              </label>
-            ) : null}
-
-            {mode === "signup" ? (
-              <fieldset className="block">
-                <legend className="text-sm font-medium text-foreground">
-                  How did you hear about us?{" "}
-                  <span className="font-normal text-muted-foreground">(optional — one tap)</span>
-                </legend>
-                <div className="mt-1.5 flex flex-wrap gap-2">
-                  {[
-                    { label: "Facebook", value: "Facebook or community group" },
-                    { label: "Google / search", value: "Search engine" },
-                    { label: "Friend or colleague", value: "Friend or colleague" },
-                    { label: "Landlord group (LANI)", value: "Landlord association (LANI)" },
-                    { label: "Other", value: "Other" },
-                  ].map((option) => {
-                    const selected = hearAboutUs === option.value;
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        aria-pressed={selected}
-                        onClick={() => setHearAboutUs(selected ? "" : option.value)}
-                        className={`rounded-full border px-3.5 py-2 text-xs font-medium transition ${
-                          selected
-                            ? "border-verified/50 bg-verified-soft/70 text-foreground shadow-resting"
-                            : "border-border bg-surface text-muted-foreground hover:border-verified/30 hover:text-foreground"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </fieldset>
-            ) : null}
-
             <label className="block">
               <span className="text-sm font-medium text-foreground">Email address</span>
               <div className="relative mt-1.5">
