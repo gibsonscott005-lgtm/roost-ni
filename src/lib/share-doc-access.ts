@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { canOpenPassportDocuments } from "./passport-access";
 /**
  * Statuses that still entitle a landlord to view an applicant's documents.
  * Explicit allow-list (not a `!== "withdrawn"` deny-list) so any future
@@ -51,13 +52,17 @@ export async function authoriseShareDocAccess(
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: authoritative, error: adminErr } = await supabaseAdmin
     .from("passport_shares")
-    .select("status, tenant_id, listing:property_listings!listing_id(landlord_id)")
+    .select("status, tenant_id, formal_application_at, listing:property_listings!listing_id(landlord_id)")
     .eq("id", shareId)
     .maybeSingle();
 
   if (adminErr) throw new Error(adminErr.message);
   if (!authoritative || !isAllowedStatus(authoritative.status)) {
     throw new Error("Application not found or access revoked");
+  }
+  // Partial passport view: document files unlock only on a formal application.
+  if (!canOpenPassportDocuments(authoritative as { tenant_id: string | null; status: string; formal_application_at: string | null })) {
+    throw new Error("Documents unlock when the applicant submits a formal application.");
   }
   const adminListing = Array.isArray(authoritative.listing)
     ? authoritative.listing[0]
