@@ -694,6 +694,7 @@ export type Database = {
       }
       passport_shares: {
         Row: {
+          additional_tenants: Json
           declined_at: string | null
           declined_reason: string | null
           deposit_cert_number: string | null
@@ -723,6 +724,7 @@ export type Database = {
           listing_id: string
           oil_handover_level: string | null
           prescribed_info_given_at: string | null
+          rent_frequency: string | null
           rent_payment_method: string | null
           rent_status: string
           shared_at: string
@@ -731,12 +733,15 @@ export type Database = {
           tenancy_start_date: string | null
           tenancy_status: string
           tenant_id: string | null
+          tenant_phone: string | null
+          tin_given_at: string | null
           tin_on_file_reported_at: string | null
           withdraw_count: number
           withdrawn_at: string | null
           withdrawn_reason: string | null
         }
         Insert: {
+          additional_tenants?: Json
           declined_at?: string | null
           declined_reason?: string | null
           deposit_cert_number?: string | null
@@ -766,6 +771,7 @@ export type Database = {
           listing_id: string
           oil_handover_level?: string | null
           prescribed_info_given_at?: string | null
+          rent_frequency?: string | null
           rent_payment_method?: string | null
           rent_status?: string
           shared_at?: string
@@ -774,12 +780,15 @@ export type Database = {
           tenancy_start_date?: string | null
           tenancy_status?: string
           tenant_id?: string | null
+          tenant_phone?: string | null
+          tin_given_at?: string | null
           tin_on_file_reported_at?: string | null
           withdraw_count?: number
           withdrawn_at?: string | null
           withdrawn_reason?: string | null
         }
         Update: {
+          additional_tenants?: Json
           declined_at?: string | null
           declined_reason?: string | null
           deposit_cert_number?: string | null
@@ -809,6 +818,7 @@ export type Database = {
           listing_id?: string
           oil_handover_level?: string | null
           prescribed_info_given_at?: string | null
+          rent_frequency?: string | null
           rent_payment_method?: string | null
           rent_status?: string
           shared_at?: string
@@ -817,6 +827,8 @@ export type Database = {
           tenancy_start_date?: string | null
           tenancy_status?: string
           tenant_id?: string | null
+          tenant_phone?: string | null
+          tin_given_at?: string | null
           tin_on_file_reported_at?: string | null
           withdraw_count?: number
           withdrawn_at?: string | null
@@ -1659,6 +1671,7 @@ export type Database = {
         | "application_withdrawn"
         | "application_reapplied"
         | "application_info_requested"
+        | "tenancy_records_reminder"
       share_status:
         | "pending"
         | "reviewed"
@@ -1835,6 +1848,7 @@ export const Constants = {
         "application_withdrawn",
         "application_reapplied",
         "application_info_requested",
+        "tenancy_records_reminder",
       ],
       share_status: [
         "pending",

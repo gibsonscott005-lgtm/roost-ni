@@ -101,7 +101,7 @@ const GROUPS: { title: string; blurb: string; types: NotificationType[] }[] = [
   {
     title: "Safety certificates",
     blurb: "Expiry warnings for gas, electrical and energy certificates",
-    types: ["certificate_expiring", "certificate_expired"],
+    types: ["certificate_expiring", "certificate_expired", "tenancy_records_reminder"],
   },
 ];
 
@@ -119,6 +119,7 @@ const EMAIL_TYPES: NotificationType[] = [
   "rent_overdue",
   "deposit_deadline_approaching",
   "certificate_expired",
+  "tenancy_records_reminder",
 ];
 
 const LABELS: Record<NotificationType, string> = {
@@ -153,6 +154,7 @@ const LABELS: Record<NotificationType, string> = {
   maintenance_resolved: "Maintenance resolved",
   certificate_expiring: "Safety certificate expiring",
   certificate_expired: "Safety certificate expired",
+  tenancy_records_reminder: "Tenancy records still to add",
 };
 
 function Toggle({ on }: { on: boolean }) {

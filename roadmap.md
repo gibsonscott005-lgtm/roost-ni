@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Tenanted-home records checklist, 10-day RoostNI target reminders (days 3, 7, 10, then weekly), founding count excludes test homes, "add a property" wording. Tenant invite (D) not built by request.
+
 - [x] Refine /notice-to-quit-ni search snippet and visible guide wording; rendered metadata, calculator and conversion links verified, notice rules unchanged. Goes live on next publish.
 
 - [x] Remove the homepage deposit-cap claims; metadata and canonical unchanged, preview verified, legislation reviewed without changing legal facts or tool rules. Goes live on next publish.

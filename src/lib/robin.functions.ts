@@ -28,7 +28,7 @@ export const saveRobinGroups = createServerFn({ method: "POST" }).middleware([re
 });
 /** Landlords (excluding owner test accounts) who have added a home — tenanted or vacant, advertised or not. */
 export async function countFoundingLandlords(supabaseAdmin: any): Promise<number> {
-  const { data, error } = await supabaseAdmin.from("property_listings").select("landlord_id, address").limit(5000);
+  const { data, error } = await supabaseAdmin.from("property_listings").select("landlord_id, address").eq("is_test", false).limit(5000);
   if (error) throw new Error(error.message);
   const { landlordsWithAHome } = await import("./home-count");
   const ids = landlordsWithAHome((data ?? []) as { landlord_id: string; address: string | null }[]);

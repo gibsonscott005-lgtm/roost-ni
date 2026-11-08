@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { depositDeadlines } from "@/lib/deposit-deadlines";
+import { TenancyRecordsPanel } from "@/components/tenancy-records-panel";
 import { z } from "zod";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -603,6 +604,7 @@ function ManageTenancyPage() {
           existingTenancy={isExisting}
           tinOnFileReportedAt={share.tin_on_file_reported_at}
         />
+        {isExisting ? <TenancyRecordsPanel shareId={share.id} /> : null}
         <Tabs defaultValue={searchTab || "overview"} className="w-full">
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-sm bg-surface-muted p-1">
             <TabsTrigger value="overview" className="rounded-xl px-3 py-2 text-xs sm:text-sm">

@@ -34,6 +34,7 @@ export const NOTIFICATION_TYPES = [
   "deposit_settlement_proposed",
   "deposit_returned",
   "tenancy_completed",
+  "tenancy_records_reminder",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];

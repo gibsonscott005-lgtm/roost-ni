@@ -133,7 +133,7 @@ function ListPropertyPage() {
         <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to home
         </Link>
-        <span className="mt-5 inline-block -rotate-2 border-2 border-background bg-verified px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-verified-foreground shadow-raised">// List a property</span>
+        <span className="mt-5 inline-block -rotate-2 border-2 border-background bg-verified px-3 py-1 font-mono text-xs font-bold uppercase tracking-widest text-verified-foreground shadow-raised">// Add a property</span>
         <h1 className="mt-5 font-display text-3xl font-extrabold leading-[0.95] tracking-tight sm:text-5xl">
           Start your listing — no account needed yet
         </h1>
