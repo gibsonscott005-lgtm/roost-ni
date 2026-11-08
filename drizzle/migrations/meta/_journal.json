@@ -239,6 +239,13 @@
       "when": 1794175852043,
       "tag": "0033_notice_and_registration_reminder_types",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1794177606070,
+      "tag": "0034_tenancy_invites",
+      "breakpoints": true
     }
   ]
 }

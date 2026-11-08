@@ -1289,6 +1289,53 @@ export type Database = {
           },
         ]
       }
+      tenancy_invites: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          landlord_id: string
+          revoked_at: string | null
+          share_id: string
+          token_hash: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          landlord_id: string
+          revoked_at?: string | null
+          share_id: string
+          token_hash: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          landlord_id?: string
+          revoked_at?: string | null
+          share_id?: string
+          token_hash?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenancy_invites_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: false
+            referencedRelation: "passport_shares"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenancy_notices: {
         Row: {
           acknowledged_at: string | null
