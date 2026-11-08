@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { daysSinceAdded, isReminderDay, tenancyChecklist } from "./tenancy-completeness";
+import { daysSinceAdded, isReminderDay, tenancyChecklist } from "./src/lib/tenancy-completeness";
 
 const empty = {
   tenancy_start_date: null, monthly_rent: null, rent_frequency: null, deposit: null,
