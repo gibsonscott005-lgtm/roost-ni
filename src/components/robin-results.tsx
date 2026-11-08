@@ -7,7 +7,7 @@ import { readGroupSnapshot } from "@/lib/robin-groups";
 import { saveMarketingResults, type MarketingEngineData, type MarketingPost, type PostResult } from "@/lib/marketing.functions";
 
 const field = "w-full border border-border bg-surface px-2 py-1 text-xs text-foreground";
-const NUMBERS = [["reach", "Reach"], ["reactions", "Reactions"], ["comments", "Comments"], ["shares", "Shares"], ["linkClicks", "Link clicks"]] as const;
+const NUMBERS = [["reach", "Reach"], ["reactions", "Reactions"], ["comments", "Comments"], ["shares", "Shares"], ["linkClicks", "Link clicks"], ["followsGained", "Follows gained"]] as const;
 
 export function latestResult(results: PostResult[], postId: string): PostResult | undefined {
   return results.filter(r => r.post_id === postId).at(-1);
@@ -40,7 +40,7 @@ export function ResultsForm({ post, onSaved }: { post: MarketingPost; onSaved: (
     setBusy(true);
     try {
       const n = (k: string) => Math.max(0, Math.floor(Number(values[k] ?? 0) || 0));
-      await save({ data: { postId: post.id, groupName: groupName.trim() || "Unknown group", reach: n("reach"), reactions: n("reactions"), comments: n("comments"), shares: n("shares"), linkClicks: n("linkClicks") } });
+      await save({ data: { postId: post.id, groupName: groupName.trim() || "Unknown group", reach: n("reach"), reactions: n("reactions"), comments: n("comments"), shares: n("shares"), linkClicks: n("linkClicks"), followsGained: n("followsGained") } });
       try { localStorage.removeItem(draftKey); } catch { /* ignore */ }
       toast.success("Results saved");
       await onSaved();

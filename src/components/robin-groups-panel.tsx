@@ -47,7 +47,7 @@ export function RobinGroupsPanel({ brief, focus, posts, onDrafted }: { brief: st
       <Button variant="outline" onClick={()=>{const id=crypto.randomUUID();setGroups(rows=>[...rows,{id,name:"New group",places:"",audience:"Local renters and landlords",worked:"No confirmed results yet",linkPlacement:"first comment",postAs:"personal profile",weeklyCount:3,promotionAllowed:true}]);setSelected(ids=>[...ids,id]);}}><Plus/>Add group</Button>
       <Button variant="outline" disabled={!ready||busy} onClick={()=>void save().then(()=>toast.success("Group settings saved")).catch(e=>toast.error(e.message))}><Save/>Save groups</Button>
       <Button disabled={!ready||busy||!selected.length||focus==="reddit"} onClick={()=>void generate(false)}>{busy?<Loader2 className="animate-spin"/>:<Sparkles/>}Draft selected groups</Button>
-      <Button disabled={!ready||busy||!selected.length||focus==="reddit"} onClick={()=>void generate(true)}><Sparkles/>Draft week plan (5 posts)</Button>
+      <Button disabled={!ready||busy||!selected.length||focus==="reddit"} onClick={()=>void generate(true)}><Sparkles/>Draft week plan (14 posts, 2 a day)</Button>
     </div>
     <div className="flex flex-wrap gap-2 border-t border-border pt-3">
       <p className="w-full text-xs text-muted-foreground">Changed the brief? Re-draft marks every unposted Facebook post ({queued}) as skipped with the reason \"Replaced by re-draft\". Nothing is deleted. Reddit drafts are left alone.</p>

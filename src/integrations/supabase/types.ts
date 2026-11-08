@@ -464,6 +464,7 @@ export type Database = {
           comments: number
           created_at: string
           entered_by: string | null
+          follows_gained: number
           group_name: string
           id: string
           link_clicks: number
@@ -476,6 +477,7 @@ export type Database = {
           comments?: number
           created_at?: string
           entered_by?: string | null
+          follows_gained?: number
           group_name: string
           id?: string
           link_clicks?: number
@@ -488,6 +490,7 @@ export type Database = {
           comments?: number
           created_at?: string
           entered_by?: string | null
+          follows_gained?: number
           group_name?: string
           id?: string
           link_clicks?: number

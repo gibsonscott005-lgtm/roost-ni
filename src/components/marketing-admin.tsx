@@ -581,7 +581,7 @@ export function MarketingAdminPanel() {
                     </p>
                   </div>
                   {post.status === "posted" && post.platform === "facebook" ? (() => { const r = latestResult(data?.results ?? [], post.id); return r
-                    ? <p className="w-full text-[11px] text-foreground">{r.group_name} · reach {r.reach} · reactions {r.reactions} · comments {r.comments} · shares {r.shares} · link clicks {r.link_clicks} · visits {data?.campaignVisits.find(v => v.utm_campaign === post.utm_campaign)?.visits ?? 0}</p>
+                    ? <p className="w-full text-[11px] text-foreground">{r.group_name} · reach {r.reach} · reactions {r.reactions} · comments {r.comments} · shares {r.shares} · link clicks {r.link_clicks} · follows {r.follows_gained ?? 0} · visits {data?.campaignVisits.find(v => v.utm_campaign === post.utm_campaign)?.visits ?? 0}</p>
                     : <><span className="rounded-full bg-destructive px-2 py-0.5 text-[10px] font-semibold uppercase text-[var(--color-destructive-foreground)]">Results missing</span><ResultsForm post={post} onSaved={load} /></>; })() : null}
                   {post.status === "posted" && typeof score === "number" ? (
                     <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-[11px] font-semibold text-foreground">
