@@ -15,6 +15,8 @@ export async function generateRobinOutput<T extends z.ZodType>(key: string, inst
   });
   return schema.parse(await result.output);
 }
-export async function generateOrdinaryWeek(key: string, instructions: string, prompt: string) {
-  return generateRobinOutput(key, instructions, prompt, z.object({ posts: z.array(draftSchema) }));
+/** Text-only drafts: no image brief is requested or stored. */
+export const textDraftSchema = draftSchema.omit({ image_brief: true });
+export async function generateOrdinaryWeek(key: string, instructions: string, prompt: string, legal = false) {
+  return generateRobinOutput(key, instructions, prompt, z.object({ posts: z.array(textDraftSchema) }), legal);
 }

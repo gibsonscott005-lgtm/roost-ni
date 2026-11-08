@@ -11,6 +11,7 @@ import { DashboardShell } from "@/components/dashboard-shell";
 import { emitNotification, type EmitNotificationInput } from "@/lib/notifications.functions";
 import { signIdDocumentUrl, signIncomeDocumentUrl } from "@/lib/identity-docs.functions";
 import { getApplicantPassports } from "@/lib/passport-inbox.functions";
+import { signReferenceDocumentUrl } from "@/lib/passport-documents.functions";
 import { declineApplication, requestApplicantInfo, type INFO_REQUEST_ITEMS } from "@/lib/application-review.functions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -67,6 +68,7 @@ interface Share {
   lease_status: string | null;
   lease_signed_at: string | null;
   lease_signed_name: string | null;
+  formal_application_at: string | null;
   tenant: { id: string; full_name: string } | null;
   listing: { id: string; title: string; monthly_rent: number | null; deposit: number | null } | null;
 }
@@ -78,6 +80,7 @@ interface Passport {
   reference_verified: boolean;
   income_provided?: boolean;
   reference_provided?: boolean;
+  reference_document_on_file?: boolean;
   monthly_income_net: number | null;
   annual_income: number | null;
   employment_status: string | null;
@@ -124,7 +127,7 @@ function ApplicationsPage() {
       const { data: rows, error: rowsErr } = await supabase
         .from("passport_shares")
         .select(
-          "id, status, shared_at, withdrawn_at, withdrawn_reason, declined_at, info_requested_at, info_requested_items, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title, monthly_rent, deposit)",
+          "id, status, shared_at, withdrawn_at, withdrawn_reason, declined_at, info_requested_at, info_requested_items, tenant_id, listing_id, lease_status, lease_signed_at, lease_signed_name, formal_application_at, tenant:profiles!tenant_id(id, full_name), listing:property_listings!listing_id(id, title, monthly_rent, deposit)",
         )
         .order("shared_at", { ascending: false });
       if (rowsErr) throw rowsErr;
@@ -1082,10 +1085,18 @@ function PassportSheet({
                 </div>
               ) : null}
 
+              <div className="rounded-sm border-2 border-foreground p-3 text-xs">
+                {share.formal_application_at ? (
+                  <p><span className="font-semibold">Formal application.</span> Documents unlocked {formatDate(share.formal_application_at)}. Access ends if the application is withdrawn or declined.</p>
+                ) : (
+                  <p><span className="font-semibold">Summary view.</span> You see figures, statuses and which references exist. Document files unlock when the applicant submits a formal application.</p>
+                )}
+              </div>
+
               <Section title="Identity & contact">
                 <div className="flex flex-wrap items-center gap-2">
                   <IdBadge passport={passport} />
-                  {passport?.id_document_path && share.status !== "declined" ? (
+                  {passport?.id_document_path && share.formal_application_at && share.status !== "declined" ? (
                     <ViewIdDocButton shareId={share.id} />
                   ) : null}
                 </div>
@@ -1104,7 +1115,7 @@ function PassportSheet({
                 <IncomeSummaryRow
                   shareId={share.id}
                   employmentStatus={passport?.employment_status ?? null}
-                  hasIncomeDoc={!!passport?.income_document_path && share.status !== "declined"}
+                  hasIncomeDoc={!!passport?.income_document_path && !!share.formal_application_at && share.status !== "declined"}
                 />
                 <div className="mt-3">
                   <IncomeBreakdownBlock passport={passport} monthlyRent={share.listing?.monthly_rent ?? null} />
@@ -1124,6 +1135,9 @@ function PassportSheet({
                     ? "Reference evidence is attached. Take up the reference with the previous landlord yourself."
                     : "No reference evidence attached yet. You can request it below."}
                 </p>
+                {passport?.reference_document_on_file && share.formal_application_at && share.status !== "declined" ? (
+                  <div className="mt-2"><ViewReferenceDocButton shareId={share.id} /></div>
+                ) : null}
               </Section>
 
               <ChecksSplit idVerified={passport?.id_status === "verified"} />
@@ -1355,5 +1369,26 @@ function Row({ k, v }: { k: string; v: string }) {
       <dt className="text-xs uppercase tracking-wider text-muted-foreground">{k}</dt>
       <dd className="text-sm font-medium text-foreground">{v}</dd>
     </div>
+  );
+}
+function ViewReferenceDocButton({ shareId }: { shareId: string }) {
+  const [loading, setLoading] = useState(false);
+  const onOpen = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const { url } = await signReferenceDocumentUrl({ data: { share_id: shareId } });
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      toast.error("Couldn't open reference", { description: err instanceof Error ? err.message : "Please try again." });
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <button type="button" onClick={onOpen} disabled={loading} className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-medium text-foreground transition hover:bg-secondary disabled:opacity-60">
+      {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <ExternalLink className="h-3 w-3" />}
+      View reference document
+    </button>
   );
 }

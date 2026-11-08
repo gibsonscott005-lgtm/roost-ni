@@ -464,6 +464,7 @@ export type Database = {
           comments: number
           created_at: string
           entered_by: string | null
+          follows_gained: number
           group_name: string
           id: string
           link_clicks: number
@@ -476,6 +477,7 @@ export type Database = {
           comments?: number
           created_at?: string
           entered_by?: string | null
+          follows_gained?: number
           group_name: string
           id?: string
           link_clicks?: number
@@ -488,6 +490,7 @@ export type Database = {
           comments?: number
           created_at?: string
           entered_by?: string | null
+          follows_gained?: number
           group_name?: string
           id?: string
           link_clicks?: number
@@ -709,6 +712,7 @@ export type Database = {
           final_inspection_submitted_at: string | null
           final_meter_readings: string | null
           final_oil_level: string | null
+          formal_application_at: string | null
           id: string
           info_requested_at: string | null
           info_requested_items: string[]
@@ -756,6 +760,7 @@ export type Database = {
           final_inspection_submitted_at?: string | null
           final_meter_readings?: string | null
           final_oil_level?: string | null
+          formal_application_at?: string | null
           id?: string
           info_requested_at?: string | null
           info_requested_items?: string[]
@@ -803,6 +808,7 @@ export type Database = {
           final_inspection_submitted_at?: string | null
           final_meter_readings?: string | null
           final_oil_level?: string | null
+          formal_application_at?: string | null
           id?: string
           info_requested_at?: string | null
           info_requested_items?: string[]
@@ -1672,6 +1678,8 @@ export type Database = {
         | "application_reapplied"
         | "application_info_requested"
         | "tenancy_records_reminder"
+        | "tenancy_information_notice_reminder"
+        | "landlord_registration_reminder"
       share_status:
         | "pending"
         | "reviewed"
@@ -1849,6 +1857,8 @@ export const Constants = {
         "application_reapplied",
         "application_info_requested",
         "tenancy_records_reminder",
+        "tenancy_information_notice_reminder",
+        "landlord_registration_reminder",
       ],
       share_status: [
         "pending",

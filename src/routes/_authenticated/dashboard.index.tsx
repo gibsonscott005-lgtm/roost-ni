@@ -58,6 +58,8 @@ import {
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
   staticData: { sitemap: false },
+  validateSearch: (s: Record<string, unknown>): { add?: "tenanted" } =>
+    s.add === "tenanted" ? { add: "tenanted" } : {},
   head: () => ({
     meta: [
       { title: "Dashboard — RoostNI" },
@@ -105,7 +107,8 @@ const TENANT_PREFS = [
 
 function Dashboard() {
   const { user, profile, loading: authLoading } = useAuth();
-  const [tab, setTab] = useState<Tab>("properties");
+  const { add: addMode } = Route.useSearch();
+  const [tab, setTab] = useState<Tab>(addMode === "tenanted" ? "add" : "properties");
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [applicationsCount, setApplicationsCount] = useState<number | undefined>(undefined);
@@ -1549,7 +1552,8 @@ function AddPropertyForm({
   const [submitting, setSubmitting] = useState<false | "private" | "publish">(false);
   const [photos, setPhotos] = useState<File[]>([]);
   const [details, setDetails] = useState<ListingDetailInput>(emptyListingDetails);
-  const [occupancy, setOccupancy] = useState<"tenanted" | "vacant">("vacant");
+  const { add: addMode } = Route.useSearch();
+  const [occupancy, setOccupancy] = useState<"tenanted" | "vacant">(addMode === "tenanted" ? "tenanted" : "vacant");
   const [tenantName, setTenantName] = useState("");
   const [tenantEmail, setTenantEmail] = useState("");
   const [tenancyStart, setTenancyStart] = useState("");

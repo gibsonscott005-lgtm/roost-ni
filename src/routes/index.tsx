@@ -193,6 +193,15 @@ function HomePage() {
               </li>
             ))}
           </ol>
+          <Link
+            to="/auth"
+            search={{ role: "landlord", next: "/dashboard?add=tenanted" }}
+            onClick={() => posthog.capture("move_tenanted_home_clicked", { source: "homepage" })}
+            className="mt-6 inline-flex items-center gap-2 border-2 border-foreground bg-foreground px-5 py-3 font-bold text-background transition hover:bg-verified hover:border-verified"
+          >
+            Move a tenanted home to RoostNI <ArrowRight className="h-4 w-4" />
+          </Link>
+          <p className="mt-2 text-sm text-muted-foreground">Already have a tenant? Add the home, keep the tenancy, run it from here. Not advertised.</p>
         </section>
 
         <section className="py-16">

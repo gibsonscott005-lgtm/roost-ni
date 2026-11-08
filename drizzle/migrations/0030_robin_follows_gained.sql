@@ -1,0 +1,1 @@
+ALTER TABLE public.marketing_post_results ADD COLUMN IF NOT EXISTS follows_gained integer NOT NULL DEFAULT 0 CHECK (follows_gained >= 0);

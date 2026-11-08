@@ -51,7 +51,7 @@ export interface MarketingInsight {
   created_at: string;
 }
 
-export interface PostResult { id: string; post_id: string; group_name: string; reach: number; reactions: number; comments: number; shares: number; link_clicks: number; created_at: string }
+export interface PostResult { id: string; post_id: string; group_name: string; reach: number; reactions: number; comments: number; shares: number; link_clicks: number; follows_gained: number; created_at: string }
 export interface WeeklyReview { week_start: string; worked: string[]; stop: string[]; next_plan: string[]; missing_results: string[] }
 export interface MarketingEngineData {
   posts: MarketingPost[];
@@ -87,7 +87,7 @@ export const getMarketingEngine = createServerFn({ method: "POST" })
     const [postsRes, insightsRes, resultsRes, visitsRes, reviewRes, landlords] = await Promise.all([
       supabaseAdmin.from("marketing_posts").select("id, platform, persona, angle, topic, body, link_url, utm_campaign, scheduled_for, status, posted_at, skip_reason, notes, results, created_at").order("scheduled_for", { ascending: false }).limit(120),
       supabaseAdmin.from("marketing_insights").select("id, kind, insight, verdict, evidence, active, created_at").order("created_at", { ascending: false }),
-      supabaseAdmin.from("marketing_post_results").select("id, post_id, group_name, reach, reactions, comments, shares, link_clicks, created_at").order("created_at", { ascending: true }).limit(2000),
+      supabaseAdmin.from("marketing_post_results").select("id, post_id, group_name, reach, reactions, comments, shares, link_clicks, follows_gained, created_at").order("created_at", { ascending: true }).limit(2000),
       supabaseAdmin.from("marketing_visits").select("utm_campaign").limit(10000),
       supabaseAdmin.from("marketing_weekly_reviews").select("week_start, worked, stop, next_plan, missing_results").order("week_start", { ascending: false }).limit(1).maybeSingle(),
       countFoundingLandlords(supabaseAdmin),
@@ -116,13 +116,13 @@ async function ensureWeeklyReview(supabaseAdmin: any) {
   const { data: posts } = await supabaseAdmin.from("marketing_posts").select("id, angle, persona, link_url, notes, topic").eq("status", "posted").gte("posted_at", from).lt("posted_at", to);
   const list = (posts ?? []) as Array<{ id: string; angle: string; persona: string; link_url: string | null; notes: string | null; topic: string }>;
   const ids = list.map(p => p.id);
-  const { data: results } = ids.length ? await supabaseAdmin.from("marketing_post_results").select("post_id, reach, reactions, comments, shares, link_clicks").in("post_id", ids).order("created_at") : { data: [] };
+  const { data: results } = ids.length ? await supabaseAdmin.from("marketing_post_results").select("post_id, reach, reactions, comments, shares, link_clicks, follows_gained").in("post_id", ids).order("created_at") : { data: [] };
   const reviewPosts = list.map(p => { let n: any = {}; try { n = JSON.parse(p.notes ?? "{}") ?? {}; } catch { /* legacy */ }
-    return { id: p.id, angle: p.angle, persona: p.persona, group: n.group?.name ?? "no group", hasLink: Boolean(p.link_url), mode: n.content_mode ?? "legacy" }; });
+    return { id: p.id, angle: p.angle, persona: p.persona, group: n.group?.name ?? "no group", hasLink: Boolean(p.link_url), mode: n.content_mode ?? "legacy", postType: n.post_type ?? "legacy" }; });
   const comparisons = compareWeek(reviewPosts, results ?? []);
   const withResults = new Set((results ?? []).map((r: { post_id: string }) => r.post_id));
   const missing = ids.filter(id => !withResults.has(id));
-  const label = (c: { dimension: string; value: string; postIds: string[]; avgEngagement: number; avgReach: number }) => `${c.dimension} "${c.value}": ${c.postIds.length} posts, avg engagement ${c.avgEngagement}, avg reach ${c.avgReach}`;
+  const label = (c: { dimension: string; value: string; postIds: string[]; avgEngagement: number; avgReach: number; avgFollows: number }) => `${c.dimension} "${c.value}": ${c.postIds.length} posts, avg engagement ${c.avgEngagement}, avg reach ${c.avgReach}, avg follows ${c.avgFollows}`;
   if (shouldPublishWeeklyInsights(missing, existing) && comparisons.length) {
     const { data: previous, error: previousError } = await supabaseAdmin.from("marketing_insights").select("active, evidence").eq("evidence->>week_end", weekEnd).order("created_at", { ascending: false });
     if (previousError) throw new Error(previousError.message);
@@ -137,7 +137,7 @@ async function ensureWeeklyReview(supabaseAdmin: any) {
   }
   const worked = comparisons.filter(c => c.verdict === "win").map(label);
   const stop = comparisons.filter(c => c.verdict === "loss").map(label);
-  const next = [`${WEEKLY_PLAN.length} posts: 3 landlord problems, 1 founding places, 1 how to list.`, ...worked.slice(0, 2).map(w => `Repeat: ${w}`), ...stop.slice(0, 2).map(w => `Drop: ${w}`)];
+  const next = [`${WEEKLY_PLAN.length} posts, 2 a day: 8 pain/urgency, 3 founder voice, 2 existing tenancy, 1 useful tip.`, ...worked.slice(0, 2).map(w => `Repeat: ${w}`), ...stop.slice(0, 2).map(w => `Drop: ${w}`)];
   if (!comparisons.length) next.push(list.length ? "Enter results for last week's posts so Robin can compare." : "No posts marked posted last week.");
   await supabaseAdmin.from("marketing_weekly_reviews").upsert({ week_start: weekEnd, worked, stop, next_plan: next, missing_results: missing, comparison: { comparisons } }, { onConflict: "week_start" });
 }
@@ -145,13 +145,13 @@ async function ensureWeeklyReview(supabaseAdmin: any) {
 /** Admin-only: record results for a posted post. Append-only; a correction adds a new row. */
 export const saveMarketingResults = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => z.object({ postId: z.string().uuid(), groupName: z.string().min(1).max(120), reach: z.number().int().min(0).max(10000000), reactions: z.number().int().min(0).max(1000000), comments: z.number().int().min(0).max(1000000), shares: z.number().int().min(0).max(1000000), linkClicks: z.number().int().min(0).max(1000000) }).parse(data))
+  .inputValidator((data: unknown) => z.object({ postId: z.string().uuid(), groupName: z.string().min(1).max(120), reach: z.number().int().min(0).max(10000000), reactions: z.number().int().min(0).max(1000000), comments: z.number().int().min(0).max(1000000), shares: z.number().int().min(0).max(1000000), linkClicks: z.number().int().min(0).max(1000000), followsGained: z.number().int().min(0).max(1000000).default(0) }).parse(data))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: post } = await supabaseAdmin.from("marketing_posts").select("status").eq("id", data.postId).maybeSingle();
     if (post?.status !== "posted") throw new Error("Only posted posts take results.");
-    const { error } = await supabaseAdmin.from("marketing_post_results").insert({ post_id: data.postId, group_name: data.groupName, reach: data.reach, reactions: data.reactions, comments: data.comments, shares: data.shares, link_clicks: data.linkClicks, entered_by: context.userId });
+    const { error } = await supabaseAdmin.from("marketing_post_results").insert({ post_id: data.postId, group_name: data.groupName, reach: data.reach, reactions: data.reactions, comments: data.comments, shares: data.shares, link_clicks: data.linkClicks, follows_gained: data.followsGained, entered_by: context.userId });
     if (error) throw new Error(error.message);
     return { ok: true };
   });

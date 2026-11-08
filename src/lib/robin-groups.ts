@@ -41,10 +41,23 @@ export interface GroupSnapshot { id: string; name: string; linkPlacement: RobinG
 export function readGroupSnapshot(notes: string | null): GroupSnapshot | null {
   try { const group = JSON.parse(notes ?? "null")?.group; return group?.id && group?.name ? group : null; } catch { return null; }
 }
-export function londonSlot(date: string): Date {
-  const probe = new Date(`${date}T19:00:00Z`);
+export function londonSlot(date: string, hourUk = 19, minute = 0): Date {
+  const hh = String(hourUk).padStart(2, "0"), mm = String(minute).padStart(2, "0");
+  const probe = new Date(`${date}T${hh}:${mm}:00Z`);
   const hour = Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "2-digit", hourCycle: "h23" }).format(probe));
-  return new Date(probe.getTime() - (hour - 19) * 3600000);
+  return new Date(probe.getTime() - (hour - hourUk) * 3600000);
+}
+/** The RoostNI Page as a posting target for slot B. */
+export const ROOSTNI_PAGE: RobinGroup = { id: "roostni-page", name: "RoostNI Page", places: "Northern Ireland", audience: "Followers of the RoostNI Page: NI landlords and renters", worked: "No Page results confirmed yet.", linkPlacement: "first comment", postAs: "Page", weeklyCount: 7, promotionAllowed: true };
+/** 7 days x 2 UK-time slots: A at 12:30 (groups), B at 19:00 (Page). Starts tomorrow so no slot is already past. */
+export function dailyPairSlots(now = new Date()): { a: Date; b: Date }[] {
+  const localDate = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).format(now);
+  const base = new Date(`${localDate}T12:00:00Z`);
+  return Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(base); day.setUTCDate(day.getUTCDate() + 1 + i);
+    const d = day.toISOString().slice(0, 10);
+    return { a: londonSlot(d, 12, 30), b: londonSlot(d, 19) };
+  });
 }
 export function weekSlots(count: number, now = new Date()): Date[] {
   if (!Number.isInteger(count) || count < 1 || count > 7) throw new Error("Choose 1–7 posts per group.");

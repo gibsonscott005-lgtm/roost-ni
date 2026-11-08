@@ -211,6 +211,34 @@
       "when": 1794175012445,
       "tag": "0029_tenanted_route_records",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1794175660130,
+      "tag": "0030_robin_follows_gained",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1794175713999,
+      "tag": "0031_passport_formal_application",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794175725647,
+      "tag": "0032_passport_formal_guard_allow_clear",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794175852043,
+      "tag": "0033_notice_and_registration_reminder_types",
+      "breakpoints": true
     }
   ]
 }

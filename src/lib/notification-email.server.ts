@@ -29,6 +29,8 @@ export const EMAIL_NOTIFICATION_TYPES = [
   "deposit_deadline_approaching",
   "certificate_expired",
   "tenancy_records_reminder",
+  "tenancy_information_notice_reminder",
+  "landlord_registration_reminder",
 ] as const;
 
 export type EmailNotificationType = (typeof EMAIL_NOTIFICATION_TYPES)[number];
@@ -90,6 +92,16 @@ const EMAIL_TYPE_CONTENT: Record<EmailNotificationType, { title: string; message
     title: "A few tenancy records still to add",
     message:
       "RoostNI helps you stay on top of your legal duties. A few details for your tenancy are still to add. The 10-day target is RoostNI's, not a legal deadline, and every tool stays open. Sign in to RoostNI to finish them.",
+  },
+  tenancy_information_notice_reminder: {
+    title: "Your tenancy information notice",
+    message:
+      "A tenancy information notice for one of your tenancies is not yet marked as given. Sign in to RoostNI to generate it and record the date.",
+  },
+  landlord_registration_reminder: {
+    title: "Add your landlord registration number",
+    message:
+      "One of your homes on RoostNI has no landlord registration number saved yet. Sign in to RoostNI to add it.",
   },
 };
 

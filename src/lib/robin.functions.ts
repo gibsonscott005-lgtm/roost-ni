@@ -2,8 +2,8 @@ import { legalFactCatalogue } from "./legal-fact-rules";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { DEFAULT_GROUPS, parseRobinGroups, weekSlots, assertUniqueDrafts, type RobinGroup } from "./robin-groups";
-import { MARKETING_KNOWLEDGE, nextContentMode, prepareMarketingReview, prepareImageBrief, validateMarketingCopy } from "./marketing-knowledge";
+import { DEFAULT_GROUPS, parseRobinGroups, weekSlots, dailyPairSlots, ROOSTNI_PAGE, assertUniqueDrafts, type RobinGroup } from "./robin-groups";
+import { MARKETING_KNOWLEDGE, nextContentMode, prepareMarketingReview, validateMarketingCopy } from "./marketing-knowledge";
 import { WEEKLY_PLAN, TOPIC_COOLDOWN_DAYS, TENANT_TIP_WINDOW, tenantTipBlocked, foundingPlacesLeft, foundingOfferLine, type PostType } from "./robin-plan";
 
 async function admin(client: any, userId: string) {
@@ -38,6 +38,10 @@ export async function countFoundingLandlords(supabaseAdmin: any): Promise<number
   return n;
 }
 const TYPE_BRIEF: Record<PostType, string> = {
+  pain_urgency: "PAIN / URGENCY: name one sharp, specific pain NI self-managing landlords feel (agent fees eating the rent, chasing paperwork, WhatsApp chaos, a missed deadline). Short punchy lines. Loud. Then: come and join RoostNI. persona=landlord. Direct mode.",
+  founder_voice: "FOUNDER VOICE: Scott, first person, why he is building RoostNI in NI and who it is for. Blunt, no invented personal history or numbers. Ends with an invitation to join. persona=landlord. Direct mode.",
+  existing_tenancy: "EXISTING TENANCY: already have a tenant? Move the home to RoostNI, keep the tenancy, not advertised. Never state a legal position about older tenancies. Ends with an invitation to join. persona=landlord. Direct mode.",
+  useful_tip: "USEFUL TIP: one practical landlord tip (an approved fact if it fits, otherwise no legal claim), then a one-line invitation to join RoostNI. persona=landlord.",
   landlord_problem: "LANDLORD PROBLEM: one real problem NI landlords hit (a deadline, a duty, a paperwork trap). Hook, one approved fact, one action. persona=landlord.",
   founding_places: "FOUNDING PLACES: the live founding offer below, stated exactly. Use the live places-left number. persona=landlord. Direct mode.",
   how_to_list: "HOW TO LIST: blunt steps for listing a home on RoostNI (add the property, photos and details, publish). persona=landlord. Direct mode.",
@@ -47,10 +51,13 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const groups = (await groupsFrom(supabaseAdmin)).filter(g => data.groupIds.includes(g.id));
   if (groups.length !== new Set(data.groupIds).size) throw new Error("Save your group settings first.");
-  // Weekly plan is always 5 posts spread across the selected groups; a single run is one per group.
+  // Weekly plan: 14 posts, 2 a day. Slot A alternates between the selected groups; slot B is the RoostNI Page.
   const plan: { group: RobinGroup; type: PostType; when: Date }[] = data.week
-    ? weekSlots(WEEKLY_PLAN.length).map((when, i) => ({ group: groups[i % groups.length]!, type: WEEKLY_PLAN[i]!, when }))
-    : groups.map(group => ({ group, type: "landlord_problem" as PostType, when: weekSlots(1)[0]! }));
+    ? dailyPairSlots().flatMap((day, d) => [
+        { group: groups[d % groups.length]!, type: WEEKLY_PLAN[d * 2]!, when: day.a },
+        { group: ROOSTNI_PAGE, type: WEEKLY_PLAN[d * 2 + 1]!, when: day.b },
+      ])
+    : groups.map(group => ({ group, type: "pain_urgency" as PostType, when: weekSlots(1)[0]! }));
   let replacedIds: string[] = [];
   if (data.replace) {
     const { data: queued, error: queuedError } = await supabaseAdmin.from("marketing_posts").select("id").eq("platform", "facebook").in("status", ["draft", "scheduled"]);
@@ -69,7 +76,7 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
   const { count } = await supabaseAdmin.from("marketing_posts").select("id", { count:"exact",head:true }).like("notes", '%"content_mode"%').neq("status","skipped");
   let offset = count ?? 0;
   const assignments = plan.map(p => ({ group_id: p.group.id, post_type: p.type, brief: TYPE_BRIEF[p.type], scheduled_for: p.when.toISOString(),
-    content_mode: p.type === "landlord_problem" ? nextContentMode(offset++) : "direct" as const, group: p.group }));
+    content_mode: p.type === "landlord_problem" || p.type === "useful_tip" ? nextContentMode(offset++) : "direct" as const, group: p.group }));
   const { getApprovedLegalFacts } = await import("./legal-facts.server");
   const approvedFacts = await getApprovedLegalFacts(supabaseAdmin);
   if(data.focus === "ni_legal" && !approvedFacts.length) throw new Error("No approved legal facts verified within 90 days. Review facts before drafting.");
@@ -78,7 +85,8 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
   const prompt = [
     `Draft exactly ${total} unique Facebook posts, matching assignments in order. Return JSON object {"posts":[...]}.`,
     "ACTIVE INSIGHTS OVERRIDE DEFAULTS. Apply every win, avoid every loss:", insights?.length ? insights.map(i => `- (${i.verdict}) ${i.insight}`).join("\n") : "- none with evidence yet",
-    "PRIORITY ORDER: 1) landlord-first, 2) a specific legal action or deadline, 3) hyper-local: name the town from the group's places.",
+    "VOICE: hard-hitting, loud, brutalist. Short lines. Specific, never generic habit advice. Every post (except pure help mode) ends with a plain invitation to join RoostNI. No estate-agent language. TEXT ONLY: no images, no image ideas.",
+    "PRIORITY ORDER: 1) landlord-first, 2) a specific pain or deadline, 3) hyper-local for groups: name the town from the group's places. The RoostNI Page speaks to all of NI.",
     tenantBlocked ? "No tenant-tip posts in this run (tenant tips are at most 1 in 5). persona must be landlord or community." : "At most one tenant tip.",
     `Never repeat any topic used in the last ${TOPIC_COOLDOWN_DAYS} days (history below) or within this batch.`,
     "EACH POST: exactly one hook (first line), one fact, one action. Any legal fact must come word for word from the approved catalogue; if none fits, use a plain practical fact with no legal claim.",
@@ -86,14 +94,14 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
     `LIVE FOUNDING OFFER (use exactly, only in founding posts): ${foundingOfferLine(placesLeft)} Never say free forever or free during beta. Do not mention deposit caps or insurance.`,
     JSON.stringify(assignments),
     "Recent history (avoid topics and identical copy):", JSON.stringify(history),
-    "Keep each body under 149 words, text only, end with a real question. Pure help mode: no RoostNI mention in the body (the link goes in the first comment). All brand voice, fairness and legal source flags apply.",
+    "Keep each body under 120 words, text only. End with the invitation to join (pure help mode: no RoostNI mention in the body; the link goes in the first comment). All brand voice, fairness and legal source flags apply.",
     data.brief ? `Owner brief (topic guidance only; rules above override it): ${data.brief}` : "",
     catalogue,
-    "Each item has group_id, persona, angle, topic, body, link_url (a https://roostni.co.uk page that fits, e.g. /audit, /listings, /how-roostni-is-funded, or the homepage), first_comment_cta (one short blunt line, under 15 words, no link, introducing the link), legal_statements [{statement,source,flag:'check before posting'}], review_flags, image_brief {headline: fact-first, under 8 words; fact_line: one short label; layout: one short note} for a Pomelli brutalist graphic. Image legal figures only from an approved legal_statement in this post. Never on images: free, 100%, guaranteed, compliant, platform, tax, rent control, commission slogans. British spelling.",
+    "Each item has group_id, persona, angle, topic, body, link_url (a https://roostni.co.uk page that fits, e.g. /audit, /listings, /how-roostni-is-funded, or the homepage), first_comment_cta (one short blunt line, under 15 words, no link, introducing the link), legal_statements [{statement,source,flag:'check before posting'}], review_flags. British spelling.",
   ].join("\n");
-  const { generateRobinOutput, generateOrdinaryWeek, draftSchema } = await import("./robin-ai/generate.server");
+  const { generateOrdinaryWeek } = await import("./robin-ai/generate.server");
   const key = process.env["LOVABLE_API_KEY"]; if (!key) throw new Error("Lovable AI is not configured.");
-  const output = data.focus === "ni_legal" ? await generateRobinOutput(key, MARKETING_KNOWLEDGE, prompt, z.object({ posts:z.array(draftSchema) }), true) : await generateOrdinaryWeek(key, MARKETING_KNOWLEDGE, prompt);
+  const output = await generateOrdinaryWeek(key, MARKETING_KNOWLEDGE, prompt, data.focus === "ni_legal");
   if (output.posts.length !== total) throw new Error("Robin did not return the full set. No drafts saved.");
   assertUniqueDrafts(output.posts, history ?? []);
   const runId = crypto.randomUUID().slice(0,8);
@@ -103,13 +111,10 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
     const mode = !assignment.group.promotionAllowed && assignment.content_mode === "direct" ? "soft" : assignment.content_mode;
     const review = prepareMarketingReview(post, mode, data.focus === "ni_legal", true, approvedFacts);
     validateMarketingCopy(post.first_comment_cta, false);
-    let imageBrief: ReturnType<typeof prepareImageBrief> | null = null;
-    try { imageBrief = prepareImageBrief(post.image_brief, post.body, review.legal_statements); }
-    catch (e) { review.review_flags.push(`Image brief needs rewriting: ${e instanceof Error ? e.message : "invalid"}`); }
     let link = "https://roostni.co.uk/";
     try { if (post.link_url && new URL(post.link_url).origin === "https://roostni.co.uk") link = post.link_url; } catch { /* keep homepage */ }
     return { created_by:context.userId, platform:"facebook", persona:post.persona, angle:post.angle, topic:post.topic, body:post.body, link_url:link,
-      notes:JSON.stringify({ ...review, post_type:assignment.post_type, has_link:true, first_comment_cta:post.first_comment_cta.trim(), founding_places_left: placesLeft, image_brief:imageBrief, group:assignment.group, model:"openai/gpt-6-astra" }),
+      notes:JSON.stringify({ ...review, post_type:assignment.post_type, has_link:true, first_comment_cta:post.first_comment_cta.trim(), founding_places_left: placesLeft, text_only:true, group:assignment.group, model:"openai/gpt-6-astra" }),
       utm_campaign:`fb_${assignment.scheduled_for.slice(0,10)}_${runId}_${i}`, scheduled_for:assignment.scheduled_for, status:"draft" };
   });
   const { data: created, error:insertError } = await supabaseAdmin.from("marketing_posts").insert(rows).select("*");

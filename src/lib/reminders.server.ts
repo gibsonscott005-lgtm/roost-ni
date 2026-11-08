@@ -507,6 +507,84 @@ async function runTenancyRecordsReminders(admin: Admin, runDate: string, out: Re
   }
 }
 
+/** Approved legal wording only; if a fact is no longer approved, its reminder is not sent. */
+async function approvedFact(admin: Admin, id: string): Promise<string | null> {
+  const { data } = await admin.from("legal_facts").select("fact_text, status").eq("id", id).maybeSingle();
+  return data?.status === "approved" ? (data.fact_text as string) : null;
+}
+const TIN_FACT_ID = "438c8aaa-b72b-415e-8aeb-446cbc4f25bc";
+const REGISTRATION_FACT_ID = "c214b49f-bc9b-4a9b-b259-b858f683f090";
+
+/** Tenancy information notice: new RoostNI tenancies only, counted from the tenancy start, until marked given. */
+async function runTinReminders(admin: Admin, runDate: string, out: ReminderOutcome) {
+  const fact = await approvedFact(admin, TIN_FACT_ID);
+  if (!fact) return;
+  const { tinReminderKind } = await import("./statutory-reminders");
+  const { data, error } = await admin
+    .from("passport_shares")
+    .select("id, tenancy_start_date, tin_given_at, lease_kind, tenancy_status, property_listings!inner(landlord_id, title, is_test)")
+    .eq("lease_status", "counter_signed")
+    .neq("lease_kind", "existing_agreement")
+    .limit(2000);
+  if (error) {
+    out.errors.push(`tin: ${error.message}`);
+    return;
+  }
+  const today = new Date(`${runDate}T12:00:00Z`);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  for (const row of (data ?? []) as any[]) {
+    const l = row.property_listings;
+    if (!l || l.is_test || (row.tenancy_status && row.tenancy_status !== "active")) continue;
+    const kind = tinReminderKind({ startDate: row.tenancy_start_date, tinGivenAt: row.tin_given_at, leaseKind: row.lease_kind, today });
+    if (!kind) continue;
+    const left = Number(kind.split(":")[1]);
+    const passed = kind.startsWith("tin_passed");
+    await sendOnce(admin, runDate, {
+      type: "tenancy_information_notice_reminder",
+      recipientId: l.landlord_id,
+      entityType: "passport_share",
+      entityId: row.id,
+      kind,
+      title: passed ? `Tenancy information notice: not marked as given` : left === 0 ? `Tenancy information notice: last day` : `Tenancy information notice: ${left} days left`,
+      body: `${fact} Tenancy at ${l.title ?? "your property"} started ${row.tenancy_start_date}. Generate it in RoostNI, then mark the date you gave it so these reminders stop.`,
+      linkPath: `/landlord/manage-tenancy?share=${row.id}&tab=overview`,
+    }, out);
+  }
+}
+
+/** Landlord registration: one nudge the day after a home is added, then monthly, until a registration number is saved. */
+async function runRegistrationReminders(admin: Admin, runDate: string, out: ReminderOutcome) {
+  const fact = await approvedFact(admin, REGISTRATION_FACT_ID);
+  if (!fact) return;
+  const { registrationReminderKind } = await import("./statutory-reminders");
+  const { data, error } = await admin
+    .from("property_listings")
+    .select("id, landlord_id, title, created_at, ni_landlord_reg_number, is_test, occupancy_status")
+    .eq("is_test", false)
+    .limit(5000);
+  if (error) {
+    out.errors.push(`registration: ${error.message}`);
+    return;
+  }
+  const today = new Date(`${runDate}T12:00:00Z`);
+  for (const l of data ?? []) {
+    // Existing-tenancy homes already get the records checklist, which includes the registration number.
+    if (l.occupancy_status === "tenanted") continue;
+    const kind = registrationReminderKind({ addedAt: l.created_at, regNumber: l.ni_landlord_reg_number, today });
+    if (!kind) continue;
+    await sendOnce(admin, runDate, {
+      type: "landlord_registration_reminder",
+      recipientId: l.landlord_id,
+      entityType: "property_listing",
+      entityId: l.id,
+      kind,
+      title: "Add your landlord registration number",
+      body: `${fact} Add your registration number to ${l.title ?? "your home"} on RoostNI so your records are complete.`,
+      linkPath: `/dashboard/listing-edit?id=${l.id}`,
+    }, out);
+  }
+}
+
 /** Entry point for the daily job. */
 export async function runDailyReminders(): Promise<ReminderOutcome> {
   const out: ReminderOutcome = { sent: 0, skipped: 0, errors: [] };
@@ -515,6 +593,8 @@ export async function runDailyReminders(): Promise<ReminderOutcome> {
   await runRentAndDepositReminders(supabaseAdmin, runDate, out);
   await runCertificateReminders(supabaseAdmin, runDate, out);
   await runTenancyRecordsReminders(supabaseAdmin, runDate, out);
+  await runTinReminders(supabaseAdmin, runDate, out);
+  await runRegistrationReminders(supabaseAdmin, runDate, out);
 
   // Housekeeping: the log only needs to be long enough to stop same-day repeats.
   await supabaseAdmin

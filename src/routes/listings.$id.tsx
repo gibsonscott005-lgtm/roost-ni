@@ -8,6 +8,7 @@ import {
   reapplyApplication,
   withdrawApplication,
 } from "@/lib/application-withdraw.functions";
+import { submitFormalApplication } from "@/lib/passport-documents.functions";
 import { getListingPhotoUrls } from "@/lib/listing-photos.functions";
 import { posthog } from "@/integrations/posthog/client";
 import { PropertyAlertBar, PropertyAlertInline } from "@/components/listing-detail-alert";
@@ -311,7 +312,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
     queryFn: async () => {
       const { data, error } = await supabase
         .from("passport_shares")
-        .select("id, status, lease_status, withdrawn_at")
+        .select("id, status, lease_status, withdrawn_at, formal_application_at")
         .eq("listing_id", listingId)
         .eq("tenant_id", user!.id)
         .maybeSingle();
@@ -321,7 +322,7 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
   });
 
   const share = shareQuery.data as
-    | { id: string; status: string; lease_status: string | null; withdrawn_at: string | null }
+    | { id: string; status: string; lease_status: string | null; withdrawn_at: string | null; formal_application_at: string | null }
     | null
     | undefined;
   const isWithdrawn = share?.status === "withdrawn";
@@ -333,6 +334,16 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
     queryClient.invalidateQueries({ queryKey: ["passport-share", listingId, user?.id ?? null] });
     queryClient.invalidateQueries({ queryKey: ["landlord-applications"] });
   };
+
+  const formalMutation = useMutation({
+    mutationFn: async () => submitFormalApplication({ data: { shareId: share!.id } }),
+    onSuccess: () => {
+      toast.success("Formal application sent", { description: "The landlord can now open your documents for this property." });
+      posthog.capture("formal_application_submitted", { listing_id: listingId });
+      invalidateShare();
+    },
+    onError: (err: unknown) => toast.error("Couldn't send", { description: err instanceof Error ? err.message : "Please try again." }),
+  });
 
   const withdrawMutation = useMutation({
     mutationFn: async () =>
@@ -627,6 +638,23 @@ function ApplyCard({ listingId, listingStatus }: { listingId: string; listingSta
             >
               Withdraw application
             </button>
+          )
+        ) : null}
+        {sent && !leaseIssued && share && ["pending", "reviewed", "accepted"].includes(share.status) ? (
+          share.formal_application_at ? (
+            <p className="mt-2 text-xs text-muted-foreground">Formal application sent. The landlord can open your documents until you withdraw.</p>
+          ) : (
+            <div className="mt-3 max-w-sm space-y-1.5">
+              <p className="text-xs text-muted-foreground">Right now the landlord sees your figures and which references you have, not the files. Ready to go further?</p>
+              <button
+                type="button"
+                onClick={() => formalMutation.mutate()}
+                disabled={formalMutation.isPending}
+                className="rounded-full border-2 border-foreground px-3.5 py-1.5 text-xs font-semibold transition hover:bg-foreground hover:text-background disabled:opacity-60"
+              >
+                {formalMutation.isPending ? "Sending…" : "Make it a formal application (share documents)"}
+              </button>
+            </div>
           )
         ) : null}
       </div>

@@ -3,11 +3,12 @@ import { WEEKLY_PLAN, foundingPlacesLeft, foundingOfferLine, tenantTipBlocked, c
 import { validateMarketingCopy } from "./src/lib/marketing-knowledge";
 import { DEFAULT_GROUPS, firstCommentText } from "./src/lib/robin-groups";
 
-test("weekly plan is 5 posts: 3 landlord problems, 1 founding, 1 how to list", () => {
-  expect(WEEKLY_PLAN.length).toBe(5);
-  expect(WEEKLY_PLAN.filter(t => t === "landlord_problem").length).toBe(3);
-  expect(WEEKLY_PLAN.filter(t => t === "founding_places").length).toBe(1);
-  expect(WEEKLY_PLAN.filter(t => t === "how_to_list").length).toBe(1);
+test("weekly plan is 14 posts: 8 pain, 3 founder, 2 existing tenancy, 1 tip", () => {
+  expect(WEEKLY_PLAN.length).toBe(14);
+  expect(WEEKLY_PLAN.filter(t => t === "pain_urgency").length).toBe(8);
+  expect(WEEKLY_PLAN.filter(t => t === "founder_voice").length).toBe(3);
+  expect(WEEKLY_PLAN.filter(t => t === "existing_tenancy").length).toBe(2);
+  expect(WEEKLY_PLAN.filter(t => t === "useful_tip").length).toBe(1);
 });
 test("founding places count down from 20 and never go negative", () => {
   expect(foundingPlacesLeft(0)).toBe(20);
@@ -53,4 +54,18 @@ import { lastCompletedSunday as lcs } from "./src/lib/robin-plan";
 test("weekly review never covers the week still running", () => {
   expect(lcs(new Date("2026-11-01T12:00:00Z"))).toBe("2026-10-25"); // Sunday → previous Sunday
   expect(lcs(new Date("2026-11-02T12:00:00Z"))).toBe("2026-11-01"); // Monday → yesterday
+});
+
+import { dailyPairSlots } from "./src/lib/robin-groups";
+test("two posts a day for 7 days, UK time, slot A before slot B", () => {
+  const slots = dailyPairSlots(new Date("2026-11-08T22:00:00Z"));
+  expect(slots.length).toBe(7);
+  expect(slots[0]!.a.toISOString()).toBe("2026-11-09T12:30:00.000Z");
+  expect(slots[0]!.b.toISOString()).toBe("2026-11-09T19:00:00.000Z");
+});
+test("follows count towards engagement and are averaged by post type", () => {
+  const posts = ["a", "b", "c"].map((id, i) => ({ id, angle: "x", persona: "landlord", group: "g", hasLink: true, mode: "direct", postType: i < 2 ? "pain_urgency" : "useful_tip" }));
+  const r = (id: string, f: number) => ({ post_id: id, reach: 10, reactions: 0, comments: 0, shares: 0, link_clicks: 0, follows_gained: f });
+  const out = compareWeek(posts, [r("a", 4), r("b", 2), r("c", 0)]);
+  expect(out.find(c => c.dimension === "post type" && c.value === "pain_urgency")?.avgFollows).toBe(3);
 });

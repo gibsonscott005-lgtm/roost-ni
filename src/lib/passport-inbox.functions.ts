@@ -68,9 +68,13 @@ export const getApplicantPassports = createServerFn({ method: "POST" })
 
     // Expose only whether reference evidence exists, never its storage path.
     const passports = ((rows ?? []) as unknown as Record<string, unknown>[]).map((r) => {
-      const { reference_document_path, is_first_time_renter, guarantor_name, ...rest } = r;
+      const { reference_document_path, is_first_time_renter, guarantor_name, id_document_path, income_document_path, ...rest } = r;
       return {
         ...rest,
+        // Storage paths never leave the server; files open via getApplicantDocumentUrl on a formal application.
+        id_document_path: id_document_path ? "on file" : null,
+        income_document_path: income_document_path ? "on file" : null,
+        reference_document_on_file: !!reference_document_path,
         income_provided: !!r.income_document_path,
         reference_provided: !!reference_document_path || (!!is_first_time_renter && !!guarantor_name),
       };
