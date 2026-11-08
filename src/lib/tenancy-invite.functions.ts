@@ -73,7 +73,9 @@ export const acceptTenancyInvite = createServerFn({ method: 'POST' })
     const { data: share } = invite
       ? await supabaseAdmin.from('passport_shares').select('id, tenant_id, lease_kind, tenancy_status').eq('id', invite.share_id).maybeSingle()
       : { data: null }
-    const email = (context.claims as { email?: string }).email
+    const { data: u } = await supabaseAdmin.auth.admin.getUserById(context.userId)
+    // Only a confirmed email (6-digit code or link) can claim an invite.
+    const email = u?.user?.email_confirmed_at ? u.user.email : null
     const refusal = checkInvite(invite, share, email, context.userId)
     if (refusal) return { ok: false as const, message: REFUSAL_MESSAGE[refusal] }
 
