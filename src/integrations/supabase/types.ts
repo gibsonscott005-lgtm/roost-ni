@@ -1678,6 +1678,8 @@ export type Database = {
         | "application_reapplied"
         | "application_info_requested"
         | "tenancy_records_reminder"
+        | "tenancy_information_notice_reminder"
+        | "landlord_registration_reminder"
       share_status:
         | "pending"
         | "reviewed"
@@ -1855,6 +1857,8 @@ export const Constants = {
         "application_reapplied",
         "application_info_requested",
         "tenancy_records_reminder",
+        "tenancy_information_notice_reminder",
+        "landlord_registration_reminder",
       ],
       share_status: [
         "pending",
