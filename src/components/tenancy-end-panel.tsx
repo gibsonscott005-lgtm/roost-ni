@@ -18,14 +18,12 @@ import { emitNotification } from "@/lib/notifications.functions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { noticeToQuitHtml, depositSettlementHtml, openPrintable } from "@/lib/tenancy-docs";
 import {
-  DEPOSIT_RETURN_DAYS,
   END_STAGES,
   FINAL_CONDITIONS,
   NI_LEGAL_DISCLAIMER,
   daysUntil,
   deriveEndStage,
   deductionsTotal,
-  depositDeadline,
   earliestEndDate,
   formatDate,
   noticeRule,
