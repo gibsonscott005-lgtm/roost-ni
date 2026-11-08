@@ -522,7 +522,7 @@ async function runTinReminders(admin: Admin, runDate: string, out: ReminderOutco
   const { tinReminderKind } = await import("./statutory-reminders");
   const { data, error } = await admin
     .from("passport_shares")
-    .select("id, tenancy_start_date, tin_given_at, lease_kind, tenancy_status, property_listings!inner(landlord_id, title, is_test)")
+    .select("id, tenancy_start_date, lease_signed_at, tin_given_at, lease_kind, tenancy_status, property_listings!inner(landlord_id, title, is_test)")
     .eq("lease_status", "counter_signed")
     .neq("lease_kind", "existing_agreement")
     .limit(2000);
@@ -535,7 +535,7 @@ async function runTinReminders(admin: Admin, runDate: string, out: ReminderOutco
   for (const row of (data ?? []) as any[]) {
     const l = row.property_listings;
     if (!l || l.is_test || (row.tenancy_status && row.tenancy_status !== "active")) continue;
-    const kind = tinReminderKind({ startDate: row.tenancy_start_date, tinGivenAt: row.tin_given_at, leaseKind: row.lease_kind, today });
+    const kind = tinReminderKind({ signedAt: row.lease_signed_at, startDate: row.tenancy_start_date, tinGivenAt: row.tin_given_at, leaseKind: row.lease_kind, today });
     if (!kind) continue;
     const left = Number(kind.split(":")[1]);
     const passed = kind.startsWith("tin_passed");
@@ -546,7 +546,7 @@ async function runTinReminders(admin: Admin, runDate: string, out: ReminderOutco
       entityId: row.id,
       kind,
       title: passed ? `Tenancy information notice: not marked as given` : left === 0 ? `Tenancy information notice: last day` : `Tenancy information notice: ${left} days left`,
-      body: `${fact} Tenancy at ${l.title ?? "your property"} started ${row.tenancy_start_date}. Generate it in RoostNI, then mark the date you gave it so these reminders stop.`,
+      body: `Give the tenancy information notice within 28 days of the tenancy being granted (usually when the agreement is signed). ${row.lease_signed_at ? `The agreement for ${l.title ?? "your property"} was signed on ${String(row.lease_signed_at).slice(0, 10)}.` : `The tenancy for ${l.title ?? "your property"} started on ${row.tenancy_start_date}.`} Generate it in RoostNI, then mark the date you gave it so these reminders stop.`,
       linkPath: `/landlord/manage-tenancy?share=${row.id}&tab=overview`,
     }, out);
   }

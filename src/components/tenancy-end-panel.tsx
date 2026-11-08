@@ -370,7 +370,6 @@ function StageTracker({
   endDate: string | null;
 }) {
   const yourMove = stage.actor === role;
-  const days = daysUntil(endDate);
   return (
     <div className={card}>
       <div className="flex flex-wrap items-start justify-between gap-3">

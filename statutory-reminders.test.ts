@@ -11,6 +11,12 @@ test("notice reminder counts 28 days from the tenancy start", () => {
   expect(tinReminderKind({ ...base, today: d("2026-11-10") })).toBeNull();
   expect(tinReminderKind({ ...base, today: d("2026-12-06") })).toBe("tin_passed:7");
 });
+test("notice reminder counts from the signing date when there is one", () => {
+  const base = { signedAt: "2026-10-25T15:00:00Z", startDate: "2026-11-01", tinGivenAt: null, leaseKind: "standard" };
+  expect(tinReminderKind({ ...base, today: d("2026-11-01") })).toBe("tin_due:21");
+  expect(tinReminderKind({ ...base, today: d("2026-11-22") })).toBe("tin_due:0");
+  expect(tinReminderKind({ ...base, signedAt: null, today: d("2026-11-08") })).toBe("tin_due:21");
+});
 test("notice reminder never fires for existing tenancies or once given", () => {
   expect(tinReminderKind({ startDate: "2026-11-01", tinGivenAt: null, leaseKind: "existing_agreement", today: d("2026-11-08") })).toBeNull();
   expect(tinReminderKind({ startDate: "2026-11-01", tinGivenAt: "2026-11-03", leaseKind: "standard", today: d("2026-11-08") })).toBeNull();
