@@ -712,6 +712,7 @@ export type Database = {
           final_inspection_submitted_at: string | null
           final_meter_readings: string | null
           final_oil_level: string | null
+          formal_application_at: string | null
           id: string
           info_requested_at: string | null
           info_requested_items: string[]
@@ -759,6 +760,7 @@ export type Database = {
           final_inspection_submitted_at?: string | null
           final_meter_readings?: string | null
           final_oil_level?: string | null
+          formal_application_at?: string | null
           id?: string
           info_requested_at?: string | null
           info_requested_items?: string[]
@@ -806,6 +808,7 @@ export type Database = {
           final_inspection_submitted_at?: string | null
           final_meter_readings?: string | null
           final_oil_level?: string | null
+          formal_application_at?: string | null
           id?: string
           info_requested_at?: string | null
           info_requested_items?: string[]
