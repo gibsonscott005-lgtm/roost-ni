@@ -1,3 +1,4 @@
+import { RelatedTools } from "@/components/related-tools";
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getPublishedArticle } from "@/lib/blog.functions";
@@ -125,6 +126,7 @@ function ArticlePage() {
           </p>
         </article>
       </main>
+      <RelatedTools />
       <BlogFooter />
     </div>
   );

@@ -7,7 +7,7 @@ import { posthog } from "@/integrations/posthog/client";
 import { getEventContext } from "@/lib/utm-session";
 
 const PAGE_URL = "https://roostni.co.uk/tenancy-information-notice-ni";
-const TITLE = "Tenancy Information Notice NI: 28-Day Deadline, Template & Rules (2026) — RoostNI";
+const TITLE = "Tenancy Information Notice NI: 28-Day Rule & Template | RoostNI";
 const DESC =
   "Every private landlord in Northern Ireland must give tenants a Tenancy Information Notice within 28 days, free of charge. What it must contain, the Notice of Variation rules, and a 28-day deadline calculator.";
 
