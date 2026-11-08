@@ -28,6 +28,7 @@ export const EMAIL_NOTIFICATION_TYPES = [
   "rent_overdue",
   "deposit_deadline_approaching",
   "certificate_expired",
+  "tenancy_records_reminder",
 ] as const;
 
 export type EmailNotificationType = (typeof EMAIL_NOTIFICATION_TYPES)[number];
@@ -84,6 +85,11 @@ const EMAIL_TYPE_CONTENT: Record<EmailNotificationType, { title: string; message
     title: "A safety certificate has expired",
     message:
       "A property safety certificate has expired. Sign in to RoostNI to review and renew it.",
+  },
+  tenancy_records_reminder: {
+    title: "A few tenancy records still to add",
+    message:
+      "RoostNI helps you stay on top of your legal duties. A few details for your tenancy are still to add. The 10-day target is RoostNI's, not a legal deadline, and every tool stays open. Sign in to RoostNI to finish them.",
   },
 };
 

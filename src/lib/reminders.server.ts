@@ -446,6 +446,67 @@ async function runCertificateReminders(admin: Admin, runDate: string, out: Remin
   }
 }
 
+/**
+ * Records checklist for tenancies that began before RoostNI. Days 3, 7 and 10
+ * after the home was added, then weekly, until every item is filled in.
+ * The 10-day target is RoostNI's own, not a legal deadline.
+ */
+async function runTenancyRecordsReminders(admin: Admin, runDate: string, out: ReminderOutcome) {
+  const { tenancyChecklist, daysSinceAdded, isReminderDay } = await import("./tenancy-completeness");
+  const { data, error } = await admin
+    .from("passport_shares")
+    .select(
+      "id, tenancy_start_date, tenancy_status, rent_frequency, deposit_received_at, deposit_scheme, deposit_protected_at, tenant_phone, tin_given_at, property_listings!inner(landlord_id, created_at, monthly_rent, deposit, ni_landlord_reg_number, existing_tenant_name, existing_tenant_email, is_test, occupancy_status)",
+    )
+    .eq("lease_kind", "existing_agreement")
+    .limit(2000);
+  if (error) {
+    out.errors.push(`records: ${error.message}`);
+    return;
+  }
+  const now = new Date(`${runDate}T12:00:00Z`);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  for (const row of (data ?? []) as any[]) {
+    const l = row.property_listings;
+    if (!l || l.is_test || l.occupancy_status !== "tenanted") continue;
+    if (row.tenancy_status && row.tenancy_status !== "active") continue;
+    const day = daysSinceAdded(l.created_at, now);
+    if (!isReminderDay(day)) continue;
+    const list = tenancyChecklist({
+      tenancy_start_date: row.tenancy_start_date,
+      monthly_rent: l.monthly_rent,
+      rent_frequency: row.rent_frequency,
+      deposit: l.deposit,
+      deposit_received_at: row.deposit_received_at,
+      deposit_scheme: row.deposit_scheme,
+      deposit_protected_at: row.deposit_protected_at,
+      tenant_name: l.existing_tenant_name,
+      tenant_email: l.existing_tenant_email,
+      tenant_phone: row.tenant_phone,
+      tin_given_at: row.tin_given_at,
+      ni_landlord_reg_number: l.ni_landlord_reg_number,
+    });
+    const missing = list.filter((i) => !i.done);
+    if (missing.length === 0) continue;
+    const done = list.length - missing.length;
+    await sendOnce(
+      admin,
+      runDate,
+      {
+        type: "tenancy_records_reminder",
+        recipientId: l.landlord_id,
+        entityType: "passport_share",
+        entityId: row.id,
+        kind: `records_reminder:${day}`,
+        title: `Your tenancy records: ${done} of ${list.length} done`,
+        body: `RoostNI helps you keep your records in order. Still to add: ${missing.map((m) => m.label.toLowerCase()).join(", ")}. The 10-day target is RoostNI's, not a legal deadline, and every tool stays open while you finish.`,
+        linkPath: `/landlord/manage-tenancy?share=${row.id}&tab=overview`,
+      },
+      out,
+    );
+  }
+}
+
 /** Entry point for the daily job. */
 export async function runDailyReminders(): Promise<ReminderOutcome> {
   const out: ReminderOutcome = { sent: 0, skipped: 0, errors: [] };
@@ -453,6 +514,7 @@ export async function runDailyReminders(): Promise<ReminderOutcome> {
 
   await runRentAndDepositReminders(supabaseAdmin, runDate, out);
   await runCertificateReminders(supabaseAdmin, runDate, out);
+  await runTenancyRecordsReminders(supabaseAdmin, runDate, out);
 
   // Housekeeping: the log only needs to be long enough to stop same-day repeats.
   await supabaseAdmin
