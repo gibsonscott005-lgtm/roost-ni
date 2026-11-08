@@ -1,4 +1,6 @@
 import { posthog } from "@/integrations/posthog/client";
+import { Progress } from "@/components/ui/progress";
+import { checklistProgress } from "@/lib/tenancy-completeness";
 import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
