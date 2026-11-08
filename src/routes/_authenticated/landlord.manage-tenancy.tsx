@@ -603,6 +603,7 @@ function ManageTenancyPage() {
           existingTenancy={isExisting}
           tinOnFileReportedAt={share.tin_on_file_reported_at}
         />
+        {isExisting ? <TenancyRecordsPanel shareId={share.id} /> : null}
         <Tabs defaultValue={searchTab || "overview"} className="w-full">
           <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-sm bg-surface-muted p-1">
             <TabsTrigger value="overview" className="rounded-xl px-3 py-2 text-xs sm:text-sm">
