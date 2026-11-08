@@ -33,8 +33,8 @@ export const CERTIFICATE_KINDS = [
   },
   {
     key: "Alarms",
-    label: "Smoke, heat & carbon monoxide alarms (interlinked)",
-    hint: "Record the date the alarms were last checked.",
+    label: "Smoke, heat & carbon monoxide alarms",
+    hint: "Smoke and heat alarms must be interlinked. Carbon monoxide alarms do not need to be. Record the date the alarms were last checked.",
   },
   {
     key: "Other",
