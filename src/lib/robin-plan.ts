@@ -1,8 +1,22 @@
 import { FOUNDING_LANDLORD_LIMIT, FOUNDING_PLAN, STANDARD_PLAN, formatGBP } from "./pricing";
 
-/** Robin's weekly plan: 5 posts, at least 3 landlord problems, 1 founding places, 1 how to list. */
-export type PostType = "landlord_problem" | "founding_places" | "how_to_list";
-export const WEEKLY_PLAN: PostType[] = ["landlord_problem", "founding_places", "landlord_problem", "how_to_list", "landlord_problem"];
+/**
+ * Robin's weekly plan: 14 loud text-only "join RoostNI" posts, 2 a day.
+ * 8 pain/urgency, 3 founder voice, 2 existing tenancy, 1 useful tip.
+ * Index 2k is slot A (a group), 2k+1 is slot B (the RoostNI Page).
+ * Legacy types stay in the union so older drafts still read.
+ */
+export type PostType = "pain_urgency" | "founder_voice" | "existing_tenancy" | "useful_tip" | "landlord_problem" | "founding_places" | "how_to_list";
+export const WEEKLY_PLAN: PostType[] = [
+  "pain_urgency", "founder_voice",
+  "pain_urgency", "existing_tenancy",
+  "pain_urgency", "pain_urgency",
+  "founder_voice", "pain_urgency",
+  "pain_urgency", "useful_tip",
+  "existing_tenancy", "pain_urgency",
+  "pain_urgency", "founder_voice",
+];
+export const POSTS_PER_DAY = 2;
 export const TOPIC_COOLDOWN_DAYS = 14;
 export const TENANT_TIP_WINDOW = 5;
 
@@ -25,21 +39,22 @@ export function withinCooldown(postedOrDraftedAt: string, now = new Date()): boo
   return now.getTime() - new Date(postedOrDraftedAt).getTime() < TOPIC_COOLDOWN_DAYS * 86400000;
 }
 
-export interface ResultRow { post_id: string; reach: number; reactions: number; comments: number; shares: number; link_clicks: number }
-export const engagement = (r: ResultRow) => r.reactions + r.comments * 2 + r.shares * 3 + r.link_clicks * 3;
+export interface ResultRow { post_id: string; reach: number; reactions: number; comments: number; shares: number; link_clicks: number; follows_gained?: number | null }
+/** Follows count as strongly as shares: a follow is the outcome loud posts are for. */
+export const engagement = (r: ResultRow) => r.reactions + r.comments * 2 + r.shares * 3 + r.link_clicks * 3 + (r.follows_gained ?? 0) * 3;
 
-export interface ReviewPost { id: string; angle: string; persona: string; group: string; hasLink: boolean; mode: string }
+export interface ReviewPost { id: string; angle: string; persona: string; group: string; hasLink: boolean; mode: string; postType?: string }
 export type Verdict = "win" | "loss" | "too_little_data";
-export interface Comparison { dimension: string; value: string; postIds: string[]; avgEngagement: number; avgReach: number; verdict: Verdict }
+export interface Comparison { dimension: string; value: string; postIds: string[]; avgEngagement: number; avgReach: number; avgFollows: number; verdict: Verdict }
 
-/** Compare the week by angle, persona, group, link/no link and mode. Needs 2+ posts with results to call a win or loss. */
+/** Compare the week by post type, angle, persona, group, link/no link and mode. Needs 2+ posts with results to call a win or loss. */
 export function compareWeek(posts: ReviewPost[], results: ResultRow[]): Comparison[] {
   const latest = new Map<string, ResultRow>();
   for (const r of results) latest.set(r.post_id, r);
   const scored = posts.filter(p => latest.has(p.id));
   if (!scored.length) return [];
   const overall = scored.reduce((n, p) => n + engagement(latest.get(p.id)!), 0) / scored.length;
-  const dims: [string, (p: ReviewPost) => string][] = [["angle", p => p.angle], ["persona", p => p.persona], ["group", p => p.group], ["link", p => p.hasLink ? "with link" : "no link"], ["mode", p => p.mode]];
+  const dims: [string, (p: ReviewPost) => string][] = [["post type", p => p.postType ?? "legacy"], ["angle", p => p.angle], ["persona", p => p.persona], ["group", p => p.group], ["link", p => p.hasLink ? "with link" : "no link"], ["mode", p => p.mode]];
   const out: Comparison[] = [];
   for (const [dimension, key] of dims) {
     const buckets = new Map<string, ReviewPost[]>();
@@ -47,9 +62,10 @@ export function compareWeek(posts: ReviewPost[], results: ResultRow[]): Comparis
     for (const [value, list] of buckets) {
       const avgEngagement = list.reduce((n, p) => n + engagement(latest.get(p.id)!), 0) / list.length;
       const avgReach = list.reduce((n, p) => n + latest.get(p.id)!.reach, 0) / list.length;
+      const avgFollows = list.reduce((n, p) => n + (latest.get(p.id)!.follows_gained ?? 0), 0) / list.length;
       let verdict: Verdict = "too_little_data";
       if (list.length >= 2 && scored.length >= 3 && overall > 0) verdict = avgEngagement >= overall * 1.25 ? "win" : avgEngagement <= overall * 0.75 ? "loss" : "too_little_data";
-      out.push({ dimension, value, postIds: list.map(p => p.id), avgEngagement: Math.round(avgEngagement * 10) / 10, avgReach: Math.round(avgReach), verdict });
+      out.push({ dimension, value, postIds: list.map(p => p.id), avgEngagement: Math.round(avgEngagement * 10) / 10, avgReach: Math.round(avgReach), avgFollows: Math.round(avgFollows * 10) / 10, verdict });
     }
   }
   return out;
