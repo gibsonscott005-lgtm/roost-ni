@@ -30,3 +30,5 @@
 - [x] Tenancy information notice reminders (new RoostNI tenancies only) and landlord registration reminders, wording from approved legal facts. Deposit return wording left unchanged by request.
 - [x] End-of-tenancy panel: 28-day deposit return figure, countdowns and overdue colouring removed; scheme-repayment wording added. DEPOSIT_RETURN_DAYS kept, marked not displayed.
 - [x] Tenancy information notice reminders count from the signing date (fallback start date) with "granted" wording.
+- [x] Certificate vault alarms label and hint reworded (interlinking explained, no "interlinked" in the label); health bar and reminder labels untouched.
+- [x] Blog notice-to-quit article: 3 months' written notice of a rent increase from 1 April 2025 added, arrears-invalidation sentence removed; 12-month rule kept.
