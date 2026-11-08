@@ -1,3 +1,4 @@
+import { TenantInviteCard } from "@/components/tenant-invite-card";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -14,6 +15,7 @@ const SCHEMES = ["TDS Northern Ireland", "MyDeposits Northern Ireland"];
 interface Row {
   id: string;
   listing_id: string;
+  tenant_id: string | null;
   tenancy_start_date: string | null;
   rent_frequency: string | null;
   deposit_received_at: string | null;
@@ -40,7 +42,7 @@ export function TenancyRecordsPanel({ shareId }: { shareId: string }) {
       const { data, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, listing_id, tenancy_start_date, rent_frequency, deposit_received_at, deposit_scheme, deposit_protected_at, tenant_phone, tin_given_at, listing:property_listings!listing_id(created_at, monthly_rent, deposit, ni_landlord_reg_number, existing_tenant_name, existing_tenant_email)",
+          "id, listing_id, tenant_id, tenancy_start_date, rent_frequency, deposit_received_at, deposit_scheme, deposit_protected_at, tenant_phone, tin_given_at, listing:property_listings!listing_id(created_at, monthly_rent, deposit, ni_landlord_reg_number, existing_tenant_name, existing_tenant_email)",
         )
         .eq("id", shareId)
         .maybeSingle();
@@ -203,6 +205,7 @@ export function TenancyRecordsPanel({ shareId }: { shareId: string }) {
       >
         {save.isPending ? "Saving…" : "Save records"}
       </button>
+      <TenantInviteCard shareId={row.id} defaultEmail={row.listing?.existing_tenant_email} linked={!!row.tenant_id} />
     </section>
   );
 }

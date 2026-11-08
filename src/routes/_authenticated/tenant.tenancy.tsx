@@ -152,7 +152,7 @@ function TenantTenancyPage() {
         .from("passport_shares")
         .select("id, lease_status, lease_signed_at, shared_at")
         .eq("tenant_id", user!.id)
-        .in("lease_status", ["counter_signed", "signed_pending_landlord", "sent_to_tenant"])
+        .in("lease_status", ["counter_signed", "existing", "signed_pending_landlord", "sent_to_tenant"])
         .order("lease_signed_at", { ascending: false, nullsFirst: false })
         .order("shared_at", { ascending: false })
         .limit(1);

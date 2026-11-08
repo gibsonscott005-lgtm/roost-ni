@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BetaRouteImport } from './routes/beta'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as HowRoostniIsFundedRouteImport } from './routes/how-roostni-is-funded'
+import { Route as InviteRouteImport } from './routes/invite'
 import { Route as LandlordRegistrationNiRouteImport } from './routes/landlord-registration-ni'
 import { Route as ListPropertyRouteImport } from './routes/list-property'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -86,6 +87,11 @@ const HelpRoute = HelpRouteImport.update({
 const HowRoostniIsFundedRoute = HowRoostniIsFundedRouteImport.update({
   id: '/how-roostni-is-funded',
   path: '/how-roostni-is-funded',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteRoute = InviteRouteImport.update({
+  id: '/invite',
+  path: '/invite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LandlordRegistrationNiRoute = LandlordRegistrationNiRouteImport.update({
@@ -301,6 +307,7 @@ export interface FileRoutesByFullPath {
   '/beta': typeof BetaRoute
   '/help': typeof HelpRoute
   '/how-roostni-is-funded': typeof HowRoostniIsFundedRoute
+  '/invite': typeof InviteRoute
   '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
   '/list-property': typeof ListPropertyRoute
   '/mcp': typeof McpRoute
@@ -346,6 +353,7 @@ export interface FileRoutesByTo {
   '/beta': typeof BetaRoute
   '/help': typeof HelpRoute
   '/how-roostni-is-funded': typeof HowRoostniIsFundedRoute
+  '/invite': typeof InviteRoute
   '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
   '/list-property': typeof ListPropertyRoute
   '/mcp': typeof McpRoute
@@ -392,6 +400,7 @@ export interface FileRoutesById {
   '/beta': typeof BetaRoute
   '/help': typeof HelpRoute
   '/how-roostni-is-funded': typeof HowRoostniIsFundedRoute
+  '/invite': typeof InviteRoute
   '/landlord-registration-ni': typeof LandlordRegistrationNiRoute
   '/list-property': typeof ListPropertyRoute
   '/mcp': typeof McpRoute
@@ -439,6 +448,7 @@ export interface FileRouteTypes {
     | '/beta'
     | '/help'
     | '/how-roostni-is-funded'
+    | '/invite'
     | '/landlord-registration-ni'
     | '/list-property'
     | '/mcp'
@@ -484,6 +494,7 @@ export interface FileRouteTypes {
     | '/beta'
     | '/help'
     | '/how-roostni-is-funded'
+    | '/invite'
     | '/landlord-registration-ni'
     | '/list-property'
     | '/mcp'
@@ -529,6 +540,7 @@ export interface FileRouteTypes {
     | '/beta'
     | '/help'
     | '/how-roostni-is-funded'
+    | '/invite'
     | '/landlord-registration-ni'
     | '/list-property'
     | '/mcp'
@@ -576,6 +588,7 @@ export interface RootRouteChildren {
   BetaRoute: typeof BetaRoute
   HelpRoute: typeof HelpRoute
   HowRoostniIsFundedRoute: typeof HowRoostniIsFundedRoute
+  InviteRoute: typeof InviteRoute
   LandlordRegistrationNiRoute: typeof LandlordRegistrationNiRoute
   ListPropertyRoute: typeof ListPropertyRoute
   McpRoute: typeof McpRoute
@@ -650,6 +663,13 @@ declare module '@tanstack/react-router' {
       path: '/how-roostni-is-funded'
       fullPath: '/how-roostni-is-funded'
       preLoaderRoute: typeof HowRoostniIsFundedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite': {
+      id: '/invite'
+      path: '/invite'
+      fullPath: '/invite'
+      preLoaderRoute: typeof InviteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/landlord-registration-ni': {
@@ -978,6 +998,7 @@ const rootRouteChildren: RootRouteChildren = {
   BetaRoute: BetaRoute,
   HelpRoute: HelpRoute,
   HowRoostniIsFundedRoute: HowRoostniIsFundedRoute,
+  InviteRoute: InviteRoute,
   LandlordRegistrationNiRoute: LandlordRegistrationNiRoute,
   ListPropertyRoute: ListPropertyRoute,
   McpRoute: McpRoute,
