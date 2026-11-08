@@ -1,3 +1,4 @@
+import { cleanName } from "@/lib/display-name";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { depositDeadlines } from "@/lib/deposit-deadlines";
 import { TenancyRecordsPanel } from "@/components/tenancy-records-panel";
@@ -206,7 +207,7 @@ function ManageTenancyPage() {
   const share = tenancyQuery.data?.share ?? null;
   const receipts = tenancyQuery.data?.receipts ?? [];
   const inventory = tenancyQuery.data?.inventory ?? [];
-  const tenantName = share?.tenant?.full_name || share?.listing?.existing_tenant_name || "Tenant";
+  const tenantName = cleanName(share?.tenant?.full_name) || cleanName(share?.listing?.existing_tenant_name) || "Tenant";
   const listing = share?.listing;
   const address = listing?.address || listing?.location || listing?.title || "Property";
   const rent = Number(listing?.monthly_rent ?? 0);
@@ -419,7 +420,7 @@ function ManageTenancyPage() {
       rentReceiptHtml({
         receiptId: r.id,
         tenantName,
-        landlordName: profile?.full_name || "Landlord",
+        landlordName: cleanName(profile?.full_name) || "Landlord",
         address,
         amount: Number(r.amount),
         method: r.method,
@@ -776,7 +777,7 @@ function ManageTenancyPage() {
             <DocumentsTab
               share={share}
               tenantName={tenantName}
-              landlordName={profile?.full_name || "Landlord"}
+              landlordName={cleanName(profile?.full_name) || "Landlord"}
               address={address}
               rent={rent}
               deposit={deposit}
@@ -799,7 +800,7 @@ function ManageTenancyPage() {
               tenantId={share.tenant_id ?? ""}
               landlordId={user?.id ?? ""}
               tenantName={tenantName}
-              landlordName={profile?.full_name || "Landlord"}
+              landlordName={cleanName(profile?.full_name) || "Landlord"}
               address={address}
               listingId={share.listing_id}
               landlordRegNumber={listing?.ni_landlord_reg_number ?? null}

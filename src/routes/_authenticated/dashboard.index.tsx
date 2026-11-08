@@ -1,3 +1,4 @@
+import { firstName } from "@/lib/display-name";
 import { posthog } from "@/integrations/posthog/client";
 import { Progress } from "@/components/ui/progress";
 import { checklistProgress } from "@/lib/tenancy-completeness";
@@ -584,7 +585,7 @@ function TenantDashboard() {
           Dashboard overview
         </p>
         <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-          Welcome back{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
+          Welcome back{firstName(profile?.full_name) ? `, ${firstName(profile?.full_name)}` : ""}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Here's a snapshot of your tenant activity on RoostNI.

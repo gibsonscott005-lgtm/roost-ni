@@ -1,3 +1,4 @@
+import { cleanName } from '../display-name'
 import * as React from 'react'
 import {
   Body,
@@ -28,7 +29,7 @@ const WelcomeLandlord = ({ name }: Props) => (
         </Text>
         <Section style={card}>
           <Text style={tag}>{'// RoostNI · Northern Ireland'}</Text>
-          <Heading style={heading}>{name ? `Welcome, ${name}` : 'Welcome to RoostNI'}</Heading>
+          <Heading style={heading}>{cleanName(name) ? `Welcome, ${cleanName(name)}` : "Welcome to RoostNI"}</Heading>
           <Text style={paragraph}>
             Thanks for joining us. RoostNI is built for self-managing landlords in Northern Ireland
             — tenancy paperwork, statutory dates (deposit protection, gas safety, EPC) and rent

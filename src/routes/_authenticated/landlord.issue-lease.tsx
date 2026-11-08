@@ -1,3 +1,4 @@
+import { cleanName } from "@/lib/display-name";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { useMemo, useState, useRef } from "react";
@@ -61,7 +62,7 @@ function IssueLeasePage() {
 
   const ctx = ctxQuery.data;
   const tenantName = ctx?.tenant?.full_name || "Tenant";
-  const landlordName = profile?.full_name || "Landlord";
+  const landlordName = cleanName(profile?.full_name) || "Landlord";
   const propertyAddress = ctx?.listing?.address || ctx?.listing?.location || ctx?.listing?.title || "Property address";
   const monthlyRent = ctx?.listing?.monthly_rent ?? 0;
   const deposit = ctx?.listing?.deposit ?? (Number(monthlyRent) || 0);
