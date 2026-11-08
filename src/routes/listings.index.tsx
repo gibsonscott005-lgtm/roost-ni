@@ -1,3 +1,4 @@
+import { EmptySearchAlert } from "@/components/empty-search-alert";
 import { getEventContext } from "@/lib/utm-session";
 
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
@@ -443,9 +444,11 @@ function ListingsIndexPage() {
         </div>
 
         {rows.length > 0 && filtered.length === 0 ? (
-          <p className="mt-10 text-center text-sm text-muted-foreground">
-            No listings match your search or filters yet.
-          </p>
+          <EmptySearchAlert
+            area={query.trim() || "Northern Ireland"}
+            bedrooms={beds === "Any" || beds === "Studio" ? undefined : Number(beds.replace("+", ""))}
+            maxRent={maxRent ? Number(maxRent) : undefined}
+          />
         ) : null}
       </main>
     </div>
