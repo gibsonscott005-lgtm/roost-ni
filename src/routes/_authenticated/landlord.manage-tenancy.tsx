@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { depositDeadlines } from "@/lib/deposit-deadlines";
+import { TenancyRecordsPanel } from "@/components/tenancy-records-panel";
 import { z } from "zod";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
