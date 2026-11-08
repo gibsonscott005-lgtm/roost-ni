@@ -1,4 +1,7 @@
+import { firstName } from "@/lib/display-name";
 import { posthog } from "@/integrations/posthog/client";
+import { Progress } from "@/components/ui/progress";
+import { checklistProgress } from "@/lib/tenancy-completeness";
 import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -88,6 +91,8 @@ interface Listing {
   existing_tenant_name: string | null;
   existing_tenancy_start: string | null;
   ni_landlord_reg_number: string | null;
+  existing_tenant_email?: string | null;
+  deposit?: number | null;
 }
 
 /** LRN not yet supplied (quick-add saves "Pending"). */
@@ -113,6 +118,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [applicationsCount, setApplicationsCount] = useState<number | undefined>(undefined);
   const [executedByListing, setExecutedByListing] = useState<Record<string, string>>({});
+  const [progressByListing, setProgressByListing] = useState<Record<string, { done: number; total: number }>>({});
 
   const isLandlord = profile?.account_type === "landlord";
 
@@ -121,7 +127,7 @@ function Dashboard() {
     const { data } = await supabase
       .from("property_listings")
       .select(
-        "id, title, address, location, monthly_rent, heating_type, is_published, created_at, photo_urls, occupancy_status, existing_tenant_name, existing_tenancy_start, ni_landlord_reg_number",
+        "id, title, address, location, monthly_rent, heating_type, is_published, created_at, photo_urls, occupancy_status, existing_tenant_name, existing_tenant_email, existing_tenancy_start, ni_landlord_reg_number, deposit",
       )
       .eq("landlord_id", user.id)
       .order("created_at", { ascending: false });
@@ -131,7 +137,7 @@ function Dashboard() {
       const ids = rows.map((r) => r.id);
       const { data: shares } = await supabase
         .from("passport_shares")
-        .select("id, listing_id, lease_status, tenancy_status")
+        .select("id, listing_id, lease_status, lease_kind, tenancy_status, tenancy_start_date, rent_frequency, deposit_received_at, deposit_scheme, deposit_protected_at, tenant_phone, tin_given_at")
         .in("listing_id", ids)
         .in("lease_status", ["counter_signed", "existing"])
         .neq("tenancy_status", "completed");
@@ -140,8 +146,33 @@ function Dashboard() {
         if (!map[s.listing_id]) map[s.listing_id] = s.id;
       });
       setExecutedByListing(map);
+      const prog: Record<string, { done: number; total: number }> = {};
+      type S = { listing_id: string; lease_kind: string | null; [k: string]: unknown };
+      ((shares as S[] | null) ?? []).forEach((s) => {
+        if (s.lease_kind !== "existing_agreement" || prog[s.listing_id]) return;
+        const l = rows.find((r) => r.id === s.listing_id);
+        if (!l || l.occupancy_status !== "tenanted") return;
+        const str = (k: string) => (s[k] as string | null) ?? null;
+        const p = checklistProgress({
+          tenancy_start_date: str("tenancy_start_date"),
+          monthly_rent: l.monthly_rent,
+          rent_frequency: str("rent_frequency"),
+          deposit: l.deposit ?? null,
+          deposit_received_at: str("deposit_received_at"),
+          deposit_scheme: str("deposit_scheme"),
+          deposit_protected_at: str("deposit_protected_at"),
+          tenant_name: l.existing_tenant_name,
+          tenant_email: l.existing_tenant_email ?? null,
+          tenant_phone: str("tenant_phone"),
+          tin_given_at: str("tin_given_at"),
+          ni_landlord_reg_number: l.ni_landlord_reg_number,
+        });
+        if (p) prog[s.listing_id] = p;
+      });
+      setProgressByListing(prog);
     } else {
       setExecutedByListing({});
+      setProgressByListing({});
     }
     setLoading((prev) => (prev ? false : prev));
   };
@@ -187,6 +218,7 @@ function Dashboard() {
           listings={listings}
           loading={loading}
           executedByListing={executedByListing}
+          progressByListing={progressByListing}
           onAdd={() => {
             trackLandlordStep("add_property_clicked");
             setTab("add");
@@ -553,7 +585,7 @@ function TenantDashboard() {
           Dashboard overview
         </p>
         <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-          Welcome back{profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
+          Welcome back{firstName(profile?.full_name) ? `, ${firstName(profile?.full_name)}` : ""}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Here's a snapshot of your tenant activity on RoostNI.
@@ -1230,12 +1262,14 @@ function MyProperties({
   listings,
   loading,
   executedByListing,
+  progressByListing,
   onAdd,
   onRefresh,
 }: {
   listings: Listing[];
   loading: boolean;
   executedByListing: Record<string, string>;
+  progressByListing: Record<string, { done: number; total: number }>;
   onAdd: () => void;
   onRefresh: () => Promise<void> | void;
 }) {
@@ -1387,6 +1421,17 @@ function MyProperties({
                         </Link>
                       ) : null}
                     </div>
+                    {progressByListing[l.id] ? (
+                      <div className="mt-2 max-w-xs" aria-label="Tenancy records progress">
+                        <p className="text-[11px] font-medium text-muted-foreground">
+                          Tenancy records: {progressByListing[l.id].done} of {progressByListing[l.id].total} done
+                        </p>
+                        <Progress
+                          value={(progressByListing[l.id].done / progressByListing[l.id].total) * 100}
+                          className="mt-1 h-1.5"
+                        />
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </div>

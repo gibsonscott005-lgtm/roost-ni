@@ -1,3 +1,4 @@
+import { cleanName } from "@/lib/display-name";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { useEffect, useMemo } from "react";
@@ -151,7 +152,7 @@ function TenantTenancyPage() {
         .from("passport_shares")
         .select("id, lease_status, lease_signed_at, shared_at")
         .eq("tenant_id", user!.id)
-        .in("lease_status", ["counter_signed", "signed_pending_landlord", "sent_to_tenant"])
+        .in("lease_status", ["counter_signed", "existing", "signed_pending_landlord", "sent_to_tenant"])
         .order("lease_signed_at", { ascending: false, nullsFirst: false })
         .order("shared_at", { ascending: false })
         .limit(1);
@@ -235,7 +236,7 @@ function TenantTenancyPage() {
           entity_type: "passport_share",
           entity_id: shareId,
           title: kind === "deposit" ? "Deposit marked as sent" : "Rent marked as sent",
-          body: `${profile?.full_name ?? "Your tenant"} flagged ${kind} as sent for ${address}. Confirm receipt.`,
+          body: `${cleanName(profile?.full_name) || "Your tenant"} flagged ${kind} as sent for ${address}. Confirm receipt.`,
           link_path: `/landlord/manage-tenancy?share=${shareId}`,
         },
       }).catch((err) => console.error("[notify]", err));
@@ -256,7 +257,7 @@ function TenantTenancyPage() {
           entity_type: "passport_share",
           entity_id: shareId,
           title: "Inventory approved",
-          body: `${profile?.full_name ?? "Your tenant"} approved the handover inventory for ${address}.`,
+          body: `${cleanName(profile?.full_name) || "Your tenant"} approved the handover inventory for ${address}.`,
           link_path: `/landlord/manage-tenancy?share=${shareId}`,
         },
       }).catch((err) => console.error("[notify]", err));
@@ -285,7 +286,7 @@ function TenantTenancyPage() {
         entity_type: "passport_share",
         entity_id: shareId,
         title: `${periodLabel} rent marked as sent`,
-        body: `${profile?.full_name ?? "Your tenant"} says £${amount.toLocaleString()} rent for ${periodLabel} has been paid at ${address}. Confirm receipt.`,
+        body: `${cleanName(profile?.full_name) || "Your tenant"} says £${amount.toLocaleString()} rent for ${periodLabel} has been paid at ${address}. Confirm receipt.`,
         link_path: `/landlord/manage-tenancy?share=${shareId}`,
       },
     })
@@ -755,7 +756,7 @@ function TenantTenancyPage() {
                 propertyId={listing.id}
                 landlordId={listing.landlord_id}
                 tenantId={user.id}
-                tenantName={profile?.full_name ?? "Tenant"}
+                tenantName={cleanName(profile?.full_name) || "Tenant"}
                 address={address}
                 shareId={shareId}
               />
@@ -817,12 +818,12 @@ function TenantTenancyPage() {
                       onClick={() =>
                         openPrintable(
                           leaseDocumentHtml({
-                            tenantName: profile?.full_name || "Tenant",
+                            tenantName: cleanName(profile?.full_name) || "Tenant",
                             landlordName: "Your landlord",
                             address,
                             rent,
                             deposit,
-                            tenantSignature: share.lease_signed_name || profile?.full_name || "",
+                            tenantSignature: share.lease_signed_name || cleanName(profile?.full_name) || "",
                             tenantSignedAt: share.lease_signed_at,
                             oilClause: !!share.lease_oil_clause,
                             heatingType: listing?.heating_type ?? null,
@@ -855,7 +856,7 @@ function TenantTenancyPage() {
                   onClick={() =>
                     openPrintable(
                       tenancyInfoNoticeHtml({
-                        tenantName: profile?.full_name || "Tenant",
+                        tenantName: cleanName(profile?.full_name) || "Tenant",
                         landlordName: "Your landlord",
                         address,
                         rent,
@@ -896,7 +897,7 @@ function TenantTenancyPage() {
               currentUserId={user?.id ?? null}
               tenantId={share.tenant_id}
               landlordId={listing?.landlord_id ?? ""}
-              tenantName={profile?.full_name || share.lease_signed_name || "Tenant"}
+              tenantName={cleanName(profile?.full_name) || share.lease_signed_name || "Tenant"}
               landlordName="Your landlord"
               address={address}
               listingId={share.listing_id}

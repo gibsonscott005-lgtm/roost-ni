@@ -1,3 +1,4 @@
+import { RelatedTools } from "@/components/related-tools";
 import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/landlord-registration-ni")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Landlord Registration Northern Ireland: Fees, Renewal & Fines (2026) — RoostNI" },
+      { title: "Landlord Registration NI: Fees, Renewal & Fines (2026) | RoostNI" },
       {
         name: "description",
         content:
@@ -396,6 +397,7 @@ function LandlordRegistrationGuide() {
           . Details checked October 2026.
         </p>
       </main>
+      <RelatedTools current="/landlord-registration-ni" />
     </div>
   );
 }

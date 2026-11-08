@@ -1,3 +1,4 @@
+import { cleanName } from '../display-name'
 import * as React from 'react'
 import {
   Body,
@@ -28,7 +29,7 @@ const WelcomeTenant = ({ name }: Props) => (
         </Text>
         <Section style={card}>
           <Text style={tag}>{'// RoostNI · Northern Ireland'}</Text>
-          <Heading style={heading}>{name ? `Welcome, ${name}` : 'Welcome to RoostNI'}</Heading>
+          <Heading style={heading}>{cleanName(name) ? `Welcome, ${cleanName(name)}` : "Welcome to RoostNI"}</Heading>
           <Text style={paragraph}>
             Thanks for joining us. RoostNI is built for renters in Northern Ireland — instead of
             re-sending payslips, ID and references for every viewing, you organise them once in a

@@ -1,3 +1,4 @@
+import { cleanName } from "@/lib/display-name";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { useState } from "react";
@@ -208,7 +209,7 @@ function ApplicationsPage() {
     },
     onSuccess: (share) => {
       toast.success("Application accepted", {
-        description: `${share.tenant?.full_name ?? "Tenant"} accepted. Listing marked as Under Offer.`,
+        description: `${cleanName(share.tenant?.full_name) || "Tenant"} accepted. Listing marked as Under Offer.`,
         action: {
           label: "Issue lease",
           onClick: () => navigate({ to: "/landlord/issue-lease", search: { share: share.id } }),
@@ -243,7 +244,7 @@ function ApplicationsPage() {
     },
     onSuccess: (share) => {
       toast.success("Lease counter-signed", {
-        description: `${share.tenant?.full_name ?? "Tenant"} has been notified. Lease is fully executed.`,
+        description: `${cleanName(share.tenant?.full_name) || "Tenant"} has been notified. Lease is fully executed.`,
       });
       refresh();
       notify({
@@ -1059,7 +1060,7 @@ function PassportSheet({
                 <Initials name={share.tenant?.full_name} />
                 <div className="min-w-0">
                   <SheetTitle className="truncate font-display text-lg tracking-tight">
-                    {share.tenant?.full_name || "Applicant"}
+                    {cleanName(share.tenant?.full_name) || "Applicant"}
                   </SheetTitle>
                   <SheetDescription className="truncate text-xs">
                     For {share.listing?.title ?? "your listing"} · applied {formatDate(share.shared_at)}
@@ -1227,7 +1228,7 @@ function PassportSheet({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Decline this application?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    {share.tenant?.full_name || "The applicant"} will be told their application isn't
+                    {cleanName(share.tenant?.full_name) || "The applicant"} will be told their application isn't
                     progressing, and your access to their passport documents ends straight away. This
                     can't be undone.
                   </AlertDialogDescription>

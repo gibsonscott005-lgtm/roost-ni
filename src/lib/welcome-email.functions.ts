@@ -1,3 +1,4 @@
+import { firstName as cleanFirstName } from '@/lib/display-name'
 import { createServerFn } from '@tanstack/react-start'
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware'
 import { sendTemplateEmail } from '@/lib/email-templates/send-email'
@@ -36,7 +37,7 @@ export const sendWelcomeEmail = createServerFn({ method: 'POST' })
         .select('id')
       if (!claimed?.length) return { sent: false }
 
-      const firstName = profile.full_name?.trim().split(/\s+/)[0] || undefined
+      const firstName = cleanFirstName(profile.full_name) ?? undefined
       const templateName =
         profile.account_type === 'landlord' ? 'welcome-landlord' : 'welcome-tenant'
 

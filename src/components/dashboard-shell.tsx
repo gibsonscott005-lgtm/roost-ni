@@ -1,3 +1,4 @@
+import { cleanName } from "@/lib/display-name";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import {
@@ -126,7 +127,7 @@ export function DashboardShell({
               // Welcome back
             </p>
             <p className="mt-3 truncate font-display text-xl font-extrabold tracking-tight">
-              {profile?.full_name || user?.email}
+              {cleanName(profile?.full_name) || user?.email}
             </p>
           </div>
           {isLandlord ? (

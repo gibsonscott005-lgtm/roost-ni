@@ -59,3 +59,10 @@ export function isReminderDay(day: number): boolean {
   if ((REMINDER_DAYS as readonly number[]).includes(day)) return true;
   return day > COMPLETION_TARGET_DAYS && (day - COMPLETION_TARGET_DAYS) % 7 === 0;
 }
+
+/** Card progress: returns null when the checklist is complete (card shows nothing). */
+export function checklistProgress(r: CompletenessInput): { done: number; total: number } | null {
+  const list = tenancyChecklist(r);
+  const done = list.filter((i) => i.done).length;
+  return done === list.length ? null : { done, total: list.length };
+}

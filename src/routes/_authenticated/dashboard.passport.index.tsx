@@ -1,3 +1,4 @@
+import { cleanName } from "@/lib/display-name";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -203,7 +204,7 @@ function MyPassportPage() {
               My passport
             </p>
             <h2 className="mt-1 font-display text-xl font-semibold tracking-tight sm:text-2xl">
-              {profile?.full_name || "Your tenant passport"}
+              {cleanName(profile?.full_name) || "Your tenant passport"}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Documents have been securely uploaded by the tenant. Landlords can review these files
