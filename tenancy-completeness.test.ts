@@ -29,3 +29,18 @@ describe("reminder schedule", () => {
     expect(daysSinceAdded("2026-11-01T23:00:00Z", new Date("2026-11-04T01:00:00Z"))).toBe(3);
   });
 });
+
+import { checklistProgress } from "./src/lib/tenancy-completeness";
+describe("dashboard card progress", () => {
+  it("shows 7 of 11 when seven items are done", () => {
+    const p = checklistProgress({ ...empty, tenancy_start_date: "2024-01-01", monthly_rent: 900, rent_frequency: "monthly",
+      deposit: 900, deposit_received_at: "2024-01-01", deposit_scheme: "TDS Northern Ireland", deposit_protected_at: "2024-01-10" });
+    expect(p).toEqual({ done: 7, total: 11 });
+  });
+  it("hides when every item is done", () => {
+    expect(checklistProgress({ tenancy_start_date: "2024-01-01", monthly_rent: 900, rent_frequency: "monthly", deposit: 900,
+      deposit_received_at: "2024-01-01", deposit_scheme: "TDS Northern Ireland", deposit_protected_at: "2024-01-10",
+      tenant_name: "A", tenant_email: "a@example.com", tenant_phone: null, tin_given_at: "2024-01-02",
+      ni_landlord_reg_number: "NI123" })).toBeNull();
+  });
+});
