@@ -559,7 +559,7 @@ async function runRegistrationReminders(admin: Admin, runDate: string, out: Remi
   const { registrationReminderKind } = await import("./statutory-reminders");
   const { data, error } = await admin
     .from("property_listings")
-    .select("id, landlord_id, title, created_at, ni_landlord_reg_number, is_test")
+    .select("id, landlord_id, title, created_at, ni_landlord_reg_number, is_test, occupancy_status")
     .eq("is_test", false)
     .limit(5000);
   if (error) {
@@ -568,6 +568,8 @@ async function runRegistrationReminders(admin: Admin, runDate: string, out: Remi
   }
   const today = new Date(`${runDate}T12:00:00Z`);
   for (const l of data ?? []) {
+    // Existing-tenancy homes already get the records checklist, which includes the registration number.
+    if (l.occupancy_status === "tenanted") continue;
     const kind = registrationReminderKind({ addedAt: l.created_at, regNumber: l.ni_landlord_reg_number, today });
     if (!kind) continue;
     await sendOnce(admin, runDate, {
