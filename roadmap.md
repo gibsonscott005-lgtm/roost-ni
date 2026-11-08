@@ -32,3 +32,9 @@
 - [x] Tenancy information notice reminders count from the signing date (fallback start date) with "granted" wording.
 - [x] Certificate vault alarms label and hint reworded (interlinking explained, no "interlinked" in the label); health bar and reminder labels untouched.
 - [x] Blog notice-to-quit article: 3 months' written notice of a rent increase from 1 April 2025 added, arrears-invalidation sentence removed; 12-month rule kept.
+- [x] Tenanted property card shows "X of 11 done" progress for existing tenancies with items missing.
+- [x] Tenant invite: landlord emails a single-use 14-day link; tenant signs up/in with the invited email and is linked to the existing tenancy.
+- [x] Homepage landlord FAQ: notice to quit and deposit cap questions using approved legal_facts wording.
+- [x] Blank-name fallbacks across emails, notifications and dashboard ("Hi there" / no greeting).
+- [x] SEO: two long titles shortened, related-tool links on audit, registration and blog articles (sitemap lastmod and article data already in place).
+- [ ] Microsoft Clarity — waits for the Clarity project ID from the owner.
