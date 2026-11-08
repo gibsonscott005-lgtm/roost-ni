@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { cleanName } from '../display-name'
 import { Body, Button, Container, Head, Heading, Html, Preview, Section, Text } from '@react-email/components'
 import type { TemplateEntry } from './registry'
 import { button, card, container, dot, footnote, heading, main, paragraph, tag, wordmark } from './brutal-styles'
@@ -10,10 +11,12 @@ interface Props {
 }
 
 const SetupHelpRequested = ({
-  name = 'A landlord',
+  name: rawName,
   email = '',
   url = 'https://roostni.co.uk/dashboard/landlord-funnel',
-}: Props) => (
+}: Props) => {
+  const name = cleanName(rawName) ?? 'A landlord'
+  return (
   <Html lang="en-GB" dir="ltr">
     <Head />
     <Preview>{`${name} asked you to set up their first property`}</Preview>
@@ -39,10 +42,11 @@ const SetupHelpRequested = ({
     </Body>
   </Html>
 )
+}
 
 export const template = {
   component: SetupHelpRequested,
-  subject: (d: Record<string, any>) => `Set-up help requested: ${d.name ?? 'a landlord'}`,
+  subject: (d: Record<string, any>) => `Set-up help requested: ${cleanName(d.name) ?? "a landlord"}`,
   displayName: 'Landlord set-up help requested',
   previewData: { name: 'Jane Landlord', email: 'jane@example.com' },
   to: 'scott@roostni.co.uk',
