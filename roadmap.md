@@ -28,3 +28,5 @@
 - [x] Robin: 14 text-only posts a week (2 a day: groups 12:30, RoostNI Page 19:00), 8 pain / 3 founder / 2 existing tenancy / 1 tip, follows gained in results and weekly comparison by post type.
 - [x] Partial Tenant Passport: landlords see figures and statuses; ID, income and reference files open only after the tenant makes it a formal application (server-enforced, cleared on withdraw/decline).
 - [x] Tenancy information notice reminders (new RoostNI tenancies only) and landlord registration reminders, wording from approved legal facts. Deposit return wording left unchanged by request.
+- [x] End-of-tenancy panel: 28-day deposit return figure, countdowns and overdue colouring removed; scheme-repayment wording added. DEPOSIT_RETURN_DAYS kept, marked not displayed.
+- [x] Tenancy information notice reminders count from the signing date (fallback start date) with "granted" wording.
