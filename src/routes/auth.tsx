@@ -4,7 +4,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Mail, Lock, UserRound, ShieldCheck, Building2, IdCard, Home, ArrowLeft } from "lucide-react";
+import { Mail, Lock, ShieldCheck, Building2, IdCard, Home, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { posthog } from "@/integrations/posthog/client";
 import { sendWelcomeEmail } from "@/lib/welcome-email.functions";
@@ -205,11 +205,10 @@ function AuthPage() {
   } = Route.useSearch();
   const [role, setRole] = useState<Role>(roleFromSearch ?? "tenant");
   const [mode, setMode] = useState<Mode>(modeFromSearch ?? "signup");
-  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState(emailFromSearch ?? "");
 
   const [password, setPassword] = useState("");
-  const [hearAboutUs, setHearAboutUs] = useState("");
+  const hearAboutUs = "";
   const [utmParams, setUtmParams] = useState<{ source?: string; medium?: string; campaign?: string; content?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   // Synchronous lock: state updates lag a frame, so a rapid double-tap on
