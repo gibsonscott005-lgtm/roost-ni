@@ -109,11 +109,20 @@ export const resolveSimulatedVerification = createServerFn({ method: "POST" })
     // The caller never chooses the outcome: the simulated check passes only
     // when the passport on file actually carries an identity document, mirroring
     // what a real provider would inspect.
+    // A simulation inspects nothing, so it can never mint a "verified" status:
+    // a passport with a document on file is recorded as self-certified only.
     const hasDocument = Boolean(existing.id_document_type && existing.id_document_path);
-    const outcome: "verified" | "failed" = hasDocument ? "verified" : "failed";
+    const outcome: "self_certified" | "failed" = hasDocument ? "self_certified" : "failed";
 
     const sessionId = existing.id_session_id;
-    const result = simulatedResult(outcome, profile?.full_name ?? null);
+    const sim = simulatedResult(outcome === "failed" ? "failed" : "verified", null);
+    const result = {
+      ...sim,
+      outcome,
+      verifiedFullName: null as string | null,
+      verifiedDateOfBirth: null as string | null,
+    };
+    void profile;
     if (outcome === "failed") {
       result.failureReason =
         "Simulated failure — add an identity document to your passport before running the check.";
@@ -131,8 +140,8 @@ export const resolveSimulatedVerification = createServerFn({ method: "POST" })
           id_status: result.outcome,
           id_provider: "simulated",
           id_session_id: sessionId,
-          id_verified_at: result.outcome === "verified" ? now : null,
-          identity_verified: result.outcome === "verified",
+          id_verified_at: result.outcome === "self_certified" ? now : null,
+          identity_verified: false,
           verified_full_name: result.verifiedFullName,
           verified_date_of_birth: result.verifiedDateOfBirth,
           id_document_expiry: result.documentExpiry,
@@ -149,7 +158,7 @@ export const resolveSimulatedVerification = createServerFn({ method: "POST" })
       provider: "simulated",
       session_id: sessionId,
       event_type:
-        result.outcome === "verified" ? "verification_passed" : "verification_failed",
+        result.outcome === "self_certified" ? "simulated_self_certified" : "verification_failed",
       payload: {
         simulated: true,
         outcome: result.outcome,
