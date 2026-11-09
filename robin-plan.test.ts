@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { PAUSED_POST_TYPES, signupPostProblems, callToAction, TENANTED_ENTRY_URL, WEEKLY_PLAN, foundingPlacesLeft, foundingOfferLine, tenantTipBlocked, compareWeek, withinCooldown } from "./src/lib/robin-plan";
+import { completeSignupPost, FOUNDING_SHORT_LINE, PAUSED_POST_TYPES, signupPostProblems, callToAction, TENANTED_ENTRY_URL, WEEKLY_PLAN, foundingPlacesLeft, foundingOfferLine, tenantTipBlocked, compareWeek, withinCooldown } from "./src/lib/robin-plan";
 import { validateMarketingCopy } from "./src/lib/marketing-knowledge";
 import { DEFAULT_GROUPS, firstCommentText } from "./src/lib/robin-groups";
 
@@ -100,4 +100,11 @@ test("founding and tenanted posts carry their required details and calls to acti
   expect(callToAction("move_tenanted").link).toBe(TENANTED_ENTRY_URL);
   expect(decodeURIComponent(new URL(TENANTED_ENTRY_URL).searchParams.get("next")!)).toBe("/dashboard?add=tenanted");
   expect(callToAction("founding_offer").cta).toBe("Claim a founding place:");
+});
+test("missing founding, tenanted and what-it-does lines are added above the call to action", () => {
+  const f = completeSignupPost("Start with one home.\nClaim a founding place: link in the first comment.", "founding_offer");
+  expect(f).toContain(FOUNDING_SHORT_LINE);
+  expect(signupPostProblems(f, "founding_offer", false)).toEqual([]);
+  const t = completeSignupPost("Got a tenant already?\nAdd your first home: link in the first comment.", "move_tenanted");
+  expect(signupPostProblems(t, "move_tenanted", false)).toEqual([]);
 });

@@ -49,6 +49,20 @@ export function foundingOfferLine(placesLeft: number | null): string {
 /** Short founding line every founding post carries word for word. */
 export const FOUNDING_SHORT_LINE = "First 20 landlords who add a home, tenanted or not: first month free, then £5 first home, £3 each extra, locked for 24 months.";
 
+export const WHAT_IT_DOES_LINE = "RoostNI: run the tenancy yourself, from one place. Listing, Tenant Passport, rent records, deposit and notice reminders, compliance tools.";
+export const TENANTED_TIME_LINE = "About 10 days to complete the records, with reminders along the way.";
+/** Adds any required line Robin left out, just above the call to action, so every post carries it word for word. */
+export function completeSignupPost(body: string, type: PostType): string {
+  const lines = body.trim().split("\n");
+  const ctaAt = lines.map(l => l.trim()).findLastIndex(l => l.startsWith(callToAction(type).cta.replace(/:$/, "")));
+  const add: string[] = [];
+  if (!lines.some(l => /RoostNI/.test(l) && /Tenant Passport/i.test(l) && /rent records/i.test(l) && /reminders/i.test(l))) add.push(WHAT_IT_DOES_LINE);
+  if (type === "founding_offer" && !body.includes(FOUNDING_SHORT_LINE)) add.push(FOUNDING_SHORT_LINE);
+  if (type === "move_tenanted" && !/about 10 days/i.test(body)) add.push(TENANTED_TIME_LINE);
+  if (!add.length || ctaAt < 0) return body.trim();
+  return [...lines.slice(0, ctaAt), ...add.flatMap(l => [l, ""]), ...lines.slice(ctaAt)].join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
 /** True when one more tenant post would break "at most 1 tenant tip in 5". */
 export function tenantTipBlocked(recentPersonas: string[]): boolean {
   return recentPersonas.slice(0, TENANT_TIP_WINDOW - 1).includes("tenant");

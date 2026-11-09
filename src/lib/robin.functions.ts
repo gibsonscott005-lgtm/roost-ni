@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { DEFAULT_GROUPS, parseRobinGroups, weekSlots, dailyPairSlots, ROOSTNI_PAGE, assertUniqueDrafts, type RobinGroup } from "./robin-groups";
 import { MARKETING_KNOWLEDGE, SIGNUP_WEEKLY_RULES, nextContentMode, prepareMarketingReview, validateMarketingCopy } from "./marketing-knowledge";
-import { WEEKLY_PLAN, PAUSED_POST_TYPES, TOPIC_COOLDOWN_DAYS, TENANT_TIP_WINDOW, tenantTipBlocked, foundingPlacesLeft, foundingOfferLine, callToAction, signupPostProblems, type PostType } from "./robin-plan";
+import { WEEKLY_PLAN, PAUSED_POST_TYPES, completeSignupPost, TOPIC_COOLDOWN_DAYS, TENANT_TIP_WINDOW, tenantTipBlocked, foundingPlacesLeft, foundingOfferLine, callToAction, signupPostProblems, type PostType } from "./robin-plan";
 
 async function admin(client: any, userId: string) {
   const { data, error } = await client.from("profiles").select("account_type").eq("id", userId).maybeSingle();
@@ -97,7 +97,7 @@ export async function runRobinDrafts(supabaseAdmin: any, userId: string, data: R
   const prompt = [
     `Draft exactly ${total} unique Facebook posts, matching assignments in order. Return JSON object {"posts":[...]}.`,
     "ACTIVE INSIGHTS OVERRIDE DEFAULTS. Apply every win, avoid every loss:", insights?.length ? insights.map(i => `- (${i.verdict}) ${i.insight}`).join("\n") : "- none with evidence yet",
-    "VOICE: loud, blunt, brutalist. Short lines. Every post sells RoostNI to NI landlords. TEXT ONLY: no images, no image ideas.",
+    "VOICE: loud, blunt, brutalist. Short lines. No jokey asides or metaphors (no 'abandoned beside the printer'). Every post sells RoostNI to NI landlords. TEXT ONLY: no images, no image ideas.",
     "PRIORITY ORDER: 1) landlord-first, 2) a specific pain and how RoostNI fixes it, 3) hyper-local for groups: name the town from the group's places. The RoostNI Page speaks to all of NI.",
     "persona must be landlord.",
     `Never repeat any topic used in the last ${TOPIC_COOLDOWN_DAYS} days (history below) or within this batch.`,
@@ -121,6 +121,7 @@ export async function runRobinDrafts(supabaseAdmin: any, userId: string, data: R
     const assignment = assignments[i]; if (!assignment || post.group_id !== assignment.group_id) throw new Error("Robin mixed up the groups. No drafts saved.");
     if (tenantBlocked && post.persona === "tenant") throw new Error("Robin broke the 1-in-5 tenant tip limit. No drafts saved.");
     const mode = !assignment.group.promotionAllowed && assignment.content_mode === "direct" ? "soft" : assignment.content_mode;
+    post.body = completeSignupPost(post.body, assignment.post_type);
     const review = prepareMarketingReview(post, mode, data.focus === "ni_legal", "signup", approvedFacts);
     const problems = signupPostProblems(post.body, assignment.post_type, review.legal_statements.length > 0);
     if (problems.length) throw new Error(`Post ${i + 1} (${assignment.post_type}) needs revision: ${problems.join(" ")} No drafts saved.${process.env.ROBIN_DEBUG ? `\n${post.body}` : ""}`);
