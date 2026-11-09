@@ -32,3 +32,5 @@
 - Statutory reminder schedules live in src/lib/statutory-reminders.ts and each reminder is sent only while its legal_facts row (by id) is approved, so reminders stop if the law is under review; the notice reminder counts from lease_signed_at (fallback: tenancy start) and uses owner-approved 'granted' wording rather than the fact text.
 - Tenant invites store only a SHA-256 token hash in tenancy_invites (landlord read-only via RLS); sending and accepting run in server functions, and acceptance requires the confirmed account email to match, so no client can attach itself to a tenancy.
 - Greetings and name mentions go through src/lib/display-name.ts so blank, whitespace or "undefined" names never render.
+
+- Analytics consent lives in src/lib/analytics-consent.ts on top of the template src/lib/consent.ts; PostHog and campaign tags start only on a stored "granted" (banner shown to every visitor, not region-based) so nothing tracks before Accept.

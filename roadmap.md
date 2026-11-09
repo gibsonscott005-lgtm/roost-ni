@@ -38,3 +38,5 @@
 - [x] Blank-name fallbacks across emails, notifications and dashboard ("Hi there" / no greeting).
 - [x] SEO: two long titles shortened, related-tool links on audit, registration and blog articles (sitemap lastmod and article data already in place).
 - [ ] Microsoft Clarity — waits for the Clarity project ID from the owner.
+
+- [x] Cookie banner (Accept all / Reject all / Cookie settings) with PostHog and campaign tags only after Accept; footer link. Privacy page wording waits for the user.
