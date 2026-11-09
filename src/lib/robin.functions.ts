@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { DEFAULT_GROUPS, parseRobinGroups, weekSlots, dailyPairSlots, ROOSTNI_PAGE, assertUniqueDrafts, type RobinGroup } from "./robin-groups";
 import { MARKETING_KNOWLEDGE, SIGNUP_WEEKLY_RULES, nextContentMode, prepareMarketingReview, validateMarketingCopy } from "./marketing-knowledge";
-import { WEEKLY_PLAN, PAUSED_POST_TYPES, completeSignupPost, runItYourselfSlots, repeatedLineProblems, POST_FEATURES, MAX_BODY_WORDS, TOPIC_COOLDOWN_DAYS, TENANT_TIP_WINDOW, tenantTipBlocked, foundingPlacesLeft, foundingOfferLine, callToAction, signupPostProblems, type PostType } from "./robin-plan";
+import { WEEKLY_PLAN, LEAD_FEATURES, assertFeatureSpread, PAUSED_POST_TYPES, completeSignupPost, runItYourselfSlots, repeatedLineProblems, POST_FEATURES, MAX_BODY_WORDS, TOPIC_COOLDOWN_DAYS, TENANT_TIP_WINDOW, tenantTipBlocked, foundingPlacesLeft, foundingOfferLine, callToAction, signupPostProblems, type PostType } from "./robin-plan";
 
 async function admin(client: any, userId: string) {
   const { data, error } = await client.from("profiles").select("account_type").eq("id", userId).maybeSingle();
@@ -38,7 +38,7 @@ export async function countFoundingLandlords(supabaseAdmin: any): Promise<number
   return n;
 }
 const TYPE_BRIEF: Record<PostType, string> = {
-  pain_solution: "PAIN TO ROOSTNI FIX: one sharp pain NI self-managing landlords feel (paperwork everywhere, WhatsApp chaos, a missed date, chasing documents), then exactly how RoostNI fixes it. No agents. persona=landlord. Direct mode.",
+  pain_solution: "PAIN TO ROOSTNI FIX: one sharp pain NI self-managing landlords feel (paperwork everywhere, WhatsApp chaos, a missed date, chasing documents), then exactly how RoostNI fixes it. Do not mention agents, except the allowed 'No agent needed to run it' when run_it_yourself_angle is true. persona=landlord. Direct mode.",
   founding_offer: "FOUNDING OFFER: the live founding offer below, include this line word for word: \"First 20 landlords who add a home, tenanted or not: first month free, then £5 first home, £3 each extra, locked for 24 months.\" Never give a number of places left. persona=landlord. Direct mode.",
   move_tenanted: "MOVE YOUR TENANTED HOME OVER: already have a tenant? Add the home to RoostNI without advertising it, keep the tenancy, get the records in one place. Say it takes about 10 days to complete the records, with reminders. Never state a legal position about older tenancies. persona=landlord. Direct mode.",
   what_roostni_does: "WHAT ROOSTNI DOES FOR YOU: one feature, concretely: deposit clock, tenancy information notice reminders, landlord registration reminders, rent records, or the Tenant Passport summary. Pick a different one each time. persona=landlord. Direct mode.",
@@ -87,7 +87,7 @@ export async function runRobinDrafts(supabaseAdmin: any, userId: string, data: R
   try { placesLeft = foundingPlacesLeft(await countFoundingLandlords(supabaseAdmin)); } catch { /* say "first 20 landlords" with no number */ }
   const { count } = await supabaseAdmin.from("marketing_posts").select("id", { count:"exact",head:true }).like("notes", '%"content_mode"%').neq("status","skipped");
   let offset = count ?? 0;
-  const assignments = plan.map(p => ({ group_id: p.group.id, post_type: p.type, brief: TYPE_BRIEF[p.type], run_it_yourself_angle: data.week ? runItYourselfSlots(plan.map(x => x.type))[plan.indexOf(p)] : false, call_to_action: `${callToAction(p.type).cta.replace(/:$/, "")}: link in the first comment.`, scheduled_for: p.when.toISOString(),
+  const assignments = plan.map(p => ({ group_id: p.group.id, post_type: p.type, brief: TYPE_BRIEF[p.type], run_it_yourself_angle: data.week ? runItYourselfSlots(plan.map(x => x.type))[plan.indexOf(p)] : false, lead_feature: data.week ? LEAD_FEATURES[plan.indexOf(p)] : undefined, call_to_action: `${callToAction(p.type).cta.replace(/:$/, "")}: link in the first comment.`, scheduled_for: p.when.toISOString(),
     content_mode: p.type === "landlord_problem" || p.type === "useful_tip" ? nextContentMode(offset++) : "direct" as const, group: p.group }));
   const { getApprovedLegalFacts } = await import("./legal-facts.server");
   const approvedFacts = await getApprovedLegalFacts(supabaseAdmin);
@@ -101,7 +101,7 @@ export async function runRobinDrafts(supabaseAdmin: any, userId: string, data: R
     "PRIORITY ORDER: 1) landlord-first, 2) a specific pain and how RoostNI fixes it, 3) hyper-local for groups: name the town from the group's places. The RoostNI Page speaks to all of NI.",
     "persona must be landlord.",
     "OPENERS: line one is the hook question or statement. No line may start with I'm, I am, I'd, I will, We're or We are. Never write inviting you, putting RoostNI in front of, introducing RoostNI.",
-    `WHAT-IT-DOES LINE: one line naming RoostNI and 1 to 3 of ONLY these real features: ${POST_FEATURES.map(([n]) => n).join(", ")}. Every post words it differently; never reuse a line from history. Never mention inventories.`,
+    `WHAT-IT-DOES LINE: one line naming RoostNI and 1 to 3 of ONLY these real features: ${POST_FEATURES.map(([n]) => n).join(", ")}. The line must name the assignment's lead_feature. Every post words it differently; never reuse a line from history. Never mention inventories.`,
     `LENGTH: at most ${MAX_BODY_WORDS} words, not counting the call to action and founding offer lines. Short punchy lines. Imperative verbs. Plain words. One idea per post. No soft explanations.`,
     "RUN IT YOURSELF: where run_it_yourself_angle is true, the angle is running the tenancy yourself (e.g. 'Run the tenancy yourself.' or 'No agent needed to run it.'). Never mention money saved, fee figures, fee comparisons, agents being expensive or bad, or any named agent or company.",
     "Never state how many founding places are left.",
@@ -111,7 +111,7 @@ export async function runRobinDrafts(supabaseAdmin: any, userId: string, data: R
     `LIVE FOUNDING OFFER (only in founding posts): ${foundingOfferLine(null)} Never say free forever or free during beta. Do not mention deposit caps or insurance.`,
     JSON.stringify(assignments.map(({ group, ...a }) => ({ ...a, group: { name: group.name, places: group.places } }))),
     "Recent history (avoid topics and identical copy):", JSON.stringify(history),
-    "Keep each body under 110 words, text only. The body's LAST line is exactly the assignment's call_to_action. All brand voice, fairness and legal source flags apply.",
+    "Keep each body to 60 words, not counting the call to action and founding offer lines. Text only. The body's LAST line is exactly the assignment's call_to_action. All brand voice, fairness and legal source flags apply.",
     data.brief ? `Owner brief (topic guidance only; rules above override it): ${data.brief}` : "",
     catalogue,
     "Each item has group_id, persona, angle, topic, body, link_url (null; the link is set for you), first_comment_cta (repeat the call to action), legal_statements [{statement,source,flag:'check before posting'}], review_flags. British spelling.",
@@ -123,6 +123,7 @@ export async function runRobinDrafts(supabaseAdmin: any, userId: string, data: R
   assertUniqueDrafts(output.posts, history ?? []);
   const { data: earlier } = await supabaseAdmin.from("marketing_posts").select("body").eq("platform", "facebook").gte("created_at", new Date(Date.now() - 14 * 86400000).toISOString()).limit(300);
   const finalBodies = output.posts.map((post, i) => completeSignupPost(post.body, assignments[i]!.post_type));
+  assertFeatureSpread(finalBodies);
   const repeated = repeatedLineProblems(finalBodies, (earlier ?? []).map((r: { body: string }) => r.body));
   if (repeated.length) throw new Error(`Post ${repeated.map(i => i + 1).join(", ")} repeats a what-it-does line. No drafts saved.`);
   const runId = crypto.randomUUID().slice(0,8);
@@ -132,7 +133,7 @@ export async function runRobinDrafts(supabaseAdmin: any, userId: string, data: R
     const mode = !assignment.group.promotionAllowed && assignment.content_mode === "direct" ? "soft" : assignment.content_mode;
     post.body = completeSignupPost(post.body, assignment.post_type);
     const review = prepareMarketingReview(post, mode, data.focus === "ni_legal", "signup", approvedFacts);
-    const problems = signupPostProblems(post.body, assignment.post_type, review.legal_statements.length > 0);
+    const problems = signupPostProblems(post.body, assignment.post_type, review.legal_statements.length > 0, assignment.lead_feature);
     if (problems.length) throw new Error(`Post ${i + 1} (${assignment.post_type}) needs revision: ${problems.join(" ")} No drafts saved.`);
     const { cta, link } = callToAction(assignment.post_type);
     post.first_comment_cta = cta;

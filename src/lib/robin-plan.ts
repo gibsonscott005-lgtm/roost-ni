@@ -76,6 +76,19 @@ export function bodyWordCount(body: string): number {
     .join(" ").split(/\s+/).filter(Boolean).length;
 }
 export const MAX_BODY_WORDS = 60;
+/** One lead feature per WEEKLY_PLAN slot, so every post leads with a different feature. */
+export const LEAD_FEATURES: string[] = [
+  "rent records", "public NI listings", "repair and maintenance records", "deposit reminders", "Tenant Passport", "applicant inbox", "rent records",
+  "tenancy information notice reminders", "deposit reminders", "Tenant Passport", "landlord registration reminders", "repair and maintenance records",
+  "tenancy information notice reminders", "public NI listings",
+];
+export const MAX_POSTS_PER_FEATURE = 5;
+/** Throws when one feature appears in the what-it-does line of more than 5 posts in a week. */
+export function assertFeatureSpread(bodies: string[]): void {
+  const counts = new Map<string, number>();
+  for (const b of bodies) { const l = whatItDoesLine(b); if (l) for (const f of featuresIn(l)) counts.set(f, (counts.get(f) ?? 0) + 1); }
+  for (const [f, n] of counts) if (n > MAX_POSTS_PER_FEATURE) throw new Error(`"${f}" is in ${n} posts' what-it-does line (max ${MAX_POSTS_PER_FEATURE}). No drafts saved.`);
+}
 /** Which plan slots take the "run it yourself" angle: 2 of the 5 pain posts and 1 of the 3 tenanted posts. */
 export function runItYourselfSlots(plan: PostType[] = WEEKLY_PLAN): boolean[] {
   let pain = 0, tenanted = 0;
@@ -105,17 +118,18 @@ export function withinCooldown(postedOrDraftedAt: string, now = new Date()): boo
 }
 
 /** Sign-up checks for the weekly posts. Returns problems; empty means the post may be saved. */
-export function signupPostProblems(body: string, type: PostType, usesLegalFact: boolean): string[] {
+export function signupPostProblems(body: string, type: PostType, usesLegalFact: boolean, leadFeature?: string): string[] {
   const p: string[] = [];
   const lines = body.trim().split("\n").map(l => l.trim()).filter(Boolean);
   const last = lines[lines.length - 1] ?? "";
   if (PAUSED_POST_TYPES.includes(type)) p.push("Tip posts are paused.");
   if (!/RoostNI/.test(body)) p.push("Name RoostNI.");
   const what = whatItDoesLine(body);
+  if (leadFeature && !(what && featuresIn(what).includes(leadFeature))) p.push(`The what-it-does line must name the lead feature: ${leadFeature}.`);
   if (!what) p.push("Say in one line what RoostNI does, naming 1 to 3 real features.");
   else if (featuresIn(what).length > 3) p.push("Name at most 3 features in the what-it-does line.");
   if (bodyWordCount(body) > MAX_BODY_WORDS) p.push(`Keep the body to ${MAX_BODY_WORDS} words.`);
-  if (lines.some(l => /^(?:I[\u2019']m|I am|I[\u2019']d|I will|We[\u2019']re|We are)\b/i.test(l)) || /inviting you|putting RoostNI in front of|introducing RoostNI/i.test(body)) p.push("Open with the hook, not an introduction.");
+  if (lines.some(l => /^(?:I[\u2019']m|I am|I[\u2019']d|I will|We[\u2019']re|We are|My (?:focus|aim|goal|plan|idea)|I (?:built|made|created|started|set up|wrote))\b/i.test(l)) || /inviting you|putting RoostNI in front of|introducing RoostNI/i.test(body)) p.push("Open with the hook, not an introduction.");
   if (/\b\d+\s+of\s+20\b|places?\s+(?:left|remain)/i.test(body)) p.push("No places-left count.");
   const cta = callToAction(type).cta.replace(/:$/, "");
   if (!last.startsWith(cta)) p.push(`End with the call to action \"${cta}\".`);
