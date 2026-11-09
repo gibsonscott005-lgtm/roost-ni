@@ -40,18 +40,18 @@ export const Route = createFileRoute("/listings/")({
       {
         name: "description",
         content:
-          "Browse houses and flats to rent direct from landlords across Northern Ireland, with no agent fees. Set a free listing alert for new homes.",
+          "Houses and flats to rent direct from landlords across Belfast and Northern Ireland. No commission on rent, never any fees for tenants. Get alerts for new homes.",
       },
       { property: "og:title", content: "Houses to Rent in Belfast & Northern Ireland — RoostNI" },
       {
         property: "og:description",
         content:
-          "Browse houses and flats to rent direct from landlords across Northern Ireland, with no agent fees. Set a free listing alert for new homes.",
+          "Houses and flats to rent direct from landlords across Belfast and Northern Ireland. No commission on rent, never any fees for tenants. Get alerts for new homes.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk/listings" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:description", content: "Browse houses and flats to rent direct from landlords across Northern Ireland, with no agent fees. Set a free listing alert for new homes." },
+      { name: "twitter:description", content: "Houses and flats to rent direct from landlords across Belfast and Northern Ireland. No commission on rent, never any fees for tenants. Get alerts for new homes." },
     ],
     links: [{ rel: "canonical", href: "https://roostni.co.uk/listings" }],
   }),
