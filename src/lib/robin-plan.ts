@@ -134,7 +134,7 @@ export function signupPostProblems(body: string, type: PostType, usesLegalFact: 
   const cta = callToAction(type).cta.replace(/:$/, "");
   if (!last.startsWith(cta)) p.push(`End with the call to action \"${cta}\".`);
   if (/\?\s*$/.test(last) || /hardest|what do you find|what would you|how do you/i.test(lines.slice(-3).join(" "))) p.push("No closing question.");
-  if (/\bI[\u2019']?d\b|\bI would\b/i.test(body)) p.push("No \"I'd\".");
+  if (/\bI[\u2019']d\b|\bI would\b/i.test(body)) p.push("No \"I'd\".");
   if (/good practice/i.test(body)) p.push("No \"Good practice\".");
   if (/creative[- ]writing|competition/i.test(body)) p.push("No filler lines.");
   if (/\bsav(?:e|es|ing|ings)\b[^.\n]*(?:£|\d|%)/i.test(body)) p.push("No savings figures.");

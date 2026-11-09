@@ -86,6 +86,10 @@ test("banned voice, savings, agents and missing features are rejected", () => {
   for (const bad of ["I'd sort it.", "Good practice: keep receipts.", "No creative-writing competition.", "Save £300 a year.", "Cheaper than an agent.", "Book viewing slots online.", "We collect the rent."])
     expect(signupPostProblems(good(bad), "pain_solution", false).length).toBeGreaterThan(0);
 });
+test("the word ID is allowed; I'd and 'My focus' openers are blocked", () => {
+  expect(signupPostProblems(good("Self-certified ID, income evidence."), "pain_solution", false)).toEqual([]);
+  expect(signupPostProblems(good("My focus is paperwork."), "pain_solution", false)).toContain("Open with the hook, not an introduction.");
+});
 test("legal fact posts carry the disclaimer; tips are paused", () => {
   expect(signupPostProblems(good("A fact."), "what_roostni_does", true)).toContain('Add "General information, not legal advice."');
   expect(signupPostProblems(good("A fact. General information, not legal advice."), "what_roostni_does", true)).toEqual([]);
