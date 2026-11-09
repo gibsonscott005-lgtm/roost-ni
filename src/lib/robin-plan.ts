@@ -46,6 +46,9 @@ export function foundingOfferLine(placesLeft: number | null): string {
   return `${count}First ${FOUNDING_LANDLORD_LIMIT} landlords who add a home (tenanted or not): first month free from the day they add a home, then ${formatGBP(f.firstHomePence)} for the first home and ${formatGBP(f.extraHomePence)} for each extra, capped at ${formatGBP(f.capPence)}, locked for 24 months. After that: ${formatGBP(s.firstHomePence)} and ${formatGBP(s.extraHomePence)}, capped at ${formatGBP(s.capPence)}. No commission on rent. Never any fees for tenants. Statutory tools stay open to everyone. Billing is not switched on yet.`;
 }
 
+/** Short founding line every founding post carries word for word. */
+export const FOUNDING_SHORT_LINE = "First 20 landlords who add a home, tenanted or not: first month free, then £5 first home, £3 each extra, locked for 24 months.";
+
 /** True when one more tenant post would break "at most 1 tenant tip in 5". */
 export function tenantTipBlocked(recentPersonas: string[]): boolean {
   return recentPersonas.slice(0, TENANT_TIP_WINDOW - 1).includes("tenant");
@@ -73,7 +76,7 @@ export function signupPostProblems(body: string, type: PostType, usesLegalFact: 
   if (/\bagents?\b|\bagency\b/i.test(body)) p.push("No agent-fee claims or comparisons.");
   if (/viewing slots?|book(?:ing)? (?:a )?viewings?|rent collection|collects? (?:the )?rent|direct debit|online payments?|pay rent (?:online|through)/i.test(body)) p.push("Mentions a feature RoostNI does not have.");
   if (usesLegalFact && !body.includes("General information, not legal advice.")) p.push("Add \"General information, not legal advice.\"");
-  if (type === "founding_offer" && !(/first 20 landlords/i.test(body) && body.includes("£5") && body.includes("£3") && /24 months/i.test(body) && /first month free/i.test(body))) p.push("Founding posts need: first 20 landlords, first month free, £5 / £3, 24 months.");
+  if (type === "founding_offer" && !(/\b20\b/.test(body) && /landlords/i.test(body) && body.includes("£5") && body.includes("£3") && /24 months/i.test(body) && /month free/i.test(body))) p.push("Founding posts need: first 20 landlords, first month free, £5 / £3, 24 months.");
   if (type === "move_tenanted" && !/about 10 days/i.test(body)) p.push("Tenanted posts say it takes about 10 days to complete the records.");
   return p;
 }
