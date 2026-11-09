@@ -123,7 +123,7 @@ export async function runRobinDrafts(supabaseAdmin: any, userId: string, data: R
     const mode = !assignment.group.promotionAllowed && assignment.content_mode === "direct" ? "soft" : assignment.content_mode;
     const review = prepareMarketingReview(post, mode, data.focus === "ni_legal", "signup", approvedFacts);
     const problems = signupPostProblems(post.body, assignment.post_type, review.legal_statements.length > 0);
-    if (problems.length) throw new Error(`Post ${i + 1} (${assignment.post_type}) needs revision: ${problems.join(" ")} No drafts saved.`);
+    if (problems.length) throw new Error(`Post ${i + 1} (${assignment.post_type}) needs revision: ${problems.join(" ")} No drafts saved.${process.env.ROBIN_DEBUG ? `\n${post.body}` : ""}`);
     const { cta, link } = callToAction(assignment.post_type);
     post.first_comment_cta = cta;
     return { created_by:context.userId, platform:"facebook", persona:post.persona, angle:post.angle, topic:post.topic, body:post.body, link_url:link,
