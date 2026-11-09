@@ -1,3 +1,4 @@
+import { CookieSettingsLink } from "@/components/cookie-consent";
 import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
@@ -187,6 +188,7 @@ function HelpPage() {
       <footer className="border-t border-border/70 py-8">
         <p className="mx-auto w-full max-w-5xl px-4 text-xs text-muted-foreground sm:px-6">
           RoostNI — built for Northern Ireland. RoostNI assists, it never decides.
+          {" "}<CookieSettingsLink className="underline hover:text-foreground" />
         </p>
       </footer>
     </div>

@@ -1,3 +1,4 @@
+import { CookieSettingsLink } from "@/components/cookie-consent";
 import { Link } from "@tanstack/react-router";
 import { LogoMark } from "@/components/logo";
 
@@ -32,6 +33,7 @@ export function BlogFooter() {
           <Link to="/blog" className="hover:text-foreground">Blog</Link>
           <Link to="/help" className="hover:text-foreground">Help</Link>
           <Link to="/how-roostni-is-funded" className="hover:text-foreground">How we're funded</Link>
+          <CookieSettingsLink className="uppercase hover:text-foreground" />
         </div>
       </div>
       <p className="mx-auto max-w-4xl px-4 pb-8 text-xs text-muted-foreground sm:px-6">

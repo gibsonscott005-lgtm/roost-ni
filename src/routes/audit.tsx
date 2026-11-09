@@ -1,3 +1,4 @@
+import { CookieSettingsLink } from "@/components/cookie-consent";
 import { RelatedTools } from "@/components/related-tools";
 import { APPROVED_LINE, SHORT_LINES } from "@/lib/plans-copy";
 import { getEventContext } from "@/lib/utm-session";
@@ -612,6 +613,7 @@ function AuditPage() {
       <footer className="border-t border-border/70 py-8">
         <p className="mx-auto w-full max-w-3xl px-4 text-xs text-muted-foreground sm:px-6">
           RoostNI — tenancy admin built for Northern Ireland.
+          {" "}<CookieSettingsLink className="underline hover:text-foreground" />
         </p>
       </footer>
     </div>
