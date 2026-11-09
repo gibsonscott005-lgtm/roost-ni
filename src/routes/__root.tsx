@@ -19,6 +19,7 @@ import { initPostHog, stopPostHog } from "../integrations/posthog/client";
 import { analyticsAllowed, onConsentChange } from "@/lib/analytics-consent";
 import { clearCampaignTags } from "@/lib/utm-session";
 import { CookieConsent } from "../components/cookie-consent";
+import { CONSENT_DEFAULTS } from "@/lib/consent-defaults";
 import { Toaster } from "../components/ui/sonner";
 import { BetaFeedbackWidget } from "../components/beta-feedback";
 
