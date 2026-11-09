@@ -1,77 +1,39 @@
-# Cookie consent: where RoostNI stands today (read-only findings) and a proposed setup
+# Robin: sign-up-first weekly posts
 
-Nothing has been changed. Below are the findings, then a proposed build for you to approve or skip.
+## What changes
+1. **Tips paused, not deleted** — `useful_tip` stays in the code behind a "paused" switch (off). No tip slot in the week, and "Good practice:" is blocked in the post check.
+2. **Every post must** name RoostNI, include a one-line description of what it does (listing, Tenant Passport, rent records, deposit and notice reminders, compliance tools), give one concrete benefit, and end with one call to action plus the campaign link. Group posts keep the link in the copyable first comment. The post check rejects any draft missing one of these.
+3. **Voice** — loud, blunt, short. The post check blocks "I'd", "Good practice", "creative-writing" filler and closing questions (any post ending in "?" or asking what readers find hardest). The call to action is the last line.
+4. **New weekly mix (14, text only):** 5 pain → RoostNI fix, 3 founding offer, 3 move your tenanted home over, 3 what RoostNI does for you (deposit clock, tenancy information notice reminders, landlord registration reminders, rent records, Tenant Passport summary). Spread so the same type never runs twice in a row.
+   - Founding wording comes from the central plan wording: first 20 landlords who add a home, tenanted or not; first month free, then £5 first home / £3 each extra, locked 24 months; live places-left count from the address-based home count. "Free forever" stays banned.
+   - Tenanted posts link to the public route into "I already have a tenant" (sign-in, then the add-a-home form set to tenanted) and say records take about 10 days to complete, with reminders.
+5. **Facts** — legal lines only from approved legal_facts, adding "General information, not legal advice" whenever one is used. Blocked: savings figures, agent-fee comparisons, viewing-slot booking, live rent collection.
+6. **Re-draft 10–16 Nov** — unposted drafts in that week are marked skipped with the reason "Replaced by sign-up-first rules" (Robin's history can't be deleted), and 14 new drafts are written on the same schedule: 12:30 group post alternating your two groups, 19:00 RoostNI Page. Posted and already-skipped posts are untouched. I'll paste all 14 into my reply for you to read; nothing is posted (Robin never auto-posts).
+7. **Future weeks** — Robin's instructions and the project notes are updated to these rules. The weekly learning summary keeps tracking follows and link visits, grouped by the new post types (older weeks keep their old type names).
 
-## 1. Consent banner or preference setting today
-- **None for visitors.** There is no cookie banner, no "Cookie settings" link and no consent record anywhere on the site.
-- The only on/off switch is in the **admin dashboard** ("exclude this device" from analytics, which uses PostHog's opt-out). It's an internal tool for leaving test devices out of the figures, not a visitor choice.
-
-## 2. How PostHog starts
-- PostHog starts on **every page as soon as it loads**, for every visitor, before any choice is made (it's started from the site-wide layout).
-- Settings in code: autocapture **on** (clicks, form interactions), page leave tracking **on**, a page view sent on load.
-- **Storage:** no persistence setting is chosen, so PostHog's default applies: a first-party cookie (`ph_<project key>_posthog`, roughly a year) plus matching localStorage, holding an anonymous visitor ID and session details.
-- **Session replay:** the code doesn't switch it off, so it follows your PostHog project setting. Your project notes say replay is on, which means it records from the first page view. I can't read the PostHog project settings from here, so this part is **not verified**.
-- **Opt-in, opt-out or cookieless options:** none are used (`opt_out_capturing_by_default`, `persistence: "memory"`, cookieless mode). The only opt-out is the admin device switch above.
-- Lovable's built-in visitor analytics also runs on the live site. It uses no cookies and stores nothing on the device.
-
-## 3. Everything else the site stores in the browser
-| Item | Where | Purpose | Category |
-|---|---|---|---|
-| Sign-in session (`sb-…-auth-token`) | localStorage | keeps you signed in | Strictly necessary |
-| `roost_welcome_pending` | sessionStorage | shows the welcome step after sign-up | Necessary (functional) |
-| `roostni_listing_draft` | localStorage | saves a half-written listing | Necessary (user-requested) |
-| `roost:deposit-reminder:…` | localStorage | stops the same deposit reminder showing twice a day | Necessary (functional) |
-| `roostni_audit_last` | localStorage | remembers your last health check score | Functional (low risk, arguably necessary) |
-| `roost.beta-banner.dismissed` | localStorage | remembers that you closed the beta banner | Functional |
-| Listing alert done/dismissed flags | sessionStorage | stops the alert prompt repeating | Functional |
-| `roost_admin_tab`, `roost_last_copied_post`, Robin results draft | session/localStorage | admin screens only | Functional (admin only) |
-| `sidebar_state` cookie | cookie | remembers a sidebar open/closed (admin layout component) | Functional |
-| `roost_utm` | sessionStorage | keeps campaign tags for attribution | **Analytics / marketing** |
-| `roost_visit_<campaign>` | sessionStorage | logs one campaign visit per session to Robin's figures | **Analytics / marketing** |
-| PostHog cookie + localStorage | cookie + localStorage | visitor ID, events, session replay | **Analytics** |
-
-## 4. Privacy policy and cookie wording
-- **There isn't one.** The site has no privacy policy page, no cookie page and no link to either, so there's nothing to quote. PostHog, session replay and analytics aren't mentioned anywhere visitors can see.
-- This is the biggest gap: the passport handles identity, address and income documents, and the site has no privacy notice at all.
-
-## 5. Proposed setup (for approval)
-A simple banner shown to every visitor (all RoostNI traffic is UK, so no region check is needed).
-
-- **Accept all** and **Reject all**, same size, side by side, plus **Cookie settings** (one switch: "Analytics, provided by PostHog", off by default). Closing or ignoring the banner counts as no.
-- PostHog **doesn't start at all** until Accept. On Reject or no answer, no PostHog cookie, no replay, no autocapture. Campaign tags (`roost_utm`, campaign visit logging) also wait for Accept.
-- A permanent **Cookie settings** link in the footer to change your choice later. Withdrawing stops PostHog straight away, clears its cookie and applies in other open tabs.
-- The browser's "do not track" privacy signal (Global Privacy Control) counts as Reject.
-- The choice and its date are stored on the device, with a wording version, so you can show what each visitor saw.
-- Necessary items (sign-in, drafts, reminders) carry on regardless.
-- A new **/privacy** page linked from the footer, the banner and sign-up.
-- Admin "exclude this device" kept and still works.
-
-Expect PostHog numbers to drop, because only people who accept will be counted. Lovable's cookie-free visitor counts carry on for everyone.
-
-### Itemised credit estimate (build)
-| Item | Estimate |
+## Credit estimate (approximate — I can't see the exact cost of a turn)
+| Part | Build |
 |---|---|
-| Consent setup + PostHog only after Accept, cleared on withdrawal | 0.6–0.9 |
-| Banner + Cookie settings panel + footer link | 0.4–0.6 |
-| Campaign tags gated on consent | 0.1–0.2 |
-| /privacy page (your approved wording) + links | 0.3–0.5 |
-| **Build total** | **1.4–2.2** |
+| 1 Pause tips | 0.1–0.2 |
+| 2–3, 5 Post check rules + voice | 0.6–0.9 |
+| 4 New mix + founding/tenanted wording | 0.4–0.6 |
+| 6 Re-draft the week (one AI run, plus a retry if the check rejects some posts) | 0.4–0.7 |
+| 7 Instructions, notes, learning summary types | 0.2–0.3 |
+| **Build total** | **1.7–2.7** |
+| Testing: unit tests for the mix, required parts, banned phrases, founding wording | 0.3–0.5 |
 
-### Testing (separate)
-| Check | Estimate |
-|---|---|
-| Unit tests: nothing starts before Accept, Reject or GPC blocks, withdrawal stops it | 0.2–0.3 |
-| One browser check: no PostHog cookie or requests before Accept, both appear after Accept, gone after Reject | 0.2–0.3 |
-| **Testing total** | **0.4–0.6** |
+## Decisions needed from you
+- **Public tenanted link:** use the homepage button's link (sign-in, then tenanted add-a-home)? I'll assume yes.
+- **"About 10 days"** — this is your figure, not something RoostNI measures. OK to say "about 10 days" as stated?
+- **Founding count:** if places left can't be read when drafting, posts say "first 20 landlords" with no number. OK?
+- **Call to action wording** — I'll use "Sign up free at…" is banned-adjacent, so I'll use "Add your first home: [link]" / "Claim a founding place: [link]". Tell me if you want different words.
 
-What you'd check yourself: a replay appears in PostHog only after you accept, and the live site after publishing.
+## Will NOT change
+legal_facts, deposit return wording, deposit cap wording, posted or skipped posts, the posting schedule or groups, the campaign link tracking, sign-up flow, founder counting, pricing wording file values, cookie consent, anything else on the site. No auto-posting.
 
-### Wording you would need to approve
-1. Banner text, e.g. "We use analytics cookies to see how RoostNI is used and to improve it, including recordings of how pages are used. They're off unless you accept." plus the button labels.
-2. Cookie settings text: the Necessary row (always on) and the Analytics row.
-3. The full privacy policy: who you are (controller, contact address), what is collected (account, passport documents, listings, analytics), why and the lawful basis, who it's shared with (PostHog EU, hosting/database, email), how long it's kept, rights and how to complain to the ICO. I'd draft it for you to edit, but I can't give legal advice. Please have it checked by someone who knows UK data protection rules.
-4. Whether session replay stays on at all once there's consent. Turning it off in PostHog is the lower-risk option, given the passport screens.
-
-### Not verified
-- PostHog's project settings (replay on or off, input masking) can't be read from the code.
-- The cookie names above come from the code and the PostHog defaults, not from a live browser check.
+## Technical notes
+- `src/lib/robin-plan.ts`: new PostType values (`pain_solution`, `founding_offer`, `move_tenanted`, `what_roostni_does`), new 14-slot order, `PAUSED_POST_TYPES = ["useful_tip"]`.
+- `src/lib/marketing-knowledge.ts`: required-parts and banned-phrase checks; disclaimer when an approved fact is attached.
+- `src/lib/robin-ai/generate.server.ts`: prompt rewritten; founding numbers from `plans-copy.ts`/`pricing.ts`, places from `home-count.ts`.
+- Re-draft via the existing re-draft path (skip with reason + insert), scoped to unposted drafts dated 10–16 Nov.
+- `robin-weekly-insights.ts`: map new types into comparisons.
