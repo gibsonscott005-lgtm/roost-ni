@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { authoriseShareDocAccess } from "./share-doc-access";
+import { authoriseShareDocAccess, assertTenantOwnsPath } from "./share-doc-access";
 
 const inputSchema = z.object({ share_id: z.string().uuid() });
 
@@ -27,6 +27,7 @@ export const signIdDocumentUrl = createServerFn({ method: "POST" })
     if (passErr) throw new Error(passErr.message);
     const path = passport?.id_document_path;
     if (!path) throw new Error("No identity document on file");
+    assertTenantOwnsPath(path, share.tenant_id, "identity");
 
     const { data: signed, error: signErr } = await supabaseAdmin.storage
       .from("tenant-documents")
@@ -56,6 +57,7 @@ export const signIncomeDocumentUrl = createServerFn({ method: "POST" })
     if (passErr) throw new Error(passErr.message);
     const path = passport?.income_document_path;
     if (!path) throw new Error("No income document on file");
+    assertTenantOwnsPath(path, share.tenant_id, "income");
 
     const { data: signed, error: signErr } = await supabaseAdmin.storage
       .from("tenant-documents")

@@ -73,3 +73,20 @@ export async function authoriseShareDocAccess(
 
   return { tenant_id: authoritative.tenant_id as string };
 }
+
+/**
+ * A stored document path must sit inside the tenant's own folder
+ * (`<tenant_id>/<folder>/...`), so a tenant cannot point their passport at
+ * another person's file and have it signed through a landlord review.
+ */
+export function assertTenantOwnsPath(path: string, tenantId: string, folder: string): void {
+  const parts = path.split("/");
+  if (
+    parts.length < 3 ||
+    parts[0] !== tenantId ||
+    parts[1] !== folder ||
+    parts.some((p) => p === "" || p === "." || p === "..")
+  ) {
+    throw new Error("Document not available");
+  }
+}
