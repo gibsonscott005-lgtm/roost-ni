@@ -73,7 +73,7 @@ export async function runRobinDrafts(supabaseAdmin: any, userId: string, data: R
   if (data.replace) {
     const { data: queued, error: queuedError } = await supabaseAdmin.from("marketing_posts").select("id").eq("platform", "facebook").in("status", ["draft", "scheduled"]);
     if (queuedError) throw new Error(queuedError.message);
-    replacedIds = (queued ?? []).map(row => row.id);
+    replacedIds = (queued ?? []).map((row: { id: string }) => row.id);
   }
   const since = new Date(Date.now() - TOPIC_COOLDOWN_DAYS * 86400000).toISOString();
   let historyQuery = supabaseAdmin.from("marketing_posts").select("topic,body,persona,angle,status").eq("platform", "facebook").neq("status", "skipped").gte("created_at", since);
@@ -81,7 +81,7 @@ export async function runRobinDrafts(supabaseAdmin: any, userId: string, data: R
   const { data: history, error } = await historyQuery.order("created_at", { ascending: false }).limit(200);
   if (error) throw new Error(error.message);
   const { data: personaRows } = await supabaseAdmin.from("marketing_posts").select("persona").eq("platform","facebook").neq("status","skipped").order("created_at",{ascending:false}).limit(TENANT_TIP_WINDOW);
-  const tenantBlocked = data.week || tenantTipBlocked((personaRows ?? []).map(r => r.persona));
+  const tenantBlocked = data.week || tenantTipBlocked((personaRows ?? []).map((r: { persona: string }) => r.persona));
   const { data: insights } = await supabaseAdmin.from("marketing_insights").select("insight,verdict,evidence").eq("active", true).neq("verdict", "too_little_data").order("created_at",{ascending:false}).limit(15);
   let placesLeft: number | null = null;
   try { placesLeft = foundingPlacesLeft(await countFoundingLandlords(supabaseAdmin)); } catch { /* say "first 20 landlords" with no number */ }
@@ -96,7 +96,7 @@ export async function runRobinDrafts(supabaseAdmin: any, userId: string, data: R
   const total = assignments.length;
   const prompt = [
     `Draft exactly ${total} unique Facebook posts, matching assignments in order. Return JSON object {"posts":[...]}.`,
-    "ACTIVE INSIGHTS OVERRIDE DEFAULTS. Apply every win, avoid every loss:", insights?.length ? insights.map(i => `- (${i.verdict}) ${i.insight}`).join("\n") : "- none with evidence yet",
+    "ACTIVE INSIGHTS OVERRIDE DEFAULTS. Apply every win, avoid every loss:", insights?.length ? insights.map((i: { verdict: string; insight: string }) => `- (${i.verdict}) ${i.insight}`).join("\n") : "- none with evidence yet",
     "VOICE: loud, blunt, brutalist. Short lines. No jokey asides or metaphors (no 'abandoned beside the printer'). Every post sells RoostNI to NI landlords. TEXT ONLY: no images, no image ideas.",
     "PRIORITY ORDER: 1) landlord-first, 2) a specific pain and how RoostNI fixes it, 3) hyper-local for groups: name the town from the group's places. The RoostNI Page speaks to all of NI.",
     "persona must be landlord.",

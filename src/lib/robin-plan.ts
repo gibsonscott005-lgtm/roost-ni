@@ -54,7 +54,8 @@ export const TENANTED_TIME_LINE = "About 10 days to complete the records, with r
 /** Adds any required line Robin left out, just above the call to action, so every post carries it word for word. */
 export function completeSignupPost(body: string, type: PostType): string {
   const lines = body.trim().split("\n");
-  const ctaAt = lines.map(l => l.trim()).findLastIndex(l => l.startsWith(callToAction(type).cta.replace(/:$/, "")));
+  const cta = callToAction(type).cta.replace(/:$/, "");
+  let ctaAt = -1; lines.forEach((l, i) => { if (l.trim().startsWith(cta)) ctaAt = i; });
   const add: string[] = [];
   if (!lines.some(l => /RoostNI/.test(l) && /Tenant Passport/i.test(l) && /rent records/i.test(l) && /reminders/i.test(l))) add.push(WHAT_IT_DOES_LINE);
   if (type === "founding_offer" && !body.includes(FOUNDING_SHORT_LINE)) add.push(FOUNDING_SHORT_LINE);
