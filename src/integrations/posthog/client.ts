@@ -41,7 +41,8 @@ export function initPostHog() {
 
   posthog.init(POSTHOG_API_KEY, {
     api_host: getApiHost(),
-    capture_pageview: false,
+    // Record a page view on every in-app navigation (e.g. /auth -> /dashboard), not only the first load.
+    capture_pageview: "history_change",
     capture_pageleave: true,
     autocapture: true,
     // React recovers from hydration mismatches (#418/#423/#425) by re-rendering
@@ -64,7 +65,6 @@ export function initPostHog() {
         posthogInstance.opt_out_capturing();
         return;
       }
-      posthogInstance.capture("$pageview");
     },
   });
 }
