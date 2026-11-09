@@ -36,22 +36,22 @@ export const Route = createFileRoute("/listings/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Houses to Rent in Belfast & Northern Ireland — RoostNI" },
+      { title: "Homes to Rent Direct from NI Landlords — RoostNI" },
       {
         name: "description",
         content:
-          "Houses and flats to rent direct from landlords across Belfast and Northern Ireland. No commission on rent, never any fees for tenants. Get alerts for new homes.",
+          "Homes to rent direct from landlords across Northern Ireland, with rent, bedrooms, heating and photos on each listing. Never any fees for tenants.",
       },
-      { property: "og:title", content: "Houses to Rent in Belfast & Northern Ireland — RoostNI" },
+      { property: "og:title", content: "Homes to Rent Direct from NI Landlords — RoostNI" },
       {
         property: "og:description",
         content:
-          "Houses and flats to rent direct from landlords across Belfast and Northern Ireland. No commission on rent, never any fees for tenants. Get alerts for new homes.",
+          "Homes to rent direct from landlords across Northern Ireland, with rent, bedrooms, heating and photos on each listing. Never any fees for tenants.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://roostni.co.uk/listings" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:description", content: "Houses and flats to rent direct from landlords across Belfast and Northern Ireland. No commission on rent, never any fees for tenants. Get alerts for new homes." },
+      { name: "twitter:description", content: "Homes to rent direct from landlords across Northern Ireland, with rent, bedrooms, heating and photos on each listing. Never any fees for tenants." },
     ],
     links: [{ rel: "canonical", href: "https://roostni.co.uk/listings" }],
   }),
@@ -246,6 +246,9 @@ function ListingsIndexPage() {
           <h1 className="mt-5 font-display text-4xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl">
             Direct rentals across Northern Ireland<span className="text-verified">.</span>
           </h1>
+          <p className="mt-4 max-w-2xl text-base text-muted-foreground">
+            Homes to rent across Northern Ireland, listed by the landlord. Each listing shows the monthly rent, bedrooms, heating and photos, and you deal with the landlord directly.
+          </p>
           <div className="mt-5 flex flex-wrap items-stretch gap-3">
             <div className="brutal-bubble bg-verified text-verified-foreground max-w-xs px-4 py-3 font-display text-lg font-extrabold">
               Example listings
