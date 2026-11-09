@@ -122,7 +122,7 @@ async function ensureWeeklyReview(supabaseAdmin: any) {
   const comparisons = compareWeek(reviewPosts, results ?? []);
   const withResults = new Set((results ?? []).map((r: { post_id: string }) => r.post_id));
   const missing = ids.filter(id => !withResults.has(id));
-  const label = (c: { dimension: string; value: string; postIds: string[]; avgEngagement: number; avgReach: number; avgFollows: number }) => `${c.dimension} "${c.value}": ${c.postIds.length} posts, avg engagement ${c.avgEngagement}, avg reach ${c.avgReach}, avg follows ${c.avgFollows}`;
+  const label = (c: { dimension: string; value: string; postIds: string[]; avgEngagement: number; avgReach: number; avgFollows: number; avgLinkClicks: number }) => `${c.dimension} "${c.value}": ${c.postIds.length} posts, avg engagement ${c.avgEngagement}, avg reach ${c.avgReach}, avg follows ${c.avgFollows}, avg link visits ${c.avgLinkClicks}`;
   if (shouldPublishWeeklyInsights(missing, existing) && comparisons.length) {
     const { data: previous, error: previousError } = await supabaseAdmin.from("marketing_insights").select("active, evidence").eq("evidence->>week_end", weekEnd).order("created_at", { ascending: false });
     if (previousError) throw new Error(previousError.message);
@@ -137,7 +137,7 @@ async function ensureWeeklyReview(supabaseAdmin: any) {
   }
   const worked = comparisons.filter(c => c.verdict === "win").map(label);
   const stop = comparisons.filter(c => c.verdict === "loss").map(label);
-  const next = [`${WEEKLY_PLAN.length} posts, 2 a day: 8 pain/urgency, 3 founder voice, 2 existing tenancy, 1 useful tip.`, ...worked.slice(0, 2).map(w => `Repeat: ${w}`), ...stop.slice(0, 2).map(w => `Drop: ${w}`)];
+  const next = [`${WEEKLY_PLAN.length} posts, 2 a day: 5 pain to RoostNI fix, 3 founding offer, 3 move a tenanted home, 3 what RoostNI does. Tips paused.`, ...worked.slice(0, 2).map(w => `Repeat: ${w}`), ...stop.slice(0, 2).map(w => `Drop: ${w}`)];
   if (!comparisons.length) next.push(list.length ? "Enter results for last week's posts so Robin can compare." : "No posts marked posted last week.");
   await supabaseAdmin.from("marketing_weekly_reviews").upsert({ week_start: weekEnd, worked, stop, next_plan: next, missing_results: missing, comparison: { comparisons } }, { onConflict: "week_start" });
 }

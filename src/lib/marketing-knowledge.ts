@@ -56,6 +56,15 @@ You are Robin, RoostNI's marketing assistant for Northern Ireland renters and se
 - Keep a legible nidirect source line and "General information, not legal advice." on legal images; retain "check before posting" in the review notes. Source references are not extra headline facts.
 `.trim();
 
+/** Weekly sign-up posts. These override Step 1 structure, the 70/20/10 mix and the good-practice label above. */
+export const SIGNUP_WEEKLY_RULES = `
+## WEEKLY SIGN-UP POSTS — override Step 1 structure, the 70/20/10 mix and the "good practice" label
+- Goal: sign up Northern Ireland landlords. Every post sells RoostNI. No pure-help posts, no tips, no "Good practice:" wording.
+- Every post: (a) names RoostNI; (b) one line saying what it does, containing the words RoostNI, Tenant Passport, rent records and reminders — e.g. "RoostNI: run the tenancy yourself, from one place. Listing, Tenant Passport, rent records, deposit and notice reminders, compliance tools."; (c) one concrete benefit; (d) the LAST line is the call to action given in the assignment, followed by "link in the first comment". Nothing after it: no hashtags, no question, no disclaimer.
+- Voice: loud, blunt, brutalist, short lines. No "I'd", no "I would", no filler like "No creative-writing competition", no closing questions asking what the reader finds hardest.
+- Facts: legal claims only word for word from the approved catalogue; any post using one includes "General information, not legal advice." before the call to action. Never write "must" outside an approved fact. No savings figures, no agents or agent-fee comparisons, no viewing-slot booking, no rent collection or online payments.
+`.trim();
+
 export const NI_LEGAL_GUARDRAILS = `Use one NI legal topic only. Each legal statement needs its own specific nidirect source and "check before posting" flag. Source pages are candidates for human review, not checked legal advice. Never infer current law from the topic title. Omit unsupported claims. Include tenants as well as landlords.`;
 
 export const NI_LEGAL_COOLDOWN_DAYS = 45;
@@ -79,7 +88,7 @@ export function readMarketingReview(notes: string | null): MarketingReview | nul
     return value as MarketingReview;
   } catch { return null; }
 }
-export function validateMarketingCopy(text: string, facebook = true): void {
+export function validateMarketingCopy(text: string, facebook: boolean | "signup" = true): void {
   if (/\b(seeking|bespoke|portfolio|premier|stunning|pursuant|whilst|hereby|solutions|leverage)\b|\bdelighted\s+to\s+announce\b|\bwe\s+are\s+pleased\s+to\b/i.test(text)) {
     throw new Error("Draft wording needs revision: use Robin’s plain, straight-talking voice, not estate-agent or corporate jargon.");
   }
@@ -101,9 +110,9 @@ export function validateMarketingCopy(text: string, facebook = true): void {
   if (text.trim().split(/\s+/).length >= 150) throw new Error("Facebook drafts must be under 150 words.");
   if ((text.match(/#[\p{L}\p{N}_]+/gu) ?? []).length > 4) throw new Error("Facebook drafts may have at most 4 hashtags.");
   if (/^.*RoostNI\s+is\b/i.test(text.trim().split("\n")[0] ?? "")) throw new Error("Start with a useful fact or question, not a RoostNI tagline.");
-  if (!text.trim().endsWith("?")) throw new Error("End the post with a genuine discussion question.");
+  if (facebook !== "signup" && !text.trim().endsWith("?")) throw new Error("End the post with a genuine discussion question.");
 }
-export function prepareMarketingReview(input: { body: string; topic?: string; legal_statements?: LegalStatement[]; review_flags?: string[] }, mode: ContentMode, requireLegal = false, facebook = true, approvedFacts: LegalFact[] = []): MarketingReview {
+export function prepareMarketingReview(input: { body: string; topic?: string; legal_statements?: LegalStatement[]; review_flags?: string[] }, mode: ContentMode, requireLegal = false, facebook: boolean | "signup" = true, approvedFacts: LegalFact[] = []): MarketingReview {
   validateMarketingCopy(input.body, facebook);
   if (input.topic) validateMarketingCopy(input.topic, false);
   if (mode === "help" && /roostni|roostni\.co\.uk/i.test(`${input.body} ${input.topic ?? ""}`)) throw new Error("Pure help must not mention RoostNI.");
