@@ -1,63 +1,77 @@
-# Six-part plan with credit estimates
+# Cookie consent: where RoostNI stands today (read-only findings) and a proposed setup
 
-The build and testing estimates are listed separately. Nothing in legal_facts, the deposit return wording or anything else outside these six parts will change.
+Nothing has been changed. Below are the findings, then a proposed build for you to approve or skip.
 
-## 1. Progress bar on tenanted property cards — build 0.3–0.5
-- The tenancy records panel already counts "X of Y done". I will move that count into one shared helper so the card and the panel always agree.
-- The dashboard card shows "7 of 11 done" with a thin bar, only for existing tenancies that still have items missing. Once everything is done, the bar disappears.
-- Clashes: none. The TIN item still counts only as "Landlord says a notice is on file", never as compliant.
+## 1. Consent banner or preference setting today
+- **None for visitors.** There is no cookie banner, no "Cookie settings" link and no consent record anywhere on the site.
+- The only on/off switch is in the **admin dashboard** ("exclude this device" from analytics, which uses PostHog's opt-out). It's an internal tool for leaving test devices out of the figures, not a visitor choice.
 
-## 2. Tenant invite by email — build 2.5–3.5
-- From Manage Tenancy, the landlord enters the tenant's email and sends an invite. It goes as a fixed app email containing a single-use link that expires after 14 days.
-- The tenant opens the link, then signs up (email, tenant role, 6-digit code) or signs in. The server checks that the invite email matches the signed-in account, attaches the tenant to the existing tenancy and marks the invite used.
-- The tenant can then see receipts, maintenance and notices for that tenancy only. Their passport documents stay private.
-- New invite table with admin/landlord-only access. Attaching is done only through one database function.
-- **Sign-up clashes:**
-  - The invite has to survive the email-code step. I will carry it in the existing `next=` link the way the tenanted-home button does, and re-check the email after the code is confirmed.
-  - If the tenant signs up with a different email, attaching is refused and they see a plain message.
-  - Sign-up still asks for a password, as it does today.
-- **Founder tracking clashes:** none. Founding places are counted by home address, and inviting a tenant adds no home. Tenant sign-ups from invites will be logged as a separate PostHog event so they don't inflate landlord funnel figures.
+## 2. How PostHog starts
+- PostHog starts on **every page as soon as it loads**, for every visitor, before any choice is made (it's started from the site-wide layout).
+- Settings in code: autocapture **on** (clicks, form interactions), page leave tracking **on**, a page view sent on load.
+- **Storage:** no persistence setting is chosen, so PostHog's default applies: a first-party cookie (`ph_<project key>_posthog`, roughly a year) plus matching localStorage, holding an anonymous visitor ID and session details.
+- **Session replay:** the code doesn't switch it off, so it follows your PostHog project setting. Your project notes say replay is on, which means it records from the first page view. I can't read the PostHog project settings from here, so this part is **not verified**.
+- **Opt-in, opt-out or cookieless options:** none are used (`opt_out_capturing_by_default`, `persistence: "memory"`, cookieless mode). The only opt-out is the admin device switch above.
+- Lovable's built-in visitor analytics also runs on the live site. It uses no cookies and stores nothing on the device.
 
-## 3. Homepage FAQ: two landlord questions — build 0.2–0.3
-Approved legal_facts rows exist for both questions, so I will use their wording and not your fallback text.
-- **"How much notice do I have to give?"** uses approved facts 5e5c794d (4 weeks, up to 12 months), cd97232f (8 weeks, over 12 months up to 10 years), 852ca216 (12 weeks, over 10 years), 70c45aee and a91ae565 (tenant: 4 weeks up to 10 years, 12 weeks over 10 years). The longer proposed periods (fact b15ab697) are not mentioned.
-- **"Is there a limit on the deposit?"** uses approved fact 37805b93, word for word: "A tenancy deposit must not exceed one month's rent."
-- The FAQ structured data for search engines is updated to match.
-
-## 4. Blank-name check — build 0.5–0.8
-- Every greeting will be audited: the welcome-landlord email, notification and reminder emails, identity-check emails, the dashboard shell and home screen, passport pages, applications, the tenant tenancy page, and the lease issue and review pages.
-- One shared helper returns "Hi Jane" when there is a name, and "Hi there" (emails) or no greeting (in the app) when the name is empty, only spaces, or "undefined"/"null".
-- Clashes: none.
-
-## 5. Microsoft Clarity — no build yet
-- **What I need from you:** the Clarity project ID (a short code shown in Clarity under Settings > Setup).
-- **Cost:** Clarity is free with no paid tier, so it fits the zero-cost rule. Adding it would be about 0.3 credits: it loads only on the live site, skips internal test accounts the same way PostHog does, and the privacy notice gets a line about it.
-- **Note:** PostHog already records sessions, so Clarity would duplicate that. Nothing will be added until you send the ID.
-
-## 6. SEO tune-up — pick any
-| # | Change | Build |
-|---|---|---|
-| a | Rewrite titles and descriptions for the 6 tool pages (/audit, /notice-to-quit-ni, /tenancy-information-notice-ni, /rent-receipts-ni, /landlord-registration-ni, /list-property) around NI search terms | 0.3 |
-| b | One clear main heading per page, plus a check of heading order on those pages | 0.2 |
-| c | "Related tools" links between the calculators, the blog and the homepage | 0.3 |
-| d | Sitemap: add published blog articles automatically with last-updated dates | 0.2 |
-| e | Blog articles: article structured data (author, date) for Google | 0.2 |
-
-Any legal wording in these changes will come only from approved facts.
-
-## Build total
-Parts 1–4 come to about **3.5–5.1** credits, plus Clarity (0.3, if you want it) and the SEO items you choose (up to 1.2).
-
-## Testing (separate estimate)
-| Part | What I can verify | What you check | Test credits |
+## 3. Everything else the site stores in the browser
+| Item | Where | Purpose | Category |
 |---|---|---|---|
-| 1 | Unit test of the count. A signed-in browser check of one existing tenancy card using my test session; I would create one test existing-tenancy record, which I can delete afterwards | How it looks on your phone | 0.3 |
-| 2 | Unit tests for the invite rules (single use, expiry, email must match). Two browser runs: landlord sends an invite, then a second test tenant account accepts it. This needs a second test account, and the 6-digit code arrives by real email, so I may need your help to read it | That a real invite email arrives in your inbox, and the tenant view on mobile | 0.8–1.2 |
-| 3 | Read the homepage HTML and confirm the FAQ text matches the facts exactly | Wording sign-off | 0.1 |
-| 4 | Unit test of the greeting helper (blank, spaces, "undefined"). A preview of each email with an empty name | One real email to a nameless account | 0.3 |
-| 5 | Confirm Clarity loads on the live site only and not for test accounts | That recordings appear in your Clarity dashboard | 0.1 |
-| 6 | Read the titles, descriptions and sitemap back | Rescan in the SEO tab, and Google Search Console | 0.1–0.2 |
+| Sign-in session (`sb-…-auth-token`) | localStorage | keeps you signed in | Strictly necessary |
+| `roost_welcome_pending` | sessionStorage | shows the welcome step after sign-up | Necessary (functional) |
+| `roostni_listing_draft` | localStorage | saves a half-written listing | Necessary (user-requested) |
+| `roost:deposit-reminder:…` | localStorage | stops the same deposit reminder showing twice a day | Necessary (functional) |
+| `roostni_audit_last` | localStorage | remembers your last health check score | Functional (low risk, arguably necessary) |
+| `roost.beta-banner.dismissed` | localStorage | remembers that you closed the beta banner | Functional |
+| Listing alert done/dismissed flags | sessionStorage | stops the alert prompt repeating | Functional |
+| `roost_admin_tab`, `roost_last_copied_post`, Robin results draft | session/localStorage | admin screens only | Functional (admin only) |
+| `sidebar_state` cookie | cookie | remembers a sidebar open/closed (admin layout component) | Functional |
+| `roost_utm` | sessionStorage | keeps campaign tags for attribution | **Analytics / marketing** |
+| `roost_visit_<campaign>` | sessionStorage | logs one campaign visit per session to Robin's figures | **Analytics / marketing** |
+| PostHog cookie + localStorage | cookie + localStorage | visitor ID, events, session replay | **Analytics** |
 
-Testing for parts 1–4 comes to about **1.5–1.9** credits.
+## 4. Privacy policy and cookie wording
+- **There isn't one.** The site has no privacy policy page, no cookie page and no link to either, so there's nothing to quote. PostHog, session replay and analytics aren't mentioned anywhere visitors can see.
+- This is the biggest gap: the passport handles identity, address and income documents, and the site has no privacy notice at all.
 
-These figures are estimates. I can't see the cost of a single turn, so check your usage page after each build.
+## 5. Proposed setup (for approval)
+A simple banner shown to every visitor (all RoostNI traffic is UK, so no region check is needed).
+
+- **Accept all** and **Reject all**, same size, side by side, plus **Cookie settings** (one switch: "Analytics, provided by PostHog", off by default). Closing or ignoring the banner counts as no.
+- PostHog **doesn't start at all** until Accept. On Reject or no answer, no PostHog cookie, no replay, no autocapture. Campaign tags (`roost_utm`, campaign visit logging) also wait for Accept.
+- A permanent **Cookie settings** link in the footer to change your choice later. Withdrawing stops PostHog straight away, clears its cookie and applies in other open tabs.
+- The browser's "do not track" privacy signal (Global Privacy Control) counts as Reject.
+- The choice and its date are stored on the device, with a wording version, so you can show what each visitor saw.
+- Necessary items (sign-in, drafts, reminders) carry on regardless.
+- A new **/privacy** page linked from the footer, the banner and sign-up.
+- Admin "exclude this device" kept and still works.
+
+Expect PostHog numbers to drop, because only people who accept will be counted. Lovable's cookie-free visitor counts carry on for everyone.
+
+### Itemised credit estimate (build)
+| Item | Estimate |
+|---|---|
+| Consent setup + PostHog only after Accept, cleared on withdrawal | 0.6–0.9 |
+| Banner + Cookie settings panel + footer link | 0.4–0.6 |
+| Campaign tags gated on consent | 0.1–0.2 |
+| /privacy page (your approved wording) + links | 0.3–0.5 |
+| **Build total** | **1.4–2.2** |
+
+### Testing (separate)
+| Check | Estimate |
+|---|---|
+| Unit tests: nothing starts before Accept, Reject or GPC blocks, withdrawal stops it | 0.2–0.3 |
+| One browser check: no PostHog cookie or requests before Accept, both appear after Accept, gone after Reject | 0.2–0.3 |
+| **Testing total** | **0.4–0.6** |
+
+What you'd check yourself: a replay appears in PostHog only after you accept, and the live site after publishing.
+
+### Wording you would need to approve
+1. Banner text, e.g. "We use analytics cookies to see how RoostNI is used and to improve it, including recordings of how pages are used. They're off unless you accept." plus the button labels.
+2. Cookie settings text: the Necessary row (always on) and the Analytics row.
+3. The full privacy policy: who you are (controller, contact address), what is collected (account, passport documents, listings, analytics), why and the lawful basis, who it's shared with (PostHog EU, hosting/database, email), how long it's kept, rights and how to complain to the ICO. I'd draft it for you to edit, but I can't give legal advice. Please have it checked by someone who knows UK data protection rules.
+4. Whether session replay stays on at all once there's consent. Turning it off in PostHog is the lower-risk option, given the passport screens.
+
+### Not verified
+- PostHog's project settings (replay on or off, input masking) can't be read from the code.
+- The cookie names above come from the code and the PostHog defaults, not from a live browser check.
