@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "bun:test";
 import { assertApprovedStatements, type LegalFact } from "./legal-fact-rules";
 const fact: LegalFact = { id:"f1", topic:"deposit_protection", fact_text:"A landlord must protect a deposit within 28 days of receiving it.", source_url:"https://www.nidirect.gov.uk/x", last_verified_at:new Date().toISOString(), status:"approved", revision:1 };
 describe("Robin legal wording check", () => {
