@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { completeSignupPost, FOUNDING_SHORT_LINE, PAUSED_POST_TYPES, signupPostProblems, callToAction, TENANTED_ENTRY_URL, WEEKLY_PLAN, foundingPlacesLeft, foundingOfferLine, tenantTipBlocked, compareWeek, withinCooldown } from "./src/lib/robin-plan";
+import { featuresIn, repeatedLineProblems, runItYourselfSlots, bodyWordCount, completeSignupPost, FOUNDING_SHORT_LINE, PAUSED_POST_TYPES, signupPostProblems, callToAction, TENANTED_ENTRY_URL, WEEKLY_PLAN, foundingPlacesLeft, foundingOfferLine, tenantTipBlocked, compareWeek, withinCooldown } from "./src/lib/robin-plan";
 import { validateMarketingCopy } from "./src/lib/marketing-knowledge";
 import { DEFAULT_GROUPS, firstCommentText } from "./src/lib/robin-groups";
 
@@ -75,7 +75,7 @@ test("follows count towards engagement and are averaged by post type", () => {
   expect(out.find(c => c.dimension === "post type" && c.value === "pain_urgency")?.avgFollows).toBe(3);
 });
 
-const LINE = "RoostNI: run the tenancy yourself, from one place. Listing, Tenant Passport, rent records, deposit and notice reminders, compliance tools.";
+const LINE = "RoostNI: Tenant Passport, rent records, deposit reminders.";
 const good = (extra: string, cta = "Add your first home: link in the first comment.") => `Paperwork everywhere.\n${LINE}\n${extra}\n${cta}`;
 test("a sign-up post needs RoostNI, the one-liner and the call to action last", () => {
   expect(signupPostProblems(good("Every date in one place."), "pain_solution", false)).toEqual([]);
@@ -102,9 +102,42 @@ test("founding and tenanted posts carry their required details and calls to acti
   expect(callToAction("founding_offer").cta).toBe("Claim a founding place:");
 });
 test("missing founding, tenanted and what-it-does lines are added above the call to action", () => {
-  const f = completeSignupPost("Start with one home.\nClaim a founding place: link in the first comment.", "founding_offer");
+  const f = completeSignupPost(`Start with one home.\n${LINE}\nClaim a founding place: link in the first comment.`, "founding_offer");
+  expect(f).toContain("Billing is not switched on yet.");
   expect(f).toContain(FOUNDING_SHORT_LINE);
   expect(signupPostProblems(f, "founding_offer", false)).toEqual([]);
-  const t = completeSignupPost("Got a tenant already?\nAdd your first home: link in the first comment.", "move_tenanted");
+  const t = completeSignupPost(`Got a tenant already?\n${LINE}\nAdd your first home: link in the first comment.`, "move_tenanted");
   expect(signupPostProblems(t, "move_tenanted", false)).toEqual([]);
+});
+
+test("weak openers are blocked; hooks are fine", () => {
+  for (const bad of ["I'm building this.", "We are here.", "Inviting you to try it.", "Putting RoostNI in front of you.", "Introducing RoostNI today."])
+    expect(signupPostProblems(`${bad}\n${LINE}\nAdd your first home: link in the first comment.`, "pain_solution", false)).toContain("Open with the hook, not an introduction.");
+  expect(signupPostProblems(good("Run it."), "pain_solution", false)).toEqual([]);
+});
+test("no what-it-does line repeats in the week or from earlier posts; at most 3 real features", () => {
+  const a = good("x"), b = `Hook.\nRoostNI: rent records and the applicant inbox.\nAdd your first home: link in the first comment.`;
+  expect(repeatedLineProblems([a, b], [])).toEqual([]);
+  expect(repeatedLineProblems([a, a], [])).toEqual([1]);
+  expect(repeatedLineProblems([b], [a, b])).toEqual([0]);
+  expect(signupPostProblems(good("x").replace(LINE, "RoostNI: Tenant Passport, rent records, deposit reminders, applicant inbox."), "pain_solution", false)).toContain("Name at most 3 features in the what-it-does line.");
+});
+test("no places-left count and a 60-word body limit", () => {
+  expect(signupPostProblems(good("20 of 20 founding places remain."), "pain_solution", false)).toContain("No places-left count.");
+  expect(signupPostProblems(good("Only 3 places left."), "pain_solution", false)).toContain("No places-left count.");
+  const long = good(Array(55).fill("word").join(" "));
+  expect(bodyWordCount(long)).toBeGreaterThan(60);
+  expect(signupPostProblems(long, "pain_solution", false)).toContain("Keep the body to 60 words.");
+  expect(bodyWordCount(`Hook.\n${FOUNDING_SHORT_LINE}\nBilling is not switched on yet.\nClaim a founding place: x`)).toBe(1);
+});
+test("run it yourself is allowed; agent and fee claims stay blocked; 2 pain + 1 tenanted slots", () => {
+  expect(signupPostProblems(good("Run the tenancy yourself. No agent needed to run it."), "pain_solution", false)).toEqual([]);
+  for (const bad of ["Agents are expensive.", "Fees of £500 gone.", "Save 10% on fees."]) expect(signupPostProblems(good(bad), "pain_solution", false).length).toBeGreaterThan(0);
+  const slots = runItYourselfSlots();
+  expect(WEEKLY_PLAN.filter((t, i) => slots[i] && t === "pain_solution").length).toBe(2);
+  expect(WEEKLY_PLAN.filter((t, i) => slots[i] && t === "move_tenanted").length).toBe(1);
+  expect(slots.filter(Boolean).length).toBe(3);
+});
+test("inventories exist but are not an allowed post feature", () => {
+  expect(featuresIn("RoostNI: inventories for every tenancy.")).toEqual([]);
 });

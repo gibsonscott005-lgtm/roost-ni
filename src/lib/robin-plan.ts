@@ -81,7 +81,6 @@ export function runItYourselfSlots(plan: PostType[] = WEEKLY_PLAN): boolean[] {
   let pain = 0, tenanted = 0;
   return plan.map(t => t === "pain_solution" ? ++pain <= 2 : t === "move_tenanted" ? ++tenanted <= 1 : false);
 }
-export const WHAT_IT_DOES_LINE = "RoostNI: run the tenancy yourself, from one place. Listing, Tenant Passport, rent records, deposit and notice reminders, compliance tools.";
 export const TENANTED_TIME_LINE = "About 10 days to complete the records, with reminders along the way.";
 /** Adds any required line Robin left out, just above the call to action, so every post carries it word for word. */
 export function completeSignupPost(body: string, type: PostType): string {
