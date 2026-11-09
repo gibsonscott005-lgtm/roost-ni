@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { featuresIn, repeatedLineProblems, runItYourselfSlots, bodyWordCount, completeSignupPost, FOUNDING_SHORT_LINE, PAUSED_POST_TYPES, signupPostProblems, callToAction, TENANTED_ENTRY_URL, WEEKLY_PLAN, foundingPlacesLeft, foundingOfferLine, tenantTipBlocked, compareWeek, withinCooldown } from "./src/lib/robin-plan";
+import { LEAD_FEATURES, POST_FEATURES, assertFeatureSpread, featuresIn, repeatedLineProblems, runItYourselfSlots, bodyWordCount, completeSignupPost, FOUNDING_SHORT_LINE, PAUSED_POST_TYPES, signupPostProblems, callToAction, TENANTED_ENTRY_URL, WEEKLY_PLAN, foundingPlacesLeft, foundingOfferLine, tenantTipBlocked, compareWeek, withinCooldown } from "./src/lib/robin-plan";
 import { validateMarketingCopy } from "./src/lib/marketing-knowledge";
 import { DEFAULT_GROUPS, firstCommentText } from "./src/lib/robin-groups";
 
@@ -140,4 +140,20 @@ test("run it yourself is allowed; agent and fee claims stay blocked; 2 pain + 1 
 });
 test("inventories exist but are not an allowed post feature", () => {
   expect(featuresIn("RoostNI: inventories for every tenancy.")).toEqual([]);
+});
+
+test("the what-it-does line must name the slot's lead feature; 14 valid lead features", () => {
+  expect(LEAD_FEATURES.length).toBe(14);
+  expect(LEAD_FEATURES.every(f => POST_FEATURES.some(([n]) => n === f))).toBe(true);
+  expect(signupPostProblems(good("x"), "pain_solution", false, "rent records")).toEqual([]);
+  expect(signupPostProblems(good("x"), "pain_solution", false, "applicant inbox")).toContain("The what-it-does line must name the lead feature: applicant inbox.");
+});
+test("author-introduction openers are blocked", () => {
+  for (const bad of ["My focus is records.", "My aim is simple.", "My goal: less mess.", "My plan works.", "My idea was this.", "I built RoostNI.", "I made this.", "I created it.", "I started RoostNI.", "I set up RoostNI.", "I wrote this."])
+    expect(signupPostProblems(`Hook.\n${LINE}\n${bad}\nAdd your first home: link in the first comment.`, "pain_solution", false)).toContain("Open with the hook, not an introduction.");
+});
+test("no feature in more than 5 posts' what-it-does line in a week", () => {
+  const post = (line: string) => `Hook.\n${line}\nAdd your first home: link in the first comment.`;
+  expect(() => assertFeatureSpread(Array(5).fill(post("RoostNI: rent records.")))).not.toThrow();
+  expect(() => assertFeatureSpread(Array(6).fill(post("RoostNI: rent records.")))).toThrow(/rent records.*No drafts saved/);
 });
