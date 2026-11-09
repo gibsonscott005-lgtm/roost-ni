@@ -56,6 +56,10 @@ export function initPostHog() {
       return event;
     },
     loaded: (posthogInstance) => {
+      // Carry over an exclusion made before this flag existed.
+      if (posthogInstance.has_opted_out_capturing() && !deviceExcluded()) {
+        try { localStorage.setItem(DEVICE_EXCLUDED_KEY, "1"); } catch { /* ignore */ }
+      }
       if (deviceExcluded()) {
         posthogInstance.opt_out_capturing();
         return;

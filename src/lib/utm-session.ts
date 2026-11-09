@@ -1,12 +1,26 @@
 // Keeps campaign tags (utm_*) for the whole browser session so a sign-up or
 // audit completed several pages after landing is still credited to the post.
+import { analyticsAllowed } from "@/lib/analytics-consent";
+
 const STORAGE_KEY = "roost_utm";
 const KEYS = ["source", "medium", "campaign", "content"] as const;
 
 export type UtmContext = Partial<Record<(typeof KEYS)[number], string>>;
 
+/** Removes stored campaign tags (consent withdrawn). */
+export function clearCampaignTags(): void {
+  try {
+    for (const key of Object.keys(window.sessionStorage)) {
+      if (key === STORAGE_KEY || key.startsWith("roost_visit_")) window.sessionStorage.removeItem(key);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
 export function captureUtmFromUrl(): void {
   if (typeof window === "undefined") return;
+  if (!analyticsAllowed()) return;
   try {
     const params = new URLSearchParams(window.location.search);
     const found: UtmContext = {};
@@ -23,7 +37,7 @@ export function captureUtmFromUrl(): void {
 }
 
 export function getEventContext(): UtmContext {
-  if (typeof window === "undefined") return {};
+  if (typeof window === "undefined" || !analyticsAllowed()) return {};
   captureUtmFromUrl();
   try {
     const raw = window.sessionStorage.getItem(STORAGE_KEY);
