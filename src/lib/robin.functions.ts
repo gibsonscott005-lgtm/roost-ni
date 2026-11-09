@@ -53,6 +53,12 @@ const TYPE_BRIEF: Record<PostType, string> = {
 export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((data: unknown) => z.object({ focus: z.enum(["mixed","landlord","tenant","ni_legal"]), groupIds: z.array(z.string()).min(1).max(20), week: z.boolean(), replace: z.boolean().optional(), replaceReason: z.string().max(120).optional(), brief: z.string().max(6000).optional() }).parse(data)).handler(async ({ data, context }) => {
   await admin(context.supabase, context.userId);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return runRobinDrafts(supabaseAdmin, context.userId, data);
+});
+export interface RobinDraftRequest { focus: "mixed" | "landlord" | "tenant" | "ni_legal"; groupIds: string[]; week: boolean; replace?: boolean; replaceReason?: string; brief?: string }
+/** Admin-verified callers only: drafts the week with the admin client. */
+export async function runRobinDrafts(supabaseAdmin: any, userId: string, data: RobinDraftRequest) {
+  const context = { userId };
   const groups = (await groupsFrom(supabaseAdmin)).filter(g => data.groupIds.includes(g.id));
   if (groups.length !== new Set(data.groupIds).size) throw new Error("Save your group settings first.");
   // Weekly plan: 14 posts, 2 a day. Slot A alternates between the selected groups; slot B is the RoostNI Page.
@@ -132,7 +138,7 @@ export const generateRobinDrafts = createServerFn({ method: "POST" }).middleware
     if (skipError) throw new Error(`New drafts saved, but the old queue could not be marked skipped: ${skipError.message}`);
   }
   return { created:created ?? [], removed: replacedIds.length };
-});
+}
 export const draftRobinReply = createServerFn({ method:"POST" }).middleware([requireSupabaseAuth]).inputValidator((data:unknown) => z.object({ comment:z.string().min(1).max(4000), groupId:z.string().optional() }).parse(data)).handler(async ({ data,context }) => {
   await admin(context.supabase,context.userId);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
