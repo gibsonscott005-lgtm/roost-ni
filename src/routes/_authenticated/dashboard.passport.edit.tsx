@@ -726,9 +726,9 @@ function VerifyIdentityPanel({
     setBusy(true);
     try {
       const res = await resolveSimulatedVerification();
-      if (res.outcome === "verified") {
-        toast.success("Identity verified", {
-          description: "Landlords will see a verified ID badge on your applications.",
+      if (res.outcome === "self_certified") {
+        toast.success("Simulated check complete", {
+          description: "Your ID is shown to landlords as self-certified. No real check was made.",
         });
       } else {
         toast.error("Check did not complete", {
