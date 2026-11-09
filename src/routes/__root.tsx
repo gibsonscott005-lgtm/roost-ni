@@ -130,6 +130,36 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
+    // Analytics and campaign tags start only after "Accept"; withdrawal stops them at once.
+    let wasAllowed = false;
+    const sync = () => {
+      const allowed = analyticsAllowed();
+      if (allowed && !wasAllowed) startTracking();
+      if (!allowed) {
+        stopPostHog();
+        clearCampaignTags();
+      }
+      wasAllowed = allowed;
+    };
+    sync();
+    return onConsentChange(sync);
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      <Outlet />
+      {/* Browser-only widgets mount after hydration so server and client HTML match. */}
+      <ClientOnly fallback={null}>
+        <BetaFeedbackWidget />
+        <CookieConsent />
+        <Toaster position="top-center" richColors closeButton />
+      </ClientOnly>
+    </QueryClientProvider>
+  );
+}
+
+function startTracking() {
     captureUtmFromUrl();
     initPostHog();
     // Log one campaign visit per session for marketing post scoring.
