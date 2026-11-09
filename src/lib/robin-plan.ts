@@ -49,7 +49,38 @@ export function foundingOfferLine(placesLeft: number | null): string {
 /** Short founding line every founding post carries word for word. */
 export const FOUNDING_SHORT_LINE = "First 20 landlords who add a home, tenanted or not: first month free, then £5 first home, £3 each extra, locked for 24 months.";
 
-export const WHAT_IT_DOES_LINE = "RoostNI: run the tenancy yourself, from one place. Listing, Tenant Passport, rent records, deposit and notice reminders, compliance tools.";
+export const BILLING_LINE = "Billing is not switched on yet.";
+/** Features that really exist and may be named in a post's what-it-does line (inventories deliberately left out). */
+export const POST_FEATURES: [string, RegExp][] = [
+  ["Tenant Passport", /tenant passport/i], ["rent records", /rent records?/i], ["deposit reminders", /deposit reminders?/i],
+  ["tenancy information notice reminders", /tenancy information notice reminders?/i], ["landlord registration reminders", /(?:landlord )?registration reminders?/i],
+  ["repair and maintenance records", /(?:repair|maintenance)(?: and maintenance)? records?/i], ["public NI listings", /(?:public )?(?:NI )?listings?/i],
+  ["applicant inbox", /applicant inbox/i], ["statutory tools", /statutory tools?|notice to quit calculator|rent receipts?|health check|\baudit\b/i],
+];
+export const featuresIn = (line: string) => POST_FEATURES.filter(([, re]) => re.test(line)).map(([n]) => n);
+/** The post's what-it-does line: the first line naming RoostNI and at least one real feature. */
+export function whatItDoesLine(body: string): string | null {
+  return body.split("\n").map(l => l.trim()).find(l => /RoostNI/.test(l) && featuresIn(l).length > 0) ?? null;
+}
+export const normaliseLine = (l: string) => l.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+/** Within a week no two posts share a what-it-does line, and none reuses a line from earlier posts. */
+export function repeatedLineProblems(bodies: string[], earlierBodies: string[]): number[] {
+  const earlier = new Set(earlierBodies.flatMap(b => b.split("\n")).map(normaliseLine).filter(Boolean));
+  const seen = new Set<string>(); const bad: number[] = [];
+  bodies.forEach((b, i) => { const l = whatItDoesLine(b); if (!l) return; const n = normaliseLine(l); if (seen.has(n) || earlier.has(n)) bad.push(i); seen.add(n); });
+  return bad;
+}
+/** Body words, not counting the call to action, the founding offer line or the billing line. */
+export function bodyWordCount(body: string): number {
+  return body.split("\n").map(l => l.trim()).filter(l => l && l !== FOUNDING_SHORT_LINE && l !== BILLING_LINE && !/^(Add your first home|Claim a founding place)\b/.test(l))
+    .join(" ").split(/\s+/).filter(Boolean).length;
+}
+export const MAX_BODY_WORDS = 60;
+/** Which plan slots take the "run it yourself" angle: 2 of the 5 pain posts and 1 of the 3 tenanted posts. */
+export function runItYourselfSlots(plan: PostType[] = WEEKLY_PLAN): boolean[] {
+  let pain = 0, tenanted = 0;
+  return plan.map(t => t === "pain_solution" ? ++pain <= 2 : t === "move_tenanted" ? ++tenanted <= 1 : false);
+}
 export const TENANTED_TIME_LINE = "About 10 days to complete the records, with reminders along the way.";
 /** Adds any required line Robin left out, just above the call to action, so every post carries it word for word. */
 export function completeSignupPost(body: string, type: PostType): string {
@@ -57,7 +88,7 @@ export function completeSignupPost(body: string, type: PostType): string {
   const cta = callToAction(type).cta.replace(/:$/, "");
   let ctaAt = -1; lines.forEach((l, i) => { if (l.trim().startsWith(cta)) ctaAt = i; });
   const add: string[] = [];
-  if (!lines.some(l => /RoostNI/.test(l) && /Tenant Passport/i.test(l) && /rent records/i.test(l) && /reminders/i.test(l))) add.push(WHAT_IT_DOES_LINE);
+  if (type === "founding_offer" && !body.includes(BILLING_LINE)) add.push(BILLING_LINE);
   if (type === "founding_offer" && !body.includes(FOUNDING_SHORT_LINE)) add.push(FOUNDING_SHORT_LINE);
   if (type === "move_tenanted" && !/about 10 days/i.test(body)) add.push(TENANTED_TIME_LINE);
   if (!add.length || ctaAt < 0) return body.trim();
@@ -80,7 +111,12 @@ export function signupPostProblems(body: string, type: PostType, usesLegalFact: 
   const last = lines[lines.length - 1] ?? "";
   if (PAUSED_POST_TYPES.includes(type)) p.push("Tip posts are paused.");
   if (!/RoostNI/.test(body)) p.push("Name RoostNI.");
-  if (!lines.some(l => /RoostNI/.test(l) && /Tenant Passport/i.test(l) && /rent records/i.test(l) && /reminders/i.test(l))) p.push("Say in one line what RoostNI does (listing, Tenant Passport, rent records, deposit and notice reminders, compliance tools).");
+  const what = whatItDoesLine(body);
+  if (!what) p.push("Say in one line what RoostNI does, naming 1 to 3 real features.");
+  else if (featuresIn(what).length > 3) p.push("Name at most 3 features in the what-it-does line.");
+  if (bodyWordCount(body) > MAX_BODY_WORDS) p.push(`Keep the body to ${MAX_BODY_WORDS} words.`);
+  if (lines.some(l => /^(?:I[\u2019']m|I am|I[\u2019']d|I will|We[\u2019']re|We are)\b/i.test(l)) || /inviting you|putting RoostNI in front of|introducing RoostNI/i.test(body)) p.push("Open with the hook, not an introduction.");
+  if (/\b\d+\s+of\s+20\b|places?\s+(?:left|remain)/i.test(body)) p.push("No places-left count.");
   const cta = callToAction(type).cta.replace(/:$/, "");
   if (!last.startsWith(cta)) p.push(`End with the call to action \"${cta}\".`);
   if (/\?\s*$/.test(last) || /hardest|what do you find|what would you|how do you/i.test(lines.slice(-3).join(" "))) p.push("No closing question.");
@@ -88,7 +124,9 @@ export function signupPostProblems(body: string, type: PostType, usesLegalFact: 
   if (/good practice/i.test(body)) p.push("No \"Good practice\".");
   if (/creative[- ]writing|competition/i.test(body)) p.push("No filler lines.");
   if (/\bsav(?:e|es|ing|ings)\b[^.\n]*(?:£|\d|%)/i.test(body)) p.push("No savings figures.");
-  if (/\bagents?\b|\bagency\b/i.test(body)) p.push("No agent-fee claims or comparisons.");
+  const agentText = body.replace(/\bno agent needed to run it\b/gi, "");
+  if (/\bagents?\b|\bagency\b/i.test(agentText)) p.push("No agent-fee claims or comparisons.");
+  if (/(?:£|%)[^.\n]*\bfees?\b|\bfees?\b[^.\n]*(?:£|%)/i.test(body)) p.push("No fee figures.");
   if (/viewing slots?|book(?:ing)? (?:a )?viewings?|rent collection|collects? (?:the )?rent|direct debit|online payments?|pay rent (?:online|through)/i.test(body)) p.push("Mentions a feature RoostNI does not have.");
   if (usesLegalFact && !body.includes("General information, not legal advice.")) p.push("Add \"General information, not legal advice.\"");
   if (type === "founding_offer" && !(/\b20\b/.test(body) && /landlords/i.test(body) && body.includes("£5") && body.includes("£3") && /24 months/i.test(body) && /month free/i.test(body))) p.push("Founding posts need: first 20 landlords, first month free, £5 / £3, 24 months.");
