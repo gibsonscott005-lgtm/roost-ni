@@ -23,9 +23,19 @@ export function assertApprovedStatements<T extends { statement:string; source:st
   const withoutDisclaimers = remainder
     .replace(/General information, not legal advice\./g, "")
     .replace(/\bnot\s+(?:(?:an?|another|any|extra|additional|further|formal|separate|new)\s+){0,3}(?:legal|statutory|tenancy)\s+(?:requirements?|rules?|duty|duties|obligations?|checklists?)\b/gi, "")
-    .replace(/\bnot\s+(?:required by law|legally required|a legal must)\b/gi, "");
+    .replace(/\bnot\s+(?:required by law|legally required|a legal must)\b/gi, "")
+    // Product names, not legal claims.
+    .replace(/\bstatutory\s+(?:tools?|calculators?|notice\s+calculators?)\b/gi, "");
+  // A topic phrase (e.g. "deposit protection") is allowed when the post attaches an approved fact on that topic.
+  const attached = statements.map(s => eligible.find(f => f.fact_text === s.statement && f.source_url === s.source)).filter((f): f is LegalFact => !!f);
+  const LEGAL_PHRASE = /\b(?:must|legally|required by law|statutory|legal duty|legal requirement|entitled to|(?:legal|statutory|tenancy|tenants?|tenant['’]s|tenants['’]|landlords?|landlord['’]s|landlords['’]|your|their|housing)\s+rights|regulations?|legislation|notice to quit|eviction|deposit cap|deposit protection)\b/gi;
+  const coveredByFact = (phrase: string) => attached.some(f => {
+    const hay = `${f.topic} ${f.fact_text}`.toLowerCase().replace(/[_-]+/g, " ");
+    return phrase.toLowerCase().split(/\s+/).every(w => hay.includes(w.slice(0, Math.min(w.length, 7))));
+  });
+  const topicChecked = attached.length ? withoutDisclaimers.replace(LEGAL_PHRASE, m => (m.includes(" ") && coveredByFact(m) ? "" : m)) : withoutDisclaimers;
   // "rights" only counts in a legal phrase; everyday "the right document" must not trip this.
-  if (/\b(?:must|legally|required by law|statutory|legal duty|legal requirement|entitled to|(?:legal|statutory|tenancy|tenants?|tenant['’]s|tenants['’]|landlords?|landlord['’]s|landlords['’]|your|their|housing)\s+rights|regulations?|legislation|notice to quit|eviction|deposit cap|deposit protection)\b/i.test(withoutDisclaimers)) throw new Error("Legal wording must be included as an exact approved fact. Use practical advice instead.");
+  if (new RegExp(LEGAL_PHRASE.source, "i").test(topicChecked)) throw new Error("Legal wording must be included as an exact approved fact. Use practical advice instead.");
   return statements.map(s => {
     const fact = eligible.find(f => f.fact_text === s.statement && f.source_url === s.source);
     return { ...s, fact_id:fact?.id, verified_at:fact?.last_verified_at, revision:fact?.revision };
