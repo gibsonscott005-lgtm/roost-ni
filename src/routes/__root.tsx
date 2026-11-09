@@ -15,7 +15,11 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { initPostHog } from "../integrations/posthog/client";
+import { initPostHog, stopPostHog } from "../integrations/posthog/client";
+import { analyticsAllowed, onConsentChange } from "@/lib/analytics-consent";
+import { clearCampaignTags } from "@/lib/utm-session";
+import { CookieConsent } from "../components/cookie-consent";
+import { CONSENT_DEFAULTS } from "@/lib/consent-defaults";
 import { Toaster } from "../components/ui/sonner";
 import { BetaFeedbackWidget } from "../components/beta-feedback";
 
@@ -104,6 +108,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preload", href: "/fonts/sora-var.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
     ],
+    // Consent defaults must run before any tag loads.
+    scripts: [{ children: CONSENT_DEFAULTS }],
 
   }),
   shellComponent: RootShell,
@@ -130,6 +136,36 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
+    // Analytics and campaign tags start only after "Accept"; withdrawal stops them at once.
+    let wasAllowed = false;
+    const sync = () => {
+      const allowed = analyticsAllowed();
+      if (allowed && !wasAllowed) startTracking();
+      if (!allowed) {
+        stopPostHog();
+        clearCampaignTags();
+      }
+      wasAllowed = allowed;
+    };
+    sync();
+    return onConsentChange(sync);
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      <Outlet />
+      {/* Browser-only widgets mount after hydration so server and client HTML match. */}
+      <ClientOnly fallback={null}>
+        <BetaFeedbackWidget />
+        <CookieConsent />
+        <Toaster position="top-center" richColors closeButton />
+      </ClientOnly>
+    </QueryClientProvider>
+  );
+}
+
+function startTracking() {
     captureUtmFromUrl();
     initPostHog();
     // Log one campaign visit per session for marketing post scoring.
@@ -150,17 +186,4 @@ function RootComponent() {
     } catch {
       /* storage blocked — skip */
     }
-  }, []);
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      {/* Browser-only widgets mount after hydration so server and client HTML match. */}
-      <ClientOnly fallback={null}>
-        <BetaFeedbackWidget />
-        <Toaster position="top-center" richColors closeButton />
-      </ClientOnly>
-    </QueryClientProvider>
-  );
 }

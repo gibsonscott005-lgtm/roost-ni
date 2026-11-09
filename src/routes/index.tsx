@@ -1,3 +1,4 @@
+import { CookieSettingsLink } from "@/components/cookie-consent";
 import { APPROVED_LINE, BILLING_NOTE, SHORT_LINES } from "@/lib/plans-copy";
 import { STANDARD_PLAN, FOUNDING_PLAN, FOUNDING_LANDLORD_LIMIT, formatGBP } from "@/lib/pricing";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -266,6 +267,7 @@ function HomePage() {
             <Link to="/beta" className="hover:text-foreground">About</Link>
             <Link to="/how-roostni-is-funded" className="hover:text-foreground">How we're funded</Link>
             <Link to="/landlord-registration-ni" className="hover:text-foreground">Landlord registration</Link>
+            <CookieSettingsLink className="uppercase hover:text-foreground" />
           </div>
         </div>
         <p className="mx-auto max-w-6xl px-4 pb-8 text-xs text-muted-foreground sm:px-6">
