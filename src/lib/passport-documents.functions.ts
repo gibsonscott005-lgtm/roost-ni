@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { authoriseShareDocAccess } from "./share-doc-access";
+import { authoriseShareDocAccess, assertTenantOwnsPath } from "./share-doc-access";
 
 /** Tenant: turn an active passport share into a formal application, unlocking documents for that landlord. */
 export const submitFormalApplication = createServerFn({ method: "POST" })
@@ -41,6 +41,7 @@ export const signReferenceDocumentUrl = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     const path = passport?.reference_document_path;
     if (!path) throw new Error("No reference document on file");
+    assertTenantOwnsPath(path, share.tenant_id, "references");
     const { data: signed, error: sErr } = await supabaseAdmin.storage.from("tenant-documents").createSignedUrl(path, 60);
     if (sErr || !signed?.signedUrl) throw new Error(sErr?.message ?? "Could not open the document");
     return { url: signed.signedUrl };
