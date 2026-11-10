@@ -227,6 +227,7 @@ function PassportEditPage() {
               {STEPS[stepIndex].key === "identity" ? (
                 <IdentityStep
                   passport={passport}
+                  onChanged={setPassport}
                   onSaved={(p) => {
                     setPassport(p);
                     goNext();
@@ -236,6 +237,7 @@ function PassportEditPage() {
               ) : STEPS[stepIndex].key === "income" ? (
                 <IncomeStep
                   passport={passport}
+                  onChanged={setPassport}
                   onSaved={(p) => {
                     setPassport(p);
                     goNext();
@@ -245,6 +247,7 @@ function PassportEditPage() {
               ) : (
                 <ReferencesStep
                   passport={passport}
+                  onChanged={setPassport}
                   onSaved={(p) => {
                     setPassport(p);
                     toast.success("Passport complete", {
@@ -837,14 +840,19 @@ function IdentityStep({
   passport,
   onSaved,
   onBack,
+  onChanged,
 }: {
   passport: Passport;
   onSaved: (p: Passport) => void;
+  onChanged: (p: Passport) => void;
   onBack: (() => void) | null;
 }) {
   const { user } = useAuth();
   const [docType, setDocType] = useState<string>(passport.id_document_type ?? "passport");
   const [docNumber, setDocNumber] = useState(passport.id_document_number ?? "");
+  useEffect(() => {
+    if (!passport.id_document_path) setDocNumber(passport.id_document_number ?? "");
+  }, [passport.id_document_path, passport.id_document_number]);
   const [country, setCountry] = useState<string>(passport.issuing_country ?? "GB");
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
@@ -970,7 +978,7 @@ function IdentityStep({
           file={file}
           onSelect={setFile}
         />
-        <RemoveFileButton kind="identity" hasFile={!!passport.id_document_path} onRemoved={onSaved} />
+        <RemoveFileButton kind="identity" hasFile={!!passport.id_document_path} onRemoved={onChanged} />
         <StepActions onBack={onBack} saving={saving} submitLabel="Save & continue" />
       </StepCard>
     </form>
@@ -981,9 +989,11 @@ function IncomeStep({
   passport,
   onSaved,
   onBack,
+  onChanged,
 }: {
   passport: Passport;
   onSaved: (p: Passport) => void;
+  onChanged: (p: Passport) => void;
   onBack: () => void;
 }) {
   const { user } = useAuth();
@@ -1170,7 +1180,7 @@ function IncomeStep({
           file={file}
           onSelect={setFile}
         />
-        <RemoveFileButton kind="income" hasFile={!!passport.income_document_path} onRemoved={onSaved} />
+        <RemoveFileButton kind="income" hasFile={!!passport.income_document_path} onRemoved={onChanged} />
         <StepActions onBack={onBack} saving={saving} submitLabel="Save & continue" />
       </StepCard>
     </form>
@@ -1212,9 +1222,11 @@ function ReferencesStep({
   passport,
   onSaved,
   onBack,
+  onChanged,
 }: {
   passport: Passport;
   onSaved: (p: Passport) => void;
+  onChanged: (p: Passport) => void;
   onBack: () => void;
 }) {
   const { user } = useAuth();
@@ -1562,7 +1574,7 @@ function ReferencesStep({
           file={file}
           onSelect={setFile}
         />
-        <RemoveFileButton kind="reference" hasFile={!!passport.reference_document_path} onRemoved={onSaved} />
+        <RemoveFileButton kind="reference" hasFile={!!passport.reference_document_path} onRemoved={onChanged} />
         <p className="text-xs text-muted-foreground">
           Optional — attach a written reference or supporting document if you have one.
         </p>
