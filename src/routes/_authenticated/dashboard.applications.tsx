@@ -76,6 +76,16 @@ interface Share {
 
 interface Passport {
   user_id: string;
+  share_id?: string;
+  cover_ratio?: number | null;
+  previous_landlord_name?: string | null;
+  previous_landlord_email?: string | null;
+  previous_landlord_phone?: string | null;
+  tenancy_start_date?: string | null;
+  tenancy_end_date?: string | null;
+  guarantor_name?: string | null;
+  guarantor_email?: string | null;
+  guarantor_phone?: string | null;
   identity_verified: boolean;
   income_verified: boolean;
   reference_verified: boolean;
@@ -146,7 +156,7 @@ function ApplicationsPage() {
         // applicants' passport rows directly, and only screening fields come back.
         const { passports: rows } = await getApplicantPassports();
         ((rows as unknown as Passport[] | null) ?? []).forEach((row) => {
-          passports[row.user_id] = row;
+          passports[row.share_id ?? row.user_id] = row;
         });
       }
       return { shares: list, passports, listingCount: count ?? 0 };
@@ -355,7 +365,7 @@ function ApplicationsPage() {
                   </div>
                   <ul className="grid gap-3 md:grid-cols-2">
                     {g.items.map((s) => {
-                      const p = passports[s.tenant_id];
+                      const p = passports[s.id];
                       return (
                         <li
                           key={s.id}
@@ -468,7 +478,7 @@ function ApplicationsPage() {
 
       <PassportSheet
         share={openShare}
-        passport={openShare ? passports[openShare.tenant_id] ?? null : null}
+        passport={openShare ? passports[openShare.id] ?? null : null}
         onAccept={(s) => acceptMutation.mutate(s)}
         accepting={acceptMutation.isPending}
         onChanged={refresh}
@@ -713,11 +723,14 @@ function AffordabilityBadge({
   passport: Passport | null | undefined;
   monthlyRent: number | null | undefined;
 }) {
-  const result = computeAffordability(passport, monthlyRent);
-  if (!result) return null;
-  const rounded = Math.round(result.ratio * 10) / 10;
-  const tooltip = `Calculation only, from figures the applicant entered: £${Math.round(result.effectiveCapacity).toLocaleString()} declared annual capacity ÷ £${result.annualRent.toLocaleString()} annual rent = ${rounded.toFixed(1)}× (benefits weighted 1.25×). A common landlord benchmark is 2.5×. RoostNI is not assessing this applicant — the judgement is yours.`;
-  if (result.ratio >= 2.5) {
+  const full = computeAffordability(passport, monthlyRent);
+  const ratio = full?.ratio ?? passport?.cover_ratio ?? null;
+  if (ratio == null) return null;
+  const rounded = Math.round(ratio * 10) / 10;
+  const tooltip = full
+    ? `Calculation only, from figures the applicant entered: £${Math.round(full.effectiveCapacity).toLocaleString()} declared annual capacity ÷ £${full.annualRent.toLocaleString()} annual rent = ${rounded.toFixed(1)}× (benefits weighted 1.25×). A common landlord benchmark is 2.5×. RoostNI is not assessing this applicant — the judgement is yours.`
+    : `Calculation only, from figures the applicant entered (benefits weighted 1.25×). Exact figures are shown after a formal application. A common landlord benchmark is 2.5×. RoostNI is not assessing this applicant — the judgement is yours.`;
+  if (ratio >= 2.5) {
     return (
       <span
         title={tooltip}
@@ -1102,8 +1115,8 @@ function PassportSheet({
                   ) : null}
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Contact details and full references are released once you accept — keeping
-                  applicant data private until there is a genuine offer.
+                  Exact income and contact details are released once the applicant makes a formal
+                  application — keeping their data private until then.
                 </p>
               </Section>
 
@@ -1131,6 +1144,25 @@ function PassportSheet({
 
               <Section title="Previous landlord references">
                 <VerifyBadge label="References" ok={!!passport?.reference_verified} provided={!!passport?.reference_provided} />
+                {passport?.previous_landlord_name || passport?.guarantor_name ? (
+                  <dl className="mt-3 divide-y divide-border rounded-sm border border-border bg-surface-muted/50 text-sm">
+                    {passport.previous_landlord_name ? (
+                      <Row
+                        k="Previous landlord"
+                        v={[passport.previous_landlord_name, passport.previous_landlord_email, passport.previous_landlord_phone].filter(Boolean).join(" · ")}
+                      />
+                    ) : null}
+                    {passport.tenancy_start_date ? (
+                      <Row k="Previous tenancy" v={`${passport.tenancy_start_date} – ${passport.tenancy_end_date ?? "present"}`} />
+                    ) : null}
+                    {passport.guarantor_name ? (
+                      <Row
+                        k="Guarantor"
+                        v={[passport.guarantor_name, passport.guarantor_email, passport.guarantor_phone].filter(Boolean).join(" · ")}
+                      />
+                    ) : null}
+                  </dl>
+                ) : null}
                 <p className="mt-2 text-xs text-muted-foreground">
                   {passport?.reference_provided
                     ? "Reference evidence is attached. Take up the reference with the previous landlord yourself."
