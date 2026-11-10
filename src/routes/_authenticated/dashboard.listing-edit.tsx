@@ -29,6 +29,7 @@ import {
   emptyListingDetails,
   listingDetailsFromRow,
 } from "@/components/listing-detail-fields";
+import { TENANCY_RECORD_EMBED, withTenancyRecord } from "@/lib/tenancy-record";
 import {
   listingDetailPayload,
   validateListingDetails,
@@ -111,11 +112,11 @@ function EditListingPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("property_listings")
-        .select("*")
+        .select(`*, ${TENANCY_RECORD_EMBED}`)
         .eq("id", id!)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data ? withTenancyRecord(data as Record<string, unknown>) as unknown as typeof data : data;
     },
   });
 
