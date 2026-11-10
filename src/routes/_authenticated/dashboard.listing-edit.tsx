@@ -1,3 +1,4 @@
+import { listingDeleteBlocked } from "@/lib/passport-files";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { useEffect, useState } from "react";
@@ -126,7 +127,7 @@ function EditListingPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("passport_shares")
-        .select("id, status, lease_status")
+        .select("id, status, lease_status, tenant_id")
         .eq("listing_id", id!);
       if (error) throw error;
       return data ?? [];
@@ -136,7 +137,8 @@ function EditListingPage() {
   const listing = listingQuery.data as Record<string, any> | null | undefined;
   const shares = linkedQuery.data ?? [];
   const hasTenancy = shares.some((s) => s.lease_status === "counter_signed");
-  const hasApplications = shares.length > 0;
+  const hasApplications = listingDeleteBlocked(shares);
+  const isTenantedHome = listing?.occupancy_status === "tenanted";
 
   const [title, setTitle] = useState("");
   const [address, setAddress] = useState("");
@@ -253,6 +255,11 @@ function EditListingPage() {
     if (error) {
       toast.error("Could not delete listing", { description: error.message });
       return;
+    }
+    const photoPaths = (listing?.photo_urls ?? []) as string[];
+    if (photoPaths.length) {
+      const { error: pErr } = await supabase.storage.from("listing-photos").remove(photoPaths);
+      if (pErr) console.error("[listing-photos]", pErr);
     }
     toast.success("Listing deleted");
     await invalidate();
@@ -564,7 +571,11 @@ function EditListingPage() {
             <div className="ml-auto flex items-center gap-2">
               {confirmDelete ? (
                 <>
-                  <span className="text-xs text-muted-foreground">Delete permanently?</span>
+                  <span className="max-w-xs text-xs text-muted-foreground">
+                    {isTenantedHome
+                      ? "Delete permanently? This also deletes the tenancy records, rent receipts and notices for this home."
+                      : "Delete permanently?"}
+                  </span>
                   <button
                     type="button"
                     onClick={() => void removeListing()}

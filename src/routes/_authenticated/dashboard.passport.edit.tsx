@@ -20,6 +20,9 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useServerFn } from "@tanstack/react-start";
+import { removePassportFile } from "@/lib/passport-files.functions";
+import type { PassportFileKind } from "@/lib/passport-files";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -941,7 +944,7 @@ function IdentityStep({
           </Field>
           <Field label="Document number">
             <input
-              required
+              required={!!file || !!passport.id_document_path}
               value={docNumber}
               onChange={(e) => setDocNumber(e.target.value.toUpperCase())}
               placeholder="e.g. 123456789"
@@ -967,6 +970,7 @@ function IdentityStep({
           file={file}
           onSelect={setFile}
         />
+        <RemoveFileButton kind="identity" hasFile={!!passport.id_document_path} onRemoved={onSaved} />
         <StepActions onBack={onBack} saving={saving} submitLabel="Save & continue" />
       </StepCard>
     </form>
@@ -1166,6 +1170,7 @@ function IncomeStep({
           file={file}
           onSelect={setFile}
         />
+        <RemoveFileButton kind="income" hasFile={!!passport.income_document_path} onRemoved={onSaved} />
         <StepActions onBack={onBack} saving={saving} submitLabel="Save & continue" />
       </StepCard>
     </form>
@@ -1557,6 +1562,7 @@ function ReferencesStep({
           file={file}
           onSelect={setFile}
         />
+        <RemoveFileButton kind="reference" hasFile={!!passport.reference_document_path} onRemoved={onSaved} />
         <p className="text-xs text-muted-foreground">
           Optional — attach a written reference or supporting document if you have one.
         </p>
@@ -1574,4 +1580,51 @@ function monthsBetween(start: string, end: string): number | null {
   const ms = e.getTime() - s.getTime();
   if (ms <= 0) return 0;
   return Math.floor(ms / (1000 * 60 * 60 * 24 * 30.44));
+}
+function RemoveFileButton({
+  kind,
+  hasFile,
+  onRemoved,
+}: {
+  kind: PassportFileKind;
+  hasFile: boolean;
+  onRemoved: (p: Passport) => void;
+}) {
+  const remove = useServerFn(removePassportFile);
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  if (!hasFile) return null;
+  const what = kind === "identity" ? "ID" : kind === "income" ? "income document" : "reference document";
+  const run = async () => {
+    setBusy(true);
+    try {
+      const res = await remove({ data: { kind } });
+      toast.success(kind === "identity" ? "ID removed and identity details cleared" : "Document removed");
+      if (res.passport) onRemoved(res.passport as Passport);
+      setConfirming(false);
+    } catch (err: unknown) {
+      toast.error("Could not remove", { description: err instanceof Error ? err.message : "Please try again" });
+    } finally {
+      setBusy(false);
+    }
+  };
+  return confirming ? (
+    <div className="flex flex-wrap items-center gap-2 text-xs">
+      <span className="text-muted-foreground">
+        {kind === "identity"
+          ? "Remove your ID? The file, document number and verification will be deleted."
+          : `Remove your ${what}? The file will be deleted.`}
+      </span>
+      <button type="button" disabled={busy} onClick={() => void run()} className="rounded-full bg-destructive px-3 py-1.5 font-semibold text-destructive-foreground disabled:opacity-60">
+        {busy ? "Removing…" : "Yes, remove"}
+      </button>
+      <button type="button" disabled={busy} onClick={() => setConfirming(false)} className="px-2 py-1.5 text-muted-foreground hover:text-foreground">
+        Cancel
+      </button>
+    </div>
+  ) : (
+    <button type="button" onClick={() => setConfirming(true)} className="text-xs font-medium text-destructive underline-offset-2 hover:underline">
+      Remove {what}
+    </button>
+  );
 }
