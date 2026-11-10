@@ -40,3 +40,8 @@
 - [ ] Microsoft Clarity — waits for the Clarity project ID from the owner.
 
 - [x] Cookie banner (Accept all / Reject all / Cookie settings) with PostHog and campaign tags only after Accept; footer link. Privacy page wording waits for the user.
+
+- [x] Privacy Build A: passport read rules dropped, private tenant-details store, staged passport view, listing tool columns.
+- [ ] Privacy follow-up: remove the three old tenant fields from listings — waits for the owner to publish Build A.
+- [ ] Privacy Build B: Remove buttons in Passport editor and account-deletion file clean-up — waits for approval.
+- [ ] Orphaned files (13) — waits for separate approval.
