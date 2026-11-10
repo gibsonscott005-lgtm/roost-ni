@@ -456,7 +456,7 @@ async function runTenancyRecordsReminders(admin: Admin, runDate: string, out: Re
   const { data, error } = await admin
     .from("passport_shares")
     .select(
-      "id, tenancy_start_date, tenancy_status, rent_frequency, deposit_received_at, deposit_scheme, deposit_protected_at, tenant_phone, tin_given_at, property_listings!inner(landlord_id, created_at, monthly_rent, deposit, ni_landlord_reg_number, existing_tenant_name, existing_tenant_email, is_test, occupancy_status)",
+      "id, tenancy_start_date, tenancy_status, rent_frequency, deposit_received_at, deposit_scheme, deposit_protected_at, tenant_phone, tin_given_at, property_listings!inner(landlord_id, created_at, monthly_rent, deposit, ni_landlord_reg_number, is_test, occupancy_status, rec:property_tenancy_records(existing_tenant_name, existing_tenant_email))",
     )
     .eq("lease_kind", "existing_agreement")
     .limit(2000);
@@ -467,7 +467,9 @@ async function runTenancyRecordsReminders(admin: Admin, runDate: string, out: Re
   const now = new Date(`${runDate}T12:00:00Z`);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   for (const row of (data ?? []) as any[]) {
-    const l = row.property_listings;
+    const rawL = row.property_listings;
+    const rec = rawL ? (Array.isArray(rawL.rec) ? rawL.rec[0] : rawL.rec) : null;
+    const l = rawL ? { ...rawL, existing_tenant_name: rec?.existing_tenant_name ?? null, existing_tenant_email: rec?.existing_tenant_email ?? null } : null;
     if (!l || l.is_test || l.occupancy_status !== "tenanted") continue;
     if (row.tenancy_status && row.tenancy_status !== "active") continue;
     const day = daysSinceAdded(l.created_at, now);
@@ -533,7 +535,9 @@ async function runTinReminders(admin: Admin, runDate: string, out: ReminderOutco
   const today = new Date(`${runDate}T12:00:00Z`);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   for (const row of (data ?? []) as any[]) {
-    const l = row.property_listings;
+    const rawL = row.property_listings;
+    const rec = rawL ? (Array.isArray(rawL.rec) ? rawL.rec[0] : rawL.rec) : null;
+    const l = rawL ? { ...rawL, existing_tenant_name: rec?.existing_tenant_name ?? null, existing_tenant_email: rec?.existing_tenant_email ?? null } : null;
     if (!l || l.is_test || (row.tenancy_status && row.tenancy_status !== "active")) continue;
     const kind = tinReminderKind({ signedAt: row.lease_signed_at, startDate: row.tenancy_start_date, tinGivenAt: row.tin_given_at, leaseKind: row.lease_kind, today });
     if (!kind) continue;
