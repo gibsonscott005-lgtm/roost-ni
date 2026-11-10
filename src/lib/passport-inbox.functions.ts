@@ -53,5 +53,6 @@ export const getApplicantPassports = createServerFn({ method: "POST" })
       const row = byUser.get(s.tenant_id as string);
       return row ? [landlordPassportView(row, s, rentById.get(s.listing_id) ?? null)] : [];
     });
-    return { passports };
+    type Json = string | number | boolean | null | { [k: string]: number };
+    return { passports: passports as unknown as Array<Record<string, Json>> };
   });
