@@ -1141,6 +1141,47 @@ export type Database = {
         }
         Relationships: []
       }
+      property_tenancy_records: {
+        Row: {
+          created_at: string
+          existing_deposit_reference: string | null
+          existing_tenant_email: string | null
+          existing_tenant_name: string | null
+          id: string
+          landlord_id: string
+          listing_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          existing_deposit_reference?: string | null
+          existing_tenant_email?: string | null
+          existing_tenant_name?: string | null
+          id?: string
+          landlord_id: string
+          listing_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          existing_deposit_reference?: string | null
+          existing_tenant_email?: string | null
+          existing_tenant_name?: string | null
+          id?: string
+          landlord_id?: string
+          listing_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_tenancy_records_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: true
+            referencedRelation: "property_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reminder_log: {
         Row: {
           created_at: string

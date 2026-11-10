@@ -253,6 +253,13 @@
       "when": 1794229031239,
       "tag": "0035_guard_tenant_settlement_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794341010651,
+      "tag": "0036_privacy_build_a",
+      "breakpoints": true
     }
   ]
 }
