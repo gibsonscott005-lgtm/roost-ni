@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
+import { TENANCY_RECORD_EMBED, withTenancyRecord } from "@/lib/tenancy-record";
 import {
   COMPLETION_TARGET_DAYS,
   daysSinceAdded,
@@ -30,6 +31,7 @@ interface Row {
     ni_landlord_reg_number: string | null;
     existing_tenant_name: string | null;
     existing_tenant_email: string | null;
+    landlord_id?: string;
   } | null;
 }
 
@@ -42,12 +44,14 @@ export function TenancyRecordsPanel({ shareId }: { shareId: string }) {
       const { data, error } = await supabase
         .from("passport_shares")
         .select(
-          "id, listing_id, tenant_id, tenancy_start_date, rent_frequency, deposit_received_at, deposit_scheme, deposit_protected_at, tenant_phone, tin_given_at, listing:property_listings!listing_id(created_at, monthly_rent, deposit, ni_landlord_reg_number, existing_tenant_name, existing_tenant_email)",
+          `id, listing_id, tenant_id, tenancy_start_date, rent_frequency, deposit_received_at, deposit_scheme, deposit_protected_at, tenant_phone, tin_given_at, listing:property_listings!listing_id(created_at, monthly_rent, deposit, ni_landlord_reg_number, landlord_id, ${TENANCY_RECORD_EMBED})`,
         )
         .eq("id", shareId)
         .maybeSingle();
       if (error) throw error;
-      return data as unknown as Row | null;
+      if (!data) return null;
+      const d = data as unknown as { listing: Record<string, unknown> | null };
+      return { ...d, listing: withTenancyRecord(d.listing) } as unknown as Row | null;
     },
   });
   const row = q.data;
@@ -100,11 +104,21 @@ export function TenancyRecordsPanel({ shareId }: { shareId: string }) {
           ...(rent > 0 ? { monthly_rent: rent } : {}),
           ...(dep !== null ? { deposit: dep } : {}),
           ni_landlord_reg_number: n(form.ni_landlord_reg_number ?? "") ?? "Pending",
-          existing_tenant_name: n(form.existing_tenant_name ?? ""),
-          existing_tenant_email: n(form.existing_tenant_email ?? ""),
         } as never)
         .eq("id", row.listing_id);
       if (e2) throw e2;
+      const { error: e3 } = await supabase
+        .from("property_tenancy_records")
+        .upsert(
+          {
+            listing_id: row.listing_id,
+            landlord_id: row.listing?.landlord_id,
+            existing_tenant_name: n(form.existing_tenant_name ?? ""),
+            existing_tenant_email: n(form.existing_tenant_email ?? ""),
+          } as never,
+          { onConflict: "listing_id" },
+        );
+      if (e3) throw e3;
     },
     onSuccess: () => {
       toast.success("Records saved");

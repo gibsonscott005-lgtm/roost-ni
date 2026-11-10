@@ -47,6 +47,7 @@ import {
   PropertyBasicsFields,
   emptyListingDetails,
 } from "@/components/listing-detail-fields";
+import { TENANCY_RECORD_EMBED, withTenancyRecord } from "@/lib/tenancy-record";
 import {
   listingDetailPayload,
   validateListingDetails,
@@ -127,11 +128,11 @@ function Dashboard() {
     const { data } = await supabase
       .from("property_listings")
       .select(
-        "id, title, address, location, monthly_rent, heating_type, is_published, created_at, photo_urls, occupancy_status, existing_tenant_name, existing_tenant_email, existing_tenancy_start, ni_landlord_reg_number, deposit",
+        `id, title, address, location, monthly_rent, heating_type, is_published, created_at, photo_urls, occupancy_status, existing_tenancy_start, ni_landlord_reg_number, deposit, ${TENANCY_RECORD_EMBED}`,
       )
       .eq("landlord_id", user.id)
       .order("created_at", { ascending: false });
-    const rows = (data as Listing[] | null) ?? [];
+    const rows = ((data as Record<string, unknown>[] | null) ?? []).map((r) => withTenancyRecord(r)) as unknown as Listing[];
     setListings(rows);
     if (rows.length) {
       const ids = rows.map((r) => r.id);
@@ -1678,11 +1679,8 @@ function AddPropertyForm({
           tenant_preferences: prefs,
           is_published: !isTenanted && mode === "publish",
           occupancy_status: occupancy,
-          existing_tenant_name: isTenanted ? tenantName.trim() : null,
-          existing_tenant_email: isTenanted && tenantEmail.trim() ? tenantEmail.trim() : null,
           existing_tenancy_start: isTenanted && tenancyStart ? tenancyStart : null,
           existing_deposit_scheme: isTenanted && depositScheme ? depositScheme : null,
-          existing_deposit_reference: isTenanted && depositRef.trim() ? depositRef.trim() : null,
           photo_urls: photoPaths,
           ...listingDetailPayload(details),
         } as never)
@@ -1691,6 +1689,14 @@ function AddPropertyForm({
       if (error) throw error;
       let tenancyRecordCreated = false;
       if (isTenanted && created) {
+        const { error: recErr } = await supabase.from("property_tenancy_records").insert({
+          listing_id: (created as { id: string }).id,
+          landlord_id: user.id,
+          existing_tenant_name: tenantName.trim() || null,
+          existing_tenant_email: tenantEmail.trim() || null,
+          existing_deposit_reference: depositRef.trim() || null,
+        } as never);
+        if (recErr) console.error("[tenancy-record]", recErr);
         const { error: tenancyErr } = await supabase.rpc("create_existing_tenancy", {
           p_listing: (created as { id: string }).id,
         });

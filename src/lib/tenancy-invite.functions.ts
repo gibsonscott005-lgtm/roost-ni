@@ -24,10 +24,12 @@ export const sendTenancyInvite = createServerFn({ method: 'POST' })
     // RLS: a landlord can only read shares on their own listings.
     const { data: share } = await context.supabase
       .from('passport_shares')
-      .select('id, tenant_id, lease_kind, tenancy_status, listing:property_listings!listing_id(landlord_id, address, existing_tenant_name)')
+      .select('id, tenant_id, lease_kind, tenancy_status, listing:property_listings!listing_id(landlord_id, address, rec:property_tenancy_records(existing_tenant_name))')
       .eq('id', data.shareId)
       .maybeSingle()
-    const listing = (share as unknown as { listing: { landlord_id: string; address: string; existing_tenant_name: string | null } | null } | null)?.listing
+    const rawListing = (share as unknown as { listing: { landlord_id: string; address: string; rec: { existing_tenant_name: string | null } | { existing_tenant_name: string | null }[] | null } | null } | null)?.listing
+    const recRow = rawListing ? (Array.isArray(rawListing.rec) ? rawListing.rec[0] : rawListing.rec) : null
+    const listing = rawListing ? { ...rawListing, existing_tenant_name: recRow?.existing_tenant_name ?? null } : null
     if (!share || !listing || listing.landlord_id !== context.userId) throw new Error('Tenancy not found')
     if (share.lease_kind !== 'existing_agreement' || share.tenancy_status === 'completed') throw new Error('Invites are only for existing tenancies')
     if (share.tenant_id) throw new Error('A tenant is already linked to this tenancy')

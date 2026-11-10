@@ -14,7 +14,9 @@ export default defineTool({
     const supabase = supabaseForUser(ctx);
     const { data, error } = await supabase
       .from("property_listings")
-      .select("*")
+      .select(
+        "id, title, address, location, monthly_rent, deposit, bedrooms, bathrooms, property_type, furnished, heating_type, enforce_empty_in_full_out, available_from, min_tenancy_months, description, bills_included, parking, garden, features, tenant_preferences, status, is_published, created_at",
+      )
       .eq("id", listingId)
       .maybeSingle();
     if (error) return errorResult(error.message);
