@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { listingDeleteBlocked, removalPatch } from "./passport-files";
+import { describe, expect, it } from "bun:test";
+import { listingDeleteBlocked, removalPatch } from "./src/lib/passport-files";
 
 describe("passport file removal", () => {
   it("removing the ID clears the number and resets verification", () => {
