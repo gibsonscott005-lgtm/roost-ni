@@ -1,83 +1,57 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-/**
- * Screening fields a landlord may see while an application is still pending.
- * Deliberately excludes ID document numbers, verified DOB, guarantor and
- * previous-landlord contact details — those stay private until acceptance.
- */
-const SCREENING_COLUMNS = [
-  "user_id",
-  "identity_verified",
-  "income_verified",
-  "reference_verified",
-  "monthly_income_net",
-  "annual_income",
-  "employment_status",
-  "income_document_path",
-  "income_breakdown",
-  "willing_direct_payment_apa",
-  "preferred_heating",
-  "accept_empty_in_full_out",
-  "id_status",
-  "id_verified_at",
-  "issuing_country",
-  "id_document_path",
-  "reference_document_path",
-  "is_first_time_renter",
-  "guarantor_name",
-].join(", ");
+import { FORMAL_FIELDS, SUMMARY_FIELDS, landlordPassportView } from "@/lib/passport-stage";
+
+// Read server-side only; the ID document number is deliberately never selected.
+const PASSPORT_COLUMNS = Array.from(
+  new Set([
+    "user_id",
+    ...SUMMARY_FIELDS,
+    ...FORMAL_FIELDS,
+    "id_document_path",
+    "income_document_path",
+    "reference_document_path",
+  ]),
+).join(", ");
 
 /**
- * Returns the screening view of every passport shared with the calling
- * landlord's own listings. Ownership is verified server-side; the browser
- * never gets direct table access to pending applicants' passports.
+ * Returns one landlord view per active share on the caller's own listings,
+ * staged by formal application (see passport-stage.ts).
  */
 export const getApplicantPassports = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-
-    // RLS restricts these to the caller's own listings/shares.
     const { data: listings, error: listErr } = await supabase
       .from("property_listings")
-      .select("id")
+      .select("id, monthly_rent")
       .eq("landlord_id", userId);
     if (listErr) throw new Error(listErr.message);
-
-    const listingIds = (listings ?? []).map((l) => l.id);
-    if (!listingIds.length) return { passports: [] };
+    const rentById = new Map((listings ?? []).map((l) => [l.id, Number(l.monthly_rent) || null]));
+    if (!rentById.size) return { passports: [] };
 
     const { data: shares, error: shareErr } = await supabase
       .from("passport_shares")
-      .select("tenant_id")
-      .in("listing_id", listingIds)
-      // Withdrawn, declined or rejected applications end passport access.
+      .select("id, tenant_id, listing_id, status, formal_application_at, withdrawn_at")
+      .in("listing_id", Array.from(rentById.keys()))
       .not("status", "in", "(withdrawn,declined,rejected)");
     if (shareErr) throw new Error(shareErr.message);
-
-    const tenantIds = Array.from(new Set((shares ?? []).map((s) => s.tenant_id).filter((id): id is string => !!id)));
+    const live = (shares ?? []).filter((s) => !!s.tenant_id);
+    const tenantIds = Array.from(new Set(live.map((s) => s.tenant_id as string)));
     if (!tenantIds.length) return { passports: [] };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error: passErr } = await supabaseAdmin
       .from("tenant_passports")
-      .select(SCREENING_COLUMNS)
+      .select(PASSPORT_COLUMNS)
       .in("user_id", tenantIds);
     if (passErr) throw new Error(passErr.message);
+    const byUser = new Map(((rows ?? []) as unknown as Record<string, unknown>[]).map((r) => [r.user_id as string, r]));
 
-    // Expose only whether reference evidence exists, never its storage path.
-    const passports = ((rows ?? []) as unknown as Record<string, unknown>[]).map((r) => {
-      const { reference_document_path, is_first_time_renter, guarantor_name, id_document_path, income_document_path, ...rest } = r;
-      return {
-        ...rest,
-        // Storage paths never leave the server; files open via getApplicantDocumentUrl on a formal application.
-        id_document_path: id_document_path ? "on file" : null,
-        income_document_path: income_document_path ? "on file" : null,
-        reference_document_on_file: !!reference_document_path,
-        income_provided: !!r.income_document_path,
-        reference_provided: !!reference_document_path || (!!is_first_time_renter && !!guarantor_name),
-      };
+    const passports = live.flatMap((s) => {
+      const row = byUser.get(s.tenant_id as string);
+      return row ? [landlordPassportView(row, s, rentById.get(s.listing_id) ?? null)] : [];
     });
     return { passports };
   });
